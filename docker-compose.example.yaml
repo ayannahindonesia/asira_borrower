@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  kc_borrower:
+    build: .
+    ports:
+      - 8000:8000
+    image: kayacredit:development
+    volumes:
+      - ./:/go/src/kayacredit
+    hostname: localhost
+    environment:
+      - APPNAME=kayacredit
+      - KCMODE=borrower
+      - ENV=dev
+    container_name: kc_borrower
+
+  # kc_lender:
+  #   build: .
+  #   ports:
+  #     - 8001:8001
+  #   image: kayacredit:development
+  #   volumes:
+  #     - ./:/go/src/kayacredit
+  #   hostname: localhost
+  #   environment:
+  #     - APPNAME=kayacredit
+  #     - KCMODE=lender
+  #     - ENV=dev
+  #   container_name: kc_lender
