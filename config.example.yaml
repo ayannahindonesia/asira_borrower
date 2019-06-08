@@ -1,0 +1,22 @@
+development:
+  database:
+    table: kc_db
+    username: kcdbuser
+    password: kcdbpass
+    host: "127.0.0.1"
+    port: "5432"
+    table: kc_db
+    maxlifetime: 30
+    idle_conns: 10
+    open_conns: 100
+    sslmode: disable
+    logmode: true
+  redis:
+    host: "127.0.0.1"
+    port: "6379"
+    pass: ""
+    db: 0
+
+staging:
+
+production:

@@ -14,6 +14,8 @@ services:
       - KCMODE=borrower
       - ENV=dev
     container_name: kc_borrower
+    networks:
+      - the_net
 
   # kc_lender:
   #   build: .
@@ -28,3 +30,37 @@ services:
   #     - KCMODE=lender
   #     - ENV=dev
   #   container_name: kc_lender
+  #   networks:
+  #     - the_net
+
+  postgres_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: kcdbuser
+      POSTGRES_PASSWORD: kcdbpass
+      POSTGRES_DATABASE: kayacredit_db
+    ports:
+      - 8010:8010
+    container_name: postgres_db
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8011:8011
+
+  portainer:
+    image: portainer/portainer
+    container_name: "portainer"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 9000:9000
+    networks:
+      - the_net
+
+networks: 
+  default:
+    external:
+      name: the_net
