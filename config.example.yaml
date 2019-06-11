@@ -16,6 +16,11 @@ development:
     port: "6379"
     pass: ""
     db: 0
+  clients:
+    android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret
+  jwt:
+    duration: 120 # in minutes
+    jwt_secret: sXQ8jUMpueOvN5P3cdCR
 
 staging:
 

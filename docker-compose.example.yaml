@@ -1,6 +1,35 @@
 version: '3'
 
 services:
+  postgres_db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: kcdbuser
+      POSTGRES_PASSWORD: kcdbpass
+      POSTGRES_DB: kc_db
+    ports:
+      - 5432:5432
+    container_name: postgres_db
+
+  adminer:
+    image: adminer
+    restart: always
+    links:
+      - postgres_db
+    ports:
+      - 8010:8080
+    container_name: kc_adminer
+    hostname: "adminer.local"
+
+  redis_server:
+    image: redis
+    command: redis-server
+    restart: always
+    ports:
+      - 6379:6379
+    container_name: redis
+
   kc_borrower:
     build: .
     ports:
@@ -13,9 +42,11 @@ services:
       - APPNAME=kayacredit
       - KCMODE=borrower
       - ENV=dev
+    links:
+      - postgres_db
     container_name: kc_borrower
-    networks:
-      - the_net
+    networks: 
+      - kc_net
 
   # kc_lender:
   #   build: .
@@ -30,37 +61,15 @@ services:
   #     - KCMODE=lender
   #     - ENV=dev
   #   container_name: kc_lender
-  #   networks:
-  #     - the_net
-
-  postgres_db:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_USER: kcdbuser
-      POSTGRES_PASSWORD: kcdbpass
-      POSTGRES_DATABASE: kayacredit_db
-    ports:
-      - 8010:8010
-    container_name: postgres_db
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8011:8011
 
   portainer:
     image: portainer/portainer
     container_name: "portainer"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    command: -H unix:///var/run/docker.sock --no-auth
     ports:
       - 9000:9000
-    networks:
-      - the_net
 
 networks: 
-  default:
-    external:
-      name: the_net
+  kc_net:

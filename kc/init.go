@@ -14,8 +14,12 @@ import (
 	"github.com/spf13/viper"
 )
 
+var (
+	App *Application
+)
+
 type (
-	App struct {
+	Application struct {
 		Name    string        `json:"name"`
 		Version string        `json:"version"`
 		ENV     string        `json:"env"`
@@ -28,22 +32,22 @@ type (
 // Initiate kayacredit instances
 func init() {
 	var err error
-	Prog := &App{}
-	Prog.Name = "kayacredit"
-	Prog.Version = os.Getenv("APPVER")
-	Prog.loadENV()
-	if err = Prog.LoadConfigs(); err != nil {
+	App = &Application{}
+	App.Name = "kayacredit"
+	App.Version = os.Getenv("APPVER")
+	App.loadENV()
+	if err = App.LoadConfigs(); err != nil {
 		log.Println(err)
 	}
-	if err = Prog.DBinit(); err != nil {
+	if err = App.DBinit(); err != nil {
 		log.Println(err)
 	}
-	if err = Prog.RedisInit(); err != nil {
+	if err = App.RedisInit(); err != nil {
 		log.Println(err)
 	}
 }
 
-func (x *App) Close() error {
+func (x *Application) Close() error {
 	var err error
 	err = x.DB.Close()
 
@@ -54,7 +58,7 @@ func (x *App) Close() error {
 }
 
 // Loads environtment setting
-func (x *App) loadENV() {
+func (x *Application) loadENV() {
 	APPENV := os.Getenv("APPENV")
 
 	switch APPENV {
@@ -74,7 +78,7 @@ func (x *App) loadENV() {
 }
 
 // Loads general configs
-func (x *App) LoadConfigs() error {
+func (x *Application) LoadConfigs() error {
 	var conf *viper.Viper
 
 	conf = viper.New()
@@ -97,7 +101,7 @@ func (x *App) LoadConfigs() error {
 }
 
 // Loads DB postgres configs
-func (x *App) DBinit() error {
+func (x *Application) DBinit() error {
 	dbconf := x.Config.GetStringMap(fmt.Sprintf("%s.database", x.ENV))
 	connectionString := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s", dbconf["username"].(string), dbconf["password"].(string), dbconf["host"].(string), dbconf["port"].(string), dbconf["table"].(string), dbconf["sslmode"].(string))
 
@@ -122,7 +126,7 @@ func (x *App) DBinit() error {
 }
 
 // Loads redis config
-func (x *App) RedisInit() error {
+func (x *Application) RedisInit() error {
 	redisconf := x.Config.GetStringMap(fmt.Sprintf("%s.redis", x.ENV))
 	db := redisconf["db"].(int)
 	pass := redisconf["pass"].(string)

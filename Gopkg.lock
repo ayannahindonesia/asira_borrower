@@ -2,12 +2,52 @@
 
 
 [[projects]]
+  digest = "1:e8f914c174ebc670d1713986d5e4f47a21f349209ac929d00558a496f59c7384"
+  name = "github.com/ajg/form"
+  packages = ["."]
+  pruneopts = ""
+  revision = "5c4e22684113ffc2a77577c178189940925f9aef"
+  version = "v1.5.1"
+
+[[projects]]
+  digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  pruneopts = ""
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
+
+[[projects]]
+  digest = "1:6098222470fe0172157ce9bbef5d2200df4edde17ee649c5d6e48330e4afa4c6"
+  name = "github.com/dgrijalva/jwt-go"
+  packages = ["."]
+  pruneopts = ""
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
+
+[[projects]]
+  digest = "1:2defd14040b1ca18840524e9d0f9cfab0ea8d2f2d396b343d221f8bc8e21ab9d"
+  name = "github.com/fatih/structs"
+  packages = ["."]
+  pruneopts = ""
+  revision = "4966fc68f5b7593aafa6cbbba2d65ec6e1416047"
+  version = "v1.1.0"
+
+[[projects]]
   digest = "1:eb53021a8aa3f599d29c7102e65026242bdedce998a54837dc67f14b6a97c5fd"
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
   pruneopts = ""
   revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
   version = "v1.4.7"
+
+[[projects]]
+  digest = "1:2d9a530dfb0af0d8a37e5c334b321ec40f9b646b517cd61cc828317af7fe38f5"
+  name = "github.com/gavv/httpexpect"
+  packages = ["."]
+  pruneopts = ""
+  revision = "30ddbb4755a80fb6a97cc4c26274250bae331cd5"
+  version = "v2.0.0"
 
 [[projects]]
   digest = "1:c2db84082861ca42d0b00580d28f4b31aceec477a00a38e1a057fb3da75c8adc"
@@ -24,6 +64,22 @@
   pruneopts = ""
   revision = "75795aa4236dc7341eefac3bbe945e68c99ef9df"
   version = "v6.15.3"
+
+[[projects]]
+  digest = "1:cea4aa2038169ee558bf507d5ea02c94ca85bcca28a4c7bb99fd59b31e43a686"
+  name = "github.com/google/go-querystring"
+  packages = ["query"]
+  pruneopts = ""
+  revision = "44c6ddd0a2342c386950e880b658017258da92fc"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:09aa5dd1332b93c96bde671bafb053249dc813febf7d5ca84e8f382ba255d67d"
+  name = "github.com/gorilla/websocket"
+  packages = ["."]
+  pruneopts = ""
+  revision = "66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:d14365c51dd1d34d5c79833ec91413bfbb166be978724f15701e17080dc06dec"
@@ -45,6 +101,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:788735d9cba7f51b7cc86e6c7ba7b40b0b7c7b374bf3a0b5fa7c929fa2af2da8"
+  name = "github.com/imkira/go-interpol"
+  packages = ["."]
+  pruneopts = ""
+  revision = "5accad8134979a6ac504d456a6c7f1c53da237ca"
+  version = "v1.1.0"
+
+[[projects]]
   digest = "1:ac0cf20506076f1243a12c66052b862988915b1cd41881987addf0da946077c6"
   name = "github.com/jinzhu/gorm"
   packages = [
@@ -62,6 +126,26 @@
   packages = ["."]
   pruneopts = ""
   revision = "04140366298a54a039076d798123ffa108fff46c"
+
+[[projects]]
+  digest = "1:83d83d023dbf9f8296654327d4ba1033b5ecfaa81ae2e7cf84fe9591b6e91cb2"
+  name = "github.com/klauspost/compress"
+  packages = [
+    "flate",
+    "gzip",
+    "zlib",
+  ]
+  pruneopts = ""
+  revision = "05d6922103c7275c684bd5df6608b25577b10521"
+  version = "v1.7.0"
+
+[[projects]]
+  digest = "1:cb39bebc72505b4120988fb9e258ecffba4ed679dc04794d517198887160df80"
+  name = "github.com/klauspost/cpuid"
+  packages = ["."]
+  pruneopts = ""
+  revision = "05a8198c0f5a27739aec358908d7e12c64ce6eb7"
+  version = "v1.2.1"
 
 [[projects]]
   digest = "1:2108bec7ed993373d5b6f67ebf4c5ac7c9672e0947176fd3ca892ac3c4d8326d"
@@ -128,12 +212,36 @@
   version = "v1.1.2"
 
 [[projects]]
+  digest = "1:fe67641b990bdc1802f8a1e462a4924210a8762a8a17b72e09656049c906b871"
+  name = "github.com/moul/http2curl"
+  packages = ["."]
+  pruneopts = ""
+  revision = "9ac6cf4d929b2fa8fd2d2e6dec5bb0feb4f4911d"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:3d2c33720d4255686b9f4a7e4d3b94938ee36063f14705c5eb0f73347ed4c496"
   name = "github.com/pelletier/go-toml"
   packages = ["."]
   pruneopts = ""
   revision = "728039f679cbcd4f6a54e080d2219a4c4928c546"
   version = "v1.4.0"
+
+[[projects]]
+  digest = "1:256484dbbcd271f9ecebc6795b2df8cad4c458dd0f5fd82a8c2fa0c29f233411"
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  pruneopts = ""
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:3962f553b77bf6c03fc07cd687a22dd3b00fe11aa14d31194f5505f5bb65cdc8"
+  name = "github.com/sergi/go-diff"
+  packages = ["diffmatchpatch"]
+  pruneopts = ""
+  revision = "1744e2970ca51c86172c8190fadad617561ed6e7"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:956f655c87b7255c6b1ae6c203ebb0af98cf2a13ef2507e34c9bf1c0332ac0f5"
@@ -179,6 +287,17 @@
   version = "v1.4.0"
 
 [[projects]]
+  digest = "1:381bcbeb112a51493d9d998bbba207a529c73dbb49b3fd789e48c63fac1f192c"
+  name = "github.com/stretchr/testify"
+  packages = [
+    "assert",
+    "require",
+  ]
+  pruneopts = ""
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
+
+[[projects]]
   digest = "1:857a9ecd5cb13379ecc8f798f6e6b6b574c98b9355657d91e068275f1120aaf7"
   name = "github.com/valyala/bytebufferpool"
   packages = ["."]
@@ -187,12 +306,75 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:ed95b0b73de30dc5507de18b0cd6a2b79dc0ef685eefeb27fd1386f7a4e04f2b"
+  name = "github.com/valyala/fasthttp"
+  packages = [
+    ".",
+    "fasthttputil",
+    "stackless",
+  ]
+  pruneopts = ""
+  revision = "e5f51c11919d4f66400334047b897ef0a94c6f3c"
+  version = "v20180529"
+
+[[projects]]
   digest = "1:1ad3ae8a5edf223abb8435e16ccc0696ce886c6f889e100809122e931e7423b2"
   name = "github.com/valyala/fasttemplate"
   packages = ["."]
   pruneopts = ""
   revision = "8b5e4e491ab636663841c42ea3c5a9adebabaf36"
   version = "v1.0.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:e6338f2518362ff701a556bd76afd90a2168d1c658ec5d1ea1e9c5ef30a7d157"
+  name = "github.com/xeipuuv/gojsonpointer"
+  packages = ["."]
+  pruneopts = ""
+  revision = "4e3ac2762d5f479393488629ee9370b50873b3a6"
+
+[[projects]]
+  branch = "master"
+  digest = "1:604f98a38394d2805a78c462396a4992b93fdd5b7306130add330f1a99ac6b0a"
+  name = "github.com/xeipuuv/gojsonreference"
+  packages = ["."]
+  pruneopts = ""
+  revision = "bd5ef7bd5415a7ac448318e64f11a24cd21e594b"
+
+[[projects]]
+  digest = "1:c2c74271189fe48e23c25216570008b7ecc5782688d6efd81325886ac6f62ad0"
+  name = "github.com/xeipuuv/gojsonschema"
+  packages = ["."]
+  pruneopts = ""
+  revision = "f971f3cd73b2899de6923801c147f075263e0c50"
+  version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:81daf39130b8efb47ab2b841ee42adedeaaf20ab3675236f577722ae78d37728"
+  name = "github.com/yalp/jsonpath"
+  packages = ["."]
+  pruneopts = ""
+  revision = "5cc68e5049a040829faef3a44c00ec4332f6dec7"
+
+[[projects]]
+  digest = "1:529ed3f98838f69e13761788d0cc71b44e130058fab13bae2ce09f7a176bced4"
+  name = "github.com/yudai/gojsondiff"
+  packages = [
+    ".",
+    "formatter",
+  ]
+  pruneopts = ""
+  revision = "7b1b7adf999dab73a6eb02669c3d82dbb27a3dd6"
+  version = "1.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:9857bb2293f372b2181004d8b62179bbdb4ab0982ec6f762abe6cf2bfedaff85"
+  name = "github.com/yudai/golcs"
+  packages = ["."]
+  pruneopts = ""
+  revision = "ecda9a501e8220fae3b4b600c3db4b0ba22cfc68"
 
 [[projects]]
   branch = "master"
@@ -209,7 +391,10 @@
   branch = "master"
   digest = "1:3fcc745bd071aa073bd666e01ff8df5fc72ab15f493ae7246710c66c738aab45"
   name = "golang.org/x/net"
-  packages = ["idna"]
+  packages = [
+    "idna",
+    "publicsuffix",
+  ]
   pruneopts = ""
   revision = "f3200d17e092c607f615320ecaad13d87ad9a2b3"
 
@@ -258,7 +443,9 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/dgrijalva/jwt-go",
     "github.com/fsnotify/fsnotify",
+    "github.com/gavv/httpexpect",
     "github.com/go-redis/redis",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/postgres",
