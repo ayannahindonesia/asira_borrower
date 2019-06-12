@@ -121,11 +121,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d9a7385b84d8187fd94e0357045c6fa1147ca94caa56fdd539336c7c102fc728"
+  digest = "1:a7b97371fb9af808b6a4fcc6693276ef7869bb1f282c3c87038c6c7e74ef4ae6"
   name = "github.com/jinzhu/inflection"
   packages = ["."]
   pruneopts = ""
-  revision = "04140366298a54a039076d798123ffa108fff46c"
+  revision = "f5c5f50e6090ae76a29240b61ae2a90dd810112e"
 
 [[projects]]
   digest = "1:83d83d023dbf9f8296654327d4ba1033b5ecfaa81ae2e7cf84fe9591b6e91cb2"
@@ -148,23 +148,28 @@
   version = "v1.2.1"
 
 [[projects]]
-  digest = "1:2108bec7ed993373d5b6f67ebf4c5ac7c9672e0947176fd3ca892ac3c4d8326d"
+  digest = "1:4beb546223497fdc767dd15f2f48e271598817cecda2beaf2ad7bf43282d5bf7"
   name = "github.com/labstack/echo"
-  packages = ["."]
-  pruneopts = ""
-  revision = "5d2c33ad5dbb78540a56dd08d09d91f991bc3156"
-  version = "v4.1.5"
-
-[[projects]]
-  digest = "1:44f403f58ba6ffcc60f0946169d02879dc79a4bf5a84d4215f5f7c6a5865f74b"
-  name = "github.com/labstack/gommon"
   packages = [
-    "color",
-    "log",
+    ".",
+    "middleware",
   ]
   pruneopts = ""
-  revision = "7fd9f68ece0bcb1a905fac8f1549f0083f71c51b"
-  version = "v0.2.8"
+  revision = "38772c686c76b501f94bd6cd5b77f5842e93b559"
+  version = "v3.3.10"
+
+[[projects]]
+  digest = "1:4fd161ee47afbf764fc2ccf91f9e911fbab09b1331a2aafda8666e63c1929a28"
+  name = "github.com/labstack/gommon"
+  packages = [
+    "bytes",
+    "color",
+    "log",
+    "random",
+  ]
+  pruneopts = ""
+  revision = "ab0bfd9a5eba33a8c364bf3390d809ed23c31f97"
+  version = "v0.2.9"
 
 [[projects]]
   digest = "1:a65d93f562c7d66d8db6f0c5df8ade208e0f42d9a9626924896697351ca161b3"
@@ -378,33 +383,33 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5b3e9450868bcf9ecbca2b01ac04f142255b5744d89ec97e1ceedf57d4522645"
+  digest = "1:a688b7859ee696f20cc5823f4685da54850e388fe9e7288f5d1653de48162c55"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
     "acme/autocert",
   ]
   pruneopts = ""
-  revision = "22d7a77e9e5f409e934ed268692e56707cd169e5"
+  revision = "5c40567a22f818bd14a1ea7245dad9f8ef0691aa"
 
 [[projects]]
   branch = "master"
-  digest = "1:3fcc745bd071aa073bd666e01ff8df5fc72ab15f493ae7246710c66c738aab45"
+  digest = "1:81205bca004fdbacb381172d3e6af57740b65e4f6d1c21cef72f9e6afad096ec"
   name = "golang.org/x/net"
   packages = [
     "idna",
     "publicsuffix",
   ]
   pruneopts = ""
-  revision = "f3200d17e092c607f615320ecaad13d87ad9a2b3"
+  revision = "3f473d35a33aa6fdd203e306dc439b797820e3f1"
 
 [[projects]]
   branch = "master"
-  digest = "1:e469fd9fd8172bad76ba0cac8c61d044fdc2e4c8303873efa9dbb665d5d1cbf5"
+  digest = "1:e2a6a7d92d5bdb8002c65aa0916c725c4afc019827d415a46046acafc42edb16"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "854af27f14a7156d646cb0812811bbc293b2d6a7"
+  revision = "93c9922d18aeb82498a065f07aec7ad7fa60dfb7"
 
 [[projects]]
   digest = "1:740b51a55815493a8d0f2b1e0d0ae48fe48953bf7eaf3fcc4198823bf67768c0"
@@ -450,6 +455,7 @@
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/postgres",
     "github.com/labstack/echo",
+    "github.com/labstack/echo/middleware",
     "github.com/spf13/viper",
   ]
   solver-name = "gps-cdcl"

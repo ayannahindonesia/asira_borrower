@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	"encoding/base64"
 	"fmt"
 	"kayacredit/kc"
-	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -18,20 +16,14 @@ type (
 	}
 )
 
-func createJwtToken(authtoken string, role string) (string, error) {
-	var (
-		claim JWTclaims
-	)
-	decodeByte, err := base64.StdEncoding.DecodeString(authtoken)
-	client := strings.Split(string(decodeByte), ":")
-
+func createJwtToken(id string, role string) (string, error) {
 	jwtConf := kc.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", kc.App.ENV))
 
-	claim = JWTclaims{
-		client[0],
+	claim := JWTclaims{
+		id,
 		role,
 		jwt.StandardClaims{
-			Id:        client[0],
+			Id:        id,
 			ExpiresAt: time.Now().Add(time.Duration(jwtConf["duration"].(int)) * time.Minute).Unix(),
 		},
 	}

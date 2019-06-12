@@ -7,5 +7,5 @@ import (
 )
 
 func RegisterBorrower(c echo.Context) error {
-	return c.JSON(http.StatusOK, "nOICE")
+	return c.JSON(http.StatusOK, "This endpoint will register new borrower account. restricted authorized token only")
 }

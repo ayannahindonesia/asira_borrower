@@ -13,7 +13,7 @@ import (
 func ClientLogin(c echo.Context) error {
 	clientConf := kc.App.Config.GetStringMap(fmt.Sprintf("%s.clients", kc.App.ENV))
 	if authtoken := c.Request().Header.Get("Authorization"); authtoken == clientConf["android"].(string) {
-		token, err := createJwtToken(authtoken, "client")
+		token, err := createJwtToken("android_client", "client")
 		if err != nil {
 			log.Println(err)
 			return echo.NewHTTPError(500, fmt.Sprintf("%s", "error"))
