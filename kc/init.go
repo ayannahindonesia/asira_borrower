@@ -47,8 +47,7 @@ func init() {
 	}
 }
 
-func (x *Application) Close() error {
-	var err error
+func (x *Application) Close() (err error) {
 	err = x.DB.Close()
 
 	if err != nil {
@@ -103,7 +102,7 @@ func (x *Application) LoadConfigs() error {
 // Loads DB postgres configs
 func (x *Application) DBinit() error {
 	dbconf := x.Config.GetStringMap(fmt.Sprintf("%s.database", x.ENV))
-	connectionString := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s", dbconf["username"].(string), dbconf["password"].(string), dbconf["host"].(string), dbconf["port"].(string), dbconf["table"].(string), dbconf["sslmode"].(string))
+	connectionString := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s&parseTime=True", dbconf["username"].(string), dbconf["password"].(string), dbconf["host"].(string), dbconf["port"].(string), dbconf["table"].(string), dbconf["sslmode"].(string))
 
 	db, err := gorm.Open("postgres", connectionString)
 	if err != nil {

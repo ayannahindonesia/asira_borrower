@@ -1,0 +1,55 @@
+-- +goose Up
+-- SQL in this section is executed when the migration is applied.
+
+CREATE TABLE "borrowers" (
+    "id" bigserial,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "suspended_time" timestamptz,
+    "fullname" varchar(255),
+    "gender" varchar(1),
+    "idcard_number" varchar(255),
+    "taxid_number" varchar(255),
+    "email" varchar(255),
+    "birthday" DATE,
+    "birthplace" varchar(255),
+    "last_education" varchar(255),
+    "mother_name" varchar(255),
+    "phone" varchar(255),
+    "marriage_status" varchar(255),
+    "spouse_name" varchar(255),
+    "spouse_birthday" DATE,
+    "spouse_lasteducation" varchar(255),
+    "dependants" int,
+    "address" text,
+    "province" varchar(255),
+    "city" varchar(255),
+    "neighbour_association" varchar(255),
+    "hamlets" varchar(255),
+    "home_phonenumber" varchar(255),
+    "subdistrict" varchar(255),
+    "urban_village" varchar(255),
+    "home_ownership" varchar(255),
+    "lived_for" int,
+    "occupation" varchar(255),
+    "employee_id" varchar(255),
+    "employer_name" varchar(255),
+    "employer_address" text,
+    "department" varchar(255),
+    "been_workingfor" int,
+    "direct_superiorname" varchar(255),
+    "employer_number" varchar(255),
+    "monthly_income" int,
+    "other_income" int,
+    "other_incomesource" varchar(255),
+    "field_of_work" varchar(255),
+    "related_personname" varchar(255),
+    "related_relation" varchar(255),
+    "related_phonenumber" varchar(255),
+    "related_homenumber" varchar(255),
+    "password" varchar(255)
+) WITH (oids = false);
+
+-- +goose Down
+-- SQL in this section is executed when the migration is rolled back.
+DROP TABLE IF EXISTS "borrowers" CASCADE;
