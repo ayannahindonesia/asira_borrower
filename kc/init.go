@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/spf13/viper"
@@ -20,12 +19,12 @@ var (
 
 type (
 	Application struct {
-		Name    string        `json:"name"`
-		Version string        `json:"version"`
-		ENV     string        `json:"env"`
-		Config  viper.Viper   `json:"prog_config"`
-		DB      *gorm.DB      `json:"db"`
-		Redis   *redis.Client `json:"redis"`
+		Name    string      `json:"name"`
+		Version string      `json:"version"`
+		ENV     string      `json:"env"`
+		Config  viper.Viper `json:"prog_config"`
+		DB      *gorm.DB    `json:"db"`
+		// Redis   *redis.Client `json:"redis"`
 	}
 )
 
@@ -37,14 +36,14 @@ func init() {
 	App.Version = os.Getenv("APPVER")
 	App.loadENV()
 	if err = App.LoadConfigs(); err != nil {
-		log.Println(err)
+		log.Printf("Load config error : %v", err)
 	}
 	if err = App.DBinit(); err != nil {
-		log.Println(err)
+		log.Printf("DB init error : %v", err)
 	}
-	if err = App.RedisInit(); err != nil {
-		log.Println(err)
-	}
+	// if err = App.RedisInit(); err != nil {
+	// 	log.Println(err)
+	// }
 }
 
 func (x *Application) Close() (err error) {
@@ -102,7 +101,7 @@ func (x *Application) LoadConfigs() error {
 // Loads DB postgres configs
 func (x *Application) DBinit() error {
 	dbconf := x.Config.GetStringMap(fmt.Sprintf("%s.database", x.ENV))
-	connectionString := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s&parseTime=True", dbconf["username"].(string), dbconf["password"].(string), dbconf["host"].(string), dbconf["port"].(string), dbconf["table"].(string), dbconf["sslmode"].(string))
+	connectionString := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s", dbconf["username"].(string), dbconf["password"].(string), dbconf["host"].(string), dbconf["port"].(string), dbconf["table"].(string), dbconf["sslmode"].(string))
 
 	db, err := gorm.Open("postgres", connectionString)
 	if err != nil {
@@ -114,7 +113,7 @@ func (x *Application) DBinit() error {
 
 	db.LogMode(dbconf["logmode"].(bool))
 
-	db.Exec(fmt.Sprintf("SET TIMEZONE TO '%s'", x.Config.GetString(fmt.Sprintf("%s.timezone", x.ENV))))
+	db.Exec(fmt.Sprintf("SET TIMEZONE TO '%s'", dbconf["timezone"].(string)))
 	db.DB().SetConnMaxLifetime(time.Minute * time.Duration(dbconf["maxlifetime"].(int)))
 	db.DB().SetMaxIdleConns(dbconf["idle_conns"].(int))
 	db.DB().SetMaxOpenConns(dbconf["open_conns"].(int))
@@ -125,27 +124,27 @@ func (x *Application) DBinit() error {
 }
 
 // Loads redis config
-func (x *Application) RedisInit() error {
-	redisconf := x.Config.GetStringMap(fmt.Sprintf("%s.redis", x.ENV))
-	db := redisconf["db"].(int)
-	pass := redisconf["pass"].(string)
-	host := redisconf["host"].(string)
-	port := redisconf["port"].(string)
+// func (x *Application) RedisInit() error {
+// 	redisconf := x.Config.GetStringMap(fmt.Sprintf("%s.redis", x.ENV))
+// 	db := redisconf["db"].(int)
+// 	pass := redisconf["pass"].(string)
+// 	host := redisconf["host"].(string)
+// 	port := redisconf["port"].(string)
 
-	address := host + ":" + port
+// 	address := host + ":" + port
 
-	client := redis.NewClient(&redis.Options{
-		Addr:     address,
-		Password: pass,
-		DB:       db,
-	})
+// 	client := redis.NewClient(&redis.Options{
+// 		Addr:     address,
+// 		Password: pass,
+// 		DB:       db,
+// 	})
 
-	_, err := client.Ping().Result()
-	if err != nil {
-		log.Println("Failed Connect to Redis Server | " + err.Error())
-	}
+// 	_, err := client.Ping().Result()
+// 	if err != nil {
+// 		log.Println("Failed Connect to Redis Server | " + err.Error())
+// 	}
 
-	x.Redis = client
+// 	x.Redis = client
 
-	return nil
-}
+// 	return nil
+// }

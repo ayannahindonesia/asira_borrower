@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"fmt"
 	"kayacredit/kc"
 	"kayacredit/migration"
 	"kayacredit/router"
@@ -44,17 +45,20 @@ func main() {
 			log.Fatalf("goose create: %v", err)
 		}
 		return
-	case "postgres":
-		if err := goose.SetDialect(args[0]); err != nil {
-			log.Fatal(err)
+	case "goose": // command example : [app name] goose up
+		if err := goose.SetDialect("postgres"); err != nil {
+			log.Fatalf("goose set dialect : %v", err)
 		}
-		db, err := sql.Open(args[0], args[1])
-		if err != nil {
-			log.Fatalf("-dbstring=%q: %v\n", args[1], err)
-		}
-		arguments := append([]string{}, args[3:]...)
 
-		if err := goose.Run(args[3], db, migrationDir, arguments...); err != nil {
+		dbconf := kc.App.Config.GetStringMap(fmt.Sprintf("%s.database", kc.App.ENV))
+		connectionString := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=%s password=%s", dbconf["host"].(string), dbconf["username"].(string), dbconf["table"].(string), dbconf["sslmode"].(string), dbconf["password"].(string))
+
+		db, err := sql.Open("postgres", connectionString)
+		if err != nil {
+			log.Fatalf("-connectionString=%q: %v\n", connectionString, err)
+		}
+
+		if err := goose.Run(args[1], db, migrationDir, args[2:]...); err != nil {
 			log.Fatalf("goose run: %v", err)
 		}
 		break
