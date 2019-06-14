@@ -1,8 +1,8 @@
 package groups
 
 import (
-	handlers "kayacredit/handlers/borrower"
-	"kayacredit/middlewares"
+	handlers "asira/handlers/borrower"
+	"asira/middlewares"
 
 	"github.com/labstack/echo"
 )

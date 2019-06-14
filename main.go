@@ -1,12 +1,12 @@
 package main
 
 import (
+	"asira/asira"
+	"asira/migration"
+	"asira/router"
 	"database/sql"
 	"flag"
 	"fmt"
-	"kayacredit/kc"
-	"kayacredit/migration"
-	"kayacredit/router"
 	"log"
 	"os"
 
@@ -18,7 +18,7 @@ var (
 )
 
 func main() {
-	defer kc.App.Close()
+	defer asira.App.Close()
 
 	flags.Parse(os.Args[1:])
 	args := flags.Args()
@@ -50,7 +50,7 @@ func main() {
 			log.Fatalf("goose set dialect : %v", err)
 		}
 
-		dbconf := kc.App.Config.GetStringMap(fmt.Sprintf("%s.database", kc.App.ENV))
+		dbconf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.database", asira.App.ENV))
 		connectionString := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=%s password=%s", dbconf["host"].(string), dbconf["username"].(string), dbconf["table"].(string), dbconf["sslmode"].(string), dbconf["password"].(string))
 
 		db, err := sql.Open("postgres", connectionString)

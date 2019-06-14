@@ -1,4 +1,4 @@
-package kc
+package asira
 
 import (
 	"fmt"
@@ -28,11 +28,11 @@ type (
 	}
 )
 
-// Initiate kayacredit instances
+// Initiate asira instances
 func init() {
 	var err error
 	App = &Application{}
-	App.Name = "kayacredit"
+	App.Name = "asira"
 	App.Version = os.Getenv("APPVER")
 	App.loadENV()
 	if err = App.LoadConfigs(); err != nil {
@@ -83,7 +83,7 @@ func (x *Application) LoadConfigs() error {
 	conf.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	conf.AutomaticEnv()
 	conf.SetConfigName("config")
-	conf.AddConfigPath("$GOPATH/src/kayacredit")
+	conf.AddConfigPath("$GOPATH/src/asira")
 	conf.SetConfigType("yaml")
 	if err := conf.ReadInConfig(); err != nil {
 		return err

@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"asira/asira"
 	"fmt"
-	"kayacredit/kc"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -17,7 +17,7 @@ type (
 )
 
 func createJwtToken(id string, role string) (string, error) {
-	jwtConf := kc.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", kc.App.ENV))
+	jwtConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", asira.App.ENV))
 
 	claim := JWTclaims{
 		id,

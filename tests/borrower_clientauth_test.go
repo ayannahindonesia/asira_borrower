@@ -1,7 +1,7 @@
 package tests
 
 import (
-	"kayacredit/router"
+	"asira/router"
 	"net/http"
 	"net/http/httptest"
 	"testing"

@@ -1,8 +1,8 @@
 package middlewares
 
 import (
+	"asira/asira"
 	"fmt"
-	"kayacredit/kc"
 	"log"
 	"net/http"
 
@@ -12,7 +12,7 @@ import (
 )
 
 func SetClientJWTmiddlewares(g *echo.Group) {
-	jwtConfig := kc.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", kc.App.ENV))
+	jwtConfig := asira.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", asira.App.ENV))
 
 	g.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningMethod: "HS512",

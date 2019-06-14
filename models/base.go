@@ -1,7 +1,7 @@
 package models
 
 import (
-	"kayacredit/kc"
+	"asira/asira"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -19,7 +19,7 @@ type (
 
 // helper for inserting data using gorm.DB functions
 func WithinTransaction(fn DBFunc) (err error) {
-	tx := kc.App.DB.Begin()
+	tx := asira.App.DB.Begin()
 	defer tx.Commit()
 	err = fn(tx)
 
@@ -29,7 +29,7 @@ func WithinTransaction(fn DBFunc) (err error) {
 // inserts a row into db.
 func Create(i interface{}) error {
 	return WithinTransaction(func(tx *gorm.DB) (err error) {
-		if !kc.App.DB.NewRecord(i) {
+		if !asira.App.DB.NewRecord(i) {
 			return err
 		}
 		if err = tx.Create(i).Error; err != nil {
@@ -44,7 +44,7 @@ func Create(i interface{}) error {
 func Save(i interface{}) error {
 	return WithinTransaction(func(tx *gorm.DB) (err error) {
 		// check new object
-		if kc.App.DB.NewRecord(i) {
+		if asira.App.DB.NewRecord(i) {
 			return err
 		}
 		if err = tx.Save(i).Error; err != nil {

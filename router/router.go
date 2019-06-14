@@ -1,8 +1,8 @@
 package router
 
 import (
-	"kayacredit/groups"
-	"kayacredit/handlers"
+	"asira/groups"
+	"asira/handlers"
 
 	"github.com/labstack/echo"
 )

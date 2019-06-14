@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"asira/asira"
 	"fmt"
-	"kayacredit/kc"
 	"log"
 	"net/http"
 	"time"
@@ -11,7 +11,7 @@ import (
 )
 
 func ClientLogin(c echo.Context) error {
-	clientConf := kc.App.Config.GetStringMap(fmt.Sprintf("%s.clients", kc.App.ENV))
+	clientConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.clients", asira.App.ENV))
 	if authtoken := c.Request().Header.Get("Authorization"); authtoken == clientConf["android"].(string) {
 		token, err := createJwtToken("android_client", "client")
 		if err != nil {
@@ -19,7 +19,7 @@ func ClientLogin(c echo.Context) error {
 			return echo.NewHTTPError(500, fmt.Sprintf("%s", "error"))
 		}
 
-		jwtConf := kc.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", kc.App.ENV))
+		jwtConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", asira.App.ENV))
 		expiration := time.Duration(jwtConf["duration"].(int)) * time.Minute
 
 		return c.JSON(http.StatusOK, map[string]interface{}{

@@ -1,15 +1,15 @@
 package migration
 
 import (
-	"kayacredit/kc"
-	"kayacredit/models"
+	"asira/asira"
+	"asira/models"
 	"time"
 )
 
 func Seed() {
-	seeder := kc.App.DB.Begin()
+	seeder := asira.App.DB.Begin()
 
-	if kc.App.ENV == "development" {
+	if asira.App.ENV == "development" {
 		borrowers := []models.Borrower{
 			models.Borrower{
 				Fullname:             "Bene Cucumbatch",
