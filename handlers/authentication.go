@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira/asira"
 	"fmt"
-	"log"
 	"net/http"
 	"time"
 
@@ -11,12 +10,12 @@ import (
 )
 
 func ClientLogin(c echo.Context) error {
+	defer c.Request().Body.Close()
 	clientConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.clients", asira.App.ENV))
 	if authtoken := c.Request().Header.Get("Authorization"); authtoken == clientConf["android"].(string) {
 		token, err := createJwtToken("android_client", "client")
 		if err != nil {
-			log.Println(err)
-			return echo.NewHTTPError(500, fmt.Sprintf("%s", "error"))
+			return returnInvalidResponse(http.StatusInternalServerError, "", fmt.Sprint(err))
 		}
 
 		jwtConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", asira.App.ENV))
@@ -28,5 +27,5 @@ func ClientLogin(c echo.Context) error {
 		})
 	}
 
-	return echo.NewHTTPError(401, fmt.Sprintf("%s", "invalid credentials"))
+	return returnInvalidResponse(http.StatusUnauthorized, "", "invalid credentials")
 }
