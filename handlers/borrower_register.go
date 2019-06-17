@@ -68,5 +68,5 @@ func RegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
 	}
 
-	return c.JSON(http.StatusOK, newBorrower)
+	return c.JSON(http.StatusCreated, newBorrower)
 }
