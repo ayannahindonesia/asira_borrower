@@ -20,7 +20,7 @@ func TestClientLogin(t *testing.T) {
 	e := httpexpect.New(t, server.URL)
 
 	auth := e.Builder(func(req *httpexpect.Request) {
-		req.WithHeader("Authorization", token)
+		req.WithHeader("Authorization", "Basic "+token)
 	})
 
 	// test valid token

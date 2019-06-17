@@ -22,7 +22,7 @@ func TestRegisterBorrower(t *testing.T) {
 	e := httpexpect.New(t, server.URL)
 
 	auth := e.Builder(func(req *httpexpect.Request) {
-		req.WithHeader("Authorization", token)
+		req.WithHeader("Authorization", "Basic "+token)
 	})
 
 	obj := auth.GET("/clientauth").

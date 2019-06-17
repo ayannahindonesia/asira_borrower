@@ -11,4 +11,5 @@ func ClientGroup(e *echo.Echo) {
 	g := e.Group("/client")
 	middlewares.SetClientJWTmiddlewares(g)
 	g.POST("/register_borrower", handlers.RegisterBorrower)
+	g.POST("/borrower_login", handlers.BorrowerLogin)
 }
