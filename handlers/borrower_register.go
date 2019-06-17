@@ -18,17 +18,17 @@ func RegisterBorrower(c echo.Context) error {
 		"gender":                []string{"required"},
 		"idcard_number":         []string{"required"},
 		"taxid_number":          []string{},
-		"email":                 []string{"required"},
-		"birthday":              []string{"required"},
+		"email":                 []string{"email"},
+		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
 		"last_education":        []string{"required"},
 		"mother_name":           []string{"required"},
 		"phone":                 []string{"required"},
 		"marriage_status":       []string{"required"},
 		"spouse_name":           []string{},
-		"spouse_birthday":       []string{},
+		"spouse_birthday":       []string{"date"},
 		"spouse_lasteducation":  []string{},
-		"dependants":            []string{"required"},
+		"dependants":            []string{},
 		"address":               []string{"required"},
 		"province":              []string{"required"},
 		"city":                  []string{"required"},
@@ -63,5 +63,10 @@ func RegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	return c.JSON(http.StatusOK, "This endpoint will register new borrower account. restricted authorized token only")
+	newBorrower, err := borrower.Create()
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
+	}
+
+	return c.JSON(http.StatusOK, newBorrower)
 }

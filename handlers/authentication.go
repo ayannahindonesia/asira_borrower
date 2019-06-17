@@ -4,6 +4,7 @@ import (
 	"asira/asira"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo"
@@ -12,7 +13,7 @@ import (
 func ClientLogin(c echo.Context) error {
 	defer c.Request().Body.Close()
 	clientConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.clients", asira.App.ENV))
-	if authtoken := c.Request().Header.Get("Authorization"); authtoken == clientConf["android"].(string) {
+	if authtoken := strings.Trim(c.Request().Header.Get("Authorization"), "Basic "); authtoken == clientConf["android"].(string) {
 		token, err := createJwtToken("android_client", "client")
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, "", fmt.Sprint(err))

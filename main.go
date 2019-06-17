@@ -40,12 +40,19 @@ func main() {
 		migration.Seed()
 		os.Exit(0)
 		break
+	case "truncate":
+		err := migration.Truncate(args[1:])
+		if err != nil {
+			log.Fatalf("%v", err)
+		}
+		os.Exit(0)
+		break
 	case "create":
 		if err := goose.Run("create", nil, migrationDir, args[1:]...); err != nil {
 			log.Fatalf("goose create: %v", err)
 		}
 		return
-	case "goose": // command example : [app name] goose up
+	case "migrate": // command example : [app name] migrate up
 		if err := goose.SetDialect("postgres"); err != nil {
 			log.Fatalf("goose set dialect : %v", err)
 		}

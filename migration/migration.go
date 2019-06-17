@@ -3,6 +3,8 @@ package migration
 import (
 	"asira/asira"
 	"asira/models"
+	"fmt"
+	"strings"
 	"time"
 )
 
@@ -61,4 +63,22 @@ func Seed() {
 	}
 
 	seeder.Commit()
+}
+
+// truncate defined tables. []string{"all"} to truncate all tables.
+func Truncate(tableList []string) (err error) {
+	if len(tableList) > 0 {
+		if tableList[0] == "all" {
+			tableList = []string{
+				"borrowers",
+			}
+		}
+
+		tables := strings.Join(tableList, ", ")
+		sqlQuery := fmt.Sprintf("TRUNCATE TABLE %s RESTART IDENTITY CASCADE", tables)
+		err = asira.App.DB.Exec(sqlQuery).Error
+		return err
+	}
+
+	return fmt.Errorf("define tables that you want to truncate")
 }

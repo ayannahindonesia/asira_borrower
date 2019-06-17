@@ -1,6 +1,7 @@
 FROM golang:alpine
 
 ARG APPNAME="asira"
+ARG APPMODE=""
 ARG ENV="dev"
 
 ADD . $GOPATH/src/"${APPNAME}"
@@ -14,7 +15,10 @@ RUN go get -u github.com/golang/dep/cmd/dep
 CMD if [ "${ENV}" = "dev" ] ; then \
     dep ensure -v \
     && go build -v -o $GOPATH/bin/"${APPNAME}" \
-    && "${APPNAME}" run "borrower"; \
+    # run app mode
+    && "${APPNAME}" run "${APPMODE}" \
+    # update db structure
+    && "${APPNAME}" migrate up; \
     fi
 
 EXPOSE 8000

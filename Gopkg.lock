@@ -303,6 +303,14 @@
   version = "v1.3.0"
 
 [[projects]]
+  digest = "1:f146d5f67730c58ac98450fd04b16719f8a713c2c3f683792672b5c281bdf56c"
+  name = "github.com/thedevsaddam/govalidator"
+  packages = ["."]
+  pruneopts = ""
+  revision = "3ec9f4b2b1273b1b2fe2edd5afdbc2a819b3e511"
+  version = "v1.9.7"
+
+[[projects]]
   digest = "1:857a9ecd5cb13379ecc8f798f6e6b6b574c98b9355657d91e068275f1120aaf7"
   name = "github.com/valyala/bytebufferpool"
   packages = ["."]
@@ -388,6 +396,8 @@
   packages = [
     "acme",
     "acme/autocert",
+    "bcrypt",
+    "blowfish",
   ]
   pruneopts = ""
   revision = "5c40567a22f818bd14a1ea7245dad9f8ef0691aa"
@@ -457,6 +467,8 @@
     "github.com/labstack/echo/middleware",
     "github.com/pressly/goose",
     "github.com/spf13/viper",
+    "github.com/thedevsaddam/govalidator",
+    "golang.org/x/crypto/bcrypt",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

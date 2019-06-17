@@ -10,8 +10,8 @@ import (
 type (
 	BaseModel struct {
 		ID          uint64    `json:"id" sql:"AUTO_INCREMENT" gorm:"primary_key,column:id"`
-		CreatedTime time.Time `json:"created_time" gorm:"column:created_at" sql:"DEFAULT:current_timestamp"`
-		UpdatedTime time.Time `json:"updated_time" gorm:"column:created_at" sql:"DEFAULT:current_timestamp"`
+		CreatedTime time.Time `json:"created_time" gorm:"column:created_time" sql:"DEFAULT:current_timestamp"`
+		UpdatedTime time.Time `json:"updated_time" gorm:"column:updated_time" sql:"DEFAULT:current_timestamp"`
 	}
 
 	DBFunc func(tx *gorm.DB) error
@@ -48,6 +48,18 @@ func Save(i interface{}) error {
 			return err
 		}
 		if err = tx.Save(i).Error; err != nil {
+			tx.Rollback() // rollback
+			return err
+		}
+		return err
+	})
+}
+
+// Delete row in db.
+func Delete(i interface{}) error {
+	return WithinTransaction(func(tx *gorm.DB) (err error) {
+		// check new object
+		if err = tx.Delete(i).Error; err != nil {
 			tx.Rollback() // rollback
 			return err
 		}
