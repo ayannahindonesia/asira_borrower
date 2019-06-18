@@ -48,7 +48,7 @@ func Save(i interface{}) error {
 			return err
 		}
 		if err = tx.Save(i).Error; err != nil {
-			tx.Rollback() // rollback
+			tx.Rollback()
 			return err
 		}
 		return err
@@ -60,7 +60,18 @@ func Delete(i interface{}) error {
 	return WithinTransaction(func(tx *gorm.DB) (err error) {
 		// check new object
 		if err = tx.Delete(i).Error; err != nil {
-			tx.Rollback() // rollback
+			tx.Rollback()
+			return err
+		}
+		return err
+	})
+}
+
+// Find by id.
+func FindbyID(i interface{}, id int) (err error) {
+	return WithinTransaction(func(tx *gorm.DB) error {
+		if err = tx.Last(i, id).Error; err != nil {
+			tx.Rollback()
 			return err
 		}
 		return err

@@ -94,3 +94,8 @@ func (b *Borrower) Unsuspend() (*Borrower, error) {
 
 	return b, err
 }
+
+func (b *Borrower) FindbyID(id int) (*Borrower, error) {
+	err := FindbyID(&b, id)
+	return b, err
+}

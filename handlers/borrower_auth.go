@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -66,7 +67,7 @@ func BorrowerLogin(c echo.Context) error {
 			return returnInvalidResponse(http.StatusUnauthorized, err, "invalid login")
 		}
 
-		token, err = createJwtToken(credentials.Key, "borrower")
+		token, err = createJwtToken(strconv.FormatUint(borrower.ID, 10), "borrower")
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "error creating token")
 		}

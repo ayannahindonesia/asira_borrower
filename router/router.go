@@ -14,6 +14,7 @@ func NewBorrower() *echo.Echo {
 	e.GET("/clientauth", handlers.ClientLogin)
 
 	groups.ClientGroup(e)
+	groups.BorrowerGroup(e)
 
 	return e
 }
