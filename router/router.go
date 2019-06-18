@@ -1,8 +1,8 @@
 package router
 
 import (
-	"kayacredit/groups"
-	"kayacredit/handlers"
+	"asira/groups"
+	"asira/handlers"
 
 	"github.com/labstack/echo"
 )
@@ -14,6 +14,7 @@ func NewBorrower() *echo.Echo {
 	e.GET("/clientauth", handlers.ClientLogin)
 
 	groups.ClientGroup(e)
+	groups.BorrowerGroup(e)
 
 	return e
 }

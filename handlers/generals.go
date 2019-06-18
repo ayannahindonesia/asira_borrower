@@ -1,11 +1,13 @@
 package handlers
 
 import (
+	"asira/asira"
 	"fmt"
-	"kayacredit/kc"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo"
+	"github.com/thedevsaddam/govalidator"
 )
 
 type (
@@ -16,8 +18,37 @@ type (
 	}
 )
 
+// general function to validate all kind of api request payload / body
+func validateRequestPayload(c echo.Context, rules govalidator.MapData, data interface{}) (i interface{}) {
+	opts := govalidator.Options{
+		Request: c.Request(),
+		Data:    data,
+		Rules:   rules,
+	}
+
+	v := govalidator.New(opts)
+
+	mappedError := v.ValidateJSON()
+
+	if len(mappedError) > 0 {
+		i = mappedError
+	}
+
+	return i
+}
+
+func returnInvalidResponse(httpcode int, details interface{}, message string) error {
+	responseBody := map[string]interface{}{
+		"message": message,
+		"details": details,
+	}
+
+	return echo.NewHTTPError(httpcode, responseBody)
+}
+
+// self explanation
 func createJwtToken(id string, role string) (string, error) {
-	jwtConf := kc.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", kc.App.ENV))
+	jwtConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", asira.App.ENV))
 
 	claim := JWTclaims{
 		id,

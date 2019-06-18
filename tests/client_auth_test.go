@@ -1,7 +1,7 @@
 package tests
 
 import (
-	"kayacredit/router"
+	"asira/router"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -10,7 +10,7 @@ import (
 )
 
 func TestClientLogin(t *testing.T) {
-	token := "YW5kcm9rZXk6YW5kcm9zZWNyZXQ="
+	token := "Basic YW5kcm9rZXk6YW5kcm9zZWNyZXQ="
 	api := router.NewBorrower()
 
 	server := httptest.NewServer(api)
@@ -20,7 +20,7 @@ func TestClientLogin(t *testing.T) {
 	e := httpexpect.New(t, server.URL)
 
 	auth := e.Builder(func(req *httpexpect.Request) {
-		req.WithHeader("Authorization", token)
+		req.WithHeader("Authorization", "Basic "+token)
 	})
 
 	// test valid token

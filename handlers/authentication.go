@@ -1,25 +1,25 @@
 package handlers
 
 import (
+	"asira/asira"
 	"fmt"
-	"kayacredit/kc"
-	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/labstack/echo"
 )
 
 func ClientLogin(c echo.Context) error {
-	clientConf := kc.App.Config.GetStringMap(fmt.Sprintf("%s.clients", kc.App.ENV))
-	if authtoken := c.Request().Header.Get("Authorization"); authtoken == clientConf["android"].(string) {
+	defer c.Request().Body.Close()
+	clientConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.clients", asira.App.ENV))
+	if authtoken := strings.Trim(c.Request().Header.Get("Authorization"), "Basic "); authtoken == clientConf["android"].(string) {
 		token, err := createJwtToken("android_client", "client")
 		if err != nil {
-			log.Println(err)
-			return echo.NewHTTPError(500, fmt.Sprintf("%s", "error"))
+			return returnInvalidResponse(http.StatusInternalServerError, "", fmt.Sprint(err))
 		}
 
-		jwtConf := kc.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", kc.App.ENV))
+		jwtConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", asira.App.ENV))
 		expiration := time.Duration(jwtConf["duration"].(int)) * time.Minute
 
 		return c.JSON(http.StatusOK, map[string]interface{}{
@@ -28,5 +28,5 @@ func ClientLogin(c echo.Context) error {
 		})
 	}
 
-	return echo.NewHTTPError(401, fmt.Sprintf("%s", "invalid credentials"))
+	return returnInvalidResponse(http.StatusUnauthorized, "", "invalid credentials")
 }

@@ -1,14 +1,15 @@
 package groups
 
 import (
-	handlers "kayacredit/handlers/borrower"
-	"kayacredit/middlewares"
+	"asira/handlers"
+	"asira/middlewares"
 
 	"github.com/labstack/echo"
 )
 
 func ClientGroup(e *echo.Echo) {
 	g := e.Group("/client")
-	middlewares.SetClientJWTmiddlewares(g)
+	middlewares.SetClientJWTmiddlewares(g, "client")
 	g.POST("/register_borrower", handlers.RegisterBorrower)
+	g.POST("/borrower_login", handlers.BorrowerLogin)
 }
