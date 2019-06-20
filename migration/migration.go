@@ -70,7 +70,10 @@ func Truncate(tableList []string) (err error) {
 	if len(tableList) > 0 {
 		if tableList[0] == "all" {
 			tableList = []string{
+				"banks",
+				"bank_products",
 				"borrowers",
+				"loans",
 			}
 		}
 

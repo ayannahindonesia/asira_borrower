@@ -55,6 +55,8 @@ func RegisterBorrower(c echo.Context) error {
 		"related_relation":      []string{"required"},
 		"related_phonenumber":   []string{"required"},
 		"related_homenumber":    []string{},
+		"bank":                  []string{},
+		"bank_accountnumber":    []string{},
 		"password":              []string{"required"},
 	}
 
