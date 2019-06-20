@@ -1,6 +1,26 @@
 -- +goose Up
 -- SQL in this section is executed when the migration is applied.
 
+CREATE TABLE "banks" (
+    "id" bigserial,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_time" timestamptz,
+    "bank_name" varchar(255),
+    "services" jsonb DEFAULT '[]',
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
+CREATE TABLE "bank_products" (
+    "id" bigserial,
+    "bank" bigint,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "name" varchar(255),
+    FOREIGN KEY ("bank") REFERENCES banks(id),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
 CREATE TABLE "borrowers" (
     "id" bigserial,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
@@ -47,9 +67,37 @@ CREATE TABLE "borrowers" (
     "related_relation" varchar(255) NOT NULL,
     "related_phonenumber" varchar(255) NOT NULL,
     "related_homenumber" varchar(255),
-    "password" varchar(255) NOT NULL
-) WITH (oids = false);
+    "bank" bigint,
+    "bank_accountnumber" varchar(255) UNIQUE,
+    "password" varchar(255) NOT NULL,
+    FOREIGN KEY ("bank") REFERENCES banks(id),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
+CREATE TABLE "loans" (
+    "id" bigserial,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_time" timestamptz,
+    "owner" bigint,
+    "status" varchar(255),
+    "loan_amount" FLOAT NOT NULL,
+    "installment" int NOT NULL,
+    "fees" jsonb DEFAULT '[]',
+    "interest" FLOAT NOT NULL,
+    "total_loan" FLOAT NOT NULL,
+    "due_date" timestamptz,
+    "layaway_plan" FLOAT NOT NULL,
+    "loan_intention" varchar(255) NOT NULL,
+    "intention_details" text NOT NULL,
+    "borrower_info" jsonb DEFAULT '[]',
+    FOREIGN KEY ("owner") REFERENCES borrowers(id),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
 
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
+DROP TABLE IF EXISTS "banks" CASCADE;
+DROP TABLE IF EXISTS "bank_products" CASCADE;
 DROP TABLE IF EXISTS "borrowers" CASCADE;
+DROP TABLE IF EXISTS "loans" CASCADE;
