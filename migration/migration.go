@@ -3,6 +3,7 @@ package migration
 import (
 	"asira/asira"
 	"asira/models"
+	"database/sql"
 	"fmt"
 	"strings"
 	"time"
@@ -12,53 +13,67 @@ func Seed() {
 	seeder := asira.App.DB.Begin()
 
 	if asira.App.ENV == "development" {
+		// seed borrowers
 		borrowers := []models.Borrower{
 			models.Borrower{
-				Fullname:             "Bene Cucumbatch",
+				Fullname:             "Full Name A",
 				Gender:               "M",
-				IdCardNumber:         "94918376436273",
-				TaxIDnumber:          "933393777294",
-				Email:                "email@mail.com",
+				IdCardNumber:         "9876123451234567789",
+				TaxIDnumber:          "0987654321234567890",
+				Email:                "emaila@domain.com",
 				Birthday:             time.Now(),
-				Birthplace:           "herender",
-				LastEducation:        "master",
-				MotherName:           "mom",
-				Phone:                "0812345654321",
+				Birthplace:           "a birthplace",
+				LastEducation:        "a last edu",
+				MotherName:           "a mom",
+				Phone:                "081234567890",
 				MarriedStatus:        "single",
-				SpouseName:           "minnie mouse",
+				SpouseName:           "a spouse",
 				SpouseBirthday:       time.Now(),
 				SpouseLastEducation:  "master",
 				Dependants:           0,
-				Address:              "sserdda street",
-				Province:             "vinpro",
-				City:                 "citcit",
-				NeighbourAssociation: "erte",
-				Hamlets:              "hamham",
-				HomePhoneNumber:      "021342124",
-				Subdistrict:          "xyzabcd",
-				UrbanVillage:         "abcde",
+				Address:              "a street address",
+				Province:             "a province",
+				City:                 "a city",
+				NeighbourAssociation: "a rt",
+				Hamlets:              "a rw",
+				HomePhoneNumber:      "021837163",
+				Subdistrict:          "a camat",
+				UrbanVillage:         "a lurah",
 				HomeOwnership:        "privately owned",
 				LivedFor:             5,
-				Occupation:           "magician",
-				EmployeeID:           "08",
-				EmployerName:         "Stark Industries",
-				EmployerAddress:      "Cambridge",
-				Department:           "Magic",
+				Occupation:           "accupation",
+				EmployerName:         "amployer",
+				EmployerAddress:      "amployer address",
+				Department:           "a department",
 				BeenWorkingFor:       2,
-				DirectSuperior:       "Tony Stark",
-				EmployerNumber:       "08123546126",
+				DirectSuperior:       "a boss",
+				EmployerNumber:       "02188776655",
 				MonthlyIncome:        5000000,
 				OtherIncome:          2000000,
-				OtherIncomeSource:    "freelance",
-				FieldOfWork:          "building architechture",
-				RelatedPersonName:    "spiderman",
-				RelatedPhoneNumber:   "0812341234",
-				RelatedHomePhone:     "456765434",
+				RelatedPersonName:    "a big sis",
+				RelatedPhoneNumber:   "08987654321",
 				Password:             "password",
 			},
 		}
 		for _, borrower := range borrowers {
 			seeder.Create(&borrower)
+		}
+
+		// seed loans
+		loans := []models.Loan{
+			models.Loan{
+				Owner: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
+				LoanAmount:       1000000,
+				Installment:      6,
+				LoanIntention:    "a loan 1 intention",
+				IntentionDetails: "a loan 1 intention details",
+			},
+		}
+		for _, loan := range loans {
+			seeder.Create(&loan)
 		}
 	}
 

@@ -28,6 +28,10 @@ type (
 		BorrowerInfo     postgres.Jsonb `json:"borrower_info" gorm:"column:borrower_info;type:jsonb"`
 	}
 
+	LoanSearchFilter struct {
+		Status string `json:"status"`
+	}
+
 	LoanFee struct { // temporary hardcoded
 		Description string  `json:"description"`
 		Amount      float64 `json:"amount"`
@@ -92,4 +96,11 @@ func (l *Loan) Delete() (*Loan, error) {
 	err := Save(&l)
 
 	return l, err
+}
+
+func (l *Loan) PagedSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
+	loans := []Loan{}
+	result, err = PagedSearch(&loans, page, rows, orderby, sort, filter)
+
+	return result, err
 }

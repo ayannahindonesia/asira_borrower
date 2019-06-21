@@ -15,5 +15,6 @@ func BorrowerGroup(e *echo.Echo) {
 	g.GET("/profile", handlers.BorrowerProfile)
 
 	// Loan endpoints
+	g.GET("/loan", handlers.BorrowerLoanGet)
 	g.POST("/loan", handlers.BorrowerLoanApply)
 }

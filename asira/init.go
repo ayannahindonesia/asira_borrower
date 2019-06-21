@@ -41,9 +41,10 @@ func init() {
 	if err = App.DBinit(); err != nil {
 		log.Printf("DB init error : %v", err)
 	}
-	// if err = App.RedisInit(); err != nil {
-	// 	log.Println(err)
-	// }
+
+	// apply custom validator
+	// v := validator.AsiraValidator{}
+	// v.customValidatorRules()
 }
 
 func (x *Application) Close() (err error) {
@@ -122,29 +123,3 @@ func (x *Application) DBinit() error {
 
 	return nil
 }
-
-// Loads redis config
-// func (x *Application) RedisInit() error {
-// 	redisconf := x.Config.GetStringMap(fmt.Sprintf("%s.redis", x.ENV))
-// 	db := redisconf["db"].(int)
-// 	pass := redisconf["pass"].(string)
-// 	host := redisconf["host"].(string)
-// 	port := redisconf["port"].(string)
-
-// 	address := host + ":" + port
-
-// 	client := redis.NewClient(&redis.Options{
-// 		Addr:     address,
-// 		Password: pass,
-// 		DB:       db,
-// 	})
-
-// 	_, err := client.Ping().Result()
-// 	if err != nil {
-// 		log.Println("Failed Connect to Redis Server | " + err.Error())
-// 	}
-
-// 	x.Redis = client
-
-// 	return nil
-// }
