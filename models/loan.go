@@ -26,6 +26,7 @@ type (
 		LoanIntention    string         `json:"loan_intention" gorm:"column:loan_intention;type:varchar(255);not null"`
 		IntentionDetails string         `json:"intention_details" gorm:"column:intention_details;type:text;not null"`
 		BorrowerInfo     postgres.Jsonb `json:"borrower_info" gorm:"column:borrower_info;type:jsonb"`
+		OTPverified      bool           `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
 	}
 
 	LoanSearchFilter struct {
@@ -95,6 +96,11 @@ func (l *Loan) Delete() (*Loan, error) {
 	l.DeletedTime = time.Now()
 	err := Save(&l)
 
+	return l, err
+}
+
+func (l *Loan) FindbyID(id int) (*Loan, error) {
+	err := FindbyID(&l, id)
 	return l, err
 }
 

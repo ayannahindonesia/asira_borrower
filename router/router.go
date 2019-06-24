@@ -15,6 +15,7 @@ func NewBorrower() *echo.Echo {
 
 	groups.ClientGroup(e)
 	groups.BorrowerGroup(e)
+	groups.UnverifiedBorrowerGroup(e)
 
 	return e
 }

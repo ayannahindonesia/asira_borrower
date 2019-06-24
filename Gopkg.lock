@@ -93,26 +93,26 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:ac0cf20506076f1243a12c66052b862988915b1cd41881987addf0da946077c6"
+  digest = "1:109124d16db1dbb262a0d22c7d2490ab90bc210c4c4f99c694143dd0db24622d"
   name = "github.com/jinzhu/gorm"
   packages = [
     ".",
     "dialects/postgres",
   ]
   pruneopts = ""
-  revision = "b7156195f7f3415f97c20abbd6aff894b847fee8"
-  version = "v1.9.8"
+  revision = "01b66011427614f01e84a473b0303c917179f2a0"
+  version = "v1.9.9"
 
 [[projects]]
-  branch = "master"
   digest = "1:a7b97371fb9af808b6a4fcc6693276ef7869bb1f282c3c87038c6c7e74ef4ae6"
   name = "github.com/jinzhu/inflection"
   packages = ["."]
   pruneopts = ""
   revision = "f5c5f50e6090ae76a29240b61ae2a90dd810112e"
+  version = "v1.0.0"
 
 [[projects]]
-  digest = "1:83d83d023dbf9f8296654327d4ba1033b5ecfaa81ae2e7cf84fe9591b6e91cb2"
+  digest = "1:b295266acc20731c453567afd744cfc4d2377c98e58b3c81f206bcb348324cf3"
   name = "github.com/klauspost/compress"
   packages = [
     "flate",
@@ -120,8 +120,8 @@
     "zlib",
   ]
   pruneopts = ""
-  revision = "05d6922103c7275c684bd5df6608b25577b10521"
-  version = "v1.7.0"
+  revision = "7a873649b01a9669308e8d58b6bcbbccc0b06b5d"
+  version = "v1.7.1"
 
 [[projects]]
   digest = "1:cb39bebc72505b4120988fb9e258ecffba4ed679dc04794d517198887160df80"
@@ -303,12 +303,12 @@
   version = "v1.3.0"
 
 [[projects]]
-  digest = "1:f146d5f67730c58ac98450fd04b16719f8a713c2c3f683792672b5c281bdf56c"
+  digest = "1:6713ce21b0a4e38c3d27d27243e849a7ee47072b918d18779e9b0164a750bee9"
   name = "github.com/thedevsaddam/govalidator"
   packages = ["."]
   pruneopts = ""
-  revision = "3ec9f4b2b1273b1b2fe2edd5afdbc2a819b3e511"
-  version = "v1.9.7"
+  revision = "01bf6ba67ac42ba976ff56c550a95ad8010cfa3e"
+  version = "v1.9.8"
 
 [[projects]]
   digest = "1:857a9ecd5cb13379ecc8f798f6e6b6b574c98b9355657d91e068275f1120aaf7"
@@ -364,6 +364,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:e3b3a18fa3a555c8b04e12b5eb805d07836a707e01475c9802614771412a5a57"
+  name = "github.com/xlzd/gotp"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c8557ba2c11930b3069b31bfd80f38cc774cc68a"
+
+[[projects]]
+  branch = "master"
   digest = "1:81daf39130b8efb47ab2b841ee42adedeaaf20ab3675236f577722ae78d37728"
   name = "github.com/yalp/jsonpath"
   packages = ["."]
@@ -391,7 +399,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a688b7859ee696f20cc5823f4685da54850e388fe9e7288f5d1653de48162c55"
+  digest = "1:90722da867436e04650b8491e5d9f690aeb2a4e305d548666bdd541d68d6cdbd"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
@@ -400,26 +408,26 @@
     "blowfish",
   ]
   pruneopts = ""
-  revision = "5c40567a22f818bd14a1ea7245dad9f8ef0691aa"
+  revision = "cc06ce4a13d484c0101a9e92913248488a75786d"
 
 [[projects]]
   branch = "master"
-  digest = "1:81205bca004fdbacb381172d3e6af57740b65e4f6d1c21cef72f9e6afad096ec"
+  digest = "1:5c6b8395efd72ad4250b7747e2b1a0683c3edb7b0346a938ff45240c7ec53691"
   name = "golang.org/x/net"
   packages = [
     "idna",
     "publicsuffix",
   ]
   pruneopts = ""
-  revision = "3f473d35a33aa6fdd203e306dc439b797820e3f1"
+  revision = "3b0461eec859c4b73bb64fdc8285971fd33e3938"
 
 [[projects]]
   branch = "master"
-  digest = "1:e2a6a7d92d5bdb8002c65aa0916c725c4afc019827d415a46046acafc42edb16"
+  digest = "1:6e9520fb7a9d61739d6f277003e4ac6ee77059f4f92bff34df8f18eec4ad04af"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "93c9922d18aeb82498a065f07aec7ad7fa60dfb7"
+  revision = "d432491b91382bba9c2a91776aa47c9430183a6f"
 
 [[projects]]
   digest = "1:740b51a55815493a8d0f2b1e0d0ae48fe48953bf7eaf3fcc4198823bf67768c0"
@@ -468,6 +476,7 @@
     "github.com/pressly/goose",
     "github.com/spf13/viper",
     "github.com/thedevsaddam/govalidator",
+    "github.com/xlzd/gotp",
     "golang.org/x/crypto/bcrypt",
   ]
   solver-name = "gps-cdcl"

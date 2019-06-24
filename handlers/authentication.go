@@ -14,7 +14,7 @@ func ClientLogin(c echo.Context) error {
 	defer c.Request().Body.Close()
 	clientConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.clients", asira.App.ENV))
 	if authtoken := strings.Trim(c.Request().Header.Get("Authorization"), "Basic "); authtoken == clientConf["android"].(string) {
-		token, err := createJwtToken("android_client", "client")
+		token, err := createJwtToken("android_client", true, "client")
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, "", fmt.Sprint(err))
 		}

@@ -1,6 +1,7 @@
 package asira
 
 import (
+	"asira/validator"
 	"fmt"
 	"log"
 	"os"
@@ -11,6 +12,7 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/spf13/viper"
+	"github.com/xlzd/gotp"
 )
 
 var (
@@ -24,7 +26,13 @@ type (
 		ENV     string      `json:"env"`
 		Config  viper.Viper `json:"prog_config"`
 		DB      *gorm.DB    `json:"db"`
+		OTP     OTP         `json:"otp"`
 		// Redis   *redis.Client `json:"redis"`
+	}
+
+	OTP struct {
+		HOTP *gotp.HOTP
+		TOTP *gotp.TOTP
 	}
 )
 
@@ -42,9 +50,15 @@ func init() {
 		log.Printf("DB init error : %v", err)
 	}
 
+	otpSecret := gotp.RandomSecret(16)
+	App.OTP = OTP{
+		HOTP: gotp.NewDefaultHOTP(otpSecret),
+		TOTP: gotp.NewDefaultTOTP(otpSecret),
+	}
+
 	// apply custom validator
-	// v := validator.AsiraValidator{}
-	// v.customValidatorRules()
+	v := validator.AsiraValidator{}
+	v.CustomValidatorRules()
 }
 
 func (x *Application) Close() (err error) {

@@ -12,8 +12,9 @@ import (
 
 type (
 	JWTclaims struct {
-		Username string `json:"username"`
-		Role     string `json:"role"`
+		Username  string `json:"username"`
+		Role      string `json:"role"`
+		OTPstatus bool   `json:"otp_status" default:false`
 		jwt.StandardClaims
 	}
 )
@@ -65,12 +66,13 @@ func returnInvalidResponse(httpcode int, details interface{}, message string) er
 }
 
 // self explanation
-func createJwtToken(id string, role string) (string, error) {
+func createJwtToken(id string, otpstat bool, role string) (string, error) {
 	jwtConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", asira.App.ENV))
 
 	claim := JWTclaims{
 		id,
 		role,
+		otpstat,
 		jwt.StandardClaims{
 			Id:        id,
 			ExpiresAt: time.Now().Add(time.Duration(jwtConf["duration"].(int)) * time.Minute).Unix(),

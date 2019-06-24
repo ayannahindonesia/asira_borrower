@@ -69,6 +69,7 @@ CREATE TABLE "borrowers" (
     "related_homenumber" varchar(255),
     "bank" bigint,
     "bank_accountnumber" varchar(255) UNIQUE,
+    "otp_verified" BOOLEAN,
     "password" varchar(255) NOT NULL,
     FOREIGN KEY ("bank") REFERENCES banks(id),
     PRIMARY KEY ("id")
@@ -91,6 +92,7 @@ CREATE TABLE "loans" (
     "loan_intention" varchar(255) NOT NULL,
     "intention_details" text NOT NULL,
     "borrower_info" jsonb DEFAULT '[]',
+    "otp_verified" BOOLEAN,
     FOREIGN KEY ("owner") REFERENCES borrowers(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);

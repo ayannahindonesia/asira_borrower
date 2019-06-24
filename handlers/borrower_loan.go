@@ -60,8 +60,9 @@ func BorrowerLoanGet(c echo.Context) error {
 	status := c.QueryParam("status")
 
 	payloadRules := govalidator.MapData{
-		"rows": []string{"numeric"},
-		"page": []string{"numeric"},
+		"rows":   []string{"numeric"},
+		"page":   []string{"numeric"},
+		"status": []string{"loan_statuses"},
 	}
 
 	validate := validateRequestQuery(c, payloadRules)
