@@ -11,6 +11,7 @@ import (
 
 func Seed() {
 	seeder := asira.App.DB.Begin()
+	defer seeder.Commit()
 
 	if asira.App.ENV == "development" {
 		// seed borrowers
@@ -52,11 +53,53 @@ func Seed() {
 				OtherIncome:          2000000,
 				RelatedPersonName:    "a big sis",
 				RelatedPhoneNumber:   "08987654321",
+				OTPverified:          true,
+				BankAccountNumber:    "520384716",
+				Password:             "password",
+			},
+			models.Borrower{
+				Fullname:             "Full Name B",
+				Gender:               "F",
+				IdCardNumber:         "9876123451234567781",
+				TaxIDnumber:          "0987654321234567891",
+				Email:                "emailb@domain.com",
+				Birthday:             time.Now(),
+				Birthplace:           "b birthplace",
+				LastEducation:        "b last edu",
+				MotherName:           "b mom",
+				Phone:                "081234567891",
+				MarriedStatus:        "single",
+				SpouseName:           "b spouse",
+				SpouseBirthday:       time.Now(),
+				SpouseLastEducation:  "master",
+				Dependants:           0,
+				Address:              "b street address",
+				Province:             "b province",
+				City:                 "b city",
+				NeighbourAssociation: "b rt",
+				Hamlets:              "b rw",
+				HomePhoneNumber:      "021837163",
+				Subdistrict:          "b camat",
+				UrbanVillage:         "b lurah",
+				HomeOwnership:        "privately owned",
+				LivedFor:             5,
+				Occupation:           "bccupation",
+				EmployerName:         "bmployer",
+				EmployerAddress:      "bmployer address",
+				Department:           "b department",
+				BeenWorkingFor:       2,
+				DirectSuperior:       "b boss",
+				EmployerNumber:       "02188776655",
+				MonthlyIncome:        5000000,
+				OtherIncome:          2000000,
+				RelatedPersonName:    "b big sis",
+				RelatedPhoneNumber:   "08987654321",
+				OTPverified:          false,
 				Password:             "password",
 			},
 		}
 		for _, borrower := range borrowers {
-			seeder.Create(&borrower)
+			borrower.Create()
 		}
 
 		// seed loans
@@ -71,13 +114,33 @@ func Seed() {
 				LoanIntention:    "a loan 1 intention",
 				IntentionDetails: "a loan 1 intention details",
 			},
+			models.Loan{
+				Owner: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
+				Status:           "accepted",
+				LoanAmount:       500000,
+				Installment:      2,
+				LoanIntention:    "a loan 2 intention",
+				IntentionDetails: "a loan 2 intention details",
+			},
+			models.Loan{
+				Owner: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
+				Status:           "rejected",
+				LoanAmount:       2000000,
+				Installment:      8,
+				LoanIntention:    "a loan 3 intention",
+				IntentionDetails: "a loan 3 intention details",
+			},
 		}
 		for _, loan := range loans {
-			seeder.Create(&loan)
+			loan.Create()
 		}
 	}
-
-	seeder.Commit()
 }
 
 // truncate defined tables. []string{"all"} to truncate all tables.

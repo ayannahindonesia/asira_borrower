@@ -36,7 +36,7 @@ func TestBorrowerLogin(t *testing.T) {
 	})
 
 	payload := map[string]interface{}{
-		"key":      "0812345654321",
+		"key":      "081234567890",
 		"password": "password",
 	}
 

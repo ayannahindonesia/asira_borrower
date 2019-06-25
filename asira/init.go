@@ -57,7 +57,7 @@ func init() {
 	}
 
 	// apply custom validator
-	v := validator.AsiraValidator{}
+	v := validator.AsiraValidator{DB: App.DB}
 	v.CustomValidatorRules()
 }
 

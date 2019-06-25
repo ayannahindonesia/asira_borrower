@@ -13,20 +13,19 @@ import (
 )
 
 type (
-	OTPrequest struct {
-		EntityType string `json:"entity_type"`
-		EntityID   uint64 `json:"entity_id"`
+	VerifyAccountOTPrequest struct {
+		Phone string `json:"phone"`
 	}
-	OTPverify struct {
-		OTPrequest
+	VerifyAccountOTPverify struct {
+		VerifyAccountOTPrequest
 		OTPcode string `json:"otp_code"`
 	}
 )
 
-func RequestOTPverification(c echo.Context) error {
+func RequestOTPverifyAccount(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	otpRequest := OTPrequest{}
+	otpRequest := VerifyAccountOTPrequest{}
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
@@ -34,8 +33,7 @@ func RequestOTPverification(c echo.Context) error {
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 
 	payloadRules := govalidator.MapData{
-		"entity_type": []string{"otp_entity_types"},
-		"entity_id":   []string{},
+		"phone": []string{"regex:^[0-9]+$", "required"},
 	}
 
 	validate := validateRequestPayload(c, payloadRules, &otpRequest)
@@ -43,29 +41,18 @@ func RequestOTPverification(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	var (
-		otpCode string
-		counter string
-	)
-	switch otpRequest.EntityType {
-	default:
-		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
-	case "loan":
-		otpCode = asira.App.OTP.HOTP.At(int(otpRequest.EntityID))
-		counter = strconv.Itoa(int(otpRequest.EntityID))
-	case "borrower":
-		otpCode = asira.App.OTP.HOTP.At(borrowerID)
-		counter = strconv.Itoa(borrowerID)
-	}
-	log.Printf("generated code for counter %s : %s", counter, otpCode)
+	catenate := strconv.Itoa(borrowerID) + otpRequest.Phone[len(otpRequest.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
+	counter, _ := strconv.Atoi(catenate)
+	otpCode := asira.App.OTP.HOTP.At(int(counter))
+	log.Printf("generate otp code for phonenumber %s : %s", otpRequest.Phone, otpCode)
 
-	return c.JSON(http.StatusOK, "OTP Sent")
+	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Sent"})
 }
 
-func VerifyOTP(c echo.Context) error {
+func VerifyAccountOTP(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	otpVerify := OTPverify{}
+	otpVerify := VerifyAccountOTPverify{}
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
@@ -73,9 +60,8 @@ func VerifyOTP(c echo.Context) error {
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 
 	payloadRules := govalidator.MapData{
-		"entity_type": []string{"otp_entity_types,required"},
-		"entity_id":   []string{},
-		"otp_code":    []string{"required"},
+		"phone":    []string{"regex:^[0-9]+$", "required"},
+		"otp_code": []string{"required"},
 	}
 
 	validate := validateRequestPayload(c, payloadRules, &otpVerify)
@@ -83,33 +69,25 @@ func VerifyOTP(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	switch otpVerify.EntityType {
-	case "loan":
-		if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, int(otpVerify.EntityID)) {
-			updateOTPstatus(otpVerify.EntityType, int(otpVerify.EntityID))
-			return c.JSON(http.StatusOK, "OTP Verified")
-		}
-	case "borrower":
-		if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, borrowerID) {
-			updateOTPstatus(otpVerify.EntityType, borrowerID)
-			return c.JSON(http.StatusOK, "OTP Verified")
-		}
+	catenate := strconv.Itoa(borrowerID) + otpVerify.Phone[len(otpVerify.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
+	counter, _ := strconv.Atoi(catenate)
+	if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, counter) {
+		updateAccountOTPstatus(borrowerID)
+		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
 	}
 
-	return c.JSON(http.StatusBadRequest, "Wrong OTP code")
+	// exception for devel
+	if asira.App.ENV == "development" && otpVerify.OTPcode == "888999" {
+		updateAccountOTPstatus(borrowerID)
+		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
+	}
+
+	return returnInvalidResponse(http.StatusBadRequest, "", "Wrong OTP code")
 }
 
-func updateOTPstatus(entityType string, identifier int) {
-	switch entityType {
-	case "loan":
-		modelLoan := models.Loan{}
-		loan, _ := modelLoan.FindbyID(identifier)
-		loan.OTPverified = true
-		loan.Save()
-	case "borrower":
-		modelBorrower := models.Borrower{}
-		borrower, _ := modelBorrower.FindbyID(identifier)
-		borrower.OTPverified = true
-		borrower.Save()
-	}
+func updateAccountOTPstatus(borrowerID int) {
+	modelBorrower := models.Borrower{}
+	borrower, _ := modelBorrower.FindbyID(borrowerID)
+	borrower.OTPverified = true
+	borrower.Save()
 }

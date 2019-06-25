@@ -9,7 +9,7 @@ import (
 	"github.com/gavv/httpexpect"
 )
 
-func TestBorrowerGetProfile(t *testing.T) {
+func TestBorrowerOTP(t *testing.T) {
 	RebuildData()
 
 	token := "Basic YW5kcm9rZXk6YW5kcm9zZWNyZXQ="
@@ -36,31 +36,47 @@ func TestBorrowerGetProfile(t *testing.T) {
 	})
 
 	payload := map[string]interface{}{
-		"key":      "081234567890",
+		"key":      "081234567891",
 		"password": "password",
 	}
 
+	// test valid response
 	obj = auth.POST("/client/borrower_login").WithJSON(payload).
 		Expect().
 		Status(http.StatusOK).JSON().Object()
-
 	borrowertoken := obj.Value("token").String().Raw()
 
 	auth = e.Builder(func(req *httpexpect.Request) {
 		req.WithHeader("Authorization", "Bearer "+borrowertoken)
 	})
 
-	// valid response
+	// test dont have access yet
 	obj = auth.GET("/borrower/profile").
 		Expect().
-		Status(http.StatusOK).JSON().Object()
-	obj.Keys().Contains("id")
+		Status(http.StatusForbidden).JSON().Object()
 
-	// wrong token
-	auth = e.Builder(func(req *httpexpect.Request) {
-		req.WithHeader("Authorization", "Bearer wrongtoken")
-	})
-	obj = auth.GET("/borrower/profile").WithJSON(map[string]interface{}{}).
+	// valid response
+	payload = map[string]interface{}{
+		"phone": "081234567891",
+	}
+	obj = auth.POST("/unverified_borrower/otp_request").WithJSON(payload).
 		Expect().
-		Status(http.StatusUnauthorized).JSON().Object()
+		Status(http.StatusOK).JSON().Object()
+
+	// invalid verify
+	payload = map[string]interface{}{
+		"phone":    "081234567891",
+		"otp_code": "123456",
+	}
+	obj = auth.POST("/unverified_borrower/otp_verify").WithJSON(payload).
+		Expect().
+		Status(http.StatusBadRequest).JSON().Object()
+	// valid verify
+	payload = map[string]interface{}{
+		"phone":    "081234567891",
+		"otp_code": "888999",
+	}
+	obj = auth.POST("/unverified_borrower/otp_verify").WithJSON(payload).
+		Expect().
+		Status(http.StatusOK).JSON().Object()
 }

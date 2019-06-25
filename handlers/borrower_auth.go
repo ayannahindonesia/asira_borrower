@@ -67,11 +67,11 @@ func BorrowerLogin(c echo.Context) error {
 			return returnInvalidResponse(http.StatusUnauthorized, err, "invalid login")
 		}
 
-		tokenrole := "borrower_unverified"
+		tokenrole := "unverified_borrower"
 		if borrower.OTPverified {
 			tokenrole = "borrower"
 		}
-		token, err = createJwtToken(strconv.FormatUint(borrower.ID, 10), borrower.OTPverified, tokenrole)
+		token, err = createJwtToken(strconv.FormatUint(borrower.ID, 10), tokenrole)
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "error creating token")
 		}
