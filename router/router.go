@@ -13,6 +13,7 @@ func NewBorrower() *echo.Echo {
 	// e.GET("/test", handlers.Test)
 	e.GET("/clientauth", handlers.ClientLogin)
 
+	groups.AdminGroup(e)
 	groups.ClientGroup(e)
 	groups.BorrowerGroup(e)
 	groups.UnverifiedBorrowerGroup(e)

@@ -102,7 +102,7 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 
 	result, err := loan.FindbyID(loan_id)
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "query result error")
+		return returnInvalidResponse(http.StatusNotFound, err, "query result error")
 	}
 
 	user := c.Get("user")
@@ -143,7 +143,7 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 
 	result, err := loan.FindbyID(loan_id)
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "query result error")
+		return returnInvalidResponse(http.StatusNotFound, err, "query result error")
 	}
 
 	if result.OTPverified {
