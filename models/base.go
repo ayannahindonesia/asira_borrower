@@ -2,6 +2,10 @@ package models
 
 import (
 	"asira/asira"
+	"fmt"
+	"math"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -15,6 +19,16 @@ type (
 	}
 
 	DBFunc func(tx *gorm.DB) error
+
+	PagedSearchResult struct {
+		TotalData   int         `json:"total_data"`   // matched datas
+		Rows        int         `json:"rows"`         // shown datas per page
+		CurrentPage int         `json:"current_page"` // current page
+		LastPage    int         `json:"last_page"`
+		From        int         `json:"from"` // offset, starting index of data shown in current page
+		To          int         `json:"to"`   // last index of data shown in current page
+		Data        interface{} `json:"data"`
+	}
 )
 
 // helper for inserting data using gorm.DB functions
@@ -76,4 +90,68 @@ func FindbyID(i interface{}, id int) (err error) {
 		}
 		return err
 	})
+}
+
+func PagedSearch(i interface{}, page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
+	if page <= 0 {
+		page = 1
+	}
+
+	if rows <= 0 {
+		rows = 25 // default row is 25 per page
+	}
+
+	db := asira.App.DB
+
+	// filtering
+	refFilter := reflect.ValueOf(filter).Elem()
+	refType := refFilter.Type()
+	for x := 0; x < refFilter.NumField(); x++ {
+		field := refFilter.Field(x)
+		if field.Interface() != "" {
+			db = db.Where(fmt.Sprintf("%s = ?", refType.Field(x).Tag.Get("json")), field.Interface())
+		}
+	}
+
+	// ordering and sorting
+	if orderby != "" {
+		orders := strings.Split(orderby, ",")
+		sort := strings.Split(sort, ",")
+
+		for k, v := range orders {
+			e := v
+			if len(sort) > k {
+				value := sort[k]
+				if strings.ToUpper(value) == "ASC" || strings.ToUpper(value) == "DESC" {
+					e = v + " " + strings.ToUpper(value)
+				}
+			}
+			db = db.Order(e)
+		}
+	}
+
+	tempDB := db
+	var (
+		total_rows int
+		lastPage   int = 1 // default 1
+	)
+
+	tempDB.Find(i).Count(&total_rows)
+
+	offset := (page * rows) - rows
+	lastPage = int(math.Ceil(float64(total_rows) / float64(rows)))
+
+	db.Limit(rows).Offset(offset).Find(i)
+
+	result = PagedSearchResult{
+		TotalData:   total_rows,
+		Rows:        rows,
+		CurrentPage: page,
+		LastPage:    lastPage,
+		From:        offset + 1,
+		To:          offset + rows,
+		Data:        &i,
+	}
+
+	return result, err
 }

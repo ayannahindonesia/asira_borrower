@@ -18,7 +18,9 @@ CMD if [ "${ENV}" = "dev" ] ; then \
     # run app mode
     && "${APPNAME}" run "${APPMODE}" \
     # update db structure
-    && "${APPNAME}" migrate up; \
+    && "${APPNAME}" migrate up \
+    && "${APPNAME}" seed \
+    && go test tests/*_test.go -failfast -v; \
     fi
 
 EXPOSE 8000
