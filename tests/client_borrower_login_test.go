@@ -12,7 +12,6 @@ import (
 func TestBorrowerLogin(t *testing.T) {
 	RebuildData()
 
-	token := "Basic YW5kcm9rZXk6YW5kcm9zZWNyZXQ="
 	api := router.NewBorrower()
 
 	server := httptest.NewServer(api)
@@ -22,7 +21,7 @@ func TestBorrowerLogin(t *testing.T) {
 	e := httpexpect.New(t, server.URL)
 
 	auth := e.Builder(func(req *httpexpect.Request) {
-		req.WithHeader("Authorization", "Basic "+token)
+		req.WithHeader("Authorization", "Basic "+clientBasicToken)
 	})
 
 	obj := auth.GET("/clientauth").
@@ -36,7 +35,7 @@ func TestBorrowerLogin(t *testing.T) {
 	})
 
 	payload := map[string]interface{}{
-		"key":      "0812345654321",
+		"key":      "081234567890",
 		"password": "password",
 	}
 

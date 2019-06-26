@@ -12,6 +12,7 @@ development:
     logmode: true
     timezone: Asia/Jakarta
   clients:
+    admin: Z3JhZGlvczp1bHRpbXVz
     android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret
   jwt:
     duration: 120 # in minutes

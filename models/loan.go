@@ -13,7 +13,7 @@ type (
 		BaseModel
 		DeletedTime time.Time      `json:"deleted_time" gorm:"column:deleted_time"`
 		Owner       sql.NullInt64  `json:"owner" gorm:"column:owner;foreignkey"`
-		Status      string         `json:"status" gorm:"column:status;type:varchar(255)"`
+		Status      string         `json:"status" gorm:"column:status;type:varchar(255)" sql:"DEFAULT:'processing'"`
 		LoanAmount  float64        `json:"loan_amount" gorm:"column:loan_amount;type:int;not null"`
 		Installment int            `json:"installment" gorm:"column:installment;type:int;not null"` // plan of how long loan to be paid
 		Fees        postgres.Jsonb `json:"fees" gorm:"column:fees;type:jsonb"`
@@ -26,6 +26,11 @@ type (
 		LoanIntention    string         `json:"loan_intention" gorm:"column:loan_intention;type:varchar(255);not null"`
 		IntentionDetails string         `json:"intention_details" gorm:"column:intention_details;type:text;not null"`
 		BorrowerInfo     postgres.Jsonb `json:"borrower_info" gorm:"column:borrower_info;type:jsonb"`
+		OTPverified      bool           `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
+	}
+
+	LoanSearchFilter struct {
+		Status string `json:"status"`
 	}
 
 	LoanFee struct { // temporary hardcoded
@@ -92,4 +97,16 @@ func (l *Loan) Delete() (*Loan, error) {
 	err := Save(&l)
 
 	return l, err
+}
+
+func (l *Loan) FindbyID(id int) (*Loan, error) {
+	err := FindbyID(&l, id)
+	return l, err
+}
+
+func (l *Loan) PagedSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
+	loans := []Loan{}
+	result, err = PagedSearch(&loans, page, rows, orderby, sort, filter)
+
+	return result, err
 }
