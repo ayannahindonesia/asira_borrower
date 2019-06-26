@@ -16,7 +16,10 @@ func BorrowerGroup(e *echo.Echo) {
 
 	// Loan endpoints
 	g.GET("/loan", handlers.BorrowerLoanGet)
+	g.GET("/loan/:loan_id/details", handlers.BorrowerLoanGetDetails)
 	g.POST("/loan", handlers.BorrowerLoanApply)
+	g.GET("/loan/:loan_id/otp", handlers.BorrowerLoanOTPrequest)
+	g.POST("/loan/:loan_id/verify", handlers.BorrowerLoanOTPverify)
 }
 
 func UnverifiedBorrowerGroup(e *echo.Echo) {

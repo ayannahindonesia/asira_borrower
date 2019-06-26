@@ -76,7 +76,7 @@ func VerifyAccountOTP(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
 	}
 
-	// exception for devel
+	// bypass otp
 	if asira.App.ENV == "development" && otpVerify.OTPcode == "888999" {
 		updateAccountOTPstatus(borrowerID)
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
