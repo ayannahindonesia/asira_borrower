@@ -3,7 +3,7 @@ development:
     table: asira_db
     username: asirauser
     password: asirapass
-    host: postgres_db
+    host: postgresql-1-vm
     port: "5432"
     maxlifetime: 30
     idle_conns: 10
@@ -15,7 +15,7 @@ development:
     admin: Z3JhZGlvczp1bHRpbXVz
     android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret
   jwt:
-    duration: 120 # in minutes
+    duration: 10080 # in minutes
     jwt_secret: sXQ8jUMpueOvN5P3cdCR
 
 staging:
