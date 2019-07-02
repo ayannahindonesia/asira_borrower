@@ -13,14 +13,28 @@ RUN apk add --update git gcc libc-dev;
 RUN go get -u github.com/golang/dep/cmd/dep
 
 CMD if [ "${ENV}" = "dev" ] ; then \
+    cp deploy/dev-config.yaml config.yaml \
+    && dep ensure -v \
+    && go build -v -o $GOPATH/bin/"${APPNAME}" \
+    # run app mode
+    && "${APPNAME}" run "${APPMODE}" \
+    # update db structure
+    && if [ "${APPMODE}" = "borrower"] ; then \
+        "${APPNAME}" migrate up \
+        && "${APPNAME}" seed ; \
+    fi \
+    && go test tests/*_test.go -failfast -v ; \
+elif [ "${ENV}" = "local" ] ; then \
     dep ensure -v \
     && go build -v -o $GOPATH/bin/"${APPNAME}" \
     # run app mode
     && "${APPNAME}" run "${APPMODE}" \
     # update db structure
-    && "${APPNAME}" migrate up \
-    && "${APPNAME}" seed \
-    && go test tests/*_test.go -failfast -v; \
-    fi
+    && if [ "${APPMODE}" = "borrower"] ; then \
+        "${APPNAME}" migrate up \
+        && "${APPNAME}" seed ; \
+    fi \
+    && go test tests/*_test.go -failfast -v ; \
+fi
 
 EXPOSE 8000
