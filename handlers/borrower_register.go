@@ -30,9 +30,9 @@ func RegisterBorrower(c echo.Context) error {
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{"required"},
 		"gender":                []string{"required"},
-		"idcard_number":         []string{"required"},
+		"idcard_number":         []string{"required", "unique:borrowers,idcard_number"},
 		"taxid_number":          []string{"unique:borrowers,taxid_number"},
-		"email":                 []string{"email"},
+		"email":                 []string{"email", "unique:borrowers,email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
 		"last_education":        []string{"required"},

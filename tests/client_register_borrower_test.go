@@ -83,5 +83,5 @@ func TestRegisterBorrower(t *testing.T) {
 	// test unique by registering same data
 	obj = auth.POST("/client/register_borrower").WithJSON(payload).
 		Expect().
-		Status(http.StatusInternalServerError).JSON().Object()
+		Status(http.StatusUnprocessableEntity).JSON().Object()
 }

@@ -29,10 +29,6 @@ type (
 		OTPverified      bool           `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
 	}
 
-	LoanSearchFilter struct {
-		Status string `json:"status"`
-	}
-
 	LoanFee struct { // temporary hardcoded
 		Description string  `json:"description"`
 		Amount      float64 `json:"amount"`
@@ -104,9 +100,14 @@ func (l *Loan) FindbyID(id int) (*Loan, error) {
 	return l, err
 }
 
-func (l *Loan) PagedSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
+func (l *Loan) FilterSearchSingle(filter interface{}) (*Loan, error) {
+	err := FilterSearchSingle(&l, filter)
+	return l, err
+}
+
+func (l *Loan) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
 	loans := []Loan{}
-	result, err = PagedSearch(&loans, page, rows, orderby, sort, filter)
+	result, err = PagedFilterSearch(&loans, page, rows, orderby, sort, filter)
 
 	return result, err
 }
