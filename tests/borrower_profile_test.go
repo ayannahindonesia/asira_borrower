@@ -44,3 +44,34 @@ func TestBorrowerGetProfile(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized).JSON().Object()
 }
+
+func TestBorrowerPatchProfile(t *testing.T) {
+	RebuildData()
+
+	api := router.NewBorrower()
+
+	server := httptest.NewServer(api)
+
+	defer server.Close()
+
+	e := httpexpect.New(t, server.URL)
+
+	auth := e.Builder(func(req *httpexpect.Request) {
+		req.WithHeader("Authorization", "Basic "+clientBasicToken)
+	})
+
+	borrowertoken := getBorrowerLoginToken(e, auth, "1")
+
+	auth = e.Builder(func(req *httpexpect.Request) {
+		req.WithHeader("Authorization", "Bearer "+borrowertoken)
+	})
+
+	data := map[string]interface{}{
+		"monthly_income": 500,
+	}
+	obj := auth.PATCH("/borrower/profile").WithJSON(data).
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+
+	obj.Value("monthly_income").Equal(500)
+}

@@ -13,6 +13,7 @@ func BorrowerGroup(e *echo.Echo) {
 
 	// Profile endpoints
 	g.GET("/profile", handlers.BorrowerProfile)
+	g.PATCH("/profile", handlers.BorrowerProfileEdit)
 
 	// Loan endpoints
 	g.GET("/loan", handlers.BorrowerLoanGet)
