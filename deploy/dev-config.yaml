@@ -3,7 +3,7 @@ development:
     table: asira_db
     username: asirauser
     password: asirapass
-    host: postgresql-1-vm
+    host: ayannah-infra-id:asia-southeast1:main-pgsql
     port: "5432"
     maxlifetime: 30
     idle_conns: 10
