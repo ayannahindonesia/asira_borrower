@@ -94,6 +94,7 @@ func Seed() {
 				OtherIncome:          2000000,
 				RelatedPersonName:    "b big sis",
 				RelatedPhoneNumber:   "08987654321",
+				RelatedAddress:       "big sis address",
 				OTPverified:          false,
 				Password:             "password",
 			},

@@ -12,7 +12,7 @@ import (
 func TestBorrowerLoanGet(t *testing.T) {
 	RebuildData()
 
-	api := router.NewBorrower()
+	api := router.NewRouter()
 
 	server := httptest.NewServer(api)
 
@@ -50,7 +50,7 @@ func TestBorrowerLoanGet(t *testing.T) {
 func TestBorrowerLoanApply(t *testing.T) {
 	RebuildData()
 
-	api := router.NewBorrower()
+	api := router.NewRouter()
 
 	server := httptest.NewServer(api)
 

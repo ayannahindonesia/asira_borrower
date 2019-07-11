@@ -12,7 +12,7 @@ import (
 func TestBorrowerGetProfile(t *testing.T) {
 	RebuildData()
 
-	api := router.NewBorrower()
+	api := router.NewRouter()
 
 	server := httptest.NewServer(api)
 
@@ -48,7 +48,7 @@ func TestBorrowerGetProfile(t *testing.T) {
 func TestBorrowerPatchProfile(t *testing.T) {
 	RebuildData()
 
-	api := router.NewBorrower()
+	api := router.NewRouter()
 
 	server := httptest.NewServer(api)
 

@@ -52,6 +52,7 @@ type (
 		RelatedRelation      string        `json:"related_relation" gorm:"column:related_relation;type:varchar(255);not null"`
 		RelatedPhoneNumber   string        `json:"related_phonenumber" gorm:"column:related_phonenumber;type:varchar(255);not null"`
 		RelatedHomePhone     string        `json:"related_homenumber" gorm:"column:related_homenumber;type:varchar(255)"`
+		RelatedAddress       string        `json:"related_address" gorm:"column:related_address;type:text"`
 		Bank                 sql.NullInt64 `json:"bank" gorm:"column:bank" sql:"DEFAULT:NULL"`
 		BankAccountNumber    string        `json:"bank_accountnumber" gorm:"column:bank_accountnumber"`
 		OTPverified          bool          `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`

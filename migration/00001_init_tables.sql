@@ -67,6 +67,7 @@ CREATE TABLE "borrowers" (
     "related_relation" varchar(255) NOT NULL,
     "related_phonenumber" varchar(255) NOT NULL,
     "related_homenumber" varchar(255),
+    "related_address" text,
     "bank" bigint,
     "bank_accountnumber" varchar(255),
     "otp_verified" BOOLEAN,
