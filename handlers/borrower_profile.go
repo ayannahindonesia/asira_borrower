@@ -86,6 +86,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 		"related_relation":      []string{},
 		"related_phonenumber":   []string{},
 		"related_homenumber":    []string{},
+		"related_address":       []string{},
 		"bank":                  []string{},
 		"bank_accountnumber":    []string{"unique:borrowers,bank_accountnumber"},
 	}
