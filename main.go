@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/labstack/echo/middleware"
 	"github.com/pressly/goose"
 )
 
@@ -31,15 +32,15 @@ func main() {
 		flags.Usage()
 		break
 	case "run":
-		switch args[1] {
-		default:
-			break
-		case "borrower":
-			e := router.NewBorrower()
-			e.Logger.Fatal(e.Start(":8000"))
-			os.Exit(0)
-			break
+		e := router.NewRouter()
+		if asira.App.Config.GetBool("react_cors") {
+			e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+				AllowOrigins: []string{"*"},
+				AllowHeaders: []string{"*"},
+			}))
 		}
+		e.Logger.Fatal(e.Start(":8000"))
+		os.Exit(0)
 		break
 	case "seed":
 		migration.Seed()
@@ -85,8 +86,8 @@ func main() {
 func usage() {
 	usagestring := `
 to run the app :
-	[app_name] run [app_mode]
-	example : asira run borrower
+	[app_name] run
+	example : asira run
 
 to update db :
 	[app_name] migrate [goose_command]

@@ -12,7 +12,7 @@ import (
 func TestBorrowerLogin(t *testing.T) {
 	RebuildData()
 
-	api := router.NewBorrower()
+	api := router.NewRouter()
 
 	server := httptest.NewServer(api)
 

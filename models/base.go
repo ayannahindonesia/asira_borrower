@@ -92,7 +92,28 @@ func FindbyID(i interface{}, id int) (err error) {
 	})
 }
 
-func PagedSearch(i interface{}, page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
+func FilterSearchSingle(i interface{}, filter interface{}) (err error) {
+	db := asira.App.DB
+
+	// filtering
+	refFilter := reflect.ValueOf(filter).Elem()
+	refType := refFilter.Type()
+	for x := 0; x < refFilter.NumField(); x++ {
+		field := refFilter.Field(x)
+		if field.Interface() != "" {
+			db = db.Where(fmt.Sprintf("%s = ?", refType.Field(x).Tag.Get("json")), field.Interface())
+		}
+	}
+
+	if err = db.Last(i).Error; err != nil {
+		db.Rollback()
+		return err
+	}
+
+	return nil
+}
+
+func PagedFilterSearch(i interface{}, page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
 	if page <= 0 {
 		page = 1
 	}

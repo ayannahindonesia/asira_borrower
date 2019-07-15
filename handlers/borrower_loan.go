@@ -52,6 +52,11 @@ func BorrowerLoanGet(c echo.Context) error {
 
 	loan := models.Loan{}
 
+	user := c.Get("user")
+	token := user.(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+
 	// pagination parameters
 	rows, err := strconv.Atoi(c.QueryParam("rows"))
 	page, err := strconv.Atoi(c.QueryParam("page"))
@@ -61,7 +66,16 @@ func BorrowerLoanGet(c echo.Context) error {
 	// filters
 	status := c.QueryParam("status")
 
-	result, err := loan.PagedSearch(page, rows, orderby, sort, &models.LoanSearchFilter{
+	type Filter struct {
+		Owner  sql.NullInt64 `json:"owner"`
+		Status string        `json:"status"`
+	}
+
+	result, err := loan.PagedFilterSearch(page, rows, orderby, sort, &Filter{
+		Owner: sql.NullInt64{
+			Int64: int64(borrowerID),
+			Valid: true,
+		},
 		Status: status,
 	})
 
@@ -77,12 +91,27 @@ func BorrowerLoanGetDetails(c echo.Context) error {
 
 	loan := models.Loan{}
 
+	user := c.Get("user")
+	token := user.(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+
 	loan_id, err := strconv.Atoi(c.Param("loan_id"))
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error parsing loan id")
 	}
 
-	result, err := loan.FindbyID(loan_id)
+	type Filter struct {
+		ID    int           `json:"id"`
+		Owner sql.NullInt64 `json:"owner"`
+	}
+	result, err := loan.FilterSearchSingle(&Filter{
+		ID: loan_id,
+		Owner: sql.NullInt64{
+			Int64: int64(borrowerID),
+			Valid: true,
+		},
+	})
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v not found", loan_id))
 	}
@@ -95,20 +124,30 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 
 	loan := models.Loan{}
 
+	user := c.Get("user")
+	token := user.(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+
 	loan_id, err := strconv.Atoi(c.Param("loan_id"))
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error parsing loan id to integer")
 	}
 
-	result, err := loan.FindbyID(loan_id)
+	type Filter struct {
+		ID    int           `json:"id"`
+		Owner sql.NullInt64 `json:"owner"`
+	}
+	result, err := loan.FilterSearchSingle(&Filter{
+		ID: loan_id,
+		Owner: sql.NullInt64{
+			Int64: int64(borrowerID),
+			Valid: true,
+		},
+	})
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "query result error")
 	}
-
-	user := c.Get("user")
-	token := user.(*jwt.Token)
-	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 
 	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(result.ID)) // combine borrower id with loan id as counter
 	counter, _ := strconv.Atoi(catenate)
@@ -136,12 +175,27 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 
 	loan := models.Loan{}
 
+	user := c.Get("user")
+	token := user.(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+
 	loan_id, err := strconv.Atoi(c.Param("loan_id"))
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error parsing loan id to integer")
 	}
 
-	result, err := loan.FindbyID(loan_id)
+	type Filter struct {
+		ID    int           `json:"id"`
+		Owner sql.NullInt64 `json:"owner"`
+	}
+	result, err := loan.FilterSearchSingle(&Filter{
+		ID: loan_id,
+		Owner: sql.NullInt64{
+			Int64: int64(borrowerID),
+			Valid: true,
+		},
+	})
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "query result error")
 	}
@@ -150,10 +204,6 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 		return returnInvalidResponse(http.StatusBadRequest, "", fmt.Sprintf("loan %v already verified", loan_id))
 	}
 
-	user := c.Get("user")
-	token := user.(*jwt.Token)
-	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(result.ID)) // combine borrower id with loan id as counter
 	counter, _ := strconv.Atoi(catenate)
 	if asira.App.OTP.HOTP.Verify(LoanOTPverify.OTPcode, counter) {

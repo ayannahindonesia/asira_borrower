@@ -13,7 +13,7 @@ import (
 func ClientLogin(c echo.Context) error {
 	defer c.Request().Body.Close()
 	clientConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.clients", asira.App.ENV))
-	if authtoken := strings.Trim(c.Request().Header.Get("Authorization"), "Basic "); authtoken == clientConf["admin"].(string) {
+	if authtoken := strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Basic "); authtoken == clientConf["admin"].(string) {
 		token, err := createJwtToken("adm", "admin")
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, "", fmt.Sprint(err))
@@ -27,7 +27,7 @@ func ClientLogin(c echo.Context) error {
 			"expires_in": expiration.Seconds(),
 		})
 	}
-	if authtoken := strings.Trim(c.Request().Header.Get("Authorization"), "Basic "); authtoken == clientConf["android"].(string) {
+	if authtoken := strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Basic "); authtoken == clientConf["android"].(string) {
 		token, err := createJwtToken("android_client", "client")
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, "", fmt.Sprint(err))

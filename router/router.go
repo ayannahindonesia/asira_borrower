@@ -7,7 +7,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func NewBorrower() *echo.Echo {
+func NewRouter() *echo.Echo {
 	e := echo.New()
 
 	// e.GET("/test", handlers.Test)

@@ -10,7 +10,7 @@ import (
 )
 
 func TestClientLogin(t *testing.T) {
-	api := router.NewBorrower()
+	api := router.NewRouter()
 
 	server := httptest.NewServer(api)
 

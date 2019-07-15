@@ -64,7 +64,7 @@ func BorrowerLogin(c echo.Context) error {
 	if !validKey { // check the password
 		err = bcrypt.CompareHashAndPassword([]byte(borrower.Password), []byte(credentials.Password))
 		if err != nil {
-			return returnInvalidResponse(http.StatusUnauthorized, err, "invalid login")
+			return returnInvalidResponse(http.StatusOK, err, "invalid login")
 		}
 
 		tokenrole := "unverified_borrower"
@@ -76,7 +76,7 @@ func BorrowerLogin(c echo.Context) error {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "error creating token")
 		}
 	} else {
-		return returnInvalidResponse(http.StatusUnauthorized, "", "invalid login")
+		return returnInvalidResponse(http.StatusOK, "", "invalid login")
 	}
 
 	jwtConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", asira.App.ENV))

@@ -1,7 +1,6 @@
 FROM golang:alpine
 
 ARG APPNAME="asira"
-ARG APPMODE=""
 ARG ENV="dev"
 
 ADD . $GOPATH/src/"${APPNAME}"
@@ -13,28 +12,17 @@ RUN apk add --update git gcc libc-dev;
 RUN go get -u github.com/golang/dep/cmd/dep
 
 CMD if [ "${ENV}" = "dev" ] ; then \
-    cp deploy/dev-config.yaml config.yaml \
+        cp deploy/dev-config.yaml config.yaml ; \
+    fi \
     && dep ensure -v \
     && go build -v -o $GOPATH/bin/"${APPNAME}" \
     # run app mode
-    && "${APPNAME}" run "${APPMODE}" \
+    && "${APPNAME}" run \
     # update db structure
-    && if [ "${APPMODE}" = "borrower"] ; then \
+    && if [ "${ENV}" = "dev"] ; then \
         "${APPNAME}" migrate up \
         && "${APPNAME}" seed ; \
     fi \
-    && go test tests/*_test.go -failfast -v ; \
-elif [ "${ENV}" = "local" ] ; then \
-    dep ensure -v \
-    && go build -v -o $GOPATH/bin/"${APPNAME}" \
-    # run app mode
-    && "${APPNAME}" run "${APPMODE}" \
-    # update db structure
-    && if [ "${APPMODE}" = "borrower"] ; then \
-        "${APPNAME}" migrate up \
-        && "${APPNAME}" seed ; \
-    fi \
-    && go test tests/*_test.go -failfast -v ; \
-fi
+    && go test tests/*_test.go -failfast -v ;
 
 EXPOSE 8000
