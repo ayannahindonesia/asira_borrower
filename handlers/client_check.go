@@ -24,21 +24,16 @@ func CheckData(c echo.Context) error {
 	phone := c.QueryParam("phone")
 	idcard_number := c.QueryParam("idcard_number")
 	taxid_number := c.QueryParam("taxid_number")
-	cekEmail = db.Where("email = ?", email).Find(&borrower).RecordNotFound()
-	cekPhone = db.Where("phone = ?", phone).Find(&borrower).RecordNotFound()
-	cekIdcard = db.Where("idcard_number = ?", idcard_number).Find(&borrower).RecordNotFound()
-	cekTaxid = db.Where("taxid_number = ?", taxid_number).Find(&borrower).RecordNotFound()
-	// values = append(values, "Field : ")
-	if cekEmail != true {
-		values = append(values, "email")
+	if db.Where("email = ?", email).Find(&borrower).RecordNotFound() {
+		values = append(values, "Email")
 	}
-	if cekPhone != true {
+	if db.Where("phone = ?", phone).Find(&borrower).RecordNotFound() {
 		values = append(values, "Phone")
 	}
-	if cekIdcard != true {
+	if db.Where("idcard_number = ?", idcard_number).Find(&borrower).RecordNotFound() {
 		values = append(values, "Id Card Number")
 	}
-	if cekTaxid != true {
+	if db.Where("taxid_number = ?", taxid_number).Find(&borrower).RecordNotFound() {
 		values = append(values, "Tax Id Number")
 	}
 
