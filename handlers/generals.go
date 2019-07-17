@@ -30,7 +30,6 @@ func validateRequestPayload(c echo.Context, rules govalidator.MapData, data inte
 	v := govalidator.New(opts)
 
 	mappedError := v.ValidateJSON()
-	log.Printf(" ", mappedError)
 	if len(mappedError) > 0 {
 		i = mappedError
 	}
