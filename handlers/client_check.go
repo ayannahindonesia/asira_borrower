@@ -12,11 +12,7 @@ import (
 func CheckData(c echo.Context) error {
 	// defer c.Request().Body.Close()
 	var (
-		borrower  models.Borrower
-		cekEmail  bool
-		cekPhone  bool
-		cekIdcard bool
-		cekTaxid  bool
+		borrower models.Borrower
 	)
 	values := []string{}
 	db := asira.App.DB
