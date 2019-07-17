@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira/asira"
 	"fmt"
-	"log"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
