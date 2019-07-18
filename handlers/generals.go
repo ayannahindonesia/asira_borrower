@@ -84,3 +84,7 @@ func createJwtToken(id string, role string) (string, error) {
 
 	return token, nil
 }
+
+// func sendEmail() (string , error){
+
+// }
