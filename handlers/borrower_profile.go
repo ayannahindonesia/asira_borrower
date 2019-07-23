@@ -103,3 +103,38 @@ func BorrowerProfileEdit(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, borrower)
 }
+
+func BorrowerChangePassword(c echo.Context) error {
+	defer c.Request().Body.Close()
+
+	user := c.Get("user")
+	token := user.(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+
+	borrowerModel := models.Borrower{}
+
+	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	borrower, err := borrowerModel.FindbyID(borrowerID)
+	if err != nil {
+		return returnInvalidResponse(http.StatusForbidden, err, "unauthorized")
+	}
+
+	payloadRules := govalidator.MapData{
+		"password": []string{},
+	}
+
+	validate := validateRequestPayload(c, payloadRules, &borrower)
+	if validate != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
+	}
+
+	_, err = borrower.Save()
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error saving profile")
+	}
+	responseBody := map[string]interface{}{
+		"status":  true,
+		"message": "Change Password Success",
+	}
+	return c.JSON(http.StatusOK, responseBody)
+}
