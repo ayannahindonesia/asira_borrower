@@ -30,7 +30,10 @@ func CheckData(c echo.Context) error {
 		values = append(values, "Tax Id Number")
 	}
 	if len(values) < 1 {
-		return c.JSON(http.StatusOK, "OK")
+		return c.JSON(http.StatusOK, map[string]interface{}{
+			"status":  true,
+			"message": "Ok",
+		})
 	}
 	result := "Field : " + strings.Join(values, " , ") + " Is Used"
 	return returnInvalidResponse(http.StatusUnprocessableEntity, "", result)
