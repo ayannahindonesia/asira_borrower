@@ -12,6 +12,7 @@ func NewRouter() *echo.Echo {
 
 	// e.GET("/test", handlers.Test)
 	e.GET("/clientauth", handlers.ClientLogin)
+	e.GET("/adlaj", handlers.OpenAndroidDeeplinkAsset)
 
 	groups.AdminGroup(e)
 	groups.ClientGroup(e)
