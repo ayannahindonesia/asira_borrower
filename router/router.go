@@ -3,6 +3,7 @@ package router
 import (
 	"asira/groups"
 	"asira/handlers"
+	"os"
 
 	"github.com/labstack/echo"
 )
@@ -12,7 +13,10 @@ func NewRouter() *echo.Echo {
 
 	// e.GET("/test", handlers.Test)
 	e.GET("/clientauth", handlers.ClientLogin)
-	e.GET("/adlaj", handlers.OpenAndroidDeeplinkAsset)
+
+	// files url
+	gopath, _ := os.Getwd()
+	e.Static("/", gopath+"/assets")
 
 	groups.AdminGroup(e)
 	groups.ClientGroup(e)
