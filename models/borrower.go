@@ -104,8 +104,3 @@ func (b *Borrower) FindbyID(id int) (*Borrower, error) {
 	err := FindbyID(&b, id)
 	return b, err
 }
-
-func (b *Borrower) FilterSearchSingle(filter interface{}) (*Borrower, error) {
-	err := FilterSearchSingle(&b, filter)
-	return b, err
-}
