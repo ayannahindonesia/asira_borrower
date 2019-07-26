@@ -3,7 +3,7 @@ package models
 type (
 	Image struct {
 		BaseModel
-		image_string string `json:"status" gorm:"column:image_string;type:varchar(255)" sql:"DEFAULT:'processing'"`
+		Image_string string `json:"status" gorm:"column:image_string;type:text"`
 	}
 )
 
