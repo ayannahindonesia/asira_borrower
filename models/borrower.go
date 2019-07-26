@@ -85,6 +85,12 @@ func (b *Borrower) Create() (*Borrower, error) {
 
 // gorm callback hook
 func (b *Borrower) BeforeSave() (err error) {
+	passwordByte, err := bcrypt.GenerateFromPassword([]byte(b.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	b.Password = string(passwordByte)
 	return nil
 }
 
