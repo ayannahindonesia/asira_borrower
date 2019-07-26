@@ -3,6 +3,7 @@ package handlers
 import (
 	"asira/asira"
 	"asira/models"
+	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -24,7 +25,13 @@ type (
 
 func RegisterBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
-
+	decoder := json.NewDecoder(c.Request().Body)
+	var t string
+	err := decoder.Decode(t)
+	if err != nil {
+		panic(err)
+	}
+	log.Println(t)
 	borrower := models.Borrower{}
 
 	payloadRules := govalidator.MapData{
