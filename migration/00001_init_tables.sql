@@ -21,6 +21,14 @@ CREATE TABLE "bank_products" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+CREATE TABLE "image" (
+    "id" bigserial,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "image_name" varchar(255),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
 CREATE TABLE "borrowers" (
     "id" bigserial,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
@@ -29,7 +37,9 @@ CREATE TABLE "borrowers" (
     "fullname" varchar(255) NOT NULL,
     "gender" varchar(1) NOT NULL,
     "idcard_number" varchar(255) NOT NULL UNIQUE,
+    "idcard_image" bigint,
     "taxid_number" varchar(255),
+    "taxid_image" bigint,
     "email" varchar(255) NOT NULL UNIQUE,
     "birthday" DATE NOT NULL,
     "birthplace" varchar(255) NOT NULL,
@@ -73,6 +83,8 @@ CREATE TABLE "borrowers" (
     "otp_verified" BOOLEAN,
     "password" varchar(255) NOT NULL,
     FOREIGN KEY ("bank") REFERENCES banks(id),
+    FOREIGN KEY ("idcard_image") REFERENCES image(id),
+    FOREIGN KEY ("taxid_image") REFERENCES image(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -102,5 +114,6 @@ CREATE TABLE "loans" (
 -- SQL in this section is executed when the migration is rolled back.
 DROP TABLE IF EXISTS "banks" CASCADE;
 DROP TABLE IF EXISTS "bank_products" CASCADE;
+DROP TABLE IF EXISTS "image" CASCADE;
 DROP TABLE IF EXISTS "borrowers" CASCADE;
 DROP TABLE IF EXISTS "loans" CASCADE;
