@@ -7,6 +7,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/thedevsaddam/govalidator"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/labstack/echo"
 )
@@ -128,9 +129,15 @@ func BorrowerChangePassword(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
+	passwordByte, err := bcrypt.GenerateFromPassword([]byte(borrower.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	borrower.Password = string(passwordByte)
 	_, err = borrower.Save()
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error saving profile")
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error saving Password")
 	}
 	responseBody := map[string]interface{}{
 		"status":  true,
