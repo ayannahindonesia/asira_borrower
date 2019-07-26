@@ -26,6 +26,9 @@ func ClientResetPassword(c echo.Context) error {
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "error creating token")
 		}
+		if borrower.Email == "" {
+			return returnInvalidResponse(http.StatusUnprocessableEntity, "", "Email Not Found")
+		}
 		to := []string{borrower.Email}
 		subject := "[NO REPLY] - Reset Password Aplikasi Mobile ASIRA"
 		link := baseURL + "?q=" + token
