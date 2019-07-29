@@ -40,5 +40,5 @@ func ClientResetPassword(c echo.Context) error {
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OK"})
 	}
-	return returnInvalidResponse(http.StatusUnprocessableEntity, "", "Email Not Found")
+	return returnInvalidResponse(http.StatusNotFound, "", "Email Not Found")
 }
