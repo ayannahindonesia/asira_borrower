@@ -21,17 +21,17 @@ type (
 		VerifyAccountOTPrequest
 		OTPcode string `json:"otp_code"`
 	}
+	Image struct {
+		Image_string string `json:"image_string" gorm:"column:image_string;type:text"`
+	}
 )
 
 func RegisterBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
-	decoder := json.NewDecoder(c.Request().Body)
-	var t string
-	err := decoder.Decode(t)
-	if err != nil {
-		panic(err)
-	}
-	log.Println(t)
+	var image = Image{Image_string: result["idcard_image"]}
+	var result map[string]interface{}
+	json.NewDecoder(c.Request().Body).Decode(&result)
+	asira.App.DB.Create(&image)
 	borrower := models.Borrower{}
 
 	payloadRules := govalidator.MapData{
