@@ -1,0 +1,9 @@
+[{
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.ayannah.bantenbank",
+      "sha256_cert_fingerprints":
+      ["3D:4B:1E:0E:76:47:F4:0D:A0:61:E1:98:A0:E2:5C:0B:93:81:82:0D:9B:F5:C5:1B:C1:D8:82:26:17:0C:9F:86"]
+    }
+}]
