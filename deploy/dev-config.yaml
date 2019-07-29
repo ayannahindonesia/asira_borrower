@@ -17,6 +17,11 @@ development:
   jwt:
     duration: 10080 # in minutes
     jwt_secret: sXQ8jUMpueOvN5P3cdCR
+  mailer:
+    SMTP_HOST : smtp.gmail.com
+    SMTP_PORT : 587
+    EMAIL : apranta123@gmail.com
+    PASSWORD : Animajid01
 
 staging:
 
