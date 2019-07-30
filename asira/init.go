@@ -1,7 +1,7 @@
 package asira
 
 import (
-	"asira/validator"
+	"asira_borrower/validator"
 	"fmt"
 	"log"
 	"os"
@@ -98,7 +98,7 @@ func (x *Application) LoadConfigs() error {
 	conf.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	conf.AutomaticEnv()
 	conf.SetConfigName("config")
-	conf.AddConfigPath("$GOPATH/src/asira")
+	conf.AddConfigPath("$GOPATH/src/asira_borrower")
 	conf.SetConfigType("yaml")
 	if err := conf.ReadInConfig(); err != nil {
 		return err

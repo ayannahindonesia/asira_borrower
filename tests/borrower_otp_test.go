@@ -1,7 +1,7 @@
 package tests
 
 import (
-	"asira/router"
+	"asira_borrower/router"
 	"net/http"
 	"net/http/httptest"
 	"testing"
