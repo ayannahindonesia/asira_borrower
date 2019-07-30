@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"asira/asira"
+	"asira_borrower/asira"
 	"fmt"
 	"net/http"
 

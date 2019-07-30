@@ -1,7 +1,7 @@
 package models
 
 import (
-	"asira/asira"
+	"asira_borrower/asira"
 	"fmt"
 	"math"
 	"reflect"
