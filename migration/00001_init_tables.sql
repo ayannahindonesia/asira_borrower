@@ -21,6 +21,7 @@ CREATE TABLE "bank_products" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+
 CREATE TABLE "borrowers" (
     "id" bigserial,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
