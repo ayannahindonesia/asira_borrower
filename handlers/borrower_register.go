@@ -3,6 +3,7 @@ package handlers
 import (
 	"asira/asira"
 	"asira/models"
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -21,19 +22,36 @@ type (
 		VerifyAccountOTPrequest
 		OTPcode string `json:"otp_code"`
 	}
+	NullInt64 sql.NullInt64
 )
 
 func RegisterBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
+
 	var result map[string]interface{}
 	json.NewDecoder(c.Request().Body).Decode(&result)
-
+	image := models.Image{
+		Image_string: result["idcard_image"].(string),
+	}
+	IdCardImage, err := image.Create()
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
+	}
+	image = models.Image{
+		Image_string: result["taxid_image"].(string),
+	}
+	TaxIdImage, err := image.Create()
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
+	}
 	borrower := models.Borrower{}
 
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{"required"},
 		"gender":                []string{"required"},
 		"idcard_number":         []string{"required", "unique:borrowers,idcard_number"},
+		"idcard_image":          []string{},
+		"taxid_image":           []string{},
 		"taxid_number":          []string{"unique:borrowers,taxid_number"},
 		"email":                 []string{"email", "unique:borrowers,email"},
 		"birthday":              []string{"date"},
@@ -82,6 +100,16 @@ func RegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
+	borrower = models.Borrower{
+		IdCardImage: sql.NullInt64{
+			Int64: int64(IdCardImage.BaseModel.ID),
+			Valid: true,
+		},
+		TaxIDImage: sql.NullInt64{
+			Int64: int64(TaxIdImage.BaseModel.ID),
+			Valid: true,
+		},
+	}
 	newBorrower, err := borrower.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")

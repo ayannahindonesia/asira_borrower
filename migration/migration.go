@@ -20,8 +20,6 @@ func Seed() {
 				Fullname:             "Full Name A",
 				Gender:               "M",
 				IdCardNumber:         "9876123451234567789",
-				IdCardImage:          1,
-				TaxIDImage:           2,
 				TaxIDnumber:          "0987654321234567890",
 				Email:                "emaila@domain.com",
 				Birthday:             time.Now(),
