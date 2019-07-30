@@ -12,7 +12,7 @@ func sendMail(to string, subject, message string) error {
 	mailer := gomail.NewMessage()
 	mailer.SetHeader("From", Config["email"].(string))
 	mailer.SetHeader("To", to)
-	mailer.SetAddressHeader("Cc", "no-reply@ayannah.com", "Ayannah Support")
+	mailer.SetAddressHeader("Cc", "no-reply@ayannah.com", "git Ayannah Support")
 	mailer.SetHeader("Subject", subject)
 	mailer.SetBody("text/html", message)
 

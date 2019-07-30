@@ -43,7 +43,7 @@ func ClientResetPassword(c echo.Context) error {
 			log.Println(err.Error())
 		}
 
-		return c.JSON(http.StatusOK, map[string]interface{}{"message": borrower.Email, "status": link})
+		return c.JSON(http.StatusOK, map[string]interface{}{"message": "Link reset password telah dikirim ke email", "status": true})
 	}
 	return returnInvalidResponse(http.StatusNotFound, "", "Email Tidak Ditemukan")
 }
