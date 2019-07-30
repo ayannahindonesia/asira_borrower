@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"asira/asira"
-	"asira/models"
+	"asira_borrower/asira"
+	"asira_borrower/models"
 	"fmt"
 	"net/http"
 	"regexp"

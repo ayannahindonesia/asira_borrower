@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"asira/asira"
+	"asira_borrower/asira"
 	"net/http"
 
 	"github.com/labstack/echo"
