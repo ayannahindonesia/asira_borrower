@@ -1,8 +1,8 @@
 package migration
 
 import (
-	"asira/asira"
-	"asira/models"
+	"asira_borrower/asira"
+	"asira_borrower/models"
 	"database/sql"
 	"fmt"
 	"strings"

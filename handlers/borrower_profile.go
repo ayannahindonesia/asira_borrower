@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"asira/models"
+	"asira_borrower/models"
 	"net/http"
 	"strconv"
 

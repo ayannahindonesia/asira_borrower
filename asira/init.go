@@ -1,7 +1,7 @@
 package asira
 
 import (
-	"asira/validator"
+	"asira_borrower/validator"
 	"fmt"
 	"log"
 	"os"
