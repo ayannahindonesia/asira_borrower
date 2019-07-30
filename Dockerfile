@@ -1,6 +1,6 @@
 FROM golang:alpine
 
-ARG APPNAME="asira"
+ARG APPNAME="asira_borrower"
 ARG ENV="dev"
 
 ADD . $GOPATH/src/"${APPNAME}"
