@@ -15,7 +15,7 @@ func ClientResetPassword(c echo.Context) error {
 	defer c.Request().Body.Close()
 	borrower := models.Borrower{}
 	r := c.Request()
-	baseURL := c.Scheme() + "://" + r.Host
+	baseURL := c.Scheme() + "://" + r.Host + "/"
 	payloadRules := govalidator.MapData{
 		"email": []string{"email", "required", "unique:borrowers,email"},
 	}
@@ -38,7 +38,7 @@ func ClientResetPassword(c echo.Context) error {
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OK"})
+		return c.JSON(http.StatusOK, map[string]interface{}{"message": borrower.Email})
 	}
-	return returnInvalidResponse(http.StatusNotFound, "", "Email Not Found")
+	return returnInvalidResponse(http.StatusNotFound, "", "Email Tidak Ditemukan")
 }

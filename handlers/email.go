@@ -3,12 +3,14 @@ package handlers
 import (
 	"asira/asira"
 	"fmt"
+	"log"
 	"net/smtp"
 	"strings"
 )
 
 func sendMail(to []string, subject, message string) error {
 	Config := asira.App.Config.GetStringMap(fmt.Sprintf("%s.mailer", asira.App.ENV))
+	log.Println(Config)
 	body := "From: " + Config["SMTP_HOST"].(string) + "\n" +
 		"To: " + strings.Join(to, ",") + "\n" +
 		"Subject: " + subject + "\n\n" +
