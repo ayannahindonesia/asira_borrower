@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -17,7 +19,7 @@ func ClientResetPassword(c echo.Context) error {
 	r := c.Request()
 	baseURL := c.Scheme() + "://" + r.Host + "/"
 	payloadRules := govalidator.MapData{
-		"email": []string{"email", "required", "unique:borrowers,email"},
+		"email": []string{"email", "unique:borrowers,email"},
 	}
 	validate := validateRequestPayload(c, payloadRules, &borrower)
 	if validate != nil {
@@ -29,16 +31,19 @@ func ClientResetPassword(c echo.Context) error {
 		if borrower.Email == "" {
 			return returnInvalidResponse(http.StatusUnprocessableEntity, "", "Email Not Found")
 		}
-		to := []string{borrower.Email}
+		to := borrower.Email
 		subject := "[NO REPLY] - Reset Password Aplikasi Mobile ASIRA"
 		link := baseURL + "?q=" + token
 		message := "Hai Nasabah,\nIni adalah email untuk melakukan reset login akun anda.\nSilahkan klik link di bawah ini agar dapat melakukan reset login akun.\nLink ini hanya valid dalam waktu 24 jam.\n" + link + " \n Ayannah Solusi Nusantara Team"
 
+		Config := asira.App.Config.GetStringMap(fmt.Sprintf("%s.mailer", asira.App.ENV))
+		log.Println(Config)
 		err = sendMail(to, subject, message)
 		if err != nil {
-			log.Fatal(err.Error())
+			log.Println(err.Error())
 		}
-		return c.JSON(http.StatusOK, map[string]interface{}{"message": borrower.Email})
+
+		return c.JSON(http.StatusOK, map[string]interface{}{"message": borrower.Email, "status": link})
 	}
 	return returnInvalidResponse(http.StatusNotFound, "", "Email Tidak Ditemukan")
 }
