@@ -1,13 +1,15 @@
 package handlers
 
 import (
-	"asira/asira"
+	"asira_borrower/asira"
 	"net/http"
 
 	"github.com/labstack/echo"
 )
 
 func AsiraAppInfo(c echo.Context) error {
+	defer c.Request().Body.Close()
+
 	type AppInfo struct {
 		AppName string                 `json:"app_name"`
 		Version string                 `json:"version"`
