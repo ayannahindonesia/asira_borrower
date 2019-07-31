@@ -3,6 +3,7 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -43,10 +44,15 @@ func RegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
 	}
 	borrower := models.Borrower{
-		IdCardImage: IdCardImage,
-		TaxIDImage:  TaxIdImage,
+		IdCardImage: sql.NullInt64{
+			Int64: int64(IdCardImage.BaseModel.ID),
+			Valid: true,
+		},
+		TaxIDImage: sql.NullInt64{
+			Int64: int64(TaxIdImage.BaseModel.ID),
+			Valid: true,
+		},
 	}
-
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{"required"},
 		"gender":                []string{"required"},
@@ -98,10 +104,7 @@ func RegisterBorrower(c echo.Context) error {
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
-	// borrower = models.Borrower{
-	// 	IdCardImage: IdCardImage,
-	// 	TaxIDImage:  TaxIdImage,
-	// }
+
 	newBorrower, err := borrower.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
