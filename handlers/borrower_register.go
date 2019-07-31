@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira/asira"
 	"asira/models"
-	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -22,7 +21,6 @@ type (
 		VerifyAccountOTPrequest
 		OTPcode string `json:"otp_code"`
 	}
-	NullInt64 sql.NullInt64
 )
 
 func RegisterBorrower(c echo.Context) error {
@@ -44,7 +42,10 @@ func RegisterBorrower(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
 	}
-	borrower := models.Borrower{}
+	borrower := models.Borrower{
+		IdCardImage: IdCardImage,
+		TaxIDImage:  TaxIdImage,
+	}
 
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{"required"},
@@ -97,16 +98,10 @@ func RegisterBorrower(c echo.Context) error {
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
-	borrower := models.Borrower{
-		IdCardImage: sql.NullInt64{
-			Int64: int64(IdCardImage.BaseModel.ID),
-			Valid: true,
-		},
-		TaxIDImage: sql.NullInt64{
-			Int64: int64(TaxIdImage.BaseModel.ID),
-			Valid: true,
-		},
-	}
+	// borrower = models.Borrower{
+	// 	IdCardImage: IdCardImage,
+	// 	TaxIDImage:  TaxIdImage,
+	// }
 	newBorrower, err := borrower.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
