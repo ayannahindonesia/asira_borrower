@@ -14,7 +14,7 @@ func sendMail(to string, subject, message string) error {
 	mailer.SetHeader("To", to)
 	mailer.SetAddressHeader("Cc", "no-reply@ayannah.com", "git Ayannah Support")
 	mailer.SetHeader("Subject", subject)
-	mailer.SetBody("text/html", message)
+	mailer.SetBody("text/plain", message)
 
 	dialer := gomail.NewPlainDialer(Config["host"].(string),
 		Config["port"].(int),
