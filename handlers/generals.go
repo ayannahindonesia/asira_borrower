@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"fmt"
-	"log"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -29,7 +28,6 @@ func validateRequestPayload(c echo.Context, rules govalidator.MapData, data inte
 
 	v := govalidator.New(opts)
 	mappedError := v.ValidateJSON()
-	log.Println(mappedError)
 	if len(mappedError) > 0 {
 		i = mappedError
 	}
