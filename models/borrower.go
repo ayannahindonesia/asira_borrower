@@ -14,8 +14,8 @@ type (
 		Fullname             string        `json:"fullname" gorm:"column:fullname;type:varchar(255);not_null"`
 		Gender               string        `json:"gender" gorm:"column:gender;type:varchar(1);not null`
 		IdCardNumber         string        `json:"idcard_number" gorm:"column:idcard_number;type:varchar(255);unique;not null"`
-		IdCardImage          sql.NullInt64 `json:"idcard_image,string" gorm:"column:idcard_image" sql:"DEFAULT:NULL"`
-		TaxIDImage           sql.NullInt64 `json:"taxid_image,string" gorm:"column:taxid_image" sql:"DEFAULT:NULL"`
+		IdCardImage          sql.NullInt64 `json:"idcard_image" gorm:"column:idcard_image;foreignkey"`
+		TaxIDImage           sql.NullInt64 `json:"taxid_image" gorm:"column:taxid_image;foreignkey"`
 		TaxIDnumber          string        `json:"taxid_number" gorm:"column:taxid_number;type:varchar(255)"`
 		Email                string        `json:"email" gorm:"column:email;type:varchar(255);unique"`
 		Birthday             time.Time     `json:"birthday" gorm:"column:birthday;not null"`

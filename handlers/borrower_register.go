@@ -44,16 +44,7 @@ func RegisterBorrower(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
 	}
-	borrower := models.Borrower{
-		IdCardImage: sql.NullInt64{
-			Int64: int64(IdCardImage.BaseModel.ID),
-			Valid: true,
-		},
-		TaxIDImage: sql.NullInt64{
-			Int64: int64(TaxIdImage.BaseModel.ID),
-			Valid: true,
-		},
-	}
+	borrower := models.Borrower{}
 
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{"required"},
@@ -106,7 +97,16 @@ func RegisterBorrower(c echo.Context) error {
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
-
+	borrower := models.Borrower{
+		IdCardImage: sql.NullInt64{
+			Int64: int64(IdCardImage.BaseModel.ID),
+			Valid: true,
+		},
+		TaxIDImage: sql.NullInt64{
+			Int64: int64(TaxIdImage.BaseModel.ID),
+			Valid: true,
+		},
+	}
 	newBorrower, err := borrower.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
