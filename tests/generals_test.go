@@ -1,8 +1,8 @@
 package tests
 
 import (
-	"asira/asira"
-	"asira/migration"
+	"asira_borrower/asira"
+	"asira_borrower/migration"
 	"fmt"
 	"net/http"
 	"os"

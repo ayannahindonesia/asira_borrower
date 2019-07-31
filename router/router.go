@@ -1,8 +1,8 @@
 package router
 
 import (
-	"asira/groups"
-	"asira/handlers"
+	"asira_borrower/groups"
+	"asira_borrower/handlers"
 	"os"
 
 	"github.com/labstack/echo"
