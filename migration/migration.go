@@ -150,7 +150,6 @@ func Truncate(tableList []string) (err error) {
 			tableList = []string{
 				"banks",
 				"bank_products",
-				"images",
 				"borrowers",
 				"loans",
 			}
