@@ -32,7 +32,7 @@ func RegisterBorrower(c echo.Context) error {
 		"gender":                []string{"required"},
 		"idcard_number":         []string{"required", "unique:borrowers,idcard_number"},
 		"taxid_number":          []string{"unique:borrowers,taxid_number"},
-		"email":                 []string{"email", "unique:borrowers,email"},
+		"email":                 []string{"required", "email", "unique:borrowers,email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
 		"last_education":        []string{"required"},
@@ -81,7 +81,7 @@ func RegisterBorrower(c echo.Context) error {
 
 	newBorrower, err := borrower.Create()
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pembuatan Akun Gagal")
 	}
 
 	return c.JSON(http.StatusCreated, newBorrower)
@@ -111,7 +111,7 @@ func RequestOTPverifyAccount(c echo.Context) error {
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
 	log.Printf("generate otp code for phonenumber %s : %s", otpRequest.Phone, otpCode)
 
-	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Sent"})
+	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Terkirim"})
 }
 
 func VerifyAccountOTP(c echo.Context) error {

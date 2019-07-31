@@ -102,7 +102,6 @@ func Seed() {
 		for _, borrower := range borrowers {
 			borrower.Create()
 		}
-
 		// seed loans
 		loans := []models.Loan{
 			models.Loan{

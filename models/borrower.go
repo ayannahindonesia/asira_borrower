@@ -62,6 +62,7 @@ type (
 
 // gorm callback hook
 func (b *Borrower) BeforeCreate() (err error) {
+
 	passwordByte, err := bcrypt.GenerateFromPassword([]byte(b.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
