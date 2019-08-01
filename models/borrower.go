@@ -1,9 +1,14 @@
 package models
 
 import (
+	"asira_borrower/asira"
 	"database/sql"
+	"encoding/json"
+	"log"
+	"strconv"
 	"time"
 
+	"github.com/Shopify/sarama"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -74,6 +79,28 @@ func (b *Borrower) BeforeCreate() (err error) {
 func (b *Borrower) Create() (*Borrower, error) {
 	err := Create(&b)
 	return b, err
+}
+
+// gorm callback hook. send data to lender
+func (b *Borrower) AfterCreate() (err error) {
+	topic := "producer_new_borrower"
+	bJsonMarshal, _ := json.Marshal(b)
+
+	strTime := strconv.Itoa(int(time.Now().Unix()))
+	msg := &sarama.ProducerMessage{
+		Topic: topic,
+		Key:   sarama.StringEncoder(strTime),
+		Value: sarama.StringEncoder(string(bJsonMarshal)),
+	}
+
+	select {
+	case asira.App.Kafka.Producer.Input() <- msg:
+		log.Printf("Produced topic : %s", topic)
+	case err := <-asira.App.Kafka.Producer.Errors():
+		log.Printf("Fail producing topic : %s error : %v", topic, err)
+	}
+
+	return nil
 }
 
 // gorm callback hook
