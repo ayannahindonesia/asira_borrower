@@ -12,7 +12,7 @@ type (
 		BaseModel
 		SuspendedTime        time.Time     `json:"suspended_time" gorm:"column:suspended_time"`
 		Fullname             string        `json:"fullname" gorm:"column:fullname;type:varchar(255);not_null"`
-		Gender               string        `json:"gender" gorm:"column:gender;type:varchar(1);not null`
+		Gender               string        `json:"gender" gorm:"column:gender;type:varchar(1);not null"`
 		IdCardNumber         string        `json:"idcard_number" gorm:"column:idcard_number;type:varchar(255);unique;not null"`
 		TaxIDnumber          string        `json:"taxid_number" gorm:"column:taxid_number;type:varchar(255)"`
 		Email                string        `json:"email" gorm:"column:email;type:varchar(255);unique"`

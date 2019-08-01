@@ -1,7 +1,7 @@
 package tests
 
 import (
-	"asira/router"
+	"asira_borrower/router"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -46,7 +46,7 @@ func TestResetPassword(t *testing.T) {
 	// test invalid empty body
 	obj = auth.POST("/client/reset_password").WithJSON(map[string]interface{}{}).
 		Expect().
-		Status(http.StatusBadRequest).JSON().Object()
+		Status(http.StatusNotFound).JSON().Object()
 
 	// test invalid client token
 	auth = e.Builder(func(req *httpexpect.Request) {

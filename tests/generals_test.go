@@ -1,8 +1,8 @@
 package tests
 
 import (
-	"asira/asira"
-	"asira/migration"
+	"asira_borrower/asira"
+	"asira_borrower/migration"
 	"fmt"
 	"net/http"
 	"os"
@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	clientBasicToken string = "Basic YW5kcm9rZXk6YW5kcm9zZWNyZXQ="
+	clientBasicToken string = "YW5kcm9rZXk6YW5kcm9zZWNyZXQ="
 )
 
 func init() {

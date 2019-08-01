@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"asira/asira"
+	"asira_borrower/asira"
 	"fmt"
 	"time"
 
@@ -27,7 +27,6 @@ func validateRequestPayload(c echo.Context, rules govalidator.MapData, data inte
 	}
 
 	v := govalidator.New(opts)
-
 	mappedError := v.ValidateJSON()
 	if len(mappedError) > 0 {
 		i = mappedError

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"asira/asira"
-	"asira/migration"
-	"asira/router"
+	"asira_borrower/asira"
+	"asira_borrower/migration"
+	"asira_borrower/router"
 	"database/sql"
 	"flag"
 	"fmt"

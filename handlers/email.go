@@ -1,23 +1,27 @@
 package handlers
 
 import (
-	"asira/asira"
+	"asira_borrower/asira"
 	"fmt"
-	"net/smtp"
-	"strings"
+
+	"gopkg.in/gomail.v2"
 )
 
-func sendMail(to []string, subject, message string) error {
+func sendMail(to string, subject, message string) error {
 	Config := asira.App.Config.GetStringMap(fmt.Sprintf("%s.mailer", asira.App.ENV))
-	body := "From: " + Config["SMTP_HOST"].(string) + "\n" +
-		"To: " + strings.Join(to, ",") + "\n" +
-		"Subject: " + subject + "\n\n" +
-		message
+	mailer := gomail.NewMessage()
+	mailer.SetHeader("From", Config["email"].(string))
+	mailer.SetHeader("To", to)
+	mailer.SetAddressHeader("Cc", "no-reply@ayannah.com", "git Ayannah Support")
+	mailer.SetHeader("Subject", subject)
+	mailer.SetBody("text/plain", message)
 
-	auth := smtp.PlainAuth("", Config["EMAIL"].(string), Config["PASSWORD"].(string), Config["SMTP_HOST"].(string))
-	smtpAddr := fmt.Sprintf("%s:%d", Config["SMTP_HOST"].(string), Config["SMTP_PORT"].(int))
+	dialer := gomail.NewPlainDialer(Config["host"].(string),
+		Config["port"].(int),
+		Config["email"].(string),
+		Config["password"].(string))
 
-	err := smtp.SendMail(smtpAddr, auth, Config["EMAIL"].(string), append(to), []byte(body))
+	err := dialer.DialAndSend(mailer)
 	if err != nil {
 		return err
 	}
