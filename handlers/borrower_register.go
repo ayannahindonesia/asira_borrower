@@ -3,6 +3,8 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
+	"database/sql"
+	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -74,9 +76,40 @@ func RegisterBorrower(c echo.Context) error {
 		"password":              []string{"required"},
 	}
 
-	validate := validateRequestPayload(c, payloadRules, &borrower)
+	validate := validateRequestPayload(c, payloadRules, &register)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
+	}
+	borrower := models.Borrower{}
+	r, err := json.Marshal(register)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+	}
+	json.Unmarshal(r, &borrower)
+
+	image := models.Image{
+		Image_string: register.IdCardImage,
+	}
+	IdCardImage, err := image.Create()
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+	}
+
+	image = models.Image{
+		Image_string: register.TaxIDImage,
+	}
+	TaxIdImage, err := image.Create()
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+	}
+
+	borrower.IdCardImage = sql.NullInt64{
+		Int64: int64(IdCardImage.BaseModel.ID),
+		Valid: true,
+	}
+	borrower.TaxIDImage = sql.NullInt64{
+		Int64: int64(TaxIdImage.BaseModel.ID),
+		Valid: true,
 	}
 
 	newBorrower, err := borrower.Create()
@@ -147,7 +180,7 @@ func VerifyAccountOTP(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
 	}
 
-	return returnInvalidResponse(http.StatusBadRequest, "", "Wrong OTP code")
+	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
 }
 
 func updateAccountOTPstatus(borrowerID int) {
