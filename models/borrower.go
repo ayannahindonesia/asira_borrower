@@ -64,14 +64,6 @@ type (
 
 // gorm callback hook
 func (b *Borrower) BeforeCreate() (err error) {
-	// b.IdCardImage = sql.NullInt64{
-	// 	Int64: int64(b.IdCardImage.BaseModel.ID),
-	// 	Valid: true,
-	// }
-	// b.TaxIDImage = sql.NullInt64{
-	// 	Int64: int64(b.TaxIDImage.BaseModel.ID),
-	// 	Valid: true,
-	// }
 	passwordByte, err := bcrypt.GenerateFromPassword([]byte(b.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
