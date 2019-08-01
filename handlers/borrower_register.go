@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -26,24 +27,58 @@ type (
 
 func RegisterBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
-
-	var result map[string]interface{}
-	json.NewDecoder(c.Request().Body).Decode(&result)
-	image := models.Image{
-		Image_string: result["idcard_image"].(string),
-	}
-	IdCardImage, err := image.Create()
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
-	}
-	image = models.Image{
-		Image_string: result["taxid_image"].(string),
-	}
-	TaxIdImage, err := image.Create()
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
-	}
-	borrower := models.Borrower{}
+	type (
+		Register struct {
+			Fullname             string    `json:"fullname"`
+			Gender               string    `json:"gender" `
+			IdCardNumber         string    `json:"idcard_number" `
+			IdCardImage          string    `json:"idcard_image"`
+			TaxIDImage           string    `json:"taxid_image" `
+			TaxIDnumber          string    `json:"taxid_number" `
+			Email                string    `json:"email" `
+			Birthday             time.Time `json:"birthday"`
+			Birthplace           string    `json:"birthplace" `
+			LastEducation        string    `json:"last_education" `
+			MotherName           string    `json:"mother_name" `
+			Phone                string    `json:"phone" `
+			MarriedStatus        string    `json:"marriage_status"`
+			SpouseName           string    `json:"spouse_name" `
+			SpouseBirthday       time.Time `json:"spouse_birthday" `
+			SpouseLastEducation  string    `json:"spouse_lasteducation" `
+			Dependants           int       `json:"dependants,omitempty"`
+			Address              string    `json:"address" `
+			Province             string    `json:"province" `
+			City                 string    `json:"city" `
+			NeighbourAssociation string    `json:"neighbour_association" `
+			Hamlets              string    `json:"hamlets"`
+			HomePhoneNumber      string    `json:"home_phonenumber" `
+			Subdistrict          string    `json:"subdistrict" `
+			UrbanVillage         string    `json:"urban_village" `
+			HomeOwnership        string    `json:"home_ownership"`
+			LivedFor             int       `json:"lived_for" `
+			Occupation           string    `json:"occupation"`
+			EmployeeID           string    `json:"employee_id"`
+			EmployerName         string    `json:"employer_name"`
+			EmployerAddress      string    `json:"employer_address" `
+			Department           string    `json:"department"`
+			BeenWorkingFor       int       `json:"been_workingfor"`
+			DirectSuperior       string    `json:"direct_superiorname"`
+			EmployerNumber       string    `json:"employer_number" `
+			MonthlyIncome        int       `json:"monthly_income" `
+			OtherIncome          int       `json:"other_income" `
+			OtherIncomeSource    string    `json:"other_incomesource" `
+			FieldOfWork          string    `json:"field_of_work" `
+			RelatedPersonName    string    `json:"related_personname"`
+			RelatedRelation      string    `json:"related_relation"`
+			RelatedPhoneNumber   string    `json:"related_phonenumber"`
+			RelatedHomePhone     string    `json:"related_homenumber" `
+			RelatedAddress       string    `json:"related_address" `
+			Bank                 int       `json:"bank"`
+			BankAccountNumber    string    `json:"bank_accountnumber" `
+			Password             string    `json:"password" `
+		}
+	)
+	register := Register{}
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{"required"},
 		"gender":                []string{"required"},
@@ -91,23 +126,45 @@ func RegisterBorrower(c echo.Context) error {
 		"password":              []string{"required"},
 	}
 
-	validate := validateRequestPayload(c, payloadRules, &borrower)
+	validate := validateRequestPayload(c, payloadRules, &register)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
-	borrower = models.Borrower{
-		IdCardImage: sql.NullInt64{
-			Int64: int64(IdCardImage.BaseModel.ID),
-			Valid: true,
-		},
-		TaxIDImage: sql.NullInt64{
-			Int64: int64(TaxIdImage.BaseModel.ID),
-			Valid: true,
-		},
+	borrower := models.Borrower{}
+	r, err := json.Marshal(register)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
+	json.Unmarshal(r, &borrower)
+
+	image := models.Image{
+		Image_string: register.IdCardImage,
+	}
+	IdCardImage, err := image.Create()
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+	}
+
+	image = models.Image{
+		Image_string: register.TaxIDImage,
+	}
+	TaxIdImage, err := image.Create()
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+	}
+
+	borrower.IdCardImage = sql.NullInt64{
+		Int64: int64(IdCardImage.BaseModel.ID),
+		Valid: true,
+	}
+	borrower.TaxIDImage = sql.NullInt64{
+		Int64: int64(TaxIdImage.BaseModel.ID),
+		Valid: true,
+	}
+
 	newBorrower, err := borrower.Create()
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "create new borrower failed")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 
 	return c.JSON(http.StatusCreated, newBorrower)
@@ -137,7 +194,7 @@ func RequestOTPverifyAccount(c echo.Context) error {
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
 	log.Printf("generate otp code for phonenumber %s : %s", otpRequest.Phone, otpCode)
 
-	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Sent"})
+	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Terkirim"})
 }
 
 func VerifyAccountOTP(c echo.Context) error {
@@ -173,7 +230,7 @@ func VerifyAccountOTP(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
 	}
 
-	return returnInvalidResponse(http.StatusBadRequest, "", "Wrong OTP code")
+	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
 }
 
 func updateAccountOTPstatus(borrowerID int) {
