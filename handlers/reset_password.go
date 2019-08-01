@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
 	"log"
 	"net/http"
@@ -21,6 +22,8 @@ func ClientResetPassword(c echo.Context) error {
 	}
 	validate := validateRequestPayload(c, payloadRules, &borrower)
 	if validate != nil {
+		data := asira.App.DB.Where("email = ?", borrower.Email).Find(&borrower)
+		log.Println(data)
 		tokenrole := "borrower"
 		token, err := createJwtToken(strconv.FormatUint(borrower.ID, 10), tokenrole)
 		if err != nil {
