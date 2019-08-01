@@ -26,6 +26,9 @@ func ClientResetPassword(c echo.Context) error {
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "error creating token")
 		}
+		if borrower.OTPverified != true {
+			return returnInvalidResponse(http.StatusUnprocessableEntity, "", "Akun Anda Belum di Verifikasi, Silahkan Verifikasi Terlebih Dahulu")
+		}
 		if borrower.Email == "" {
 			return returnInvalidResponse(http.StatusUnprocessableEntity, "", "Email Tidak Ditemukan atau Email anda belum terdaftar")
 		}
