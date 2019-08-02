@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
 	"log"
 	"net/http"
@@ -21,10 +22,14 @@ func ClientResetPassword(c echo.Context) error {
 	}
 	validate := validateRequestPayload(c, payloadRules, &borrower)
 	if validate != nil {
+		asira.App.DB.Where("email = ?", borrower.Email).Find(&borrower)
 		tokenrole := "borrower"
 		token, err := createJwtToken(strconv.FormatUint(borrower.ID, 10), tokenrole)
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "error creating token")
+		}
+		if borrower.OTPverified != true {
+			return returnInvalidResponse(http.StatusUnprocessableEntity, "", "Akun Anda Belum di Verifikasi, Silahkan Verifikasi Terlebih Dahulu")
 		}
 		if borrower.Email == "" {
 			return returnInvalidResponse(http.StatusUnprocessableEntity, "", "Email Tidak Ditemukan atau Email anda belum terdaftar")
