@@ -13,6 +13,7 @@ func ClientGroup(e *echo.Echo) {
 	g.GET("/check_unique", handlers.CheckData)
 	g.POST("/register_borrower", handlers.RegisterBorrower)
 	g.POST("/borrower_login", handlers.BorrowerLogin)
+	g.GET("/imagefile/:file_id", handlers.ClientImageFile)
 
 	g.POST("/reset_password", handlers.ClientResetPassword)
 
