@@ -4,6 +4,7 @@ import (
 	"asira_borrower/asira"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"strconv"
 	"time"
@@ -89,14 +90,14 @@ func (l *Loan) Create() (*Loan, error) {
 
 // gorm callback hook. send data to kafka as message
 func (l *Loan) AfterCreate() (err error) {
-	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics", x.ENV))
+	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics", asira.App.ENV))
 	lJsonMarshal, _ := json.Marshal(l)
 
 	strTime := strconv.Itoa(int(time.Now().Unix()))
 	msg := &sarama.ProducerMessage{
 		Topic: topics["new_loan"].(string),
 		Key:   sarama.StringEncoder(strTime),
-		Value: sarama.StringEncoder(string(bJsonMarshal)),
+		Value: sarama.StringEncoder(string(lJsonMarshal)),
 	}
 
 	select {
