@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"asira_borrower/models"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -17,6 +18,6 @@ func ClientImageFile(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "unauthorized")
 	}
-
+	log.Println(image.Image_string)
 	return c.JSON(http.StatusOK, image)
 }
