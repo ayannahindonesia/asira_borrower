@@ -22,8 +22,7 @@ func ClientResetPassword(c echo.Context) error {
 	}
 	validate := validateRequestPayload(c, payloadRules, &borrower)
 	if validate != nil {
-		data := asira.App.DB.Where("email = ?", borrower.Email).Find(&borrower)
-		log.Println(data)
+		asira.App.DB.Where("email = ?", borrower.Email).Find(&borrower)
 		tokenrole := "borrower"
 		token, err := createJwtToken(strconv.FormatUint(borrower.ID, 10), tokenrole)
 		if err != nil {
