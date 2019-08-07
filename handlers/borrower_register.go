@@ -31,7 +31,7 @@ func RegisterBorrower(c echo.Context) error {
 		"fullname":              []string{"required"},
 		"gender":                []string{"required"},
 		"idcard_number":         []string{"required", "unique:borrowers,idcard_number"},
-		"taxid_number":          []string{},
+		"taxid_number":          []string{"unique:borrowers,taxid_number"},
 		"email":                 []string{"required", "email", "unique:borrowers,email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
