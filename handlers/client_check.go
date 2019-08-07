@@ -42,7 +42,7 @@ func CheckData(c echo.Context) error {
 			"message": "Ok",
 		})
 	}
-	result := "Field : " + strings.Join(values, " , ") + " Is Used"
+	result := "Field : " + strings.Join(values, " , ") + " Telah Digunakan"
 	return returnInvalidResponse(http.StatusUnprocessableEntity, "", result)
 
 }

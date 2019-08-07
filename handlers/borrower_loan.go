@@ -41,7 +41,7 @@ func BorrowerLoanApply(c echo.Context) error {
 	newLoan, err := loan.Create()
 	if err != nil {
 		log.Printf("apply : %v", loan)
-		return returnInvalidResponse(http.StatusInternalServerError, err, "create new loan failed")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat Loan")
 	}
 
 	return c.JSON(http.StatusCreated, newLoan)
@@ -98,7 +98,7 @@ func BorrowerLoanGetDetails(c echo.Context) error {
 
 	loan_id, err := strconv.Atoi(c.Param("loan_id"))
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error parsing loan id")
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Loan Id tidak ditemukan")
 	}
 
 	type Filter struct {
@@ -113,7 +113,7 @@ func BorrowerLoanGetDetails(c echo.Context) error {
 		},
 	})
 	if err != nil {
-		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v not found", loan_id))
+		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v tidak ditemukan", loan_id))
 	}
 
 	return c.JSON(http.StatusOK, result)
@@ -154,7 +154,7 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
 	log.Printf("generate otp code for loan id %v : %v", result.ID, otpCode)
 
-	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Sent"})
+	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Terkirim"})
 }
 
 func BorrowerLoanOTPverify(c echo.Context) error {
@@ -201,7 +201,7 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 	}
 
 	if result.OTPverified {
-		return returnInvalidResponse(http.StatusBadRequest, "", fmt.Sprintf("loan %v already verified", loan_id))
+		return returnInvalidResponse(http.StatusBadRequest, "", fmt.Sprintf("loan %v sudah di verifikasi", loan_id))
 	}
 
 	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(result.ID)) // combine borrower id with loan id as counter

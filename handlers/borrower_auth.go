@@ -42,7 +42,7 @@ func BorrowerLogin(c echo.Context) error {
 
 	validate := validateRequestPayload(c, rules, &credentials)
 	if validate != nil {
-		return returnInvalidResponse(http.StatusBadRequest, validate, "invalid login")
+		return returnInvalidResponse(http.StatusBadRequest, validate, "Gagal login")
 	}
 
 	emailchecker := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
@@ -64,7 +64,7 @@ func BorrowerLogin(c echo.Context) error {
 	if !validKey { // check the password
 		err = bcrypt.CompareHashAndPassword([]byte(borrower.Password), []byte(credentials.Password))
 		if err != nil {
-			return returnInvalidResponse(http.StatusOK, err, "invalid login")
+			return returnInvalidResponse(http.StatusOK, err, "Password anda salah")
 		}
 
 		tokenrole := "unverified_borrower"
@@ -73,10 +73,10 @@ func BorrowerLogin(c echo.Context) error {
 		}
 		token, err = createJwtToken(strconv.FormatUint(borrower.ID, 10), tokenrole)
 		if err != nil {
-			return returnInvalidResponse(http.StatusInternalServerError, err, "error creating token")
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat token")
 		}
 	} else {
-		return returnInvalidResponse(http.StatusOK, "", "invalid login")
+		return returnInvalidResponse(http.StatusOK, "", "Gagal Login")
 	}
 
 	jwtConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", asira.App.ENV))
