@@ -44,6 +44,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
+	password := borrower.Password
 
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{},
@@ -97,6 +98,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
+	borrower.Password = password
 	_, err = borrower.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal Membuat Akun")
