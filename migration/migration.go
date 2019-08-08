@@ -164,6 +164,7 @@ func Truncate(tableList []string) (err error) {
 				"images",
 				"borrowers",
 				"loans",
+				"uuid_reset_passwords",
 			}
 		}
 

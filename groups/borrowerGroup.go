@@ -14,7 +14,6 @@ func BorrowerGroup(e *echo.Echo) {
 	// Profile endpoints
 	g.GET("/profile", handlers.BorrowerProfile)
 	g.PATCH("/profile", handlers.BorrowerProfileEdit)
-	g.PATCH("/change_password", handlers.BorrowerChangePassword)
 
 	// Loan endpoints
 	g.GET("/loan", handlers.BorrowerLoanGet)
