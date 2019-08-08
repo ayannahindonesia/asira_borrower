@@ -42,7 +42,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 	borrower, err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
-		return returnInvalidResponse(http.StatusForbidden, err, "unauthorized")
+		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 	password := borrower.Password
 
