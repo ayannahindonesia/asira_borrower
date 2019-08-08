@@ -56,3 +56,36 @@ func TestResetPassword(t *testing.T) {
 		Expect().
 		Status(http.StatusUnauthorized).JSON().Object()
 }
+
+func TestBorrowerChangePassword(t *testing.T) {
+	RebuildData()
+
+	api := router.NewRouter()
+
+	server := httptest.NewServer(api)
+
+	defer server.Close()
+
+	e := httpexpect.New(t, server.URL)
+	auth := e.Builder(func(req *httpexpect.Request) {
+		req.WithHeader("Authorization", "Basic "+clientBasicToken)
+	})
+
+	obj := auth.GET("/clientauth").
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+
+	admintoken := obj.Value("token").String().Raw()
+
+	auth = e.Builder(func(req *httpexpect.Request) {
+		req.WithHeader("Authorization", "Bearer "+admintoken)
+	})
+
+	data := map[string]interface{}{
+		"password": "password123",
+		"uuid":     "f4f71eae-2cc9-4289-94e4-2421df67d4d7",
+	}
+	auth.POST("/client/change_password").WithJSON(data).
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+}
