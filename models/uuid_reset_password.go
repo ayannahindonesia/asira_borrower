@@ -14,7 +14,7 @@ type (
 		UpdatedTime time.Time     `json:"updated_time" gorm:"column:updated_time" sql:"DEFAULT:current_timestamp"`
 		Borrower    sql.NullInt64 `json:"borrower" gorm:"column:borrower" sql:"DEFAULT:NULL"`
 		Expired     time.Time     `json:"expired" gorm:"column:expired"`
-		Used        bool          `json:"used" gorm:"column:used" sql:"DEFAULT:false"`
+		Used        bool          `json:"used" gorm:"column:used;type:boolean" sql:"DEFAULT:FALSE"`
 	}
 )
 
