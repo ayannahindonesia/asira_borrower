@@ -137,11 +137,10 @@ func RegisterBorrower(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
-
-	image = models.Image{
+	taximage := models.Image{
 		Image_string: register.TaxIDImage,
 	}
-	TaxIdImage, err := image.Create()
+	TaxIdImage, err := taximage.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
