@@ -42,8 +42,9 @@ func BorrowerProfileEdit(c echo.Context) error {
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 	borrower, err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
-		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
+		return returnInvalidResponse(http.StatusForbidden, err, "unauthorized")
 	}
+	password := borrower.Password
 
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{},
@@ -97,6 +98,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
+	borrower.Password = password
 	_, err = borrower.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal Membuat Akun")
