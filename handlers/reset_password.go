@@ -110,11 +110,16 @@ func ChangePassword(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Ubah Password Gagal")
 	}
+
 	responseBody := map[string]interface{}{
-		"status":   true,
-		"message":  "Ubah Passord berhasil",
-		"borrower": borrower,
-		"uuid":     result,
+		"status":  true,
+		"message": "Ubah Passord berhasil",
 	}
+
+	_, err = uuid_reset_password.Delete()
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal Menghapus UUID")
+	}
+
 	return c.JSON(http.StatusOK, responseBody)
 }

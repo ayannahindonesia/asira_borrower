@@ -48,3 +48,8 @@ func (l *Uuid_Reset_Password) FilterSearchSingle(filter interface{}) (*Uuid_Rese
 	err := FilterSearchSingle(&l, filter)
 	return l, err
 }
+
+func (i *Uuid_Reset_Password) Delete() (*Uuid_Reset_Password, error) {
+	err := Delete(&i)
+	return i, err
+}
