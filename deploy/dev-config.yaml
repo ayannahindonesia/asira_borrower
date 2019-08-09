@@ -16,6 +16,7 @@ development:
     port: "9092"
     user: ""
     pass: ""
+    log_verbose: true
     topics:
       new_loan: new_loan_request
   clients:
