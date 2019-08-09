@@ -11,6 +11,13 @@ development:
     sslmode: disable
     logmode: true
     timezone: Asia/Jakarta
+  kafka:
+    host: "10.148.0.3"
+    port: "9092"
+    user: ""
+    pass: ""
+    topics:
+      new_loan: new_loan_request
   clients:
     admin: Z3JhZGlvczp1bHRpbXVz
     android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret
