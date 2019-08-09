@@ -12,7 +12,7 @@ development:
     logmode: true
     timezone: Asia/Jakarta
   kafka:
-    host: "10.148.0.3"
+    host: kafka-id-vm
     port: "9092"
     user: ""
     pass: ""
