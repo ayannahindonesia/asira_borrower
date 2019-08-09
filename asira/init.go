@@ -155,7 +155,7 @@ func (x *Application) KafkaInit() (err error) {
 	kafkaConf := x.Config.GetStringMap(fmt.Sprintf("%s.kafka", x.ENV))
 
 	if kafkaConf["log_verbose"].(bool) {
-		sarama.Logger = log.New(os.Stdout, "[lender kafka] ", log.LstdFlags)
+		sarama.Logger = log.New(os.Stdout, "[borrower kafka] ", log.LstdFlags)
 	}
 
 	conf := sarama.NewConfig()
