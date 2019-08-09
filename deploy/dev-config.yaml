@@ -12,10 +12,10 @@ development:
     logmode: true
     timezone: Asia/Jakarta
   kafka:
-    host: kafka-id-vm
+    host: "10.148.0.3"
     port: "9092"
-    user: ""
-    pass: ""
+    user: user
+    pass: oRB5KjfuHdXc
     log_verbose: true
     topics:
       new_loan: new_loan_request
