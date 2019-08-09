@@ -89,9 +89,14 @@ func ChangePassword(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("UUID : %v tidak ditemukan", reset.UUID))
 	}
+
+	if result.Used == true {
+		return returnInvalidResponse(http.StatusNotFound, "", "Anda telah melakukan pergantian password")
+	}
+
 	diff := now.Sub(result.Expired)
 	if diff > 0 {
-		return returnInvalidResponse(http.StatusNotFound, err, "Link Expired")
+		return returnInvalidResponse(http.StatusNotFound, "", "Link Expired")
 	}
 	//check Borrower ID
 	borrowerModel := models.Borrower{}
@@ -111,10 +116,8 @@ func ChangePassword(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Ubah Password Gagal")
 	}
 
-	_, err = uuid_reset_password.Delete()
-	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal Menghapus UUID")
-	}
+	result.Used = true
+	result.Save()
 
 	responseBody := map[string]interface{}{
 		"status":  true,

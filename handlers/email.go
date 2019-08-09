@@ -10,7 +10,7 @@ import (
 func sendMail(to string, subject, message string) error {
 	Config := asira.App.Config.GetStringMap(fmt.Sprintf("%s.mailer", asira.App.ENV))
 	mailer := gomail.NewMessage()
-	mailer.SetHeader("From", "ASIRA")
+	mailer.SetHeader("From", Config["email"].(string))
 	mailer.SetHeader("To", to)
 	mailer.SetHeader("Subject", subject)
 	mailer.SetBody("text/plain", message)
@@ -24,6 +24,7 @@ func sendMail(to string, subject, message string) error {
 	if err != nil {
 		return err
 	}
+	//
 
 	return nil
 }
