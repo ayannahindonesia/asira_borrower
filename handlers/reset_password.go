@@ -59,7 +59,7 @@ func ClientResetPassword(c echo.Context) error {
 
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "Link reset password telah dikirim ke email, silahkan cek email anda"})
 	}
-	return returnInvalidResponse(http.StatusNotFound, "", "Email Tidak Ditemukan atau Email anda belum terdaftar")
+	return c.JSON(http.StatusOK, map[string]interface{}{"message": "Link reset password telah dikirim ke email, silahkan cek email anda"})
 }
 
 func ChangePassword(c echo.Context) error {
