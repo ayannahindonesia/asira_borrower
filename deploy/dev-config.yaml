@@ -12,10 +12,10 @@ development:
     logmode: true
     timezone: Asia/Jakarta
   kafka:
-    host: kafka
+    host: "10.148.0.3"
     port: "9092"
-    user: asirauser
-    pass: asirapass
+    user: ""
+    pass: ""
     topics:
       new_loan: new_loan_request
   clients:
