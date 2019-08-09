@@ -3,8 +3,6 @@ package models
 import (
 	"database/sql"
 	"time"
-
-	guuid "github.com/google/uuid"
 )
 
 type (
@@ -19,8 +17,6 @@ type (
 
 // gorm callback hook
 func (i *Uuid_Reset_Password) BeforeCreate() (err error) {
-	id := guuid.New()
-	i.UUID = id.String()
 
 	myDate := time.Now()
 	i.Expired = myDate.AddDate(0, 0, 1)

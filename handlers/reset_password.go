@@ -12,6 +12,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/thedevsaddam/govalidator"
 	"golang.org/x/crypto/bcrypt"
+
+	guuid "github.com/google/uuid"
 )
 
 func ClientResetPassword(c echo.Context) error {
@@ -26,12 +28,14 @@ func ClientResetPassword(c echo.Context) error {
 	validate := validateRequestPayload(c, payloadRules, &borrower)
 	if validate != nil {
 		asira.App.DB.Where("email = ?", borrower.Email).Find(&borrower)
+		id := guuid.New()
 
 		uuid := models.Uuid_Reset_Password{
 			Borrower: sql.NullInt64{
 				Int64: int64(borrower.BaseModel.ID),
 				Valid: true,
 			},
+			UUID: id.String(),
 		}
 		Reset, err := uuid.Create()
 		if err != nil {

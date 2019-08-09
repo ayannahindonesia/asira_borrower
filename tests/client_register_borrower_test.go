@@ -37,7 +37,10 @@ func TestRegisterBorrower(t *testing.T) {
 	payload := map[string]interface{}{
 		"fullname":              "test fullname",
 		"gender":                "M",
+		"idcard_image":          "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII=",
+		"taxid_image":           "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII=",
 		"idcard_number":         "6142356789123",
+		"taxid_number":          "89123",
 		"email":                 "mail@domain.com",
 		"birthday":              "1999-12-31T00:00:00.000Z",
 		"birthplace":            "jakarta",
