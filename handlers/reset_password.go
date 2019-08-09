@@ -12,6 +12,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/thedevsaddam/govalidator"
 	"golang.org/x/crypto/bcrypt"
+
+	guuid "github.com/google/uuid"
 )
 
 func ClientResetPassword(c echo.Context) error {
@@ -26,12 +28,14 @@ func ClientResetPassword(c echo.Context) error {
 	validate := validateRequestPayload(c, payloadRules, &borrower)
 	if validate != nil {
 		asira.App.DB.Where("email = ?", borrower.Email).Find(&borrower)
+		id := guuid.New()
 
 		uuid := models.Uuid_Reset_Password{
 			Borrower: sql.NullInt64{
 				Int64: int64(borrower.BaseModel.ID),
 				Valid: true,
 			},
+			UUID: id.String(),
 		}
 		Reset, err := uuid.Create()
 		if err != nil {
@@ -55,7 +59,7 @@ func ClientResetPassword(c echo.Context) error {
 
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "Link reset password telah dikirim ke email, silahkan cek email anda"})
 	}
-	return returnInvalidResponse(http.StatusNotFound, "", "Email Tidak Ditemukan atau Email anda belum terdaftar")
+	return c.JSON(http.StatusOK, map[string]interface{}{"message": "Link reset password telah dikirim ke email, silahkan cek email anda"})
 }
 
 func ChangePassword(c echo.Context) error {
@@ -89,9 +93,14 @@ func ChangePassword(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("UUID : %v tidak ditemukan", reset.UUID))
 	}
+
+	if result.Used == true {
+		return returnInvalidResponse(http.StatusNotFound, "", "Anda telah melakukan pergantian password")
+	}
+
 	diff := now.Sub(result.Expired)
 	if diff > 0 {
-		return returnInvalidResponse(http.StatusNotFound, err, "Link Expired")
+		return returnInvalidResponse(http.StatusNotFound, "", "Link Expired")
 	}
 	//check Borrower ID
 	borrowerModel := models.Borrower{}
@@ -111,10 +120,8 @@ func ChangePassword(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Ubah Password Gagal")
 	}
 
-	_, err = uuid_reset_password.Delete()
-	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal Menghapus UUID")
-	}
+	result.Used = true
+	result.Save()
 
 	responseBody := map[string]interface{}{
 		"status":  true,
