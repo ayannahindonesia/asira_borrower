@@ -11,6 +11,11 @@ development:
     sslmode: disable
     logmode: true
     timezone: Asia/Jakarta
+  kafka:
+    host: kafka
+    port: "9092"
+    user: asirauser
+    pass: asirapass
   clients:
     admin: Z3JhZGlvczp1bHRpbXVz
     android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret
