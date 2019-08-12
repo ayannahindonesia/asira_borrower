@@ -6,10 +6,16 @@ import (
 	"os"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 func NewRouter() *echo.Echo {
 	e := echo.New()
+
+	// ignore /api-borrower
+	e.Pre(middleware.Rewrite(map[string]string{
+		"/api-borrower/*": "/$1",
+	}))
 
 	// e.GET("/test", handlers.Test)
 	e.GET("/clientauth", handlers.ClientLogin)
