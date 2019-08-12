@@ -151,6 +151,15 @@ func Seed() {
 		for _, loan := range loans {
 			loan.Create()
 		}
+
+		uuid := models.Uuid_Reset_Password{
+			UUID: "f4f71eae-2cc9-4289-94e4-2421df67d4d7",
+			Borrower: sql.NullInt64{
+				Int64: int64(1),
+				Valid: true,
+			},
+		}
+		uuid.Create()
 	}
 }
 
@@ -164,6 +173,7 @@ func Truncate(tableList []string) (err error) {
 				"images",
 				"borrowers",
 				"loans",
+				"uuid_reset_passwords",
 			}
 		}
 

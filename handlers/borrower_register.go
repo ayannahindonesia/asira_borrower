@@ -130,13 +130,6 @@ func RegisterBorrower(c echo.Context) error {
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
-	borrower := models.Borrower{}
-	r, err := json.Marshal(register)
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
-	}
-	json.Unmarshal(r, &borrower)
-
 	image := models.Image{
 		Image_string: register.IdCardImage,
 	}
@@ -152,15 +145,21 @@ func RegisterBorrower(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
-
-	borrower.IdCardImage = sql.NullInt64{
-		Int64: int64(IdCardImage.BaseModel.ID),
-		Valid: true,
+	borrower := models.Borrower{
+		IdCardImage: sql.NullInt64{
+			Int64: int64(IdCardImage.BaseModel.ID),
+			Valid: true,
+		},
+		TaxIDImage: sql.NullInt64{
+			Int64: int64(TaxIdImage.BaseModel.ID),
+			Valid: true,
+		},
 	}
-	borrower.TaxIDImage = sql.NullInt64{
-		Int64: int64(TaxIdImage.BaseModel.ID),
-		Valid: true,
+	r, err := json.Marshal(register)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
+	json.Unmarshal(r, &borrower)
 
 	newBorrower, err := borrower.Create()
 	if err != nil {
@@ -169,7 +168,6 @@ func RegisterBorrower(c echo.Context) error {
 
 	return c.JSON(http.StatusCreated, newBorrower)
 }
-
 func RequestOTPverifyAccount(c echo.Context) error {
 	defer c.Request().Body.Close()
 

@@ -110,6 +110,18 @@ CREATE TABLE "loans" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+
+CREATE TABLE "uuid_reset_passwords" (
+    "id" bigserial,
+    "uuid" varchar(255) NOT NULL,
+    "borrower" bigint,
+    "expired" timestamptz,
+    "used"  BOOLEAN,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY ("borrower") REFERENCES borrowers(id),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 DROP TABLE IF EXISTS "banks" CASCADE;
@@ -117,3 +129,4 @@ DROP TABLE IF EXISTS "bank_products" CASCADE;
 DROP TABLE IF EXISTS "images" CASCADE;
 DROP TABLE IF EXISTS "borrowers" CASCADE;
 DROP TABLE IF EXISTS "loans" CASCADE;
+DROP TABLE IF EXISTS "uuid_reset_passwords" CASCADE;
