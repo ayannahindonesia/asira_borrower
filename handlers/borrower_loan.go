@@ -197,7 +197,7 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 		},
 	})
 	if err != nil {
-		return returnInvalidResponse(http.StatusNotFound, err, "query result error")
+		return returnInvalidResponse(http.StatusNotFound, err, "ID tidak ditemukan")
 	}
 
 	if result.OTPverified {
@@ -221,5 +221,5 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": fmt.Sprintf("loan %v verified", result.ID)})
 	}
 
-	return returnInvalidResponse(http.StatusBadRequest, "", "Wrong OTP code")
+	return returnInvalidResponse(http.StatusBadRequest, "", "OTP yang anda masukan salah")
 }
