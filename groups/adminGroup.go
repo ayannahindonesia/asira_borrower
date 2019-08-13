@@ -1,6 +1,7 @@
 package groups
 
 import (
+	"asira_borrower/admin_handlers"
 	"asira_borrower/handlers"
 	"asira_borrower/middlewares"
 
@@ -15,6 +16,6 @@ func AdminGroup(e *echo.Echo) {
 	g.GET("/info", handlers.AsiraAppInfo)
 
 	//Borrowers
-	g.GET("/borrower", handlers.BorrowerGetAll)
-	g.GET("/borrower/:borrower_id/details", handlers.BorrowerGetDetails)
+	g.GET("/borrower", admin_handlers.BorrowerGetAll)
+	g.GET("/borrower/:borrower_id", admin_handlers.BorrowerGetDetails)
 }
