@@ -18,11 +18,13 @@ func LoanGetAll(c echo.Context) error {
 	page, err := strconv.Atoi(c.QueryParam("page"))
 	orderby := c.QueryParam("orderby")
 	sort := c.QueryParam("sort")
-	owner := c.QueryParam("owner")
+	//owner ID / Borrower ID
+	owner, _ := strconv.Atoi(c.QueryParam("owner"))
 
 	type Filter struct {
 		Owner sql.NullInt64 `json:"owner"`
 	}
+
 	result, err := loan.PagedFilterSearch(page, rows, orderby, sort, &Filter{
 		Owner: sql.NullInt64{
 			Int64: int64(owner),
