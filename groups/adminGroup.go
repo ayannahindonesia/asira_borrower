@@ -13,4 +13,8 @@ func AdminGroup(e *echo.Echo) {
 
 	// OTP
 	g.GET("/info", handlers.AsiraAppInfo)
+
+	//Loans
+	g.GET("/loan", admin_handlers.LoanGetAll)
+	g.GET("/loan/:loan_id", admin_handlers.LoanGetDetails)
 }
