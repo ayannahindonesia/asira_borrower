@@ -22,7 +22,7 @@ func BorrowerGetAll(c echo.Context) error {
 	result, err := borrower.PagedFilterSearch(page, rows, orderby, sort, &filter)
 
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "query result error")
+		return returnInvalidResponse(http.StatusNotFound, err, "Borrower tidak Ditemukan")
 	}
 
 	return c.JSON(http.StatusOK, result)
@@ -36,7 +36,7 @@ func BorrowerGetDetails(c echo.Context) error {
 	borrowerID, _ := strconv.Atoi(c.Param("borrower_id"))
 	borrower, err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
-		return returnInvalidResponse(http.StatusForbidden, err, "Borrower ID tidak ditemukan")
+		return returnInvalidResponse(http.StatusNotFound, err, "Borrower ID tidak ditemukan")
 	}
 
 	return c.JSON(http.StatusOK, borrower)

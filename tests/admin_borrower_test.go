@@ -34,10 +34,11 @@ func TestBorrowerGetAll(t *testing.T) {
 		req.WithHeader("Authorization", "Bearer "+admintoken)
 	})
 
-	// valid response of loan details
-	obj = auth.GET("/admin/borrower/").
+	// valid response of borrowers
+	obj = auth.GET("/admin/borrower").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
+	obj.ContainsKey("to").ValueEqual("to", 25)
 }
 
 func TestBorrowerGetDetails(t *testing.T) {
