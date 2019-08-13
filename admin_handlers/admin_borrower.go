@@ -1,4 +1,4 @@
-package handlers
+package admin_handlers
 
 import (
 	"asira_borrower/models"

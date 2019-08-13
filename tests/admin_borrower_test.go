@@ -67,12 +67,12 @@ func TestBorrowerGetDetails(t *testing.T) {
 	})
 
 	// valid response of loan details
-	obj = auth.GET("/admin/borrower/1/details").
+	obj = auth.GET("/admin/borrower/1").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 	obj.ContainsKey("id").ValueEqual("id", 1)
 	// loan id not found
-	obj = auth.GET("/admin/borrower/99/details").
+	obj = auth.GET("/admin/borrower/99").
 		Expect().
 		Status(http.StatusNotFound).JSON().Object()
 }
