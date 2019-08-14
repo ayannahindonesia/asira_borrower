@@ -10,8 +10,16 @@ import (
 	"github.com/thedevsaddam/govalidator"
 )
 
+<<<<<<< HEAD
 //TO DO MOVE
 
+=======
+<<<<<<< HEAD
+=======
+//TO DO MOVE
+
+>>>>>>> 186-admin-loan
+>>>>>>> 03d54f4de4f31bcf0f4dfcf685706302a228aefa
 type (
 	JWTclaims struct {
 		Username string `json:"username"`
