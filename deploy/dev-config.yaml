@@ -12,10 +12,15 @@ development:
     logmode: true
     timezone: Asia/Jakarta
   kafka:
-    host: kafka
+    host: "10.148.0.3"
     port: "9092"
-    user: asirauser
-    pass: asirapass
+    user: user
+    pass: oRB5KjfuHdXc
+    client_id: asira
+    sasl: false
+    log_verbose: true
+    topics:
+      new_loan: asira_new_loan_request
   clients:
     admin: Z3JhZGlvczp1bHRpbXVz
     android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret
