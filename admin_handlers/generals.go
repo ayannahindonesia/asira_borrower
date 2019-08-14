@@ -10,6 +10,8 @@ import (
 	"github.com/thedevsaddam/govalidator"
 )
 
+//TO DO MOVE
+
 type (
 	JWTclaims struct {
 		Username string `json:"username"`
