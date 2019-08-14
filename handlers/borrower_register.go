@@ -83,7 +83,7 @@ func RegisterBorrower(c echo.Context) error {
 		"fullname":              []string{"required"},
 		"gender":                []string{"required"},
 		"idcard_number":         []string{"required", "unique:borrowers,idcard_number"},
-		"taxid_number":          []string{"required", "unique:borrowers,taxid_number"},
+		"taxid_number":          []string{"unique:borrowers,taxid_number"},
 		"email":                 []string{"email", "unique:borrowers,email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
@@ -137,11 +137,10 @@ func RegisterBorrower(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
-
-	image = models.Image{
+	taximage := models.Image{
 		Image_string: register.TaxIDImage,
 	}
-	TaxIdImage, err := image.Create()
+	TaxIdImage, err := taximage.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
