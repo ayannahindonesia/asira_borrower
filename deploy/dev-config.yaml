@@ -1,9 +1,10 @@
 development:
+  react_cors: true
   database:
-    table: asira_db
+    table: asira_borrower
     username: asirauser
     password: asirapass
-    host: "127.0.0.1"
+    host: postgres_db
     port: "5432"
     maxlifetime: 30
     idle_conns: 10
@@ -16,18 +17,21 @@ development:
     port: "9092"
     user: asirauser
     pass: asirapass
+    log_verbose: true
+    topics:
+      new_loan: new_loan_request
+      new_bank: new_bank_request
   clients:
     admin: Z3JhZGlvczp1bHRpbXVz
     android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret
   jwt:
-    duration: 10080 # in minutes
+    duration: 120 # in minutes
     jwt_secret: sXQ8jUMpueOvN5P3cdCR
   mailer:
     host : smtp.gmail.com
     port : 587
     email : apranta123@gmail.com
     password : Animajid01
-
 staging:
 
 production:
