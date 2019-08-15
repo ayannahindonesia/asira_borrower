@@ -159,7 +159,10 @@ func RegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 	json.Unmarshal(r, &borrower)
-
+	borrower.Bank = sql.NullInt64{
+		Int64: int64(register.Bank),
+		Valid: true,
+	}
 	newBorrower, err := borrower.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
