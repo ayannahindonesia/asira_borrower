@@ -2,8 +2,8 @@ package groups
 
 import (
 	"asira_borrower/admin_handlers"
+	"asira_borrower/handlers"
 	"asira_borrower/middlewares"
-	"handlers"
 
 	"github.com/labstack/echo"
 )
