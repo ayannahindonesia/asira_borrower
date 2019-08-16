@@ -19,8 +19,8 @@ development:
     pass: asirapass
     log_verbose: true
     topics:
-      new_loan: new_loan_request
-      new_bank: new_bank_request
+      new_loan: asira_new_loan_request
+      new_bank: asira_new_bank
   clients:
     admin: Z3JhZGlvczp1bHRpbXVz
     android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret
