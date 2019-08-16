@@ -14,7 +14,7 @@ CREATE TABLE "banks" (
     "services" jsonb DEFAULT '[]',
     "products" jsonb DEFAULT '[]',
     "pic" varchar(255),
-    "phone" varchar(255)
+    "phone" varchar(255),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
