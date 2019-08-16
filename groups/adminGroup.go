@@ -21,4 +21,6 @@ func AdminGroup(e *echo.Echo) {
 	//Loans
 	g.GET("/loan", admin_handlers.LoanGetAll)
 	g.GET("/loan/:loan_id", admin_handlers.LoanGetDetails)
+	//Create Client Config
+	g.POST("/client_config", admin_handlers.CreateClientConfig)
 }
