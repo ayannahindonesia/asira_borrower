@@ -1,21 +1,17 @@
 package models
 
-import (
-	guuid "github.com/google/uuid"
-)
-
 type (
 	Client_config struct {
 		BaseModel
-		Name   string `json:"client_name" gorm:"primary_key,column:client_name"`
+		Name   string `json:"name" gorm:"column:name"`
 		Secret string `json:"secret" gorm:"column:secret"`
+		Key    string `json:"key" gorm:"column:key"`
 		Role   string `json:"role" gorm:"column:role"`
 	}
 )
 
 // gorm callback hook
 func (i *Client_config) BeforeCreate() (err error) {
-	i.Secret = guuid.New().String()
 	return nil
 }
 

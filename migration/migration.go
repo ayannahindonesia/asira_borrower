@@ -164,13 +164,15 @@ func Seed() {
 		client := []models.Client_config{
 			models.Client_config{
 				Name:   "admin",
-				Secret: "Z3JhZGlvczp1bHRpbXVz",
+				Key:    "adminkey",
 				Role:   "admin",
+				Secret: "adminsecret",
 			},
 			models.Client_config{
 				Name:   "android",
-				Secret: "YW5kcm9rZXk6YW5kcm9zZWNyZXQ=",
+				Key:    "androkey",
 				Role:   "android",
+				Secret: "androsecret",
 			},
 		}
 		for _, clients := range client {

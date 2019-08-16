@@ -124,9 +124,10 @@ CREATE TABLE "uuid_reset_passwords" (
 
 CREATE TABLE "client_configs" (
     "id" bigserial,
-    "client_name" varchar(255) NOT NULL,
+    "name" varchar(255) NOT NULL,
     "role" varchar(255) NOT NULL,
     "secret" varchar(255) NOT NULL,
+    "key" varchar(255) NOT NULL,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("id")
