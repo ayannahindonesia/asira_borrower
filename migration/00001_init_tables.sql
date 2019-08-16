@@ -7,7 +7,7 @@ CREATE TABLE "banks" (
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
     "name" varchar(255),
-    "type" bigint,
+    "type" varchar(255),
     "address" text,
     "province" varchar(255),
     "city" varchar(255),
