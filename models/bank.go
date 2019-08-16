@@ -16,6 +16,7 @@ type (
 		Province    string         `json:"province" gorm:"column:province;type:varchar(255)"`
 		City        string         `json:"city" gorm:"column:city;type:varchar(255)"`
 		Services    postgres.Jsonb `json:"services" gorm:"column:services;type:jsonb"`
+		Products    postgres.Jsonb `json:"products" gorm:"column:products;type:jsonb"`
 		PIC         string         `json:"pic" gorm:"column:pic;type:varchar(255)"`
 		Phone       string         `json:"phone" gorm:"column:phone;type:varchar(255)"`
 	}

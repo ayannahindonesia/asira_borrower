@@ -15,7 +15,7 @@ func Seed() {
 	defer seeder.Commit()
 
 	if asira.App.ENV == "development" {
-		// seed lenders
+		// seed banks
 		services := []int{1, 2, 3, 5, 8}
 		jMarshal, _ := json.Marshal(services)
 		banks := []models.Bank{
@@ -26,6 +26,7 @@ func Seed() {
 				Province: "Province A",
 				City:     "City A",
 				Services: postgres.Jsonb{jMarshal},
+				Products: postgres.Jsonb{jMarshal},
 				PIC:      "Bank A PIC",
 				Phone:    "081234567890",
 			},
@@ -36,12 +37,13 @@ func Seed() {
 				Province: "Province B",
 				City:     "City B",
 				Services: postgres.Jsonb{jMarshal},
+				Products: postgres.Jsonb{jMarshal},
 				PIC:      "Bank B PIC",
 				Phone:    "081234567891",
 			},
 		}
 		for _, bank := range banks {
-			lender.Create()
+			bank.Create()
 		}
 
 		// seed borrowers
