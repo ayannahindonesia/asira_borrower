@@ -4,6 +4,7 @@ import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -14,6 +15,37 @@ func Seed() {
 	defer seeder.Commit()
 
 	if asira.App.ENV == "development" {
+		// seed banks
+		services := []int{1, 2, 3, 5, 8}
+		jMarshal, _ := json.Marshal(services)
+		banks := []models.Bank{
+			models.Bank{
+				Name:     "Bank A",
+				Type:     "BDP",
+				Address:  "Bank A Address",
+				Province: "Province A",
+				City:     "City A",
+				Services: postgres.Jsonb{jMarshal},
+				Products: postgres.Jsonb{jMarshal},
+				PIC:      "Bank A PIC",
+				Phone:    "081234567890",
+			},
+			models.Bank{
+				Name:     "Bank B",
+				Type:     "BDP",
+				Address:  "Bank B Address",
+				Province: "Province B",
+				City:     "City B",
+				Services: postgres.Jsonb{jMarshal},
+				Products: postgres.Jsonb{jMarshal},
+				PIC:      "Bank B PIC",
+				Phone:    "081234567891",
+			},
+		}
+		for _, bank := range banks {
+			bank.Create()
+		}
+
 		// seed borrowers
 		borrowers := []models.Borrower{
 			models.Borrower{
@@ -102,6 +134,8 @@ func Seed() {
 		for _, borrower := range borrowers {
 			borrower.Create()
 		}
+
+		//images
 		images := []models.Image{
 			models.Image{
 				Image_string: "iVBORw0KGgoAAAANSUhEUgAAAP0AAACnCAYAAADaIFptAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHiSURBVHhe7dMBAQAACMMg+5e+QQYduAEp0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPSQsj3nqr5USY34xwAAAABJRU5ErkJggg==",
@@ -113,6 +147,7 @@ func Seed() {
 		for _, image := range images {
 			image.Create()
 		}
+
 		// seed loans
 		loans := []models.Loan{
 			models.Loan{
@@ -152,6 +187,7 @@ func Seed() {
 			loan.Create()
 		}
 
+		//seed uuid
 		uuid := models.Uuid_Reset_Password{
 			UUID: "f4f71eae-2cc9-4289-94e4-2421df67d4d7",
 			Borrower: sql.NullInt64{

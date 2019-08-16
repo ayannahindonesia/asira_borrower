@@ -6,8 +6,15 @@ CREATE TABLE "banks" (
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
-    "bank_name" varchar(255),
+    "name" varchar(255),
+    "type" bigint,
+    "address" text,
+    "province" varchar(255),
+    "city" varchar(255),
     "services" jsonb DEFAULT '[]',
+    "products" jsonb DEFAULT '[]',
+    "pic" varchar(255),
+    "phone" varchar(255)
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
