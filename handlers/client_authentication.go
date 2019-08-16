@@ -5,7 +5,6 @@ import (
 	"asira_borrower/models"
 	"encoding/base64"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -18,7 +17,7 @@ func ClientLogin(c echo.Context) error {
 
 	data, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Basic "))
 	if err != nil {
-		log.Println(err)
+		return returnInvalidResponse(http.StatusUnauthorized, "", "Invalid Creadentials")
 	}
 
 	auth := strings.Split(string(data), ":")
@@ -35,7 +34,7 @@ func ClientLogin(c echo.Context) error {
 	})
 
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnauthorized, "", "invalid credentials")
+		return returnInvalidResponse(http.StatusUnauthorized, "", "Creadentials tidak ditemukan")
 	}
 
 	if clientData.Role == "admin" {

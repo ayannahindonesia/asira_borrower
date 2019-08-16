@@ -1,8 +1,9 @@
 package groups
 
 import (
-	"asira_borrower/handlers"
+	"asira_borrower/admin_handlers"
 	"asira_borrower/middlewares"
+	"handlers"
 
 	"github.com/labstack/echo"
 )
@@ -13,4 +14,7 @@ func AdminGroup(e *echo.Echo) {
 
 	// OTP
 	g.GET("/info", handlers.AsiraAppInfo)
+
+	//Create Client Config
+	g.POST("/client_config", admin_handlers.CreateClientConfig)
 }
