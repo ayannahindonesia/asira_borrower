@@ -17,6 +17,10 @@ development:
     port: "9092"
     user: asirauser
     pass: asirapass
+    log_verbose: true
+    topics:
+      loan_status_updt: asira_loan_update
+      new_bank: asira_new_bank
   clients:
     admin: Z3JhZGlvczp1bHRpbXVz
     android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret

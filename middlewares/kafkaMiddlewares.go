@@ -16,12 +16,9 @@ type (
 		PartitionConsumer sarama.PartitionConsumer
 	}
 
-	BanksData struct {
-		Data interface{} `json:"banks"`
-	}
-
-	LoanStatus struct {
-		Loan interface{} `json:"loan"`
+	Loan struct {
+		ID     int    `json:"id"`
+		Status string `json:"status"`
 	}
 )
 
@@ -31,7 +28,7 @@ func init() {
 	kafka := &AsiraKafkaHandlers{}
 	kafka.KafkaConsumer = asira.App.Kafka.Consumer
 
-	kafka.SetPartitionConsumer(topics["new_bank"].(string))
+	kafka.SetPartitionConsumer(topics["loan_status_updt"].(string))
 
 	go func() {
 		for {
@@ -40,7 +37,7 @@ func init() {
 				log.Printf("error occured when listening kafka : %v", err)
 			}
 			if message != nil {
-				err = syncBankData(message)
+				err = loanUpdate(message)
 				if err != nil {
 					log.Println(err)
 				}
@@ -69,48 +66,21 @@ func (k *AsiraKafkaHandlers) Listen() ([]byte, error) {
 	return nil, fmt.Errorf("unidentified error while listening")
 }
 
-func syncBankData(kafkaMessage []byte) (err error) {
-	var banksData BanksData
-	var bank models.Bank
-	err = json.Unmarshal(kafkaMessage, &banksData)
+func loanUpdate(kafkaMessage []byte) (err error) {
+	var loanData Loan
+	loan := models.Loan{}
+
+	err = json.Unmarshal(kafkaMessage, &loanData)
 	if err != nil {
 		return err
 	}
 
-	marshal, err := json.Marshal(banksData.Info)
+	data, err := loan.FindbyID(loanData.ID)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(marshal, &bank)
-	if err != nil {
-		return err
-	}
-
-	_, err = bank.Save()
-	return err
-
-}
-
-func loanUpdate(kafkaMessage [byte] (err error)){
-	var loanData LoanStatus
-	var loan models.Loan
-
-	err = json.Unmarshal(kafkaMessage , loanData)
-	if err != nil {
-		return err
-	}
-
-	marshal, err := json.Marshal(loanData.Loan)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(marshal, &loan)
-	if err != nil {
-		return err
-	}
-
-	_, err = loan.Save()
+	data.Status = loanData.Status
+	_, err = data.Save()
 	return err
 }
