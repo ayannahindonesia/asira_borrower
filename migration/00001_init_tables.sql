@@ -94,7 +94,7 @@ CREATE TABLE "loans" (
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
     "owner" bigint,
-    "status" int DEFAULT 1 NOT NULL,
+    "status" varchar(255) DEFAULT  ('processing'),
     "loan_amount" FLOAT NOT NULL,
     "installment" int NOT NULL,
     "fees" jsonb DEFAULT '[]',

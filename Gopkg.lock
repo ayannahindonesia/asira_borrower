@@ -2,22 +2,6 @@
 
 
 [[projects]]
-  digest = "1:82041ab48e5c76da656b723fdc13a2b9ec716cdc736f82adaac77f5c39d4fca8"
-  name = "github.com/DataDog/zstd"
-  packages = ["."]
-  pruneopts = ""
-  revision = "2347a397da4ee9c6b8226d4aff82c302d0e52773"
-  version = "v1.4.1"
-
-[[projects]]
-  digest = "1:5dd52495eaf9fad11f4742f341166aa9eb68f70061fc1a9b546f9481b284b6d8"
-  name = "github.com/Shopify/sarama"
-  packages = ["."]
-  pruneopts = ""
-  revision = "46c83074a05474240f9620fb7c70fb0d80ca401a"
-  version = "v1.23.1"
-
-[[projects]]
   digest = "1:e8f914c174ebc670d1713986d5e4f47a21f349209ac929d00558a496f59c7384"
   name = "github.com/ajg/form"
   packages = ["."]
@@ -40,30 +24,6 @@
   pruneopts = ""
   revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
   version = "v3.2.0"
-
-[[projects]]
-  digest = "1:8c9af6e3162383951dee97404fadb761f9ae60b4806998df288a5b143afa7251"
-  name = "github.com/eapache/go-resiliency"
-  packages = ["breaker"]
-  pruneopts = ""
-  revision = "5efd2ed019fd331ec2defc6f3bd98882f1e3e636"
-  version = "v1.2.0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:6643c01e619a68f80ac12ad81223275df653528c6d7e3788291c1fd6f1d622f6"
-  name = "github.com/eapache/go-xerial-snappy"
-  packages = ["."]
-  pruneopts = ""
-  revision = "776d5712da21bc4762676d614db1d8a64f4238b0"
-
-[[projects]]
-  digest = "1:d8d46d21073d0f65daf1740ebf4629c65e04bf92e14ce93c2201e8624843c3d3"
-  name = "github.com/eapache/queue"
-  packages = ["."]
-  pruneopts = ""
-  revision = "44cc805cf13205b55f69e14bcb69867d1ae92f98"
-  version = "v1.1.0"
 
 [[projects]]
   digest = "1:2defd14040b1ca18840524e9d0f9cfab0ea8d2f2d396b343d221f8bc8e21ab9d"
@@ -90,14 +50,6 @@
   version = "v2.0.0"
 
 [[projects]]
-  digest = "1:6a6322a15aa8e99bd156fbba0aae4e5d67b4bb05251d860b348a45dfdcba9cce"
-  name = "github.com/golang/snappy"
-  packages = ["."]
-  pruneopts = ""
-  revision = "2a8bb927dd31d8daada140a5d09578521ce5c36a"
-  version = "v0.0.1"
-
-[[projects]]
   digest = "1:cea4aa2038169ee558bf507d5ea02c94ca85bcca28a4c7bb99fd59b31e43a686"
   name = "github.com/google/go-querystring"
   packages = ["query"]
@@ -120,14 +72,6 @@
   pruneopts = ""
   revision = "66b9c49e59c6c48f0ffce28c2d8b8a5678502c6d"
   version = "v1.4.0"
-
-[[projects]]
-  digest = "1:0038a7f43b51c8b2a8cd03b5372e73f8eadfe156484c2ae8185ae836f8ebc2cd"
-  name = "github.com/hashicorp/go-uuid"
-  packages = ["."]
-  pruneopts = ""
-  revision = "4f571afc59f3043a65f8fe6bf46d887b10a01d43"
-  version = "v1.0.1"
 
 [[projects]]
   digest = "1:d14365c51dd1d34d5c79833ec91413bfbb166be978724f15701e17080dc06dec"
@@ -155,17 +99,6 @@
   pruneopts = ""
   revision = "5accad8134979a6ac504d456a6c7f1c53da237ca"
   version = "v1.1.0"
-
-[[projects]]
-  digest = "1:d45477e90c25c8c6d7d4237281167aa56079382fc042db4b44a8328071649bfa"
-  name = "github.com/jcmturner/gofork"
-  packages = [
-    "encoding/asn1",
-    "x/crypto/pbkdf2",
-  ]
-  pruneopts = ""
-  revision = "dc7c13fece037a4a36e2b3c69db4991498d30692"
-  version = "v1.0.0"
 
 [[projects]]
   digest = "1:109124d16db1dbb262a0d22c7d2490ab90bc210c4c4f99c694143dd0db24622d"
@@ -292,17 +225,6 @@
   version = "v1.4.0"
 
 [[projects]]
-  digest = "1:230e4db8117493b67a1325ac736e78b7db5bc425deaa46a83ee882af934d8c22"
-  name = "github.com/pierrec/lz4"
-  packages = [
-    ".",
-    "internal/xxh32",
-  ]
-  pruneopts = ""
-  revision = "8ef35db8296124c4969aab929c16c91c3cb2c8a0"
-  version = "v2.2.6"
-
-[[projects]]
   digest = "1:1d7e1867c49a6dd9856598ef7c3123604ea3daabf5b83f303ff457bcbc410b1d"
   name = "github.com/pkg/errors"
   packages = ["."]
@@ -325,14 +247,6 @@
   pruneopts = ""
   revision = "e4b98955473e91a12fc7d8816c28d06376d1d92c"
   version = "v2.6.0"
-
-[[projects]]
-  branch = "master"
-  digest = "1:958bea286349ebdb3ec9f9e7c8ab6e283bc4c4ef9b9aea7ed2f1e10b0875b328"
-  name = "github.com/rcrowley/go-metrics"
-  packages = ["."]
-  pruneopts = ""
-  revision = "9beb055b7962d16947a14e1cd718098a2431e20e"
 
 [[projects]]
   digest = "1:3962f553b77bf6c03fc07cd687a22dd3b00fe11aa14d31194f5505f5bb65cdc8"
@@ -500,8 +414,6 @@
     "acme/autocert",
     "bcrypt",
     "blowfish",
-    "md4",
-    "pbkdf2",
   ]
   pruneopts = ""
   revision = "cc06ce4a13d484c0101a9e92913248488a75786d"
@@ -512,8 +424,6 @@
   name = "golang.org/x/net"
   packages = [
     "idna",
-    "internal/socks",
-    "proxy",
     "publicsuffix",
   ]
   pruneopts = ""
@@ -569,72 +479,6 @@
   version = "2.0.0"
 
 [[projects]]
-  digest = "1:4777ba481cc12866b89aafb0a67529e7ac48b9aea06a25f3737b2cf5a3ffda12"
-  name = "gopkg.in/jcmturner/aescts.v1"
-  packages = ["."]
-  pruneopts = ""
-  revision = "f6abebb3171c4c1b1fea279cb7c7325020a26290"
-  version = "v1.0.1"
-
-[[projects]]
-  digest = "1:84c5b1392ef65ad1bb64da4b4d0beb2f204eefc769d6d96082347bb7057cb7b1"
-  name = "gopkg.in/jcmturner/dnsutils.v1"
-  packages = ["."]
-  pruneopts = ""
-  revision = "13eeb8d49ffb74d7a75784c35e4d900607a3943c"
-  version = "v1.0.1"
-
-[[projects]]
-  digest = "1:502ab576ba8c47c4de77fe3f2b2386adc1a1447bb5afae2ac7bf0edd2b6f7c52"
-  name = "gopkg.in/jcmturner/gokrb5.v7"
-  packages = [
-    "asn1tools",
-    "client",
-    "config",
-    "credentials",
-    "crypto",
-    "crypto/common",
-    "crypto/etype",
-    "crypto/rfc3961",
-    "crypto/rfc3962",
-    "crypto/rfc4757",
-    "crypto/rfc8009",
-    "gssapi",
-    "iana",
-    "iana/addrtype",
-    "iana/adtype",
-    "iana/asnAppTag",
-    "iana/chksumtype",
-    "iana/errorcode",
-    "iana/etypeID",
-    "iana/flags",
-    "iana/keyusage",
-    "iana/msgtype",
-    "iana/nametype",
-    "iana/patype",
-    "kadmin",
-    "keytab",
-    "krberror",
-    "messages",
-    "pac",
-    "types",
-  ]
-  pruneopts = ""
-  revision = "363118e62befa8a14ff01031c025026077fe5d6d"
-  version = "v7.3.0"
-
-[[projects]]
-  digest = "1:f9956ccc103c6208cd50c71ee5191b6fdcc635972c12624ef949c9b20b2bb9d1"
-  name = "gopkg.in/jcmturner/rpc.v1"
-  packages = [
-    "mstypes",
-    "ndr",
-  ]
-  pruneopts = ""
-  revision = "99a8ce2fbf8b8087b6ed12a37c61b10f04070043"
-  version = "v1.1.0"
-
-[[projects]]
   digest = "1:cedccf16b71e86db87a24f8d4c70b0a855872eb967cb906a66b95de56aefbd0d"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -646,7 +490,6 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/Shopify/sarama",
     "github.com/dgrijalva/jwt-go",
     "github.com/fsnotify/fsnotify",
     "github.com/gavv/httpexpect",
