@@ -167,7 +167,7 @@ func Seed() {
 					Int64: 1,
 					Valid: true,
 				},
-				Status:           2,
+				Status:           "accepted",
 				LoanAmount:       500000,
 				Installment:      2,
 				LoanIntention:    "a loan 2 intention",
@@ -178,7 +178,7 @@ func Seed() {
 					Int64: 1,
 					Valid: true,
 				},
-				Status:           3,
+				Status:           "rejected",
 				LoanAmount:       2000000,
 				Installment:      8,
 				LoanIntention:    "a loan 3 intention",
@@ -201,15 +201,15 @@ func Seed() {
 
 		client := []models.Client_config{
 			models.Client_config{
-				Name:   "admin",
+				Name:   "adm",
 				Key:    "adminkey",
 				Role:   "admin",
 				Secret: "adminsecret",
 			},
 			models.Client_config{
-				Name:   "android",
+				Name:   "android_client",
 				Key:    "androkey",
-				Role:   "android",
+				Role:   "client",
 				Secret: "androsecret",
 			},
 		}
