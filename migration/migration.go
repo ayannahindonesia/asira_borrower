@@ -201,15 +201,15 @@ func Seed() {
 
 		client := []models.Client_config{
 			models.Client_config{
-				Name:   "admin",
+				Name:   "adm",
 				Key:    "adminkey",
 				Role:   "admin",
 				Secret: "adminsecret",
 			},
 			models.Client_config{
-				Name:   "android",
+				Name:   "android_client",
 				Key:    "androkey",
-				Role:   "android",
+				Role:   "client",
 				Secret: "androsecret",
 			},
 		}
