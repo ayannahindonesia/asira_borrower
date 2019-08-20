@@ -2,6 +2,7 @@ package tests
 
 import (
 	"asira_borrower/router"
+	"encoding/base64"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -46,17 +47,16 @@ func TestClientConfig(t *testing.T) {
 		Status(http.StatusOK).JSON().Object()
 	obj.Keys().Contains("name", "secret")
 
-	// secret :=
-	// // test invalid empty body
-	// obj = auth.POST("/client/borrower_login").WithJSON(map[string]interface{}{}).
-	// 	Expect().
-	// 	Status(http.StatusBadRequest).JSON().Object()
+	secret := obj.Value("secret").String().Raw()
+	token := "android" + ":" + secret
+	var encodedString = base64.StdEncoding.EncodeToString([]byte(token))
 
-	// // test invalid client token
-	// auth = e.Builder(func(req *httpexpect.Request) {
-	// 	req.WithHeader("Authorization", "Bearer wrongtoken")
-	// })
-	// obj = auth.POST("/client/borrower_login").WithJSON(map[string]interface{}{}).
-	// 	Expect().
-	// 	Status(http.StatusUnauthorized).JSON().Object()
+	auth = e.Builder(func(req *httpexpect.Request) {
+		req.WithHeader("Authorization", "Basic "+encodedString)
+	})
+
+	obj = auth.GET("/clientauth").
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+
 }
