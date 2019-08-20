@@ -31,5 +31,5 @@ func CreateClientConfig(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat Client Config")
 	}
 
-	return c.JSON(http.StatusOK, newConfig)
+	return c.JSON(http.StatusCreated, newConfig)
 }

@@ -44,7 +44,7 @@ func TestClientConfig(t *testing.T) {
 	// test valid response
 	obj = auth.POST("/admin/client_config").WithJSON(payload).
 		Expect().
-		Status(http.StatusOK).JSON().Object()
+		Status(http.StatusCreated).JSON().Object()
 	obj.Keys().Contains("name", "secret")
 
 	secret := obj.Value("secret").String().Raw()
