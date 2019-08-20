@@ -36,7 +36,7 @@ func ClientLogin(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnauthorized, "", "Creadentials tidak ditemukan")
 	}
 
-	token, err := createJwtToken(clientData.Name, clientData.Role)
+	token, err := createJwtToken("adm", clientData.Role)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, "", fmt.Sprint(err))
 	}
