@@ -69,7 +69,7 @@ func getEntity(kafkaMessage []byte) (err error) {
 		{
 			var bankTData struct {
 				ID   int    `json:"id"`
-				name string `json:"name"`
+				Name string `json:"name"`
 			}
 
 			var bankType models.BankType
@@ -77,12 +77,12 @@ func getEntity(kafkaMessage []byte) (err error) {
 			if err != nil {
 				return err
 			}
-			log.Println(&bankTData)
+
 			data, err := bankType.FindbyID(bankTData.ID)
 			if err != nil {
 				return err
 			}
-
+			data.Name = bankTData.Name
 			_, err = data.Save()
 			return err
 		}
