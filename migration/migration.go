@@ -14,6 +14,20 @@ func Seed() {
 	defer seeder.Commit()
 
 	if asira.App.ENV == "development" {
+		bankTypes := []models.BankType{
+			models.BankType{
+				Name: "BPD",
+			},
+			models.BankType{
+				Name: "BPR",
+			},
+			models.BankType{
+				Name: "Koperasi",
+			},
+		}
+		for _, bankType := range bankTypes {
+			bankType.Create()
+		}
 		// seed borrowers
 		borrowers := []models.Borrower{
 			models.Borrower{
@@ -168,6 +182,7 @@ func Truncate(tableList []string) (err error) {
 	if len(tableList) > 0 {
 		if tableList[0] == "all" {
 			tableList = []string{
+				"bank_types",
 				"banks",
 				"bank_products",
 				"images",

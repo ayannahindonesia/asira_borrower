@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/Shopify/sarama"
 )
@@ -15,10 +16,6 @@ type (
 		KafkaConsumer     sarama.Consumer
 		PartitionConsumer sarama.PartitionConsumer
 	}
-
-	BanksData struct {
-		Data interface{} `json:"banks"`
-	}
 )
 
 func init() {
@@ -27,7 +24,7 @@ func init() {
 	kafka := &AsiraKafkaHandlers{}
 	kafka.KafkaConsumer = asira.App.Kafka.Consumer
 
-	kafka.SetPartitionConsumer(topics["new_bank"].(string))
+	kafka.SetPartitionConsumer(topics["entity_hook"].(string))
 
 	go func() {
 		for {
@@ -36,7 +33,7 @@ func init() {
 				log.Printf("error occured when listening kafka : %v", err)
 			}
 			if message != nil {
-				err = syncBankData(message)
+				err = getEntity(message)
 				if err != nil {
 					log.Println(err)
 				}
@@ -65,25 +62,34 @@ func (k *AsiraKafkaHandlers) Listen() ([]byte, error) {
 	return nil, fmt.Errorf("unidentified error while listening")
 }
 
-func syncBankData(kafkaMessage []byte) (err error) {
-	var banksData BanksData
-	var bank models.Bank
-	err = json.Unmarshal(kafkaMessage, &banksData)
-	if err != nil {
-		return err
-	}
+func getEntity(kafkaMessage []byte) (err error) {
+	data := strings.SplitN(string(kafkaMessage), ":", 2)
+	switch data[0] {
+	case "bank_type":
+		{
+			var bankTData struct {
+				ID   int    `json:"id"`
+				name string `json:"name"`
+			}
 
-	marshal, err := json.Marshal(banksData.Info)
-	if err != nil {
-		return err
-	}
+			var bankType models.BankType
+			err = json.Unmarshal([]byte(data[1]), &bankTData)
+			if err != nil {
+				return err
+			}
+			log.Println(&bankTData)
+			data, err := bankType.FindbyID(bankTData.ID)
+			if err != nil {
+				return err
+			}
 
-	err = json.Unmarshal(marshal, &bank)
-	if err != nil {
-		return err
+			_, err = data.Save()
+			return err
+		}
+	default:
+		{
+			log.Println(data[1])
+		}
 	}
-
-	_, err = bank.Save()
 	return err
-
 }
