@@ -90,6 +90,10 @@ func Seed() {
 				OTPverified:          true,
 				BankAccountNumber:    "520384716",
 				Password:             "password",
+				Bank: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
 			},
 			models.Borrower{
 				Fullname:             "Full Name B",
@@ -131,6 +135,10 @@ func Seed() {
 				RelatedAddress:       "big sis address",
 				OTPverified:          false,
 				Password:             "password",
+				Bank: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
 			},
 		}
 		for _, borrower := range borrowers {
