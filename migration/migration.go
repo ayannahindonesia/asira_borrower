@@ -4,6 +4,7 @@ import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -28,6 +29,82 @@ func Seed() {
 		for _, bankType := range bankTypes {
 			bankType.Create()
 		}
+
+		// seed bank services
+		bankServices := []models.BankService{
+			models.BankService{
+				Name:    "Pinjaman PNS",
+				ImageID: 1,
+				Status:  "active",
+			},
+			models.BankService{
+				Name:    "Pinjaman Pensiun",
+				ImageID: 1,
+				Status:  "active",
+			},
+			models.BankService{
+				Name:    "Pinjaman UMKN",
+				ImageID: 1,
+				Status:  "active",
+			},
+			models.BankService{
+				Name:    "Pinjaman Mikro",
+				ImageID: 1,
+				Status:  "inactive",
+			},
+			models.BankService{
+				Name:    "Pinjaman Lainnya",
+				ImageID: 1,
+				Status:  "inactive",
+			},
+		}
+		for _, bankService := range bankServices {
+			bankService.Create()
+		}
+
+		// seed service products
+		feesMarshal, _ := json.Marshal(map[string]interface{}{
+			"description": "Admin Fee",
+			"amount":      2500,
+		})
+		collateralMarshal, _ := json.Marshal([]string{"Surat Tanah", "BPKB"})
+		financeMarshal, _ := json.Marshal([]string{"Pendidikan"})
+		serviceProducts := []models.ServiceProduct{
+			models.ServiceProduct{
+				Name:            "Product A",
+				MinTimeSpan:     1,
+				MaxTimeSpan:     6,
+				Interest:        5,
+				MinLoan:         1000000,
+				MaxLoan:         10000000,
+				Fees:            postgres.Jsonb{feesMarshal},
+				ASN_Fee:         "1%",
+				Service:         1,
+				Collaterals:     postgres.Jsonb{collateralMarshal},
+				FinancingSector: postgres.Jsonb{financeMarshal},
+				Assurance:       "an Assurance",
+				Status:          "active",
+			},
+			models.ServiceProduct{
+				Name:            "Product B",
+				MinTimeSpan:     3,
+				MaxTimeSpan:     12,
+				Interest:        5,
+				MinLoan:         5000000,
+				MaxLoan:         8000000,
+				Fees:            postgres.Jsonb{feesMarshal},
+				ASN_Fee:         "1%",
+				Service:         1,
+				Collaterals:     postgres.Jsonb{collateralMarshal},
+				FinancingSector: postgres.Jsonb{financeMarshal},
+				Assurance:       "an Assurance",
+				Status:          "active",
+			},
+		}
+		for _, serviceProduct := range serviceProducts {
+			serviceProduct.Create()
+		}
+
 		// seed borrowers
 		borrowers := []models.Borrower{
 			models.Borrower{
@@ -184,7 +261,8 @@ func Truncate(tableList []string) (err error) {
 			tableList = []string{
 				"bank_types",
 				"banks",
-				"bank_products",
+				"bank_services",
+				"service_products",
 				"images",
 				"borrowers",
 				"loans",
