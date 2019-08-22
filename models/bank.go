@@ -29,9 +29,6 @@ func (b *Bank) BeforeCreate() (err error) {
 
 func (b *Bank) Create() (*Bank, error) {
 	err := Create(&b)
-
-	KafkaSubmitModel(b, "bank")
-
 	return b, err
 }
 

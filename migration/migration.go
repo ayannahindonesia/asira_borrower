@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"strings"
 	"time"
+
+	"github.com/jinzhu/gorm/dialects/postgres"
 )
 
 func Seed() {

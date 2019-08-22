@@ -160,7 +160,7 @@ func getEntity(kafkaMessage []byte) (err error) {
 			}
 
 		}
-	case "bank_service":
+	case "service_product":
 		{
 			var serviceProduct models.ServiceProduct
 			var a map[string]interface{}
