@@ -19,12 +19,12 @@ type (
 )
 
 func init() {
-	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics", asira.App.ENV))
+	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.consumes", asira.App.ENV))
 
 	kafka := &AsiraKafkaHandlers{}
 	kafka.KafkaConsumer = asira.App.Kafka.Consumer
 
-	kafka.SetPartitionConsumer(topics["entity_hook"].(string))
+	kafka.SetPartitionConsumer(topics["from_lender"].(string))
 
 	go func() {
 		for {
@@ -33,6 +33,7 @@ func init() {
 				log.Printf("error occured when listening kafka : %v", err)
 			}
 			if message != nil {
+				log.Println(string(message))
 				err = getEntity(message)
 				if err != nil {
 					log.Println(err)
@@ -67,24 +68,128 @@ func getEntity(kafkaMessage []byte) (err error) {
 	switch data[0] {
 	case "bank_type":
 		{
-			var bankTData struct {
-				ID   int    `json:"id"`
-				Name string `json:"name"`
-			}
-
 			var bankType models.BankType
-			err = json.Unmarshal([]byte(data[1]), &bankTData)
+			var a map[string]interface{}
+
+			err = json.Unmarshal([]byte(data[1]), &a)
 			if err != nil {
 				return err
 			}
 
-			data, err := bankType.FindbyID(bankTData.ID)
+			ID := int(a["id"].(float64))
+			if a["delete"] != nil && a["delete"].(bool) == true {
+				result, err := bankType.FindbyID(ID)
+				if err != nil {
+					return err
+				}
+
+				_, err = result.Delete()
+				if err != nil {
+					return err
+				}
+			} else {
+				err = json.Unmarshal([]byte(data[1]), &bankType)
+				if err != nil {
+					return err
+				}
+				_, err = bankType.Save()
+				return err
+			}
+
+		}
+
+	case "bank":
+		{
+			var bank models.Bank
+			var a map[string]interface{}
+
+			err = json.Unmarshal([]byte(data[1]), &a)
 			if err != nil {
 				return err
 			}
-			data.Name = bankTData.Name
-			_, err = data.Save()
-			return err
+
+			ID := int(a["id"].(float64))
+			if a["delete"] != nil && a["delete"].(bool) == true {
+				result, err := bank.FindbyID(ID)
+				if err != nil {
+					return err
+				}
+
+				_, err = result.Delete()
+				if err != nil {
+					return err
+				}
+			} else {
+				err = json.Unmarshal([]byte(data[1]), &bank)
+				if err != nil {
+					return err
+				}
+				_, err = bank.Save()
+				return err
+			}
+
+		}
+	case "bank_service":
+		{
+			var bankService models.BankService
+			var a map[string]interface{}
+
+			err = json.Unmarshal([]byte(data[1]), &a)
+			if err != nil {
+				return err
+			}
+
+			ID := int(a["id"].(float64))
+			if a["delete"] != nil && a["delete"].(bool) == true {
+				result, err := bankService.FindbyID(ID)
+				if err != nil {
+					return err
+				}
+
+				_, err = result.Delete()
+				if err != nil {
+					return err
+				}
+			} else {
+				err = json.Unmarshal([]byte(data[1]), &bankService)
+				if err != nil {
+					return err
+				}
+				_, err = bankService.Save()
+				return err
+			}
+
+		}
+	case "bank_service":
+		{
+			var serviceProduct models.ServiceProduct
+			var a map[string]interface{}
+
+			err = json.Unmarshal([]byte(data[1]), &a)
+			if err != nil {
+				return err
+			}
+
+			ID := int(a["id"].(float64))
+			if a["delete"] != nil && a["delete"].(bool) == true {
+				result, err := serviceProduct.FindbyID(ID)
+				if err != nil {
+					return err
+				}
+
+				_, err = result.Delete()
+				if err != nil {
+					return err
+				}
+			} else {
+				err = json.Unmarshal([]byte(data[1]), &serviceProduct)
+				if err != nil {
+					return err
+				}
+				_, err = serviceProduct.Save()
+				return err
+			}
+
 		}
 	default:
 		{
