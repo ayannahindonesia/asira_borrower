@@ -30,7 +30,7 @@ func Seed() {
 		for _, image := range images {
 			image.Create()
 		}
-
+		// seed bank types
 		bankTypes := []models.BankType{
 			models.BankType{
 				Name: "BPD",
@@ -120,7 +120,6 @@ func Seed() {
 		for _, serviceProduct := range serviceProducts {
 			serviceProduct.Create()
 		}
-
 		// seed banks
 		array := []int{1, 2, 3, 5, 8}
 		jMarshal, _ := json.Marshal(array)
@@ -323,10 +322,9 @@ func Truncate(tableList []string) (err error) {
 	if len(tableList) > 0 {
 		if tableList[0] == "all" {
 			tableList = []string{
-				"bank_types",
-				"banks",
 				"bank_services",
 				"service_products",
+				"banks",
 				"images",
 				"borrowers",
 				"loans",
