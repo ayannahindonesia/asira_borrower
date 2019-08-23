@@ -23,7 +23,7 @@ func BorrowerGroup(e *echo.Echo) {
 	g.POST("/loan/:loan_id/verify", handlers.BorrowerLoanOTPverify)
 
 	// Bank Endpoint
-	g.GET("/bank_services/:bank_service_id", handlers.BorrowerBankService)
+	g.GET("/bank_services", handlers.BorrowerBankService)
 	g.GET("/service_products/:product_id", handlers.BorrowerBankProduct)
 }
 

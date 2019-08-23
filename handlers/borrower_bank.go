@@ -35,13 +35,13 @@ func BorrowerBankService(c echo.Context) error {
 	}
 
 	log.Println(service)
-	bankService := models.BankService{}
-	bServices := make([]interface{}, len(service))
-	for i, s := range service {
-		bServices[i], err = bankService.FindbyID(service[i])
-	}
+	// bankService := models.BankService{}
+	// bServices := make([]interface{}, len(service))
+	// for i, s := range service {
+	// 	bServices[i], err = bankService.FindbyID(service[i])
+	// }
 
-	return c.JSON(http.StatusOK, bServices)
+	return c.JSON(http.StatusOK, service)
 }
 
 func BorrowerBankProduct(c echo.Context) error {
