@@ -126,7 +126,7 @@ func Seed() {
 		banks := []models.Bank{
 			models.Bank{
 				Name:     "Bank A",
-				Type:     "BDP",
+				Type:     1,
 				Address:  "Bank A Address",
 				Province: "Province A",
 				City:     "City A",
@@ -137,7 +137,7 @@ func Seed() {
 			},
 			models.Bank{
 				Name:     "Bank B",
-				Type:     "BDP",
+				Type:     2,
 				Address:  "Bank B Address",
 				Province: "Province B",
 				City:     "City B",
