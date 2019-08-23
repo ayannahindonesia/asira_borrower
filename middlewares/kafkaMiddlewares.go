@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/Shopify/sarama"
 )
@@ -23,12 +24,16 @@ type (
 )
 
 func init() {
-	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics", asira.App.ENV))
+	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.consumes", asira.App.ENV))
 
 	kafka := &AsiraKafkaHandlers{}
 	kafka.KafkaConsumer = asira.App.Kafka.Consumer
 
+	kafka_banks := &AsiraKafkaHandlers{}
+	kafka_banks.KafkaConsumer = asira.App.Kafka.Consumer
+
 	kafka.SetPartitionConsumer(topics["loan_status_updt"].(string))
+	kafka_banks.SetPartitionConsumer(topics["from_lender"].(string))
 
 	go func() {
 		for {
@@ -38,6 +43,17 @@ func init() {
 			}
 			if message != nil {
 				err = loanUpdate(message)
+				if err != nil {
+					log.Println(err)
+				}
+			}
+
+			message_banks, err := kafka_banks.Listen()
+			if err != nil {
+				log.Printf("error occured when listening kafka : %v", err)
+			}
+			if message_banks != nil {
+				err = getEntity(message_banks)
 				if err != nil {
 					log.Println(err)
 				}
@@ -82,5 +98,141 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 
 	data.Status = loanData.Status
 	_, err = data.Save()
+	return err
+}
+
+func getEntity(kafkaMessage []byte) (err error) {
+	data := strings.SplitN(string(kafkaMessage), ":", 2)
+	switch data[0] {
+	case "bank_type":
+		{
+			var bankType models.BankType
+			var a map[string]interface{}
+
+			err = json.Unmarshal([]byte(data[1]), &a)
+			if err != nil {
+				return err
+			}
+
+			if a["delete"] != nil && a["delete"].(bool) == true {
+				ID := int(a["id"].(float64))
+				result, err := bankType.FindbyID(ID)
+				if err != nil {
+					return err
+				}
+
+				_, err = result.Delete()
+				if err != nil {
+					return err
+				}
+			} else {
+				err = json.Unmarshal([]byte(data[1]), &bankType)
+				if err != nil {
+					return err
+				}
+				_, err = bankType.Save()
+				return err
+			}
+
+		}
+
+	case "bank":
+		{
+			var bank models.Bank
+			var a map[string]interface{}
+
+			err = json.Unmarshal([]byte(data[1]), &a)
+			if err != nil {
+				return err
+			}
+
+			if a["delete"] != nil && a["delete"].(bool) == true {
+				ID := int(a["id"].(float64))
+				result, err := bank.FindbyID(ID)
+				if err != nil {
+					return err
+				}
+
+				_, err = result.Delete()
+				if err != nil {
+					return err
+				}
+			} else {
+				err = json.Unmarshal([]byte(data[1]), &bank)
+				if err != nil {
+					return err
+				}
+				_, err = bank.Save()
+				return err
+			}
+
+		}
+	case "bank_service":
+		{
+			var bankService models.BankService
+			var a map[string]interface{}
+
+			err = json.Unmarshal([]byte(data[1]), &a)
+			if err != nil {
+				return err
+			}
+
+			if a["delete"] != nil && a["delete"].(bool) == true {
+				ID := int(a["id"].(float64))
+				result, err := bankService.FindbyID(ID)
+				if err != nil {
+					return err
+				}
+
+				_, err = result.Delete()
+				if err != nil {
+					return err
+				}
+			} else {
+				err = json.Unmarshal([]byte(data[1]), &bankService)
+				if err != nil {
+					return err
+				}
+				_, err = bankService.Save()
+				return err
+			}
+
+		}
+	case "service_product":
+		{
+			var serviceProduct models.ServiceProduct
+			var a map[string]interface{}
+
+			err = json.Unmarshal([]byte(data[1]), &a)
+			if err != nil {
+				return err
+			}
+
+			if a["delete"] != nil && a["delete"].(bool) == true {
+				ID := int(a["id"].(float64))
+				result, err := serviceProduct.FindbyID(ID)
+				if err != nil {
+					return err
+				}
+
+				_, err = result.Delete()
+				if err != nil {
+					return err
+				}
+			} else {
+				err = json.Unmarshal([]byte(data[1]), &serviceProduct)
+				if err != nil {
+					return err
+				}
+				_, err = serviceProduct.Save()
+				return err
+			}
+
+		}
+	default:
+		{
+			return err
+		}
+	}
 	return err
 }

@@ -18,10 +18,16 @@ development:
     user: asirauser
     pass: asirapass
     log_verbose: true
+    client_id: asira
+    sasl: true
     topics:
-      new_loan: new_loan_request
-      loan_status_updt: asira_loan_update
+      new_loan: asira_new_loan_request
       new_bank: asira_new_bank
+      produces:
+        for_lender: asira_borrower_to_lender
+      consumes:
+        from_lender: asira_lender_to_borrower
+        loan_status_updt: asira_loan_update
   clients:
     admin: Z3JhZGlvczp1bHRpbXVz
     android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret

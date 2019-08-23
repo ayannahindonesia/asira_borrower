@@ -22,19 +22,23 @@ development:
     log_verbose: true
     topics:
       new_loan: asira_new_loan_request
-      loan_status_updt: asira_loan_update
+      new_bank: asira_new_bank
+      produces:
+        for_lender: asira_borrower_to_lender
+      consumes:
+        from_lender: asira_lender_to_borrower
+        loan_status_updt: asira_loan_update
   clients:
     admin: Z3JhZGlvczp1bHRpbXVz
     android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret
   jwt:
-    duration: 10080 # in minutes
+    duration: 10080  # in minutes
     jwt_secret: sXQ8jUMpueOvN5P3cdCR
   mailer:
     host : smtp.gmail.com
     port : 587
     email : apranta123@gmail.com
     password : Animajid01
-
 staging:
 
 production:

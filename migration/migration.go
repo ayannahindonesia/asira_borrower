@@ -17,13 +17,117 @@ func Seed() {
 	defer seeder.Commit()
 
 	if asira.App.ENV == "development" {
+
+		//images
+		images := []models.Image{
+			models.Image{
+				Image_string: "iVBORw0KGgoAAAANSUhEUgAAAP0AAACnCAYAAADaIFptAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHiSURBVHhe7dMBAQAACMMg+5e+QQYduAEp0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPSQsj3nqr5USY34xwAAAABJRU5ErkJggg==",
+			},
+			models.Image{
+				Image_string: "iVBORw0KGgoAAAANSUhEUgAAAP0AAACnCAYAAADaIFptAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHiSURBVHhe7dMBAQAACMMg+5e+QQYduAEp0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPSQsj3nqr5USY34xwAAAABJRU5ErkJggg==",
+			},
+		}
+		for _, image := range images {
+			image.Create()
+		}
+
+		bankTypes := []models.BankType{
+			models.BankType{
+				Name: "BPD",
+			},
+			models.BankType{
+				Name: "BPR",
+			},
+			models.BankType{
+				Name: "Koperasi",
+			},
+		}
+		for _, bankType := range bankTypes {
+			bankType.Create()
+		}
+
+		// seed bank services
+		bankServices := []models.BankService{
+			models.BankService{
+				Name:    "Pinjaman PNS",
+				ImageID: 1,
+				Status:  "active",
+			},
+			models.BankService{
+				Name:    "Pinjaman Pensiun",
+				ImageID: 1,
+				Status:  "active",
+			},
+			models.BankService{
+				Name:    "Pinjaman UMKN",
+				ImageID: 1,
+				Status:  "active",
+			},
+			models.BankService{
+				Name:    "Pinjaman Mikro",
+				ImageID: 1,
+				Status:  "inactive",
+			},
+			models.BankService{
+				Name:    "Pinjaman Lainnya",
+				ImageID: 1,
+				Status:  "inactive",
+			},
+		}
+		for _, bankService := range bankServices {
+			bankService.Create()
+		}
+
+		// seed service products
+		feesMarshal, _ := json.Marshal(map[string]interface{}{
+			"description": "Admin Fee",
+			"amount":      2500,
+		})
+		collateralMarshal, _ := json.Marshal([]string{"Surat Tanah", "BPKB"})
+		financeMarshal, _ := json.Marshal([]string{"Pendidikan"})
+		serviceProducts := []models.ServiceProduct{
+			models.ServiceProduct{
+				Name:            "Product A",
+				MinTimeSpan:     1,
+				MaxTimeSpan:     6,
+				Interest:        5,
+				MinLoan:         1000000,
+				MaxLoan:         10000000,
+				Fees:            postgres.Jsonb{feesMarshal},
+				ASN_Fee:         "1%",
+				Service:         1,
+				Collaterals:     postgres.Jsonb{collateralMarshal},
+				FinancingSector: postgres.Jsonb{financeMarshal},
+				Assurance:       "an Assurance",
+				Status:          "active",
+			},
+			models.ServiceProduct{
+				Name:            "Product B",
+				MinTimeSpan:     3,
+				MaxTimeSpan:     12,
+				Interest:        5,
+				MinLoan:         5000000,
+				MaxLoan:         8000000,
+				Fees:            postgres.Jsonb{feesMarshal},
+				ASN_Fee:         "1%",
+				Service:         1,
+				Collaterals:     postgres.Jsonb{collateralMarshal},
+				FinancingSector: postgres.Jsonb{financeMarshal},
+				Assurance:       "an Assurance",
+				Status:          "active",
+			},
+		}
+		for _, serviceProduct := range serviceProducts {
+			serviceProduct.Create()
+		}
+
 		// seed banks
-		services := []int{1, 2, 3, 5, 8}
-		jMarshal, _ := json.Marshal(services)
+		array := []int{1, 2, 3, 5, 8}
+		jMarshal, _ := json.Marshal(array)
 		banks := []models.Bank{
 			models.Bank{
 				Name:     "Bank A",
-				Type:     "BDP",
+				Type:     1,
 				Address:  "Bank A Address",
 				Province: "Province A",
 				City:     "City A",
@@ -34,7 +138,7 @@ func Seed() {
 			},
 			models.Bank{
 				Name:     "Bank B",
-				Type:     "BDP",
+				Type:     2,
 				Address:  "Bank B Address",
 				Province: "Province B",
 				City:     "City B",
@@ -145,19 +249,6 @@ func Seed() {
 			borrower.Create()
 		}
 
-		//images
-		images := []models.Image{
-			models.Image{
-				Image_string: "iVBORw0KGgoAAAANSUhEUgAAAP0AAACnCAYAAADaIFptAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHiSURBVHhe7dMBAQAACMMg+5e+QQYduAEp0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPSQsj3nqr5USY34xwAAAABJRU5ErkJggg==",
-			},
-			models.Image{
-				Image_string: "iVBORw0KGgoAAAANSUhEUgAAAP0AAACnCAYAAADaIFptAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHiSURBVHhe7dMBAQAACMMg+5e+QQYduAEp0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPQQIz3ESA8x0kOM9BAjPcRIDzHSQ4z0ECM9xEgPMdJDjPSQsj3nqr5USY34xwAAAABJRU5ErkJggg==",
-			},
-		}
-		for _, image := range images {
-			image.Create()
-		}
-
 		// seed loans
 		loans := []models.Loan{
 			models.Loan{
@@ -232,8 +323,10 @@ func Truncate(tableList []string) (err error) {
 	if len(tableList) > 0 {
 		if tableList[0] == "all" {
 			tableList = []string{
+				"bank_types",
 				"banks",
-				"bank_products",
+				"bank_services",
+				"service_products",
 				"images",
 				"borrowers",
 				"loans",
