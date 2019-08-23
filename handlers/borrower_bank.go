@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/models"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -29,31 +28,62 @@ func BorrowerBankService(c echo.Context) error {
 	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
 
 	var service []int
-	jMarshal, _ := json.Marshal(bankBorrower.Products)
+	jMarshal, _ := json.Marshal(bankBorrower.Services)
 	if err := json.Unmarshal(jMarshal, &service); err != nil {
 		log.Fatal(err)
 	}
 
 	log.Println(service)
-	// bankService := models.BankService{}
-	// bServices := make([]interface{}, len(service))
-	// for i, s := range service {
-	// 	bServices[i], err = bankService.FindbyID(service[i])
-	// }
+	bankService := models.BankService{}
+	bServices := make([]interface{}, len(service))
+	for i := range service {
+		data, err := bankService.FindbyID(service[i])
+		if err != nil {
+			continue
+		}
+		bServices[i] = data
+	}
 
-	return c.JSON(http.StatusOK, service)
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"total_data": len(bServices),
+		"data":       bServices,
+	})
 }
 
 func BorrowerBankProduct(c echo.Context) error {
-	defer c.Request().Body.Close()
+	user := c.Get("user")
+	token := user.(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
 
-	product_id, _ := strconv.Atoi(c.Param("product_id"))
+	borrowerModel := models.Borrower{}
 
-	serviceProduct := models.ServiceProduct{}
-	result, err := serviceProduct.FindbyID(product_id)
+	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	borrower, err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
-		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("product %v tidak ditemukan", serviceProduct))
+		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 
-	return c.JSON(http.StatusOK, result)
+	bank := models.Bank{}
+	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
+
+	var product []int
+	jMarshal, _ := json.Marshal(bankBorrower.Products)
+	if err := json.Unmarshal(jMarshal, &product); err != nil {
+		log.Fatal(err)
+	}
+
+	bankProduct := models.ServiceProduct{}
+	bProduct := make([]interface{}, len(product))
+	for i := range product {
+		data, err := bankProduct.FindbyID(product[i])
+		if err != nil {
+			continue
+		}
+		bProduct[i] = data
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"total_data": len(bProduct),
+		"data":       bProduct,
+	})
 }
