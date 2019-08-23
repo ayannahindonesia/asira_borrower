@@ -76,8 +76,8 @@ func getEntity(kafkaMessage []byte) (err error) {
 				return err
 			}
 
-			ID := int(a["id"].(float64))
 			if a["delete"] != nil && a["delete"].(bool) == true {
+				ID := int(a["id"].(float64))
 				result, err := bankType.FindbyID(ID)
 				if err != nil {
 					return err
@@ -108,8 +108,8 @@ func getEntity(kafkaMessage []byte) (err error) {
 				return err
 			}
 
-			ID := int(a["id"].(float64))
 			if a["delete"] != nil && a["delete"].(bool) == true {
+				ID := int(a["id"].(float64))
 				result, err := bank.FindbyID(ID)
 				if err != nil {
 					return err
@@ -139,8 +139,8 @@ func getEntity(kafkaMessage []byte) (err error) {
 				return err
 			}
 
-			ID := int(a["id"].(float64))
 			if a["delete"] != nil && a["delete"].(bool) == true {
+				ID := int(a["id"].(float64))
 				result, err := bankService.FindbyID(ID)
 				if err != nil {
 					return err
@@ -170,8 +170,8 @@ func getEntity(kafkaMessage []byte) (err error) {
 				return err
 			}
 
-			ID := int(a["id"].(float64))
 			if a["delete"] != nil && a["delete"].(bool) == true {
+				ID := int(a["id"].(float64))
 				result, err := serviceProduct.FindbyID(ID)
 				if err != nil {
 					return err
