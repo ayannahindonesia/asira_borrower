@@ -4,7 +4,7 @@ development:
     table: asira_borrower
     username: asirauser
     password: asirapass
-    host: "127.0.0.1"
+    host: postgres_db
     port: "5432"
     maxlifetime: 30
     idle_conns: 10
@@ -13,7 +13,7 @@ development:
     logmode: true
     timezone: Asia/Jakarta
   kafka:
-    host: "10.148.0.3"
+    host: kafka
     port: "9092"
     user: asirauser
     pass: asirapass
