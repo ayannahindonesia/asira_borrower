@@ -24,7 +24,7 @@ type (
 )
 
 func init() {
-	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.consumes", asira.App.ENV))
+	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics", asira.App.ENV))
 
 	kafka := &AsiraKafkaHandlers{}
 	kafka.KafkaConsumer = asira.App.Kafka.Consumer
@@ -33,7 +33,7 @@ func init() {
 	kafka_banks.KafkaConsumer = asira.App.Kafka.Consumer
 
 	kafka.SetPartitionConsumer(topics["loan_status_updt"].(string))
-	kafka_banks.SetPartitionConsumer(topics["from_lender"].(string))
+	kafka_banks.SetPartitionConsumer(topics.consumes["from_lender"].(string))
 
 	go func() {
 		for {
