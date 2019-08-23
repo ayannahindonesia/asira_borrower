@@ -29,11 +29,12 @@ func BorrowerBankService(c echo.Context) error {
 	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
 
 	var service []int
-
-	if err := json.Unmarshal(bankBorrower.Products, &service); err != nil {
+	jMarshal, _ := json.Marshal(bankBorrower.Products)
+	if err := json.Unmarshal(jMarshal, &service); err != nil {
 		log.Fatal(err)
 	}
 
+	log.Println(service)
 	bankService := models.BankService{}
 	bServices := make([]interface{}, len(service))
 	for i, s := range service {
