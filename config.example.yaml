@@ -18,6 +18,8 @@ development:
     user: asirauser
     pass: asirapass
     log_verbose: true
+    client_id: asira
+    sasl: true
     topics:
       new_loan: asira_new_loan_request
       new_bank: asira_new_bank
