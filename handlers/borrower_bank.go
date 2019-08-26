@@ -28,7 +28,7 @@ func BorrowerBankService(c echo.Context) error {
 	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
 
 	type Filter struct {
-		NameOR models.ORfilter `json:"name" condition:"OR"`
+		NameOR []string `json:"name" condition:"OR"`
 	}
 	var service []string
 	jMarshal, _ := json.Marshal(bankBorrower.Services)
@@ -73,7 +73,7 @@ func BorrowerBankProduct(c echo.Context) error {
 	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
 
 	type Filter struct {
-		NameOR models.ORfilter `json:"name" condition:"OR"`
+		NameOR []string `json:"name" condition:"OR"`
 	}
 	var product []string
 	jMarshal, _ := json.Marshal(bankBorrower.Products)

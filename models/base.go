@@ -29,9 +29,6 @@ type (
 		To          int         `json:"to"`   // last index of data shown in current page
 		Data        interface{} `json:"data"`
 	}
-
-	ORfilter []string
-
 	SearchResult struct {
 		TotalData int         `json:"total_data"` // matched datas
 		Data      interface{} `json:"data"`
@@ -196,7 +193,7 @@ func FilterSearch(i interface{}, filter interface{}) (result SearchResult, err e
 			switch refType.Field(x).Tag.Get("condition") {
 			case "OR":
 				var e []string
-				for _, filter := range field.Interface().(ORfilter) {
+				for _, filter := range field.Interface().([]string) {
 					e = append(e, refType.Field(x).Tag.Get("json")+" = '"+filter+"' ")
 				}
 				db = db.Where(strings.Join(e, " OR "))
