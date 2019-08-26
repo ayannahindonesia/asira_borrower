@@ -27,27 +27,24 @@ func BorrowerBankService(c echo.Context) error {
 	bank := models.Bank{}
 	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
 
-	var service []int
-	jMarshal, _ := json.Marshal(bankBorrower.Services)
-	if err := json.Unmarshal(jMarshal, &service); err != nil {
-		log.Fatal(err)
-	}
+	// var service []int
+	// jMarshal, _ := json.Marshal(bankBorrower.Services)
+	// if err := json.Unmarshal(jMarshal, &service); err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	log.Println(service)
-	bankService := models.BankService{}
-	bServices := make([]interface{}, len(service))
-	for i := range service {
-		data, err := bankService.FindbyID(service[i])
-		if err != nil {
-			continue
-		}
-		bServices[i] = data
-	}
+	// log.Println(service)
+	// bankService := models.BankService{}
+	// bServices := make([]interface{}, len(service))
+	// for i := range service {
+	// 	data, err := bankService.FindbyID(service[i])
+	// 	if err != nil {
+	// 		continue
+	// 	}
+	// 	bServices[i] = data
+	// }
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"total_data": len(bServices),
-		"data":       bServices,
-	})
+	return c.JSON(http.StatusOK, bankBorrower.Services)
 }
 
 func BorrowerBankServiceDetails(c echo.Context) error {
