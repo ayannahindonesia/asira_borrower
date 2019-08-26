@@ -53,8 +53,8 @@ func (b *Bank) FindbyID(id int) (*Bank, error) {
 }
 
 func (b *Bank) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
-	bank_type := []Bank{}
-	result, err = PagedFilterSearch(&bank_type, page, rows, orderby, sort, filter)
+	banks := []Bank{}
+	result, err = PagedFilterSearch(&banks, page, rows, orderby, sort, filter)
 
 	return result, err
 }

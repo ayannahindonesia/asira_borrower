@@ -18,4 +18,7 @@ func ClientGroup(e *echo.Echo) {
 	g.POST("/reset_password", handlers.ClientResetPassword)
 	g.POST("/change_password", handlers.ChangePassword)
 
+	//banks
+	g.GET("/banks", handlers.ClientBanks)
+	g.GET("/banks/:bank_id", handlers.ClientBankbyID)
 }

@@ -10,6 +10,14 @@ CREATE TABLE "bank_types" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+CREATE TABLE "images" (
+    "id" bigserial,
+    "image_string" text,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
 CREATE TABLE "banks" (
     "id" bigserial,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
@@ -60,14 +68,6 @@ CREATE TABLE "service_products" (
     "assurance" varchar(255),
     "status" varchar(255),
     FOREIGN KEY ("service") REFERENCES bank_services(id),
-    PRIMARY KEY ("id")
-) WITH (OIDS = FALSE);
-
-CREATE TABLE "images" (
-    "id" bigserial,
-    "image_string" text,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
