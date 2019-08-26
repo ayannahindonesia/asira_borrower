@@ -22,8 +22,8 @@ development:
     log_verbose: true
     topics:
       new_loan: asira_new_loan_request
-      new_bank: asira_new_bank
       produces:
+      new_bank: asira_new_bank
         for_lender: asira_borrower_to_lender
       consumes:
         from_lender: asira_lender_to_borrower
