@@ -1,6 +1,15 @@
 -- +goose Up
 -- SQL in this section is executed when the migration is applied.
 
+CREATE TABLE "bank_types" (
+    "id" bigserial,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_time" timestamptz,
+    "name" varchar(255),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
 CREATE TABLE "images" (
     "id" bigserial,
     "image_string" text,
@@ -15,7 +24,7 @@ CREATE TABLE "banks" (
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
     "name" varchar(255),
-    "type" varchar(255),
+    "type" bigint,
     "address" text,
     "province" varchar(255),
     "city" varchar(255),
@@ -23,6 +32,7 @@ CREATE TABLE "banks" (
     "products" jsonb DEFAULT '[]',
     "pic" varchar(255),
     "phone" varchar(255),
+    FOREIGN KEY ("type") REFERENCES bank_types(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -156,6 +166,7 @@ CREATE TABLE "uuid_reset_passwords" (
 ) WITH (OIDS = FALSE);
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
+DROP TABLE IF EXISTS "bank_types" CASCADE;
 DROP TABLE IF EXISTS "banks" CASCADE;
 DROP TABLE IF EXISTS "bank_services" CASCADE;
 DROP TABLE IF EXISTS "service_products" CASCADE;
