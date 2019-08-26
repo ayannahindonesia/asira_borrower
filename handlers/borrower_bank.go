@@ -27,24 +27,21 @@ func BorrowerBankService(c echo.Context) error {
 	bank := models.Bank{}
 	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
 
-	// var service []int
-	// jMarshal, _ := json.Marshal(bankBorrower.Services)
-	// if err := json.Unmarshal(jMarshal, &service); err != nil {
-	// 	log.Fatal(err)
-	// }
+	type Filter struct {
+		NameOR models.ORfilter `json:"name" condition:"OR"`
+	}
+	var service []string
+	jMarshal, _ := json.Marshal(bankBorrower.Services)
+	if err := json.Unmarshal(jMarshal, &service); err != nil {
+		log.Fatal(err)
+	}
 
-	// log.Println(service)
-	// bankService := models.BankService{}
-	// bServices := make([]interface{}, len(service))
-	// for i := range service {
-	// 	data, err := bankService.FindbyID(service[i])
-	// 	if err != nil {
-	// 		continue
-	// 	}
-	// 	bServices[i] = data
-	// }
+	bankService := models.BankService{}
+	result, err := bankService.FilterSearch(&Filter{
+		NameOR: service,
+	})
 
-	return c.JSON(http.StatusOK, bankBorrower.Services)
+	return c.JSON(http.StatusOK, result)
 }
 
 func BorrowerBankServiceDetails(c echo.Context) error {
@@ -75,26 +72,21 @@ func BorrowerBankProduct(c echo.Context) error {
 	bank := models.Bank{}
 	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
 
-	var product []int
+	type Filter struct {
+		NameOR models.ORfilter `json:"name" condition:"OR"`
+	}
+	var product []string
 	jMarshal, _ := json.Marshal(bankBorrower.Products)
 	if err := json.Unmarshal(jMarshal, &product); err != nil {
 		log.Fatal(err)
 	}
 
 	bankProduct := models.ServiceProduct{}
-	bProduct := make([]interface{}, len(product))
-	for i := range product {
-		data, err := bankProduct.FindbyID(product[i])
-		if err != nil {
-			continue
-		}
-		bProduct[i] = data
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"total_data": len(bProduct),
-		"data":       bProduct,
+	result, err := bankProduct.FilterSearch(&Filter{
+		NameOR: product,
 	})
+
+	return c.JSON(http.StatusOK, result)
 }
 
 func BorrowerBankProductDetails(c echo.Context) error {

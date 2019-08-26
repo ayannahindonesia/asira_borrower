@@ -35,3 +35,9 @@ func (b *BankService) PagedFilterSearch(page int, rows int, orderby string, sort
 
 	return result, err
 }
+
+func (b *BankService) FilterSearch(filter interface{}) (SearchResult, error) {
+	bank_type := []BankService{}
+	result, err := FilterSearch(&bank_type, filter)
+	return result, err
+}

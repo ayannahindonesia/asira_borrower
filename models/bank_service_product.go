@@ -49,3 +49,9 @@ func (p *ServiceProduct) PagedFilterSearch(page int, rows int, orderby string, s
 
 	return result, err
 }
+
+func (p *ServiceProduct) FilterSearch(filter interface{}) (SearchResult, error) {
+	product := []ServiceProduct{}
+	result, err := FilterSearch(&product, filter)
+	return result, err
+}

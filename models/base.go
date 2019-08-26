@@ -29,6 +29,13 @@ type (
 		To          int         `json:"to"`   // last index of data shown in current page
 		Data        interface{} `json:"data"`
 	}
+
+	ORfilter []string
+
+	SearchResult struct {
+		TotalData int         `json:"total_data"` // matched datas
+		Data      interface{} `json:"data"`
+	}
 )
 
 // helper for inserting data using gorm.DB functions
@@ -130,16 +137,7 @@ func PagedFilterSearch(i interface{}, page int, rows int, orderby string, sort s
 	for x := 0; x < refFilter.NumField(); x++ {
 		field := refFilter.Field(x)
 		if field.Interface() != "" {
-			switch refType.Field(x).Tag.Get("condition") {
-			default:
-				db = db.Where(fmt.Sprintf("%s = ?", refType.Field(x).Tag.Get("json")), field.Interface())
-			case "LIKE":
-				db = db.Where(fmt.Sprintf("%s %s ?", refType.Field(x).Tag.Get("json"), refType.Field(x).Tag.Get("condition")), "%"+field.Interface().(string)+"%")
-			case "BETWEEN":
-				if values, ok := field.Interface().(CompareFilter); ok && values.Value1 != "" {
-					db = db.Where(fmt.Sprintf("%s %s ? %s ?", refType.Field(x).Tag.Get("json"), refType.Field(x).Tag.Get("condition"), "AND"), values.Value1, values.Value2)
-				}
-			}
+			db = db.Where(fmt.Sprintf("%s = ?", refType.Field(x).Tag.Get("json")), field.Interface())
 		}
 	}
 
@@ -181,6 +179,37 @@ func PagedFilterSearch(i interface{}, page int, rows int, orderby string, sort s
 		From:        offset + 1,
 		To:          offset + rows,
 		Data:        &i,
+	}
+
+	return result, err
+}
+
+func FilterSearch(i interface{}, filter interface{}) (result SearchResult, err error) {
+	db := asira.App.DB
+
+	// filtering
+	refFilter := reflect.ValueOf(filter).Elem()
+	refType := refFilter.Type()
+	for x := 0; x < refFilter.NumField(); x++ {
+		field := refFilter.Field(x)
+		if field.Interface() != "" {
+			switch refType.Field(x).Tag.Get("condition") {
+			case "OR":
+				var e []string
+				for _, filter := range field.Interface().(ORfilter) {
+					e = append(e, refType.Field(x).Tag.Get("json")+" = '"+filter+"' ")
+				}
+				db = db.Where(strings.Join(e, " OR "))
+			}
+		}
+	}
+
+	var total_rows int
+	db.Find(i).Count(&total_rows)
+
+	result = SearchResult{
+		TotalData: total_rows,
+		Data:      &i,
 	}
 
 	return result, err
