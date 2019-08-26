@@ -30,7 +30,6 @@ func Seed() {
 		for _, image := range images {
 			image.Create()
 		}
-
 		bankTypes := []models.BankType{
 			models.BankType{
 				Name: "BPD",
@@ -120,7 +119,6 @@ func Seed() {
 		for _, serviceProduct := range serviceProducts {
 			serviceProduct.Create()
 		}
-
 		// seed banks
 		array := []int{1, 2, 3, 5, 8}
 		jMarshal, _ := json.Marshal(array)

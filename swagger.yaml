@@ -3,10 +3,8 @@ servers:
 # Added by API Auto Mocking Plugin
   - description: SwaggerHub API Auto Mocking
     url: https://virtserver.swaggerhub.com/ayannahindonesia/Asira/1.0.0
-  - description: Indonesia Asira dev(old)
-    url: http://asira.ayannah.com
   - description: Indonesia Asira dev
-    url: http://asira-develop.ayannah.com
+    url: http://asira.ayannah.com/api-borrower
   - description: Indonesia Asira staging
     url: https://staging-indo.asira.com/v1
 info:
@@ -271,6 +269,105 @@ paths:
                   - $ref: '#/components/schemas/ImageBase64'
         '401':
           description: Unauthorized
+  /client/change_password:
+    post:
+      tags:
+        - Client
+      summary: change password
+      
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type : object
+              properties:
+                password :
+                  type : string
+                  example : password
+                
+                uuid :
+                  type : string
+                  example : 1a50b5da-a3a4-4e49-ba87-4c34195748a9
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OK
+        '401':
+          description: Unauthorized
+        '422':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/banks:
+    get:
+      tags:
+        - Client
+      summary: get all Banks info
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankList'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/banks/[bank_id]:
+    get:
+      tags:
+        - Client
+      summary: get bank detail info by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankListDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  
   /borrower/profile:
     get:
       tags:
@@ -307,53 +404,6 @@ paths:
                 type: object
                 allOf:
                   - $ref: '#/components/schemas/patchProfileResponse'
-        '401':
-          description: Unauthorized
-        '422':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                allOf:
-                  - $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                type: object
-                allOf:
-                  - $ref: '#/components/schemas/ErrorResponse'
-  /borrower/change_password:
-    patch:
-      tags:
-        - Borrower
-      summary: change password
-      parameters:
-        - $ref: '#/components/parameters/authtoken'
-        - in: query
-          name: password
-          schema:
-            type: string
-            example: password
-          description: change password
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/patchProfileRequest'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: OK
         '401':
           description: Unauthorized
         '422':
@@ -504,6 +554,111 @@ paths:
           description: Unprocessable Entity
         '500':
           description: Internal Server Error
+  /borrower/bank_services:
+    get:
+      tags:
+        - Borrower
+      summary: get bank services info 
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankServiceList'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankServiceList'
+  /borrower/bank_services/[bank_service_id]:
+    get:
+      tags:
+        - Borrower
+      summary: get bank type detail info by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankServiceDetails'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /borrower/service_products:
+    get:
+      tags:
+        - Borrower
+      summary: get service product detail info by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/serviceProductList'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /borrower/service_products/[product_id]:
+    get:
+      tags:
+        - Borrower
+      summary: get service product detail info by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/serviceProductDetails'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+                  
   /unverified_borrower/otp_request:
     post:
       tags:
@@ -536,6 +691,188 @@ paths:
       responses:
         '200':
           description: OTP Verified
+  
+  /admin/client_config:
+    post:
+      tags:
+        - Admin
+      summary: Create New Client Config
+    
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type : object
+              properties:
+                name :
+                  type : string
+                  example : android_client
+                key :
+                  type : string
+                  example : androkey
+                role :
+                  type : string
+                  example : client
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name :
+                    type : string
+                    example : android_client
+                  key :
+                    type : string
+                    example : androkey
+                  role :
+                    type : string
+                    example : client
+                  secret:
+                    type: string
+                    example: 1a50b5da-a3a4-4e49-ba87-4c34195748a9
+                  
+        '422':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /admin/borrower:
+    get:
+      tags:
+        - Admin
+      summary: get current borrower. default is ordered by recent.
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+        - in: query
+          name: rows
+          schema:
+            type: integer
+            example: 2
+          description: how many data shown in one page
+        - in: query
+          name: page
+          schema:
+            type: string
+            example: 1
+          description: current open page
+        - in: query
+          name: orderby
+          schema:
+            type: string
+          description: order by
+        - in: query
+          name: sort
+          schema:
+            type: string
+            example: "asc"
+          description: sort ascending or descending
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/borrowerList'
+        '404':
+          description: Not Found
+  /admin/borrower/[borrower_id]:
+    get:
+      tags:
+        - Admin
+      summary: get current borrower profile datas
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/patchProfileResponse'
+        '404':
+          description: Not Found
+  /admin/loan:
+    get:
+      tags:
+        - Admin
+      summary: get current borrower loan history. default is ordered by recent.
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+        - in: query
+          name: owner
+          required: true
+          schema:
+            type: integer
+          description: Owner ID ( borrower id)
+        - in: query
+          name: rows
+          schema:
+            type: integer
+            example: 2
+          description: how many data shown in one page
+        - in: query
+          name: page
+          schema:
+            type: string
+            example: 1
+          description: current open page
+        - in: query
+          name: orderby
+          schema:
+            type: string
+          description: order by
+        - in: query
+          name: sort
+          schema:
+            type: string
+            example: "asc"
+          description: sort ascending or descending
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/loanList'
+        '401':
+          description: Unauthorized
+  /admin/loan/[loan_id]:
+    get:
+      tags:
+        - Admin
+      summary: get loan detail by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/loanListDetail'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+          
 components:
   schemas:
     borrowerLoginRequest:
@@ -939,6 +1276,91 @@ components:
         password:
           type: string
           example: iamgroot
+    borrowerList:
+      type: object
+      properties:
+        total_data:
+          type: number
+          example: 3
+        rows:
+          type: number
+          example: 5
+        current_page:
+         type: number
+         example: 1
+        last_page:
+         type: number
+         example: 1
+        from:
+         type: number
+         example: 1
+        to:
+         type: number
+         example: 3
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/borrowerListDetail'
+    borrowerListDetail:
+      properties:
+        id:
+          type: string
+          example: loan_01
+        created_time:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+        updated_time:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+        deleted_time:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+        owner:
+          type: object
+          properties:
+            Int64:
+              type: number
+              example: 1
+              description: borrower id
+            Valid:
+              type: boolean
+              example: true
+        status:
+          type: number
+          example: 1
+        loan_amount:
+          type: number
+          example: 2000000
+        installment:
+          type: number
+          example: 12
+          description: in month
+        fees:
+          type: array
+          items:
+            $ref: '#/components/schemas/patchProfileResponse'
+        interest:
+          type: number
+          example: 1.5
+          description: in percent
+        total_loan:
+          type: number
+          example: 2030000
+        due_date:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+          description: date when loan must be paid in full.
+        layaway_plan:
+          type: number
+          example: 50000
+        loan_intention:
+          type: string
+          example: its loan intention
+        intention_details:
+          type: string
+          example: the details
+        borrower_info:
+          type: object
     loanApplication:
       type: object
       properties:
@@ -1069,6 +1491,176 @@ components:
         image_string:
           type: string
           example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
+    bankList:
+      type: object
+      properties:
+        total_data:
+          type: number
+          example: 3
+        rows:
+          type: number
+          example: 5
+        current_page:
+         type: number
+         example: 1
+        last_page:
+         type: number
+         example: 1
+        from:
+         type: number
+         example: 1
+        to:
+         type: number
+         example: 3
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/bankListDetails'
+    bankListDetails:
+      properties:
+        id:
+          type: number
+          example: 1
+        name:
+          type: string
+          example: Bank Satu
+        type:
+          type: string
+          example: BJB
+        address:
+          type: string
+          example: Jalan Apel No.11
+        province:
+          type: string
+          example: Jawa Barat
+        city:
+          type: string
+          example: Kab. Garut
+        services:
+          type: array
+          example:
+            - Pinjaman PNS
+            - Pinjaman Pensiun
+            - Pinjaman Mikro
+        products:
+          type: array
+          example:
+            - Product A
+            - Product B
+            - Product C
+        pic_name:
+          type: string
+          example: Liana
+        pic_phone:
+          type: string
+          example: "0218898776"
+        phone:
+          type: string
+          example: "0218898776"
+        join_date:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+    bankServiceDetails:
+      required:
+        - name
+        - image
+        - status
+      properties:
+        id:
+          type: string
+          example: 1
+        name:
+          type: string
+          example: TSL
+        image:
+          type: string
+          example: "5"
+        status:
+          type: string
+          example: active
+    bankServiceList:
+      type: object
+      properties:
+        total_data:
+          type: number
+          example: 3
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/bankServiceDetails'
+    serviceProductList:
+      type: object
+      properties:
+        total_data:
+          type: number
+          example: 3
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/serviceProductDetails'
+    serviceProductDetails:
+      required:
+        - name
+      properties:
+        id:
+          type: string
+          example: 1
+        name:
+          type: string
+          example: Product A
+        min_timespan:
+          type: number
+          example: 6
+          description: in month
+        max_timespan:
+          type: number
+          example: 12
+          description: in month
+        interest:
+          type: number
+          example: 7
+          description: in percent
+        min_loan:
+          type: number
+          example: 5000000
+        max_loan:
+          type: number
+          example: 50000000
+        fees:
+          type: array
+          example: [{
+            "description": "Admin Fee",
+            "amount": "2500"
+          }]
+          description: amount can be a fixed amount or percent
+        asn_fee:
+          type: string
+          example: "1%"
+          description: fixed or percent
+        service:
+          type: number
+          example: 1
+          description: service id
+        collaterals:
+          type: array
+          example:
+            - Sertifikat Tanah
+            - Sertifikat Rumah
+            - Kios/Lapak
+            - Deposito
+            - BPKB Kendaraan
+        financing_sector:
+          type: array
+          example:
+            - Pendidikan
+            - Konsumtif
+        assurance:
+          type: string
+          example: Jamkrindo
+        status:
+          type: string
+          example: active
+          
   parameters:
     clienttoken:
       required: true

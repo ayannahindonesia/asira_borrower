@@ -1,5 +1,3 @@
-package groups
-
 import (
 	"asira_borrower/admin_handlers"
 	"asira_borrower/handlers"
