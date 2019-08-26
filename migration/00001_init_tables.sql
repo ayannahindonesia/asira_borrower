@@ -18,6 +18,16 @@ CREATE TABLE "images" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+CREATE TABLE "bank_types" (
+    "id" bigserial,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_time" timestamptz,
+    "name" varchar(255),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
+
 CREATE TABLE "banks" (
     "id" bigserial,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
@@ -168,6 +178,7 @@ CREATE TABLE "uuid_reset_passwords" (
 -- SQL in this section is executed when the migration is rolled back.
 DROP TABLE IF EXISTS "bank_types" CASCADE;
 DROP TABLE IF EXISTS "banks" CASCADE;
+DROP TABLE IF EXISTS "bank_types" CASCADE;
 DROP TABLE IF EXISTS "bank_services" CASCADE;
 DROP TABLE IF EXISTS "service_products" CASCADE;
 DROP TABLE IF EXISTS "images" CASCADE;
