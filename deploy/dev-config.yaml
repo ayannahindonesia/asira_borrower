@@ -18,6 +18,7 @@ development:
     user: user
     pass: oRB5KjfuHdXc
     log_verbose: true
+    sasl: true
     topics:
       new_bank: asira_new_bank
       produces:
