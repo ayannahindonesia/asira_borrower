@@ -43,8 +43,8 @@ type (
 
 // gorm callback hook
 func (l *Loan) BeforeCreate() (err error) {
-	borrowerModel := Borrower{}
-	borrower, err := borrowerModel.FindbyID(int(l.Owner.Int64))
+	borrower := Borrower{}
+	_, err = borrower.FindbyID(int(l.Owner.Int64))
 	if err != nil {
 		return err
 	}
