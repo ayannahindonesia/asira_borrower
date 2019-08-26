@@ -1,4 +1,5 @@
 development:
+  react_cors: true
   database:
     table: asira_db
     username: asirauser
@@ -12,14 +13,10 @@ development:
     logmode: true
     timezone: Asia/Jakarta
   kafka:
-    host: kafka
+    host: "10.148.0.3"
     port: "9092"
-    user: asirauser
-    pass: asirapass
-    log_verbose: true
-    topics:
-      loan_status_updt: asira_loan_update
-      new_bank: asira_new_bank
+    user: user
+    pass: oRB5KjfuHdXc
   clients:
     admin: Z3JhZGlvczp1bHRpbXVz
     android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret
