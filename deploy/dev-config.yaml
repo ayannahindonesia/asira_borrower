@@ -1,10 +1,10 @@
 development:
   react_cors: true
   database:
-    table: asira_borrower
+    table: asira_db
     username: asirauser
     password: asirapass
-    host: postgres_db
+    host: "127.0.0.1"
     port: "5432"
     maxlifetime: 30
     idle_conns: 10
@@ -15,16 +15,16 @@ development:
   kafka:
     host: "10.148.0.3"
     port: "9092"
-    user: asirauser
-    pass: asirapass
+    user: user
+    pass: oRB5KjfuHdXc
     log_verbose: true
     topics:
-      loan_status_updt: asira_loan_update
       new_bank: asira_new_bank
       produces:
         for_lender: asira_borrower_to_lender
       consumes:
         from_lender: asira_lender_to_borrower
+        loan_status_updt: asira_loan_update
   clients:
     admin: Z3JhZGlvczp1bHRpbXVz
     android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret
