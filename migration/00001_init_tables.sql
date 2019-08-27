@@ -1,5 +1,10 @@
--- +goose Up
--- SQL in this section is executed when the migration is applied.
+CREATE TABLE "images" (
+    "id" bigserial,
+    "image_string" text,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
 
 CREATE TABLE "bank_types" (
     "id" bigserial,
@@ -7,14 +12,6 @@ CREATE TABLE "bank_types" (
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
     "name" varchar(255),
-    PRIMARY KEY ("id")
-) WITH (OIDS = FALSE);
-
-CREATE TABLE "images" (
-    "id" bigserial,
-    "image_string" text,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 

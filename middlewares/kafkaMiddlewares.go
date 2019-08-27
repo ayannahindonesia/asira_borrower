@@ -26,6 +26,9 @@ type (
 func init() {
 	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.consumes", asira.App.ENV))
 
+	kafka := &AsiraKafkaHandlers{}
+	kafka.KafkaConsumer = asira.App.Kafka.Consumer
+
 	kafka_loan := &AsiraKafkaHandlers{}
 	kafka_loan.KafkaConsumer = asira.App.Kafka.Consumer
 
