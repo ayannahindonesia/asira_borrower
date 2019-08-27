@@ -18,7 +18,7 @@ development:
     user: user
     pass: oRB5KjfuHdXc
     client_id: asira
-    sasl: false
+    sasl: true
     log_verbose: true
     topics:
       new_loan: asira_new_loan_request
