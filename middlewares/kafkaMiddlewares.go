@@ -16,25 +16,42 @@ type (
 		KafkaConsumer     sarama.Consumer
 		PartitionConsumer sarama.PartitionConsumer
 	}
+
+	Loan struct {
+		ID     int    `json:"id"`
+		Status string `json:"status"`
+	}
 )
 
 func init() {
 	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.consumes", asira.App.ENV))
 
-	kafka := &AsiraKafkaHandlers{}
-	kafka.KafkaConsumer = asira.App.Kafka.Consumer
+	kafka_loan := &AsiraKafkaHandlers{}
+	kafka_loan.KafkaConsumer = asira.App.Kafka.Consumer
 
 	kafka.SetPartitionConsumer(topics["from_lender"].(string))
+	kafka_loan.SetPartitionConsumer(topics["loan_status_updt"].(string))
 
 	go func() {
 		for {
-			message, err := kafka.Listen()
+			message_loan, err := kafka_loan.Listen()
+			message, err := kafka_loan.Listen()
 			if err != nil {
 				log.Printf("error occured when listening kafka : %v", err)
 			}
 			if message != nil {
-				log.Println(string(message))
 				err = getEntity(message)
+				if err != nil {
+					log.Println(err)
+				}
+			}
+
+			message_loan, err := kafka_loan.Listen()
+			if err != nil {
+				log.Printf("error occured when listening kafka : %v", err)
+			}
+			if message_loan != nil {
+				err = loanUpdate(message_loan)
 				if err != nil {
 					log.Println(err)
 				}
@@ -196,5 +213,23 @@ func getEntity(kafkaMessage []byte) (err error) {
 			log.Println(data[1])
 		}
 	}
+}
+
+func loanUpdate(kafkaMessage []byte) (err error) {
+	var loanData Loan
+	loan := models.Loan{}
+
+	err = json.Unmarshal(kafkaMessage, &loanData)
+	if err != nil {
+		return err
+	}
+
+	data, err := loan.FindbyID(loanData.ID)
+	if err != nil {
+		return err
+	}
+
+	data.Status = loanData.Status
+	_, err = data.Save()
 	return err
 }
