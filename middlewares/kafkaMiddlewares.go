@@ -23,21 +23,21 @@ type (
 )
 
 func init() {
-	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics", asira.App.ENV))
+	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.consumes", asira.App.ENV))
 
-	kafka := &AsiraKafkaHandlers{}
-	kafka.KafkaConsumer = asira.App.Kafka.Consumer
+	kafka_loan := &AsiraKafkaHandlers{}
+	kafka_loan.KafkaConsumer = asira.App.Kafka.Consumer
 
-	kafka.SetPartitionConsumer(topics["loan_status_updt"].(string))
+	kafka_loan.SetPartitionConsumer(topics["loan_status_updt"].(string))
 
 	go func() {
 		for {
-			message, err := kafka.Listen()
+			message_loan, err := kafka_loan.Listen()
 			if err != nil {
 				log.Printf("error occured when listening kafka : %v", err)
 			}
-			if message != nil {
-				err = loanUpdate(message)
+			if message_loan != nil {
+				err = loanUpdate(message_loan)
 				if err != nil {
 					log.Println(err)
 				}
