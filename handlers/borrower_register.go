@@ -154,6 +154,10 @@ func RegisterBorrower(c echo.Context) error {
 			Int64: int64(TaxIdImage.BaseModel.ID),
 			Valid: true,
 		},
+		Bank: sql.NullInt64{
+			Int64: int64(register.Bank),
+			Valid: true,
+		},
 	}
 	r, err := json.Marshal(register)
 	if err != nil {
