@@ -265,7 +265,7 @@ func Seed() {
 					Int64: 1,
 					Valid: true,
 				},
-				Status:           "accepted",
+				Status:           "approved",
 				LoanAmount:       500000,
 				Installment:      2,
 				LoanIntention:    "a loan 2 intention",
