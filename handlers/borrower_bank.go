@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/models"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -33,7 +32,7 @@ func BorrowerBankService(c echo.Context) error {
 	var service []string
 	jMarshal, _ := json.Marshal(bankBorrower.Services)
 	if err := json.Unmarshal(jMarshal, &service); err != nil {
-		log.Fatal(err)
+		return returnInvalidResponse(http.StatusForbidden, err, "Service Tidak Ditemukan")
 	}
 
 	bankService := models.BankService{}
@@ -78,7 +77,7 @@ func BorrowerBankProduct(c echo.Context) error {
 	var product []string
 	jMarshal, _ := json.Marshal(bankBorrower.Products)
 	if err := json.Unmarshal(jMarshal, &product); err != nil {
-		log.Fatal(err)
+		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")
 	}
 
 	bankProduct := models.ServiceProduct{}

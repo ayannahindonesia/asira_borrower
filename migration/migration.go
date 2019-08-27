@@ -307,6 +307,7 @@ func Truncate(tableList []string) (err error) {
 				"bank_types",
 				"bank_services",
 				"service_products",
+				"bank_types",
 				"banks",
 				"images",
 				"borrowers",
