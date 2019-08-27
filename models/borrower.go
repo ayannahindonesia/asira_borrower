@@ -106,3 +106,10 @@ func (b *Borrower) FindbyID(id int) (*Borrower, error) {
 	err := FindbyID(&b, id)
 	return b, err
 }
+
+func (b *Borrower) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
+	borrowers := []Borrower{}
+	result, err = PagedFilterSearch(&borrowers, page, rows, orderby, sort, filter)
+
+	return result, err
+}
