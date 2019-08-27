@@ -121,7 +121,7 @@ func Seed() {
 			serviceProduct.Create()
 		}
 		// seed banks
-		services := []string{"Pinjaman PNS", "Pinjaman Lainya"}
+		services := []string{"Pinjaman PNS", "Pinjaman Lainnya"}
 		jMarshal, _ := json.Marshal(services)
 		banks := []models.Bank{
 			models.Bank{
@@ -304,6 +304,7 @@ func Truncate(tableList []string) (err error) {
 	if len(tableList) > 0 {
 		if tableList[0] == "all" {
 			tableList = []string{
+				"bank_types",
 				"bank_services",
 				"service_products",
 				"bank_types",
