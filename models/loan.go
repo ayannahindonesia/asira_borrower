@@ -90,21 +90,21 @@ func (l *Loan) Create() (*Loan, error) {
 
 // gorm callback hook. send data to kafka as message
 func (l *Loan) AfterCreate() (err error) {
-	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics", asira.App.ENV))
+	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.produces", asira.App.ENV))
 	lJsonMarshal, _ := json.Marshal(l)
 
 	strTime := strconv.Itoa(int(time.Now().Unix()))
 	msg := &sarama.ProducerMessage{
-		Topic: topics["new_loan"].(string),
+		Topic: topics["asira_new_loan"].(string),
 		Key:   sarama.StringEncoder(strTime),
 		Value: sarama.StringEncoder(string(lJsonMarshal)),
 	}
 
 	select {
 	case asira.App.Kafka.Producer.Input() <- msg:
-		log.Printf("Produced topic : %s", topics["new_loan"].(string))
+		log.Printf("Produced topic : %s value : %s", topics["asira_new_loan"].(string), string(lJsonMarshal))
 	case err := <-asira.App.Kafka.Producer.Errors():
-		log.Printf("Fail producing topic : %s error : %v", topics["new_loan"].(string), err)
+		log.Printf("Fail producing topic : %s error : %v", topics["asira_new_loan"].(string), err)
 	}
 
 	return nil
