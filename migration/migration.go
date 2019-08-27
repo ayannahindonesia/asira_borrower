@@ -304,11 +304,16 @@ func Truncate(tableList []string) (err error) {
 	if len(tableList) > 0 {
 		if tableList[0] == "all" {
 			tableList = []string{
+<<<<<<< HEAD
 				"bank_types",
 				"bank_services",
 				"service_products",
+=======
+>>>>>>> b255048a203b79d21e98128603cf2b370396995f
 				"bank_types",
 				"banks",
+				"bank_services",
+				"service_products",
 				"images",
 				"borrowers",
 				"loans",
