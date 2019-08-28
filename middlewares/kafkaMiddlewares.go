@@ -37,8 +37,7 @@ func init() {
 
 	go func() {
 		for {
-			message_loan, err := kafka_loan.Listen()
-			message, err := kafka_loan.Listen()
+			message, err := kafka.Listen()
 			if err != nil {
 				log.Printf("error occured when listening kafka : %v", err)
 			}
@@ -213,9 +212,10 @@ func getEntity(kafkaMessage []byte) (err error) {
 		}
 	default:
 		{
-			log.Println(data[1])
+			return err
 		}
 	}
+	return err
 }
 
 func loanUpdate(kafkaMessage []byte) (err error) {
