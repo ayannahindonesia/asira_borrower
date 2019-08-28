@@ -1,6 +1,3 @@
--- +goose Up
--- SQL in this section is executed when the migration is applied.
-
 CREATE TABLE "images" (
     "id" bigserial,
     "image_string" text,

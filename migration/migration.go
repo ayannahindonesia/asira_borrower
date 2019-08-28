@@ -265,7 +265,7 @@ func Seed() {
 					Int64: 1,
 					Valid: true,
 				},
-				Status:           "accepted",
+				Status:           "approved",
 				LoanAmount:       500000,
 				Installment:      2,
 				LoanIntention:    "a loan 2 intention",
@@ -305,10 +305,9 @@ func Truncate(tableList []string) (err error) {
 		if tableList[0] == "all" {
 			tableList = []string{
 				"bank_types",
+				"banks",
 				"bank_services",
 				"service_products",
-				"bank_types",
-				"banks",
 				"images",
 				"borrowers",
 				"loans",

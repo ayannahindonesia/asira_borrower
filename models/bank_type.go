@@ -12,7 +12,6 @@ type (
 
 func (b *BankType) Create() (*BankType, error) {
 	err := Create(&b)
-
 	return b, err
 }
 
