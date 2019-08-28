@@ -174,6 +174,7 @@ CREATE TABLE "client_configs" (
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
+
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 DROP TABLE IF EXISTS "service_products" CASCADE;
