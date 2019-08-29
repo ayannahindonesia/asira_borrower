@@ -42,6 +42,11 @@ func (b *Bank) Save() (*Bank, error) {
 	return b, err
 }
 
+func (b *Bank) Delete() (*Bank, error) {
+	err := Delete(&b)
+	return b, err
+}
+
 func (b *Bank) FindbyID(id int) (*Bank, error) {
 	err := FindbyID(&b, id)
 	return b, err

@@ -33,13 +33,16 @@ func Seed() {
 		// seed bank types
 		bankTypes := []models.BankType{
 			models.BankType{
-				Name: "BPD",
+				Name:        "BPD",
+				Description: "Layanan BPD",
 			},
 			models.BankType{
-				Name: "BPR",
+				Name:        "BPR",
+				Description: "Layanan BPR",
 			},
 			models.BankType{
-				Name: "Koperasi",
+				Name:        "Koperasi",
+				Description: "Layanan Koperasi",
 			},
 		}
 		for _, bankType := range bankTypes {
@@ -265,7 +268,7 @@ func Seed() {
 					Int64: 1,
 					Valid: true,
 				},
-				Status:           "accepted",
+				Status:           "approved",
 				LoanAmount:       500000,
 				Installment:      2,
 				LoanIntention:    "a loan 2 intention",
@@ -304,10 +307,10 @@ func Truncate(tableList []string) (err error) {
 	if len(tableList) > 0 {
 		if tableList[0] == "all" {
 			tableList = []string{
-				"bank_services",
-				"service_products",
 				"bank_types",
 				"banks",
+				"bank_services",
+				"service_products",
 				"images",
 				"borrowers",
 				"loans",
