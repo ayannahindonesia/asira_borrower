@@ -121,7 +121,7 @@ func Seed() {
 			serviceProduct.Create()
 		}
 		// seed banks
-		services := []int{1, 2, 3, 5, 8}
+		services := []string{"Pinjaman PNS", "Pinjaman Lainya"}
 		jMarshal, _ := json.Marshal(services)
 		banks := []models.Bank{
 			models.Bank{
@@ -306,6 +306,7 @@ func Truncate(tableList []string) (err error) {
 			tableList = []string{
 				"bank_services",
 				"service_products",
+				"bank_types",
 				"banks",
 				"images",
 				"borrowers",
