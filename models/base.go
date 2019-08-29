@@ -2,12 +2,16 @@ package models
 
 import (
 	"asira_borrower/asira"
+	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/Shopify/sarama"
 	"github.com/jinzhu/gorm"
 )
 
@@ -175,4 +179,54 @@ func PagedFilterSearch(i interface{}, page int, rows int, orderby string, sort s
 	}
 
 	return result, err
+}
+
+func KafkaSubmitModel(i interface{}, model string) {
+	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.produces", asira.App.ENV))
+
+	var payload interface{}
+	payload = kafkaPayloadBuilder(i, model)
+
+	jMarshal, _ := json.Marshal(payload)
+	strTime := strconv.Itoa(int(time.Now().Unix()))
+	msg := &sarama.ProducerMessage{
+		Topic: topics["for_lender"].(string),
+		Key:   sarama.StringEncoder(strTime),
+		Value: sarama.StringEncoder(strings.TrimSuffix(model, "_delete") + ":" + string(jMarshal)),
+	}
+
+	select {
+	case asira.App.Kafka.Producer.Input() <- msg:
+		log.Printf("Produced topic : %s", topics["for_lender"].(string))
+	case err := <-asira.App.Kafka.Producer.Errors():
+		log.Printf("Fail producing topic : %s error : %v", topics["for_lender"].(string), err)
+	}
+}
+
+func kafkaPayloadBuilder(i interface{}, model string) (payload interface{}) {
+	switch model {
+	default:
+		if strings.HasSuffix(model, "_delete") {
+			type ModelDelete struct {
+				ID     float64 `json:"id"`
+				Model  string  `json:"model"`
+				Delete bool    `json:"delete"`
+			}
+			var inInterface map[string]interface{}
+			inrec, _ := json.Marshal(i)
+			json.Unmarshal(inrec, &inInterface)
+			if modelID, ok := inInterface["id"].(float64); ok {
+				payload = ModelDelete{
+					ID:     modelID,
+					Model:  strings.TrimSuffix(model, "_delete"),
+					Delete: true,
+				}
+			}
+		} else {
+			payload = i
+		}
+		break
+	}
+
+	return payload
 }

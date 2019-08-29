@@ -1,15 +1,10 @@
 package models
 
 import (
-	"asira_borrower/asira"
 	"database/sql"
 	"encoding/json"
-	"fmt"
-	"log"
-	"strconv"
 	"time"
 
-	"github.com/Shopify/sarama"
 	"github.com/jinzhu/gorm/dialects/postgres"
 )
 
@@ -90,22 +85,7 @@ func (l *Loan) Create() (*Loan, error) {
 
 // gorm callback hook. send data to kafka as message
 func (l *Loan) AfterCreate() (err error) {
-	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.produces", asira.App.ENV))
-	lJsonMarshal, _ := json.Marshal(l)
-
-	strTime := strconv.Itoa(int(time.Now().Unix()))
-	msg := &sarama.ProducerMessage{
-		Topic: topics["asira_new_loan"].(string),
-		Key:   sarama.StringEncoder(strTime),
-		Value: sarama.StringEncoder(string(lJsonMarshal)),
-	}
-
-	select {
-	case asira.App.Kafka.Producer.Input() <- msg:
-		log.Printf("Produced topic : %s value : %s", topics["asira_new_loan"].(string), string(lJsonMarshal))
-	case err := <-asira.App.Kafka.Producer.Errors():
-		log.Printf("Fail producing topic : %s error : %v", topics["asira_new_loan"].(string), err)
-	}
+	KafkaSubmitModel(l, "loan")
 
 	return nil
 }

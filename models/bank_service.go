@@ -29,6 +29,11 @@ func (b *BankService) FindbyID(id int) (*BankService, error) {
 	return b, err
 }
 
+func (b *BankService) FilterSearchSingle(filter interface{}) (*BankService, error) {
+	err := FilterSearchSingle(&b, filter)
+	return b, err
+}
+
 func (b *BankService) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
 	bank_type := []BankService{}
 	result, err = PagedFilterSearch(&bank_type, page, rows, orderby, sort, filter)

@@ -43,6 +43,11 @@ func (p *ServiceProduct) FindbyID(id int) (*ServiceProduct, error) {
 	return p, err
 }
 
+func (p *ServiceProduct) FilterSearchSingle(filter interface{}) (*ServiceProduct, error) {
+	err := FilterSearchSingle(&p, filter)
+	return p, err
+}
+
 func (p *ServiceProduct) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
 	product := []ServiceProduct{}
 	result, err = PagedFilterSearch(&product, page, rows, orderby, sort, filter)

@@ -29,11 +29,7 @@ func init() {
 	kafka := &AsiraKafkaHandlers{}
 	kafka.KafkaConsumer = asira.App.Kafka.Consumer
 
-	kafka_loan := &AsiraKafkaHandlers{}
-	kafka_loan.KafkaConsumer = asira.App.Kafka.Consumer
-
 	kafka.SetPartitionConsumer(topics["from_lender"].(string))
-	kafka_loan.SetPartitionConsumer(topics["loan_status_updt"].(string))
 
 	go func() {
 		for {
@@ -43,17 +39,6 @@ func init() {
 			}
 			if message != nil {
 				err = getEntity(message)
-				if err != nil {
-					log.Println(err)
-				}
-			}
-
-			message_loan, err := kafka_loan.Listen()
-			if err != nil {
-				log.Printf("error occured when listening kafka : %v", err)
-			}
-			if message_loan != nil {
-				err = loanUpdate(message_loan)
 				if err != nil {
 					log.Println(err)
 				}
