@@ -154,7 +154,15 @@ func (x *Application) DBinit() error {
 func (x *Application) KafkaInit() (err error) {
 	kafkaConf := x.Config.GetStringMap(fmt.Sprintf("%s.kafka", x.ENV))
 
+	if kafkaConf["log_verbose"].(bool) {
+		sarama.Logger = log.New(os.Stdout, "[borrower kafka] ", log.LstdFlags)
+	}
+
 	conf := sarama.NewConfig()
+	conf.ClientID = kafkaConf["client_id"].(string)
+	if kafkaConf["sasl"].(bool) {
+		conf.Net.SASL.Enable = true
+	}
 	conf.Net.SASL.User = kafkaConf["user"].(string)
 	conf.Net.SASL.Password = kafkaConf["pass"].(string)
 	conf.Producer.Return.Successes = true
