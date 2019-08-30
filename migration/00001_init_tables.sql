@@ -9,20 +9,13 @@ CREATE TABLE "images" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
-CREATE TABLE "banks" (
+CREATE TABLE "bank_types" (
     "id" bigserial,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
     "name" varchar(255),
-    "type" varchar(255),
-    "address" text,
-    "province" varchar(255),
-    "city" varchar(255),
-    "services" jsonb DEFAULT '[]',
-    "products" jsonb DEFAULT '[]',
-    "pic" varchar(255),
-    "phone" varchar(255),
+    "description" text,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -58,6 +51,23 @@ CREATE TABLE "service_products" (
     "assurance" varchar(255),
     "status" varchar(255),
     FOREIGN KEY ("service") REFERENCES bank_services(id),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
+CREATE TABLE "banks" (
+    "id" bigserial,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_time" timestamptz,
+    "name" varchar(255),
+    "type" varchar(255),
+    "address" text,
+    "province" varchar(255),
+    "city" varchar(255),
+    "services" jsonb DEFAULT '[]',
+    "products" jsonb DEFAULT '[]',
+    "pic" varchar(255),
+    "phone" varchar(255),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -142,7 +152,6 @@ CREATE TABLE "loans" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
-
 CREATE TABLE "uuid_reset_passwords" (
     "id" bigserial,
     "uuid" varchar(255) NOT NULL,
@@ -154,11 +163,13 @@ CREATE TABLE "uuid_reset_passwords" (
     FOREIGN KEY ("borrower") REFERENCES borrowers(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
+
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
-DROP TABLE IF EXISTS "banks" CASCADE;
-DROP TABLE IF EXISTS "bank_services" CASCADE;
 DROP TABLE IF EXISTS "service_products" CASCADE;
+DROP TABLE IF EXISTS "bank_services" CASCADE;
+DROP TABLE IF EXISTS "banks" CASCADE;
+DROP TABLE IF EXISTS "bank_types" CASCADE;
 DROP TABLE IF EXISTS "images" CASCADE;
 DROP TABLE IF EXISTS "borrowers" CASCADE;
 DROP TABLE IF EXISTS "loans" CASCADE;

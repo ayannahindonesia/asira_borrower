@@ -7,12 +7,12 @@ type (
 		BaseModel
 		DeletedTime time.Time `json:"deleted_time" gorm:"column:deleted_time" sql:"DEFAULT:current_timestamp"`
 		Name        string    `json:"name" gorm:"name"`
+		Description string    `json:"description" gorm:"description"`
 	}
 )
 
 func (b *BankType) Create() (*BankType, error) {
 	err := Create(&b)
-
 	return b, err
 }
 

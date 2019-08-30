@@ -38,8 +38,8 @@ type (
 
 // gorm callback hook
 func (l *Loan) BeforeCreate() (err error) {
-	borrowerModel := Borrower{}
-	borrower, err := borrowerModel.FindbyID(int(l.Owner.Int64))
+	borrower := Borrower{}
+	_, err = borrower.FindbyID(int(l.Owner.Int64))
 	if err != nil {
 		return err
 	}
@@ -81,6 +81,13 @@ func (l *Loan) BeforeCreate() (err error) {
 func (l *Loan) Create() (*Loan, error) {
 	err := Create(&l)
 	return l, err
+}
+
+// gorm callback hook. send data to kafka as message
+func (l *Loan) AfterCreate() (err error) {
+	KafkaSubmitModel(l, "loan")
+
+	return nil
 }
 
 func (l *Loan) Save() (*Loan, error) {
