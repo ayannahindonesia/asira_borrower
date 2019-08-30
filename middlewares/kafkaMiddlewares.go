@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"sync"
 
 	"github.com/Shopify/sarama"
 )
@@ -23,15 +24,19 @@ type (
 	}
 )
 
+var wg sync.WaitGroup
+
 func init() {
 	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.consumes", asira.App.ENV))
 
 	kafka := &AsiraKafkaHandlers{}
 	kafka.KafkaConsumer = asira.App.Kafka.Consumer
 
-	kafka.SetPartitionConsumer(topics["from_lender"].(string))
+	kafka.SetPartitionConsumer(topics["for_borrower"].(string))
 
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
 		for {
 			message, err := kafka.Listen()
 			if err != nil {

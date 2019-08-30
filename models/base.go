@@ -7,7 +7,6 @@ import (
 	"log"
 	"math"
 	"reflect"
-	"strconv"
 	"strings"
 	"time"
 
@@ -188,10 +187,10 @@ func KafkaSubmitModel(i interface{}, model string) {
 	payload = kafkaPayloadBuilder(i, model)
 
 	jMarshal, _ := json.Marshal(payload)
-	strTime := strconv.Itoa(int(time.Now().Unix()))
+	// strTime := strconv.Itoa(int(time.Now().Unix()))
 	msg := &sarama.ProducerMessage{
 		Topic: topics["for_lender"].(string),
-		Key:   sarama.StringEncoder(strTime),
+		// Key:   sarama.StringEncoder(strTime),
 		Value: sarama.StringEncoder(strings.TrimSuffix(model, "_delete") + ":" + string(jMarshal)),
 	}
 
