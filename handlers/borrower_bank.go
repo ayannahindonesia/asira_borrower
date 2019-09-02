@@ -36,11 +36,11 @@ func BorrowerBankService(c echo.Context) error {
 	}
 
 	bankService := models.BankService{}
-	result, err := bankService.FilterSearch(&Filter{
+	_, err = bankService.FilterSearch(&Filter{
 		NameOR: service,
 	})
 
-	return c.JSON(http.StatusOK, result)
+	return c.JSON(http.StatusOK, bankService)
 }
 
 func BorrowerBankServiceDetails(c echo.Context) error {
@@ -48,11 +48,11 @@ func BorrowerBankServiceDetails(c echo.Context) error {
 	bServices := models.BankService{}
 
 	serviceID, _ := strconv.Atoi(c.Param("service_id"))
-	service, err := bServices.FindbyID(serviceID)
+	_, err := bServices.FindbyID(serviceID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Tidak Ditemukan")
 	}
-	return c.JSON(http.StatusOK, service)
+	return c.JSON(http.StatusOK, bServices)
 }
 
 func BorrowerBankProduct(c echo.Context) error {
@@ -80,15 +80,12 @@ func BorrowerBankProduct(c echo.Context) error {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")
 	}
 
-	type Filter struct {
-		Name string `json:"name"`
-	}
 	bankProduct := models.ServiceProduct{}
-	result, err := bankProduct.FilterSearch(&Filter{
+	_, err = bankProduct.FilterSearch(&Filter{
 		NameOR: product,
 	})
 
-	return c.JSON(http.StatusOK, result)
+	return c.JSON(http.StatusOK, bankProduct)
 }
 
 func BorrowerBankProductDetails(c echo.Context) error {
@@ -96,9 +93,9 @@ func BorrowerBankProductDetails(c echo.Context) error {
 	sProduct := models.ServiceProduct{}
 
 	productID, _ := strconv.Atoi(c.Param("product_id"))
-	product, err := sProduct.FindbyID(productID)
+	_, err := sProduct.FindbyID(productID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")
 	}
-	return c.JSON(http.StatusOK, product)
+	return c.JSON(http.StatusOK, sProduct)
 }
