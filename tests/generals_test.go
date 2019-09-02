@@ -12,6 +12,7 @@ import (
 
 var (
 	clientBasicToken string = "YW5kcm9rZXk6YW5kcm9zZWNyZXQ="
+	adminBasicToken  string = "YWRtaW5rZXk6YWRtaW5zZWNyZXQ="
 )
 
 func init() {

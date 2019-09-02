@@ -307,7 +307,7 @@ func Seed() {
 			models.Client_config{
 				Name:   "android",
 				Key:    "androkey",
-				Role:   "android",
+				Role:   "client",
 				Secret: "androsecret",
 			},
 		}
