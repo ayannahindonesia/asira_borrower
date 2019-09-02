@@ -29,7 +29,7 @@ func BorrowerLoanApply(c echo.Context) error {
 	payloadRules := govalidator.MapData{
 		"loan_amount":       []string{"required"},
 		"installment":       []string{"required"},
-		"loan_intention":    []string{"required"},
+		"loan_intention":    []string{"required", "loan_purposes"},
 		"intention_details": []string{"required"},
 	}
 

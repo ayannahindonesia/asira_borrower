@@ -32,6 +32,10 @@ type (
 		To          int         `json:"to"`   // last index of data shown in current page
 		Data        interface{} `json:"data"`
 	}
+	SearchResult struct {
+		TotalData int         `json:"total_data"` // matched datas
+		Data      interface{} `json:"data"`
+	}
 )
 
 // helper for inserting data using gorm.DB functions
@@ -228,4 +232,35 @@ func kafkaPayloadBuilder(i interface{}, model string) (payload interface{}) {
 	}
 
 	return payload
+}
+
+func FilterSearch(i interface{}, filter interface{}) (result SearchResult, err error) {
+	db := asira.App.DB
+
+	// filtering
+	refFilter := reflect.ValueOf(filter).Elem()
+	refType := refFilter.Type()
+	for x := 0; x < refFilter.NumField(); x++ {
+		field := refFilter.Field(x)
+		if field.Interface() != "" {
+			switch refType.Field(x).Tag.Get("condition") {
+			case "OR":
+				var e []string
+				for _, filter := range field.Interface().([]string) {
+					e = append(e, refType.Field(x).Tag.Get("json")+" = '"+filter+"' ")
+				}
+				db = db.Where(strings.Join(e, " OR "))
+			}
+		}
+	}
+
+	var total_rows int
+	db.Find(i).Count(&total_rows)
+
+	result = SearchResult{
+		TotalData: total_rows,
+		Data:      &i,
+	}
+
+	return result, err
 }
