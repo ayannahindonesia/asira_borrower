@@ -155,9 +155,11 @@ func Seed() {
 		borrowers := []models.Borrower{
 			models.Borrower{
 				Fullname:             "Full Name A",
+				Nickname:             "A",
 				Gender:               "M",
 				IdCardNumber:         "9876123451234567789",
 				TaxIDnumber:          "0987654321234567890",
+				Nationality:          "WNI",
 				Email:                "emaila@domain.com",
 				Birthday:             time.Now(),
 				Birthplace:           "a birthplace",
@@ -200,9 +202,11 @@ func Seed() {
 			},
 			models.Borrower{
 				Fullname:             "Full Name B",
+				Nickname:             "Be",
 				Gender:               "F",
 				IdCardNumber:         "9876123451234567781",
 				TaxIDnumber:          "0987654321234567891",
+				Nationality:          "WNI",
 				Email:                "emailb@domain.com",
 				Birthday:             time.Now(),
 				Birthplace:           "b birthplace",

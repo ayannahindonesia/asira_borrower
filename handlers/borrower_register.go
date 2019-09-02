@@ -30,60 +30,63 @@ func RegisterBorrower(c echo.Context) error {
 	type (
 		Register struct {
 			Fullname             string    `json:"fullname"`
+			Nickname             string    `json:"nickname"`
 			Gender               string    `json:"gender" `
 			IdCardNumber         string    `json:"idcard_number" `
 			IdCardImage          string    `json:"idcard_image"`
-			TaxIDImage           string    `json:"taxid_image" `
-			TaxIDnumber          string    `json:"taxid_number" `
-			Email                string    `json:"email" `
+			TaxIDImage           string    `json:"taxid_image"`
+			TaxIDnumber          string    `json:"taxid_number"`
+			Email                string    `json:"email"`
 			Birthday             time.Time `json:"birthday"`
-			Birthplace           string    `json:"birthplace" `
-			LastEducation        string    `json:"last_education" `
-			MotherName           string    `json:"mother_name" `
-			Phone                string    `json:"phone" `
+			Birthplace           string    `json:"birthplace"`
+			LastEducation        string    `json:"last_education"`
+			MotherName           string    `json:"mother_name"`
+			Phone                string    `json:"phone"`
 			MarriedStatus        string    `json:"marriage_status"`
-			SpouseName           string    `json:"spouse_name" `
-			SpouseBirthday       time.Time `json:"spouse_birthday" `
-			SpouseLastEducation  string    `json:"spouse_lasteducation" `
+			SpouseName           string    `json:"spouse_name"`
+			SpouseBirthday       time.Time `json:"spouse_birthday"`
+			SpouseLastEducation  string    `json:"spouse_lasteducation"`
 			Dependants           int       `json:"dependants,omitempty"`
-			Address              string    `json:"address" `
-			Province             string    `json:"province" `
-			City                 string    `json:"city" `
-			NeighbourAssociation string    `json:"neighbour_association" `
+			Address              string    `json:"address"`
+			Province             string    `json:"province"`
+			City                 string    `json:"city"`
+			NeighbourAssociation string    `json:"neighbour_association"`
 			Hamlets              string    `json:"hamlets"`
-			HomePhoneNumber      string    `json:"home_phonenumber" `
-			Subdistrict          string    `json:"subdistrict" `
-			UrbanVillage         string    `json:"urban_village" `
+			HomePhoneNumber      string    `json:"home_phonenumber"`
+			Subdistrict          string    `json:"subdistrict"`
+			UrbanVillage         string    `json:"urban_village"`
 			HomeOwnership        string    `json:"home_ownership"`
-			LivedFor             int       `json:"lived_for" `
+			LivedFor             int       `json:"lived_for"`
 			Occupation           string    `json:"occupation"`
 			EmployeeID           string    `json:"employee_id"`
 			EmployerName         string    `json:"employer_name"`
-			EmployerAddress      string    `json:"employer_address" `
+			EmployerAddress      string    `json:"employer_address"`
 			Department           string    `json:"department"`
 			BeenWorkingFor       int       `json:"been_workingfor"`
 			DirectSuperior       string    `json:"direct_superiorname"`
-			EmployerNumber       string    `json:"employer_number" `
-			MonthlyIncome        int       `json:"monthly_income" `
-			OtherIncome          int       `json:"other_income" `
-			OtherIncomeSource    string    `json:"other_incomesource" `
-			FieldOfWork          string    `json:"field_of_work" `
+			EmployerNumber       string    `json:"employer_number"`
+			MonthlyIncome        int       `json:"monthly_income"`
+			OtherIncome          int       `json:"other_income"`
+			OtherIncomeSource    string    `json:"other_incomesource"`
+			FieldOfWork          string    `json:"field_of_work"`
 			RelatedPersonName    string    `json:"related_personname"`
 			RelatedRelation      string    `json:"related_relation"`
 			RelatedPhoneNumber   string    `json:"related_phonenumber"`
-			RelatedHomePhone     string    `json:"related_homenumber" `
-			RelatedAddress       string    `json:"related_address" `
+			RelatedHomePhone     string    `json:"related_homenumber"`
+			RelatedAddress       string    `json:"related_address"`
 			Bank                 int       `json:"bank"`
-			BankAccountNumber    string    `json:"bank_accountnumber" `
-			Password             string    `json:"password" `
+			BankAccountNumber    string    `json:"bank_accountnumber"`
+			Password             string    `json:"password"`
 		}
 	)
 	register := Register{}
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{"required"},
+		"nickname":              []string{},
 		"gender":                []string{"required"},
 		"idcard_number":         []string{"required", "unique:borrowers,idcard_number"},
 		"taxid_number":          []string{"required", "unique:borrowers,taxid_number"},
+		"nationality":           []string{},
 		"email":                 []string{"email", "unique:borrowers,email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
