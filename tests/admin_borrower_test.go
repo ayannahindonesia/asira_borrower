@@ -37,7 +37,6 @@ func TestBorrowerGetAll(t *testing.T) {
 	obj = auth.GET("/admin/borrower").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
-	obj.ContainsKey("total_data").ValueEqual("total_data", 2)
 }
 
 func TestBorrowerGetDetails(t *testing.T) {

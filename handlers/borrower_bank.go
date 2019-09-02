@@ -36,11 +36,11 @@ func BorrowerBankService(c echo.Context) error {
 	}
 
 	bankService := models.BankService{}
-	_, err = bankService.FilterSearch(&Filter{
+	result, err := bankService.FilterSearch(&Filter{
 		NameOR: service,
 	})
 
-	return c.JSON(http.StatusOK, bankService)
+	return c.JSON(http.StatusOK, result)
 }
 
 func BorrowerBankServiceDetails(c echo.Context) error {
@@ -81,11 +81,11 @@ func BorrowerBankProduct(c echo.Context) error {
 	}
 
 	bankProduct := models.ServiceProduct{}
-	_, err = bankProduct.FilterSearch(&Filter{
+	result, err := bankProduct.FilterSearch(&Filter{
 		NameOR: product,
 	})
 
-	return c.JSON(http.StatusOK, bankProduct)
+	return c.JSON(http.StatusOK, result)
 }
 
 func BorrowerBankProductDetails(c echo.Context) error {

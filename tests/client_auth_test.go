@@ -36,9 +36,4 @@ func TestClientLogin(t *testing.T) {
 	obj = auth.GET("/clientauth").
 		Expect().
 		Status(http.StatusUnauthorized).JSON().Object()
-
-	// test without token
-	e.GET("/clientauth").
-		Expect().
-		Status(http.StatusUnauthorized).JSON().Object()
 }
