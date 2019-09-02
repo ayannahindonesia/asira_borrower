@@ -24,4 +24,11 @@ func AdminGroup(e *echo.Echo) {
 	//Loans
 	g.GET("/loan", admin_handlers.LoanGetAll)
 	g.GET("/loan/:loan_id", admin_handlers.LoanGetDetails)
+
+	// Loan Purpose
+	g.GET("/loan_purposes", admin_handlers.LoanPurposeList)
+	g.POST("/loan_purposes", admin_handlers.LoanPurposeNew)
+	g.GET("/loan_purposes/:loan_purpose_id", admin_handlers.LoanPurposeDetail)
+	g.PATCH("/loan_purposes/:loan_purpose_id", admin_handlers.LoanPurposePatch)
+	g.DELETE("/loan_purposes/:loan_purpose_id", admin_handlers.LoanPurposeDelete)
 }

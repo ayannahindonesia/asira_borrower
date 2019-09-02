@@ -25,3 +25,20 @@ func (l *LoanPurpose) Delete() (err error) {
 
 	return err
 }
+
+func (l *LoanPurpose) FindbyID(id int) (err error) {
+	err = FindbyID(&l, id)
+	return err
+}
+
+func (l *LoanPurpose) FilterSearchSingle(filter interface{}) (err error) {
+	err = FilterSearchSingle(&l, filter)
+	return err
+}
+
+func (l *LoanPurpose) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
+	loan_purposes := []LoanPurpose{}
+	result, err = PagedFilterSearch(&loan_purposes, page, rows, orderby, sort, filter)
+
+	return result, err
+}
