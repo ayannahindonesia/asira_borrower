@@ -43,7 +43,7 @@ func main() {
 		os.Exit(0)
 		break
 	case "seed":
-		migration.TestSeed()
+		migration.Seed()
 		os.Exit(0)
 		break
 	case "truncate":
