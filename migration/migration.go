@@ -292,7 +292,7 @@ func TestSeed() {
 			serviceProduct.Create()
 		}
 		// seed banks
-		services := []string{"Pinjaman PNS", "Pinjaman Lainya"}
+		services := []string{"Pinjaman PNS", "Pinjaman Lainnya"}
 		jMarshal, _ := json.Marshal(services)
 		banks := []models.Bank{
 			models.Bank{
