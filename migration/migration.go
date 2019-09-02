@@ -292,8 +292,10 @@ func TestSeed() {
 			serviceProduct.Create()
 		}
 		// seed banks
-		services := []string{"Pinjaman PNS", "Pinjaman Lainya"}
+		services := []string{"Pinjaman PNS", "Pinjaman Lainnya"}
+		service_product := []string{"Product A", "Product B"}
 		jMarshal, _ := json.Marshal(services)
+		jMarshalProduct, _ := json.Marshal(service_product)
 		banks := []models.Bank{
 			models.Bank{
 				Name:     "Bank A",
@@ -302,7 +304,7 @@ func TestSeed() {
 				Province: "Province A",
 				City:     "City A",
 				Services: postgres.Jsonb{jMarshal},
-				Products: postgres.Jsonb{jMarshal},
+				Products: postgres.Jsonb{jMarshalProduct},
 				PIC:      "Bank A PIC",
 				Phone:    "081234567890",
 			},
