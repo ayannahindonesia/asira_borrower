@@ -82,7 +82,7 @@ func (a *AsiraValidator) CustomValidatorRules() {
 			total    int
 		)
 
-		query := `SELECT COUNT(*) FROM loan_purposes WHERE name = ?`
+		query := `SELECT COUNT(*) FROM loan_purposes WHERE name = ? AND status = active`
 
 		queryRow = a.DB.Raw(query, value)
 
