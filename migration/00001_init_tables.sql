@@ -135,6 +135,8 @@ CREATE TABLE "loans" (
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
     "owner" bigint,
+    "service" bigint,
+    "product" bigint,
     "status" varchar(255) DEFAULT  ('processing'),
     "loan_amount" FLOAT NOT NULL,
     "installment" int NOT NULL,
@@ -148,6 +150,8 @@ CREATE TABLE "loans" (
     "borrower_info" jsonb DEFAULT '[]',
     "otp_verified" BOOLEAN,
     FOREIGN KEY ("owner") REFERENCES borrowers(id),
+    FOREIGN KEY ("service") REFERENCES bank_services(id),
+    FOREIGN KEY ("product") REFERENCES service_products(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 

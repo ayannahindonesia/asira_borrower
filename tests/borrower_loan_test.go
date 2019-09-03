@@ -73,6 +73,8 @@ func TestBorrowerLoanApply(t *testing.T) {
 		"loan_amount":       5000000,
 		"loan_intention":    "loan intention dummy test",
 		"intention_details": "the details",
+		"product":           1,
+		"service":           1,
 	}
 
 	// valid response
