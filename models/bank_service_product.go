@@ -10,7 +10,7 @@ type (
 		Name            string         `json:"name" gorm:"column:name"`
 		MinTimeSpan     int            `json:"min_timespan" gorm:"column:min_timespan"`
 		MaxTimeSpan     int            `json:"max_timespan" gorm:"column:max_timespan"`
-		Interest        int            `json:"interest" gorm:"column:interest"`
+		Interest        float64        `json:"interest" gorm:"column:interest"`
 		MinLoan         int            `json:"min_loan" gorm:"column:min_loan"`
 		MaxLoan         int            `json:"max_loan" gorm:"column:max_loan"`
 		Fees            postgres.Jsonb `json:"fees" gorm:"column:fees"`

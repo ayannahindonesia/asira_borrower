@@ -31,6 +31,8 @@ func BorrowerLoanApply(c echo.Context) error {
 		"installment":       []string{"required"},
 		"loan_intention":    []string{"required"},
 		"intention_details": []string{"required"},
+		"service":           []string{"required"},
+		"product":           []string{"required"},
 	}
 
 	validate := validateRequestPayload(c, payloadRules, &loan)
