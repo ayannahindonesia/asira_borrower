@@ -138,8 +138,10 @@ func Seed() {
 				},
 				LoanAmount:       1000000,
 				Installment:      6,
-				LoanIntention:    "a loan 1 intention",
+				LoanIntention:    "Pendidikan",
 				IntentionDetails: "a loan 1 intention details",
+				Product:          1,
+				Service:          1,
 			},
 			models.Loan{
 				Owner: sql.NullInt64{
@@ -149,8 +151,10 @@ func Seed() {
 				Status:           "approved",
 				LoanAmount:       500000,
 				Installment:      2,
-				LoanIntention:    "a loan 2 intention",
+				LoanIntention:    "Rumah Tangga",
 				IntentionDetails: "a loan 2 intention details",
+				Product:          1,
+				Service:          1,
 			},
 			models.Loan{
 				Owner: sql.NullInt64{
@@ -160,8 +164,10 @@ func Seed() {
 				Status:           "rejected",
 				LoanAmount:       2000000,
 				Installment:      8,
-				LoanIntention:    "a loan 3 intention",
+				LoanIntention:    "Kesehatan",
 				IntentionDetails: "a loan 3 intention details",
+				Product:          1,
+				Service:          1,
 			},
 		}
 		for _, loan := range loans {
