@@ -19,6 +19,25 @@ func Seed() {
 	defer seeder.Commit()
 
 	if asira.App.ENV == "development" {
+		// seed internals
+		client := []models.Client_config{
+			models.Client_config{
+				Name:   "admin",
+				Key:    "adminkey",
+				Role:   "admin",
+				Secret: "adminsecret",
+			},
+			models.Client_config{
+				Name:   "android",
+				Key:    "androkey",
+				Role:   "client",
+				Secret: "androsecret",
+			},
+		}
+		for _, clients := range client {
+			clients.Create()
+		}
+
 		// seed images
 		file, _ := os.Open("migration/image_dummy.txt")
 		defer file.Close()
