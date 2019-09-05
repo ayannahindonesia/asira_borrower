@@ -2,7 +2,6 @@ package admin_handlers
 
 import (
 	"asira_borrower/models"
-	"database/sql"
 	"net/http"
 	"strconv"
 
@@ -19,17 +18,14 @@ func LoanGetAll(c echo.Context) error {
 	orderby := c.QueryParam("orderby")
 	sort := c.QueryParam("sort")
 	//owner ID / Borrower ID
-	owner, _ := strconv.Atoi(c.QueryParam("owner"))
+	owner := c.QueryParam("owner")
 
 	type Filter struct {
-		Owner sql.NullInt64 `json:"owner"`
+		Owner string `json:"owner"`
 	}
 
 	result, err := loan.PagedFilterSearch(page, rows, orderby, sort, &Filter{
-		Owner: sql.NullInt64{
-			Int64: int64(owner),
-			Valid: true,
-		},
+		Owner: owner,
 	})
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "Loan tidak Ditemukan")
