@@ -21,6 +21,9 @@ func ClientLogin(c echo.Context) error {
 	}
 
 	auth := strings.Split(string(data), ":")
+	if len(auth) < 2 {
+		return returnInvalidResponse(http.StatusUnauthorized, "", "Creadentials tidak ditemukan")
+	}
 	type Login struct {
 		Key    string `json:"key"`
 		Secret string `json:"secret"`
