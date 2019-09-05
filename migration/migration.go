@@ -14,7 +14,7 @@ import (
 	"github.com/jinzhu/gorm/dialects/postgres"
 )
 
-func TestSeed() {
+func Seed() {
 	seeder := asira.App.DB.Begin()
 	defer seeder.Commit()
 
@@ -180,7 +180,7 @@ func TestSeed() {
 	}
 }
 
-func Seed() {
+func TestSeed() {
 	seeder := asira.App.DB.Begin()
 	defer seeder.Commit()
 
