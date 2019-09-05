@@ -83,15 +83,15 @@ func (l *Loan) Create() (*Loan, error) {
 	return l, err
 }
 
-// gorm callback hook. send data to kafka as message
-func (l *Loan) AfterCreate() (err error) {
-	err = KafkaSubmitModel(l, "loan")
-
-	return err
-}
-
 func (l *Loan) Save() (*Loan, error) {
 	err := Save(&l)
+	if err != nil {
+		return nil, err
+	}
+
+	if l.OTPverified {
+		err = KafkaSubmitModel(l, "loan")
+	}
 	return l, err
 }
 
