@@ -174,7 +174,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 			}
 
 		}
-	case "service_product":
+	case "bank_service_product":
 		{
 			var serviceProduct models.ServiceProduct
 			var a map[string]interface{}
@@ -205,12 +205,16 @@ func processMessage(kafkaMessage []byte) (err error) {
 			}
 
 		}
-	default:
-		{
+	case "loan":
+		log.Printf("message : %v", string(kafkaMessage))
+		err = loanUpdate([]byte(data[1]))
+		if err != nil {
 			return err
 		}
+	default:
+		return nil
 	}
-	return err
+	return nil
 }
 
 func loanUpdate(kafkaMessage []byte) (err error) {

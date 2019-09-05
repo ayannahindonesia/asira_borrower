@@ -27,10 +27,8 @@ CREATE TABLE "bank_services" (
     "name" varchar(255),
     "image_id" bigint,
     "status" varchar(255),
-    FOREIGN KEY ("image_id") REFERENCES images(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
-COMMENT ON COLUMN "bank_services"."status" IS '0 = inactive, 1 = active';
 
 CREATE TABLE "service_products" (
     "id" bigserial,
