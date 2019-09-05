@@ -180,26 +180,33 @@ func PagedFilterSearch(i interface{}, page int, rows int, orderby string, sort s
 	return result, err
 }
 
-func KafkaSubmitModel(i interface{}, model string) {
+func KafkaSubmitModel(i interface{}, model string) (err error) {
 	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.produces", asira.App.ENV))
 
 	var payload interface{}
 	payload = kafkaPayloadBuilder(i, model)
 
 	jMarshal, _ := json.Marshal(payload)
-	// strTime := strconv.Itoa(int(time.Now().Unix()))
+
+	kafkaProducer, err := sarama.NewAsyncProducer([]string{asira.App.Kafka.Host}, asira.App.Kafka.Config)
+	if err != nil {
+		return err
+	}
+	defer kafkaProducer.Close()
+
 	msg := &sarama.ProducerMessage{
 		Topic: topics["for_lender"].(string),
-		// Key:   sarama.StringEncoder(strTime),
 		Value: sarama.StringEncoder(strings.TrimSuffix(model, "_delete") + ":" + string(jMarshal)),
 	}
 
 	select {
-	case asira.App.Kafka.Producer.Input() <- msg:
+	case kafkaProducer.Input() <- msg:
 		log.Printf("Produced topic : %s", topics["for_lender"].(string))
-	case err := <-asira.App.Kafka.Producer.Errors():
+	case err := <-kafkaProducer.Errors():
 		log.Printf("Fail producing topic : %s error : %v", topics["for_lender"].(string), err)
 	}
+
+	return nil
 }
 
 func kafkaPayloadBuilder(i interface{}, model string) (payload interface{}) {

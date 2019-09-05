@@ -27,23 +27,28 @@ type (
 var wg sync.WaitGroup
 
 func init() {
+	var err error
 	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.consumes", asira.App.ENV))
 
 	kafka := &AsiraKafkaHandlers{}
-	kafka.KafkaConsumer = asira.App.Kafka.Consumer
+	kafka.KafkaConsumer, err = sarama.NewConsumer([]string{asira.App.Kafka.Host}, asira.App.Kafka.Config)
+	if err != nil {
+		log.Printf("error while creating new kafka consumer : %v", err)
+	}
 
 	kafka.SetPartitionConsumer(topics["for_borrower"].(string))
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
+		defer kafka.KafkaConsumer.Close()
 		for {
 			message, err := kafka.Listen()
 			if err != nil {
 				log.Printf("error occured when listening kafka : %v", err)
 			}
 			if message != nil {
-				err = getEntity(message)
+				err = processMessage(message)
 				if err != nil {
 					log.Println(err)
 				}
@@ -72,7 +77,7 @@ func (k *AsiraKafkaHandlers) Listen() ([]byte, error) {
 	return nil, fmt.Errorf("unidentified error while listening")
 }
 
-func getEntity(kafkaMessage []byte) (err error) {
+func processMessage(kafkaMessage []byte) (err error) {
 	data := strings.SplitN(string(kafkaMessage), ":", 2)
 	switch data[0] {
 	case "bank_type":

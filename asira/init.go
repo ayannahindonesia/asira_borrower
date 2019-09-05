@@ -37,8 +37,8 @@ type (
 	}
 
 	KafkaInstance struct {
-		Producer sarama.AsyncProducer
-		Consumer sarama.Consumer
+		Config *sarama.Config
+		Host   string
 	}
 )
 
@@ -55,9 +55,8 @@ func init() {
 	if err = App.DBinit(); err != nil {
 		log.Printf("DB init error : %v", err)
 	}
-	if err = App.KafkaInit(); err != nil {
-		log.Printf("Kafka init error : %v", err)
-	}
+
+	App.KafkaInit()
 
 	otpSecret := gotp.RandomSecret(16)
 	App.OTP = OTP{
@@ -74,12 +73,7 @@ func (x *Application) Close() (err error) {
 	if err = x.DB.Close(); err != nil {
 		return err
 	}
-	if err = x.Kafka.Producer.Close(); err != nil {
-		return err
-	}
-	if err = x.Kafka.Consumer.Close(); err != nil {
-		return err
-	}
+
 	return nil
 }
 
@@ -151,35 +145,23 @@ func (x *Application) DBinit() error {
 	return nil
 }
 
-func (x *Application) KafkaInit() (err error) {
+func (x *Application) KafkaInit() {
 	kafkaConf := x.Config.GetStringMap(fmt.Sprintf("%s.kafka", x.ENV))
 
 	if kafkaConf["log_verbose"].(bool) {
 		sarama.Logger = log.New(os.Stdout, "[borrower kafka] ", log.LstdFlags)
 	}
 
-	conf := sarama.NewConfig()
-	conf.ClientID = kafkaConf["client_id"].(string)
+	x.Kafka.Config = sarama.NewConfig()
+	x.Kafka.Config.ClientID = kafkaConf["client_id"].(string)
 	if kafkaConf["sasl"].(bool) {
-		conf.Net.SASL.Enable = true
+		x.Kafka.Config.Net.SASL.Enable = true
 	}
-	conf.Net.SASL.User = kafkaConf["user"].(string)
-	conf.Net.SASL.Password = kafkaConf["pass"].(string)
-	conf.Producer.Return.Successes = true
-	conf.Producer.Partitioner = sarama.NewRandomPartitioner
-	conf.Producer.RequiredAcks = sarama.WaitForAll
-	conf.Consumer.Return.Errors = true
-	kafkaHost := strings.Join([]string{kafkaConf["host"].(string), kafkaConf["port"].(string)}, ":")
-
-	x.Kafka.Producer, err = sarama.NewAsyncProducer([]string{kafkaHost}, conf)
-	if err != nil {
-		return err
-	}
-
-	x.Kafka.Consumer, err = sarama.NewConsumer([]string{kafkaHost}, conf)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	x.Kafka.Config.Net.SASL.User = kafkaConf["user"].(string)
+	x.Kafka.Config.Net.SASL.Password = kafkaConf["pass"].(string)
+	x.Kafka.Config.Producer.Return.Successes = true
+	x.Kafka.Config.Producer.Partitioner = sarama.NewRandomPartitioner
+	x.Kafka.Config.Producer.RequiredAcks = sarama.WaitForAll
+	x.Kafka.Config.Consumer.Return.Errors = true
+	x.Kafka.Host = strings.Join([]string{kafkaConf["host"].(string), kafkaConf["port"].(string)}, ":")
 }
