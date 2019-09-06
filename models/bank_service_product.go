@@ -10,7 +10,7 @@ type (
 		Name            string         `json:"name" gorm:"column:name"`
 		MinTimeSpan     int            `json:"min_timespan" gorm:"column:min_timespan"`
 		MaxTimeSpan     int            `json:"max_timespan" gorm:"column:max_timespan"`
-		Interest        int            `json:"interest" gorm:"column:interest"`
+		Interest        float64        `json:"interest" gorm:"column:interest"`
 		MinLoan         int            `json:"min_loan" gorm:"column:min_loan"`
 		MaxLoan         int            `json:"max_loan" gorm:"column:max_loan"`
 		Fees            postgres.Jsonb `json:"fees" gorm:"column:fees"`
@@ -43,9 +43,20 @@ func (p *ServiceProduct) FindbyID(id int) (*ServiceProduct, error) {
 	return p, err
 }
 
+func (p *ServiceProduct) FilterSearchSingle(filter interface{}) (*ServiceProduct, error) {
+	err := FilterSearchSingle(&p, filter)
+	return p, err
+}
+
 func (p *ServiceProduct) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
 	product := []ServiceProduct{}
 	result, err = PagedFilterSearch(&product, page, rows, orderby, sort, filter)
 
+	return result, err
+}
+
+func (p *ServiceProduct) FilterSearch(filter interface{}) (SearchResult, error) {
+	product := []ServiceProduct{}
+	result, err := FilterSearch(&product, filter)
 	return result, err
 }

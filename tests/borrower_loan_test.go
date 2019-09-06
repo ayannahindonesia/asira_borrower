@@ -71,20 +71,31 @@ func TestBorrowerLoanApply(t *testing.T) {
 	payload := map[string]interface{}{
 		"installment":       6,
 		"loan_amount":       5000000,
-		"loan_intention":    "loan intention dummy test",
+		"loan_intention":    "Pendidikan",
 		"intention_details": "the details",
+		"product":           1,
+		"service":           1,
 	}
 
 	// valid response
 	obj := auth.POST("/borrower/loan").WithJSON(payload).
 		Expect().
 		Status(http.StatusCreated).JSON().Object()
-	obj.ContainsKey("loan_intention").ValueEqual("loan_intention", "loan intention dummy test")
+	obj.ContainsKey("loan_intention").ValueEqual("loan_intention", "Pendidikan")
 
 	// test validation
 	payload = map[string]interface{}{
 		"installment": "6",
 		"loan_amount": "5000000",
+	}
+	auth.POST("/borrower/loan").WithJSON(payload).
+		Expect().
+		Status(http.StatusUnprocessableEntity).JSON().Object()
+	payload = map[string]interface{}{
+		"installment":       "6",
+		"loan_amount":       "5000000",
+		"loan_intention":    "not valid",
+		"intention_details": "the details",
 	}
 	auth.POST("/borrower/loan").WithJSON(payload).
 		Expect().

@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/models"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -27,27 +26,21 @@ func BorrowerBankService(c echo.Context) error {
 	bank := models.Bank{}
 	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
 
-	var service []int
+	type Filter struct {
+		NameOR []string `json:"name" condition:"OR"`
+	}
+	var service []string
 	jMarshal, _ := json.Marshal(bankBorrower.Services)
 	if err := json.Unmarshal(jMarshal, &service); err != nil {
-		log.Fatal(err)
+		return returnInvalidResponse(http.StatusForbidden, err, "Service Tidak Ditemukan")
 	}
 
-	log.Println(service)
 	bankService := models.BankService{}
-	bServices := make([]interface{}, len(service))
-	for i := range service {
-		data, err := bankService.FindbyID(service[i])
-		if err != nil {
-			continue
-		}
-		bServices[i] = data
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"total_data": len(bServices),
-		"data":       bServices,
+	result, err := bankService.FilterSearch(&Filter{
+		NameOR: service,
 	})
+
+	return c.JSON(http.StatusOK, result)
 }
 
 func BorrowerBankServiceDetails(c echo.Context) error {
@@ -55,11 +48,11 @@ func BorrowerBankServiceDetails(c echo.Context) error {
 	bServices := models.BankService{}
 
 	serviceID, _ := strconv.Atoi(c.Param("service_id"))
-	service, err := bServices.FindbyID(serviceID)
+	_, err := bServices.FindbyID(serviceID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Tidak Ditemukan")
 	}
-	return c.JSON(http.StatusOK, service)
+	return c.JSON(http.StatusOK, bServices)
 }
 
 func BorrowerBankProduct(c echo.Context) error {
@@ -78,26 +71,21 @@ func BorrowerBankProduct(c echo.Context) error {
 	bank := models.Bank{}
 	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
 
-	var product []int
+	type Filter struct {
+		NameOR []string `json:"name" condition:"OR"`
+	}
+	var product []string
 	jMarshal, _ := json.Marshal(bankBorrower.Products)
 	if err := json.Unmarshal(jMarshal, &product); err != nil {
-		log.Fatal(err)
+		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")
 	}
 
 	bankProduct := models.ServiceProduct{}
-	bProduct := make([]interface{}, len(product))
-	for i := range product {
-		data, err := bankProduct.FindbyID(product[i])
-		if err != nil {
-			continue
-		}
-		bProduct[i] = data
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"total_data": len(bProduct),
-		"data":       bProduct,
+	result, err := bankProduct.FilterSearch(&Filter{
+		NameOR: product,
 	})
+
+	return c.JSON(http.StatusOK, result)
 }
 
 func BorrowerBankProductDetails(c echo.Context) error {
@@ -105,9 +93,9 @@ func BorrowerBankProductDetails(c echo.Context) error {
 	sProduct := models.ServiceProduct{}
 
 	productID, _ := strconv.Atoi(c.Param("product_id"))
-	product, err := sProduct.FindbyID(productID)
+	_, err := sProduct.FindbyID(productID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")
 	}
-	return c.JSON(http.StatusOK, product)
+	return c.JSON(http.StatusOK, sProduct)
 }

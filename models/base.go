@@ -2,12 +2,15 @@ package models
 
 import (
 	"asira_borrower/asira"
+	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 	"reflect"
 	"strings"
 	"time"
 
+	"github.com/Shopify/sarama"
 	"github.com/jinzhu/gorm"
 )
 
@@ -28,6 +31,10 @@ type (
 		From        int         `json:"from"` // offset, starting index of data shown in current page
 		To          int         `json:"to"`   // last index of data shown in current page
 		Data        interface{} `json:"data"`
+	}
+	SearchResult struct {
+		TotalData int         `json:"total_data"` // matched datas
+		Data      interface{} `json:"data"`
 	}
 )
 
@@ -177,6 +184,94 @@ func PagedFilterSearch(i interface{}, page int, rows int, orderby string, sort s
 		From:        offset + 1,
 		To:          offset + rows,
 		Data:        &i,
+	}
+
+	return result, err
+}
+
+func KafkaSubmitModel(i interface{}, model string) (err error) {
+	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.produces", asira.App.ENV))
+
+	var payload interface{}
+	payload = kafkaPayloadBuilder(i, model)
+
+	jMarshal, _ := json.Marshal(payload)
+
+	kafkaProducer, err := sarama.NewAsyncProducer([]string{asira.App.Kafka.Host}, asira.App.Kafka.Config)
+	if err != nil {
+		return err
+	}
+	defer kafkaProducer.Close()
+
+	msg := &sarama.ProducerMessage{
+		Topic: topics["for_lender"].(string),
+		Value: sarama.StringEncoder(strings.TrimSuffix(model, "_delete") + ":" + string(jMarshal)),
+	}
+
+	select {
+	case kafkaProducer.Input() <- msg:
+		log.Printf("Produced topic : %s", topics["for_lender"].(string))
+	case err := <-kafkaProducer.Errors():
+		log.Printf("Fail producing topic : %s error : %v", topics["for_lender"].(string), err)
+	}
+
+	return nil
+}
+
+func kafkaPayloadBuilder(i interface{}, model string) (payload interface{}) {
+	switch model {
+	default:
+		if strings.HasSuffix(model, "_delete") {
+			type ModelDelete struct {
+				ID     float64 `json:"id"`
+				Model  string  `json:"model"`
+				Delete bool    `json:"delete"`
+			}
+			var inInterface map[string]interface{}
+			inrec, _ := json.Marshal(i)
+			json.Unmarshal(inrec, &inInterface)
+			if modelID, ok := inInterface["id"].(float64); ok {
+				payload = ModelDelete{
+					ID:     modelID,
+					Model:  strings.TrimSuffix(model, "_delete"),
+					Delete: true,
+				}
+			}
+		} else {
+			payload = i
+		}
+		break
+	}
+
+	return payload
+}
+
+func FilterSearch(i interface{}, filter interface{}) (result SearchResult, err error) {
+	db := asira.App.DB
+
+	// filtering
+	refFilter := reflect.ValueOf(filter).Elem()
+	refType := refFilter.Type()
+	for x := 0; x < refFilter.NumField(); x++ {
+		field := refFilter.Field(x)
+		if field.Interface() != "" {
+			switch refType.Field(x).Tag.Get("condition") {
+			case "OR":
+				var e []string
+				for _, filter := range field.Interface().([]string) {
+					e = append(e, refType.Field(x).Tag.Get("json")+" = '"+filter+"' ")
+				}
+				db = db.Where(strings.Join(e, " OR "))
+			}
+		}
+	}
+
+	var total_rows int
+	db.Find(i).Count(&total_rows)
+
+	result = SearchResult{
+		TotalData: total_rows,
+		Data:      &i,
 	}
 
 	return result, err
