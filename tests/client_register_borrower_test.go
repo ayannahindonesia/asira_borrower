@@ -68,6 +68,7 @@ func TestRegisterBorrower(t *testing.T) {
 		"field_of_work":         "IT",
 		"related_personname":    "wuri",
 		"related_relation":      "sister",
+		"bank":                  1,
 		"related_phonenumber":   "081247273727",
 		"password":              "pass123",
 	}

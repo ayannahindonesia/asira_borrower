@@ -83,7 +83,7 @@ func RegisterBorrower(c echo.Context) error {
 		"fullname":              []string{"required"},
 		"gender":                []string{"required"},
 		"idcard_number":         []string{"required", "unique:borrowers,idcard_number"},
-		"taxid_number":          []string{"required", "unique:borrowers,taxid_number"},
+		"taxid_number":          []string{"unique:borrowers,taxid_number"},
 		"email":                 []string{"email", "unique:borrowers,email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
@@ -152,6 +152,10 @@ func RegisterBorrower(c echo.Context) error {
 		},
 		TaxIDImage: sql.NullInt64{
 			Int64: int64(TaxIdImage.BaseModel.ID),
+			Valid: true,
+		},
+		Bank: sql.NullInt64{
+			Int64: int64(register.Bank),
 			Valid: true,
 		},
 	}

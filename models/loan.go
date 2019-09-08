@@ -38,8 +38,8 @@ type (
 
 // gorm callback hook
 func (l *Loan) BeforeCreate() (err error) {
-	borrowerModel := Borrower{}
-	borrower, err := borrowerModel.FindbyID(int(l.Owner.Int64))
+	borrower := Borrower{}
+	_, err = borrower.FindbyID(int(l.Owner.Int64))
 	if err != nil {
 		return err
 	}
@@ -85,6 +85,13 @@ func (l *Loan) Create() (*Loan, error) {
 
 func (l *Loan) Save() (*Loan, error) {
 	err := Save(&l)
+	if err != nil {
+		return nil, err
+	}
+
+	if l.OTPverified {
+		err = KafkaSubmitModel(l, "loan")
+	}
 	return l, err
 }
 

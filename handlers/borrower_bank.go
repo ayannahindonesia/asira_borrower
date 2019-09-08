@@ -27,17 +27,22 @@ func BorrowerBankService(c echo.Context) error {
 	bank := models.Bank{}
 	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
 
-	var service []int
+	var service []string
 	jMarshal, _ := json.Marshal(bankBorrower.Services)
 	if err := json.Unmarshal(jMarshal, &service); err != nil {
 		log.Fatal(err)
 	}
 
-	log.Println(service)
 	bankService := models.BankService{}
 	bServices := make([]interface{}, len(service))
+
+	type Filter struct {
+		Name string `json:"name"`
+	}
 	for i := range service {
-		data, err := bankService.FindbyID(service[i])
+		data, err := bankService.FilterSearchSingle(&Filter{
+			Name: service[i],
+		})
 		if err != nil {
 			continue
 		}
@@ -78,16 +83,21 @@ func BorrowerBankProduct(c echo.Context) error {
 	bank := models.Bank{}
 	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
 
-	var product []int
+	var product []string
 	jMarshal, _ := json.Marshal(bankBorrower.Products)
 	if err := json.Unmarshal(jMarshal, &product); err != nil {
 		log.Fatal(err)
 	}
 
+	type Filter struct {
+		Name string `json:"name"`
+	}
 	bankProduct := models.ServiceProduct{}
 	bProduct := make([]interface{}, len(product))
 	for i := range product {
-		data, err := bankProduct.FindbyID(product[i])
+		data, err := bankProduct.FilterSearchSingle(&Filter{
+			Name: product[i],
+		})
 		if err != nil {
 			continue
 		}
