@@ -317,8 +317,10 @@ func TestSeed() {
 			serviceProduct.Create()
 		}
 		// seed banks
-		services := []string{"Pinjaman PNS", "Pinjaman Lainya"}
+		services := []string{"Pinjaman PNS", "Pinjaman Lainnya"}
+		service_product := []string{"Product A", "Product B"}
 		jMarshal, _ := json.Marshal(services)
+		jMarshalProduct, _ := json.Marshal(service_product)
 		banks := []models.Bank{
 			models.Bank{
 				Name:     "Bank A",
@@ -327,7 +329,7 @@ func TestSeed() {
 				Province: "Province A",
 				City:     "City A",
 				Services: postgres.Jsonb{jMarshal},
-				Products: postgres.Jsonb{jMarshal},
+				Products: postgres.Jsonb{jMarshalProduct},
 				PIC:      "Bank A PIC",
 				Phone:    "081234567890",
 			},
@@ -351,9 +353,11 @@ func TestSeed() {
 		borrowers := []models.Borrower{
 			models.Borrower{
 				Fullname:             "Full Name A",
+				Nickname:             "A",
 				Gender:               "M",
 				IdCardNumber:         "9876123451234567789",
 				TaxIDnumber:          "0987654321234567890",
+				Nationality:          "WNI",
 				Email:                "emaila@domain.com",
 				Birthday:             time.Now(),
 				Birthplace:           "a birthplace",
@@ -396,9 +400,11 @@ func TestSeed() {
 			},
 			models.Borrower{
 				Fullname:             "Full Name B",
+				Nickname:             "Be",
 				Gender:               "F",
 				IdCardNumber:         "9876123451234567781",
 				TaxIDnumber:          "0987654321234567891",
+				Nationality:          "WNI",
 				Email:                "emailb@domain.com",
 				Birthday:             time.Now(),
 				Birthplace:           "b birthplace",
@@ -485,6 +491,8 @@ func TestSeed() {
 				Installment:      6,
 				LoanIntention:    "Pendidikan",
 				IntentionDetails: "a loan 1 intention details",
+				Product:          1,
+				Service:          1,
 			},
 			models.Loan{
 				Owner: sql.NullInt64{
@@ -496,6 +504,8 @@ func TestSeed() {
 				Installment:      2,
 				LoanIntention:    "Rumah Tangga",
 				IntentionDetails: "a loan 2 intention details",
+				Product:          1,
+				Service:          1,
 			},
 			models.Loan{
 				Owner: sql.NullInt64{
@@ -507,6 +517,8 @@ func TestSeed() {
 				Installment:      8,
 				LoanIntention:    "Kesehatan",
 				IntentionDetails: "a loan 3 intention details",
+				Product:          1,
+				Service:          1,
 			},
 		}
 		for _, loan := range loans {

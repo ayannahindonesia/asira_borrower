@@ -30,7 +30,7 @@ func TestGetAdminImageString(t *testing.T) {
 
 	// These should be changed to... ==================
 	auth := e.Builder(func(req *httpexpect.Request) {
-		req.WithHeader("Authorization", "Basic "+clientBasicToken)
+		req.WithHeader("Authorization", "Basic "+adminBasicToken)
 	})
 
 	obj := auth.GET("/clientauth").

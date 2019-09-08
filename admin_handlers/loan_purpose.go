@@ -24,7 +24,7 @@ func LoanPurposeList(c echo.Context) error {
 	status := c.QueryParam("status")
 
 	type Filter struct {
-		Name   string `json:"name"`
+		Name   string `json:"name" condition:"LIKE"`
 		Status string `json:"status"`
 	}
 
