@@ -492,6 +492,24 @@ func TestSeed() {
 			},
 		}
 		uuid.Create()
+
+		client := []models.Client_config{
+			models.Client_config{
+				Name:   "admin",
+				Key:    "adminkey",
+				Role:   "admin",
+				Secret: "adminsecret",
+			},
+			models.Client_config{
+				Name:   "android",
+				Key:    "androkey",
+				Role:   "client",
+				Secret: "androsecret",
+			},
+		}
+		for _, clients := range client {
+			clients.Create()
+		}
 	}
 }
 
@@ -508,6 +526,7 @@ func Truncate(tableList []string) (err error) {
 				"borrowers",
 				"loans",
 				"uuid_reset_passwords",
+				"client_configs",
 			}
 		}
 

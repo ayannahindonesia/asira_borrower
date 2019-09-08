@@ -15,6 +15,8 @@ func AdminGroup(e *echo.Echo) {
 	// OTP
 	g.GET("/info", handlers.AsiraAppInfo)
 
+	//Create Client Config
+	g.POST("/client_config", admin_handlers.CreateClientConfig)
 	//Borrowers
 	g.GET("/borrower", admin_handlers.BorrowerGetAll)
 	g.GET("/borrower/:borrower_id", admin_handlers.BorrowerGetDetails)
