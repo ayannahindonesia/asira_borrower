@@ -17,9 +17,15 @@ func BorrowerGetAll(c echo.Context) error {
 	page, err := strconv.Atoi(c.QueryParam("page"))
 	orderby := c.QueryParam("orderby")
 	sort := c.QueryParam("sort")
+	// filters
+	fullname := c.QueryParam("fullname")
 
-	var filter struct{}
-	result, err := borrower.PagedFilterSearch(page, rows, orderby, sort, &filter)
+	type Filter struct {
+		Fullname string `json:"fullname" condition:"LIKE"`
+	}
+	result, err := borrower.PagedFilterSearch(page, rows, orderby, sort, &Filter{
+		Fullname: fullname,
+	})
 
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "Borrower tidak Ditemukan")

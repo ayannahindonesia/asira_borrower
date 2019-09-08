@@ -21,7 +21,7 @@ func TestLoanGetAll(t *testing.T) {
 	e := httpexpect.New(t, server.URL)
 
 	auth := e.Builder(func(req *httpexpect.Request) {
-		req.WithHeader("Authorization", "Basic "+clientBasicToken)
+		req.WithHeader("Authorization", "Basic "+adminBasicToken)
 	})
 
 	obj := auth.GET("/clientauth").
@@ -53,7 +53,7 @@ func TestLoanGetDetails(t *testing.T) {
 	e := httpexpect.New(t, server.URL)
 
 	auth := e.Builder(func(req *httpexpect.Request) {
-		req.WithHeader("Authorization", "Basic "+clientBasicToken)
+		req.WithHeader("Authorization", "Basic "+adminBasicToken)
 	})
 
 	obj := auth.GET("/clientauth").

@@ -74,4 +74,37 @@ func (a *AsiraValidator) CustomValidatorRules() {
 		}
 		return nil
 	})
+
+	// validator for intention purpose
+	govalidator.AddCustomRule("loan_purposes", func(field string, rule string, message string, value interface{}) error {
+		var (
+			queryRow *gorm.DB
+			total    int
+		)
+
+		query := `SELECT COUNT(*) FROM loan_purposes WHERE name = ? AND status = ?`
+
+		queryRow = a.DB.Raw(query, value, "active")
+
+		queryRow.Row().Scan(&total)
+
+		if total < 1 {
+			if message != "" {
+				return errors.New(message)
+			}
+
+			return fmt.Errorf("The %s doesn't match any loan purposes", field)
+		}
+
+		return nil
+	})
+
+	// validator loan purpose status
+	govalidator.AddCustomRule("loan_purpose_status", func(field string, rule string, message string, value interface{}) error {
+		val := value.(string)
+		if val != "active" && val != "inactive" {
+			return fmt.Errorf("The %s field must be contain either: active or inactive", field)
+		}
+		return nil
+	})
 }
