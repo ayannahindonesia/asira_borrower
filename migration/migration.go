@@ -444,6 +444,36 @@ func TestSeed() {
 			borrower.Create()
 		}
 
+		purposes := []models.LoanPurpose{
+			models.LoanPurpose{
+				Name:   "Pendidikan",
+				Status: "active",
+			},
+			models.LoanPurpose{
+				Name:   "Rumah Tangga",
+				Status: "active",
+			},
+			models.LoanPurpose{
+				Name:   "Kesehatan",
+				Status: "active",
+			},
+			models.LoanPurpose{
+				Name:   "Berdagang",
+				Status: "active",
+			},
+			models.LoanPurpose{
+				Name:   "Bertani",
+				Status: "active",
+			},
+			models.LoanPurpose{
+				Name:   "Berjudi",
+				Status: "inactive",
+			},
+		}
+		for _, purpose := range purposes {
+			purpose.Create()
+		}
+
 		// seed loans
 		loans := []models.Loan{
 			models.Loan{
@@ -453,7 +483,7 @@ func TestSeed() {
 				},
 				LoanAmount:       1000000,
 				Installment:      6,
-				LoanIntention:    "a loan 1 intention",
+				LoanIntention:    "Pendidikan",
 				IntentionDetails: "a loan 1 intention details",
 			},
 			models.Loan{
@@ -464,7 +494,7 @@ func TestSeed() {
 				Status:           "approved",
 				LoanAmount:       500000,
 				Installment:      2,
-				LoanIntention:    "a loan 2 intention",
+				LoanIntention:    "Rumah Tangga",
 				IntentionDetails: "a loan 2 intention details",
 			},
 			models.Loan{
@@ -475,7 +505,7 @@ func TestSeed() {
 				Status:           "rejected",
 				LoanAmount:       2000000,
 				Installment:      8,
-				LoanIntention:    "a loan 3 intention",
+				LoanIntention:    "Kesehatan",
 				IntentionDetails: "a loan 3 intention details",
 			},
 		}
@@ -524,6 +554,7 @@ func Truncate(tableList []string) (err error) {
 				"service_products",
 				"images",
 				"borrowers",
+				"loan_purposes",
 				"loans",
 				"uuid_reset_passwords",
 				"client_configs",
