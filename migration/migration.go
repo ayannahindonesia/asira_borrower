@@ -232,6 +232,14 @@ func Seed() {
 			},
 		}
 		uuid.Create()
+
+		roles := models.Internal_Roles{
+			Name:        "Admin",
+			System:      "Core",
+			Description: "Role Admin",
+			Status:      true,
+		}
+		roles.Create()
 	}
 }
 
@@ -600,6 +608,7 @@ func Truncate(tableList []string) (err error) {
 				"loans",
 				"uuid_reset_passwords",
 				"client_configs",
+				"internal_roles",
 			}
 		}
 
