@@ -58,6 +58,15 @@ func (a *AsiraValidator) CustomValidatorRules() {
 	})
 
 	// validator for loans
+	govalidator.AddCustomRule("system_roles", func(field string, rule string, message string, value interface{}) error {
+		val := value.(string)
+		if val != "Mobile" && val != "Core" && val != "Bank Dashboard" {
+			return fmt.Errorf("The %s field must be contain either: Mobile, Core, Or Bank Dashboard", field)
+		}
+		return nil
+	})
+
+	// validator for loans
 	govalidator.AddCustomRule("loan_statuses", func(field string, rule string, message string, value interface{}) error {
 		val := value.(string)
 		if val != "approved" && val != "rejected" && val != "processing" {
