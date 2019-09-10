@@ -12,16 +12,31 @@ type (
 
 func (b *InternalRoles) Create() (*InternalRoles, error) {
 	err := Create(&b)
+	if err != nil {
+		return nil, err
+	}
+
+	err = KafkaSubmitModel(b, "internal_role")
 	return b, err
 }
 
 func (b *InternalRoles) Save() (*InternalRoles, error) {
 	err := Save(&b)
+	if err != nil {
+		return nil, err
+	}
+
+	err = KafkaSubmitModel(b, "internal_role")
 	return b, err
 }
 
 func (b *InternalRoles) Delete() (*InternalRoles, error) {
 	err := Delete(&b)
+	if err != nil {
+		return nil, err
+	}
+
+	err = KafkaSubmitModel(b, "internal_role_delete")
 	return b, err
 }
 
