@@ -13,7 +13,7 @@ import (
 func AddRole(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	Iroles := models.Internal_Roles{}
+	Iroles := models.InternalRoles{}
 
 	payloadRules := govalidator.MapData{
 		"name":        []string{"required"},
@@ -39,7 +39,7 @@ func UpdateRole(c echo.Context) error {
 	defer c.Request().Body.Close()
 	Iroles_id, _ := strconv.Atoi(c.Param("role_id"))
 
-	Iroles := models.Internal_Roles{}
+	Iroles := models.InternalRoles{}
 	_, err := Iroles.FindbyID(Iroles_id)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("Internal Role %v tidak ditemukan", Iroles_id))
@@ -68,7 +68,7 @@ func UpdateRole(c echo.Context) error {
 func GetAllRole(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	Iroles := models.Internal_Roles{}
+	Iroles := models.InternalRoles{}
 	// pagination parameters
 	rows, err := strconv.Atoi(c.QueryParam("rows"))
 	page, err := strconv.Atoi(c.QueryParam("page"))
@@ -88,7 +88,7 @@ func GetAllRole(c echo.Context) error {
 func RoleGetDetails(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	Iroles := models.Internal_Roles{}
+	Iroles := models.InternalRoles{}
 
 	IrolesID, _ := strconv.Atoi(c.Param("role_id"))
 	_, err := Iroles.FindbyID(IrolesID)
