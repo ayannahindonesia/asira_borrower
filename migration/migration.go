@@ -202,6 +202,14 @@ func Seed() {
 			},
 		}
 		uuid.Create()
+
+		roles := models.Internal_Roles{
+			Name:        "Admin",
+			System:      "Core",
+			Description: "Role Admin",
+			Status:      true,
+		}
+		roles.Create()
 	}
 }
 
