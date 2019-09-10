@@ -9,16 +9,18 @@ import (
 type (
 	Bank struct {
 		BaseModel
-		DeletedTime time.Time      `json:"deleted_time" gorm:"column:deleted_time" sql:"DEFAULT:current_timestamp"`
-		Name        string         `json:"name" gorm:"column:name;type:varchar(255)"`
-		Type        int            `json:"type" gorm:"column:type;type:varchar(255)"`
-		Address     string         `json:"address" gorm:"column:address;type:text"`
-		Province    string         `json:"province" gorm:"column:province;type:varchar(255)"`
-		City        string         `json:"city" gorm:"column:city;type:varchar(255)"`
-		Services    postgres.Jsonb `json:"services" gorm:"column:services;type:jsonb"`
-		Products    postgres.Jsonb `json:"products" gorm:"column:products;type:jsonb"`
-		PIC         string         `json:"pic" gorm:"column:pic;type:varchar(255)"`
-		Phone       string         `json:"phone" gorm:"column:phone;type:varchar(255)"`
+		DeletedTime         time.Time      `json:"deleted_time" gorm:"column:deleted_time" sql:"DEFAULT:current_timestamp"`
+		Name                string         `json:"name" gorm:"column:name;type:varchar(255)"`
+		Type                int            `json:"type" gorm:"column:type;type:varchar(255)"`
+		Address             string         `json:"address" gorm:"column:address;type:text"`
+		Province            string         `json:"province" gorm:"column:province;type:varchar(255)"`
+		City                string         `json:"city" gorm:"column:city;type:varchar(255)"`
+		AdminFeeSetup       string         `json:"adminfee_setup" gorm:"column:adminfee_setup;type:varchar(255)"`
+		ConvinienceFeeSetup string         `json:"convfee_setup" gorm:"column:convfee_setup;type:varchar(255)"`
+		Services            postgres.Jsonb `json:"services" gorm:"column:services;type:jsonb"`
+		Products            postgres.Jsonb `json:"products" gorm:"column:products;type:jsonb"`
+		PIC                 string         `json:"pic" gorm:"column:pic;type:varchar(255)"`
+		Phone               string         `json:"phone" gorm:"column:phone;type:varchar(255)"`
 	}
 )
 

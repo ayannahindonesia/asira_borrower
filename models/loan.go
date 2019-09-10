@@ -81,7 +81,12 @@ func (l *Loan) Calculate() (err error) {
 	var (
 		totalfee float64
 		fees     LoanFees
+		owner    Borrower
+		bank     Bank
 	)
+
+	owner.FindbyID(int(l.Owner.Int64))
+	bank.FindbyID(int(owner.Bank.Int64))
 
 	json.Unmarshal(l.Fees.RawMessage, &fees)
 
