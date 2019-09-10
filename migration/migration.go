@@ -233,7 +233,7 @@ func Seed() {
 		}
 		uuid.Create()
 
-		roles := models.Internal_Roles{
+		roles := models.InternalRoles{
 			Name:        "Admin",
 			System:      "Core",
 			Description: "Role Admin",
