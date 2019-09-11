@@ -3,7 +3,10 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
+	"strconv"
+	"strings"
 	"time"
+	"unicode"
 
 	"github.com/jinzhu/gorm/dialects/postgres"
 )
@@ -19,6 +22,7 @@ type (
 		Fees             postgres.Jsonb `json:"fees" gorm:"column:fees;type:jsonb"`
 		Interest         float64        `json:"interest" gorm:"column:interest;type:int;not null"`
 		TotalLoan        float64        `json:"total_loan" gorm:"column:total_loan;type:int;not null"`
+		DisburseAmount   float64        `json:"disburse_amount" gorm:"column:disburse_amount;type:int;not null"`
 		DueDate          time.Time      `json:"due_date" gorm:"column:due_date"`
 		LayawayPlan      float64        `json:"layaway_plan" gorm:"column:layaway_plan;type:int;not null"` // how much borrower will pay per month
 		Product          uint64         `json:"product" gorm:"column:product;foreignkey"`
@@ -81,7 +85,14 @@ func (l *Loan) Calculate() (err error) {
 	var (
 		totalfee float64
 		fees     LoanFees
+		owner    Borrower
+		bank     Bank
+		product  ServiceProduct
 	)
+
+	owner.FindbyID(int(l.Owner.Int64))
+	bank.FindbyID(int(owner.Bank.Int64))
+	product.FindbyID(int(l.Product))
 
 	json.Unmarshal(l.Fees.RawMessage, &fees)
 
@@ -89,7 +100,39 @@ func (l *Loan) Calculate() (err error) {
 		totalfee += v.Amount
 	}
 	interest := (l.Interest / 100) * l.LoanAmount
-	l.TotalLoan = l.LoanAmount + interest + totalfee
+	l.DisburseAmount = l.LoanAmount
+
+	switch bank.AdminFeeSetup {
+	case "potong_plafon":
+		l.DisburseAmount = l.LoanAmount - totalfee
+		break
+	case "beban_plafon":
+		l.DisburseAmount = l.LoanAmount + totalfee
+		break
+	}
+
+	var asnFee float64
+	if strings.ContainsAny(product.ASN_Fee, "%") {
+		asnFeeString := strings.TrimFunc(product.ASN_Fee, func(r rune) bool {
+			return !unicode.IsNumber(r)
+		})
+		f, _ := strconv.Atoi(asnFeeString)
+		asnFee = (float64(f) / 100) * l.LoanAmount
+	} else {
+		f, _ := strconv.Atoi(product.ASN_Fee)
+		asnFee = float64(f)
+	}
+
+	switch bank.ConvinienceFeeSetup {
+	case "potong_plafon":
+		l.DisburseAmount = l.LoanAmount - asnFee
+		break
+	case "beban_plafon":
+		l.DisburseAmount = l.LoanAmount + asnFee
+		break
+	}
+
+	l.TotalLoan = l.DisburseAmount + interest
 
 	// calculate layaway plan
 	l.LayawayPlan = l.TotalLoan / float64(l.Installment)
