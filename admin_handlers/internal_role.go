@@ -17,7 +17,7 @@ func AddRole(c echo.Context) error {
 
 	payloadRules := govalidator.MapData{
 		"name":        []string{"required"},
-		"system":      []string{"required", "system_roles"},
+		"system":      []string{"required"},
 		"status":      []string{},
 		"description": []string{},
 	}
