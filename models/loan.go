@@ -106,9 +106,9 @@ func (l *Loan) Calculate() (err error) {
 	case "potong_plafon":
 		l.DisburseAmount = l.DisburseAmount - totalfee
 		break
-	case "beban_plafon":
-		l.DisburseAmount = l.DisburseAmount + totalfee
-		break
+		// case "beban_plafon":
+		// 	l.DisburseAmount = l.DisburseAmount + totalfee
+		// 	break
 	}
 
 	var asnFee float64
@@ -126,13 +126,12 @@ func (l *Loan) Calculate() (err error) {
 	switch bank.ConvinienceFeeSetup {
 	case "potong_plafon":
 		l.DisburseAmount = l.DisburseAmount - asnFee
+		l.TotalLoan = l.LoanAmount + interest
 		break
 	case "beban_plafon":
-		l.DisburseAmount = l.DisburseAmount + asnFee
+		l.TotalLoan = l.LoanAmount + interest + asnFee + totalfee
 		break
 	}
-
-	l.TotalLoan = l.LoanAmount + interest
 
 	// calculate layaway plan
 	l.LayawayPlan = l.TotalLoan / float64(l.Installment)
