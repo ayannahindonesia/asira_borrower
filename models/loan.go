@@ -104,10 +104,10 @@ func (l *Loan) Calculate() (err error) {
 
 	switch bank.AdminFeeSetup {
 	case "potong_plafon":
-		l.DisburseAmount = l.LoanAmount - totalfee
+		l.DisburseAmount = l.DisburseAmount - totalfee
 		break
 	case "beban_plafon":
-		l.DisburseAmount = l.LoanAmount + totalfee
+		l.DisburseAmount = l.DisburseAmount + totalfee
 		break
 	}
 
@@ -125,10 +125,10 @@ func (l *Loan) Calculate() (err error) {
 
 	switch bank.ConvinienceFeeSetup {
 	case "potong_plafon":
-		l.DisburseAmount = l.LoanAmount - asnFee
+		l.DisburseAmount = l.DisburseAmount - asnFee
 		break
 	case "beban_plafon":
-		l.DisburseAmount = l.LoanAmount + asnFee
+		l.DisburseAmount = l.DisburseAmount + asnFee
 		break
 	}
 
