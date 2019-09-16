@@ -132,7 +132,7 @@ func (l *Loan) Calculate() (err error) {
 		break
 	}
 
-	l.TotalLoan = l.DisburseAmount + interest
+	l.TotalLoan = l.LoanAmount + interest
 
 	// calculate layaway plan
 	l.LayawayPlan = l.TotalLoan / float64(l.Installment)
