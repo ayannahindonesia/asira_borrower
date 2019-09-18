@@ -34,8 +34,8 @@ type (
 	}
 
 	LoanFee struct { // temporary hardcoded
-		Description string  `json:"description"`
-		Amount      float64 `json:"amount"`
+		Description string `json:"description"`
+		Amount      string `json:"amount"`
 	}
 	LoanFees []LoanFee
 )
@@ -96,8 +96,20 @@ func (l *Loan) Calculate() (err error) {
 
 	json.Unmarshal(l.Fees.RawMessage, &fees)
 
+	var fee float64
 	for _, v := range fees {
-		totalfee += v.Amount
+		if strings.ContainsAny(v.Amount, "%") {
+			feeString := strings.TrimFunc(v.Amount, func(r rune) bool {
+				return !unicode.IsNumber(r)
+			})
+			f, _ := strconv.Atoi(feeString)
+			fee = (float64(f) / 100) * l.LoanAmount
+		} else {
+			f, _ := strconv.Atoi(v.Amount)
+			fee = float64(f)
+		}
+
+		totalfee += fee
 	}
 	interest := (l.Interest / 100) * l.LoanAmount
 	l.DisburseAmount = l.LoanAmount
