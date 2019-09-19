@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	basemodel "gitlab.com/asira-ayannah/basemodel"
+	"gitlab.com/asira-ayannah/basemodel"
 )
 
 type (

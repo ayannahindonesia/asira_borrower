@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm/dialects/postgres"
-	basemodel "gitlab.com/asira-ayannah/basemodel"
+	"gitlab.com/asira-ayannah/basemodel"
 )
 
 type (
