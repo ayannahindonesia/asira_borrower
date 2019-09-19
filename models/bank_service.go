@@ -1,8 +1,12 @@
 package models
 
+import (
+	"gitlab.com/asira-ayannah/basemodel"
+)
+
 type (
 	BankService struct {
-		BaseModel
+		basemodel.BaseModel
 		Name    string `json:"name" gorm:"column:name"`
 		ImageID int    `json:"image_id" gorm:"column:image_id"`
 		Status  string `json:"status" gorm:"column:status"`

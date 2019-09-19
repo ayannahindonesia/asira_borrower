@@ -3,11 +3,13 @@ package models
 import (
 	"database/sql"
 	"time"
+
+	basemodel "gitlab.com/asira-ayannah/basemodel"
 )
 
 type (
 	Uuid_Reset_Password struct {
-		BaseModel
+		basemodel.BaseModel
 		UUID     string        `json:"uuid" sql:"DEFAULT:NULL" gorm:"primary_key,column:uuid"`
 		Borrower sql.NullInt64 `json:"borrower" gorm:"column:borrower" sql:"DEFAULT:NULL"`
 		Expired  time.Time     `json:"expired" gorm:"column:expired"`

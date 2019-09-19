@@ -4,11 +4,12 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm/dialects/postgres"
+	basemodel "gitlab.com/asira-ayannah/basemodel"
 )
 
 type (
 	Bank struct {
-		BaseModel
+		basemodel.BaseModel
 		DeletedTime time.Time      `json:"deleted_time" gorm:"column:deleted_time" sql:"DEFAULT:current_timestamp"`
 		Name        string         `json:"name" gorm:"column:name;type:varchar(255)"`
 		Type        int            `json:"type" gorm:"column:type;type:varchar(255)"`

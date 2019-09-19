@@ -4,12 +4,13 @@ import (
 	"database/sql"
 	"time"
 
+	basemodel "gitlab.com/asira-ayannah/basemodel"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type (
 	Borrower struct {
-		BaseModel
+		basemodel.BaseModel
 		SuspendedTime        time.Time     `json:"suspended_time" gorm:"column:suspended_time"`
 		Fullname             string        `json:"fullname" gorm:"column:fullname;type:varchar(255);not_null"`
 		Nickname             string        `json:"nickname" gorm:"column:nickname"`

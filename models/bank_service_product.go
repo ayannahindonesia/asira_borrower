@@ -2,11 +2,12 @@ package models
 
 import (
 	"github.com/jinzhu/gorm/dialects/postgres"
+	"gitlab.com/asira-ayannah/basemodel"
 )
 
 type (
 	ServiceProduct struct {
-		BaseModel
+		basemodel.BaseModel
 		Name            string         `json:"name" gorm:"column:name"`
 		MinTimeSpan     int            `json:"min_timespan" gorm:"column:min_timespan"`
 		MaxTimeSpan     int            `json:"max_timespan" gorm:"column:max_timespan"`

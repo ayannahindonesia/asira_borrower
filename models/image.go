@@ -1,8 +1,12 @@
 package models
 
+import (
+	"gitlab.com/asira-ayannah/basemodel"
+)
+
 type (
 	Image struct {
-		BaseModel
+		basemodel.BaseModel
 		Image_string string `json:"image_string" gorm:"column:image_string;type:text"`
 	}
 )

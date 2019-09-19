@@ -1,8 +1,12 @@
 package models
 
+import (
+	"gitlab.com/asira-ayannah/basemodel"
+)
+
 type (
 	Client_config struct {
-		BaseModel
+		basemodel.BaseModel
 		Name   string `json:"name" gorm:"column:name"`
 		Secret string `json:"secret" gorm:"column:secret"`
 		Key    string `json:"key" gorm:"column:key"`

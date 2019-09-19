@@ -150,11 +150,11 @@ func RegisterBorrower(c echo.Context) error {
 	}
 	borrower := models.Borrower{
 		IdCardImage: sql.NullInt64{
-			Int64: int64(IdCardImage.BaseModel.ID),
+			Int64: int64(IdCardImage.ID),
 			Valid: true,
 		},
 		TaxIDImage: sql.NullInt64{
-			Int64: int64(TaxIdImage.BaseModel.ID),
+			Int64: int64(TaxIdImage.ID),
 			Valid: true,
 		},
 		Bank: sql.NullInt64{

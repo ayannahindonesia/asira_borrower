@@ -6,11 +6,12 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm/dialects/postgres"
+	basemodel "gitlab.com/asira-ayannah/basemodel"
 )
 
 type (
 	Loan struct {
-		BaseModel
+		basemodel.BaseModel
 		DeletedTime      time.Time      `json:"deleted_time" gorm:"column:deleted_time"`
 		Owner            sql.NullInt64  `json:"owner" gorm:"column:owner;foreignkey"`
 		Status           string         `json:"status" gorm:"column:status;type:varchar(255)" sql:"DEFAULT:'processing'"`

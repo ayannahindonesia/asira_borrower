@@ -32,7 +32,7 @@ func ClientResetPassword(c echo.Context) error {
 
 		uuid := models.Uuid_Reset_Password{
 			Borrower: sql.NullInt64{
-				Int64: int64(borrower.BaseModel.ID),
+				Int64: int64(borrower.ID),
 				Valid: true,
 			},
 			UUID: id.String(),
