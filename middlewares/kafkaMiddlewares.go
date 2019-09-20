@@ -8,6 +8,7 @@ import (
 	"log"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/Shopify/sarama"
 )
@@ -19,8 +20,9 @@ type (
 	}
 
 	Loan struct {
-		ID     int    `json:"id"`
-		Status string `json:"status"`
+		ID           int       `json:"id"`
+		Status       string    `json:"status"`
+		DisburseDate time.Time `json:"disburse_date"`
 	}
 )
 
@@ -231,7 +233,8 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		return err
 	}
 
-	loan.Status = loanData.Status
-	err = loan.Save()
+	data.Status = loanData.Status
+	data.DisburseDate = loanData.DisburseDate
+	data.Save()
 	return err
 }
