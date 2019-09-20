@@ -160,6 +160,7 @@ CREATE TABLE "loans" (
     "intention_details" text NOT NULL,
     "borrower_info" jsonb DEFAULT '[]',
     "otp_verified" BOOLEAN,
+    "disburse_date" timestamptz,
     FOREIGN KEY ("owner") REFERENCES borrowers(id),
     FOREIGN KEY ("service") REFERENCES bank_services(id),
     FOREIGN KEY ("product") REFERENCES service_products(id),
