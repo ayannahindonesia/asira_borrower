@@ -51,3 +51,8 @@ func (p *ServiceProduct) FilterSearch(filter interface{}) (result basemodel.Page
 	result, err = basemodel.PagedFindFilter(&product, 0, 0, orders, sort, filter)
 	return result, err
 }
+
+func (p *ServiceProduct) FilterSearchSingle(filter interface{}) (err error) {
+	err = basemodel.SingleFindFilter(&p, filter)
+	return err
+}

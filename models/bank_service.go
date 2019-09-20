@@ -40,3 +40,8 @@ func (b *BankService) FilterSearch(filter interface{}) (result basemodel.PagedFi
 	result, err = basemodel.PagedFindFilter(&bank_type, 0, 0, orders, sort, filter)
 	return result, err
 }
+
+func (b *BankService) FilterSearchSingle(filter interface{}) (err error) {
+	err = basemodel.SingleFindFilter(&b, filter)
+	return err
+}

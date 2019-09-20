@@ -43,3 +43,8 @@ func (b *BankType) PagedFilterSearch(page int, rows int, orderby string, sort st
 
 	return result, err
 }
+
+func (b *BankType) FilterSearchSingle(filter interface{}) (err error) {
+	err = basemodel.SingleFindFilter(&b, filter)
+	return err
+}
