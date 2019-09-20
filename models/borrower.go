@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	basemodel "gitlab.com/asira-ayannah/basemodel"
+	"gitlab.com/asira-ayannah/basemodel"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -76,9 +76,9 @@ func (b *Borrower) BeforeCreate() (err error) {
 	return nil
 }
 
-func (b *Borrower) Create() (*Borrower, error) {
-	err := Create(&b)
-	return b, err
+func (b *Borrower) Create() error {
+	err := basemodel.Create(&b)
+	return err
 }
 
 // gorm callback hook
@@ -86,33 +86,35 @@ func (b *Borrower) BeforeSave() (err error) {
 	return nil
 }
 
-func (b *Borrower) Save() (*Borrower, error) {
-	err := Save(&b)
-	return b, err
+func (b *Borrower) Save() error {
+	err := basemodel.Save(&b)
+	return err
 }
 
-func (b *Borrower) Suspend() (*Borrower, error) {
+func (b *Borrower) Suspend() error {
 	b.SuspendedTime = time.Now()
-	err := Save(&b)
+	err := basemodel.Save(&b)
 
-	return b, err
+	return err
 }
 
-func (b *Borrower) Unsuspend() (*Borrower, error) {
+func (b *Borrower) Unsuspend() error {
 	b.SuspendedTime = time.Time{}
-	err := Save(&b)
+	err := basemodel.Save(&b)
 
-	return b, err
+	return err
 }
 
-func (b *Borrower) FindbyID(id int) (*Borrower, error) {
-	err := FindbyID(&b, id)
-	return b, err
+func (b *Borrower) FindbyID(id int) error {
+	err := basemodel.FindbyID(&b, id)
+	return err
 }
 
-func (b *Borrower) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
+func (b *Borrower) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result basemodel.PagedFindResult, err error) {
 	borrowers := []Borrower{}
-	result, err = PagedFilterSearch(&borrowers, page, rows, orderby, sort, filter)
+	var orders []string
+	var sorts []string
+	result, err = basemodel.PagedFindFilter(&borrowers, page, rows, orders, sorts, filter)
 
 	return result, err
 }

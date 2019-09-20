@@ -18,19 +18,19 @@ func BorrowerBankService(c echo.Context) error {
 	borrowerModel := models.Borrower{}
 
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
-	borrower, err := borrowerModel.FindbyID(borrowerID)
+	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 
 	bank := models.Bank{}
-	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
+	bank.FindbyID(int(borrowerModel.Bank.Int64))
 
 	type Filter struct {
 		NameOR []string `json:"name" condition:"OR"`
 	}
 	var service []string
-	jMarshal, _ := json.Marshal(bankBorrower.Services)
+	jMarshal, _ := json.Marshal(bank.Services)
 	if err := json.Unmarshal(jMarshal, &service); err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Tidak Ditemukan")
 	}
@@ -48,7 +48,7 @@ func BorrowerBankServiceDetails(c echo.Context) error {
 	bServices := models.BankService{}
 
 	serviceID, _ := strconv.Atoi(c.Param("service_id"))
-	_, err := bServices.FindbyID(serviceID)
+	err := bServices.FindbyID(serviceID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Tidak Ditemukan")
 	}
@@ -63,19 +63,19 @@ func BorrowerBankProduct(c echo.Context) error {
 	borrowerModel := models.Borrower{}
 
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
-	borrower, err := borrowerModel.FindbyID(borrowerID)
+	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 
 	bank := models.Bank{}
-	bankBorrower, _ := bank.FindbyID(int(borrower.Bank.Int64))
+	bank.FindbyID(int(borrowerModel.Bank.Int64))
 
 	type Filter struct {
 		NameOR []string `json:"name" condition:"OR"`
 	}
 	var product []string
-	jMarshal, _ := json.Marshal(bankBorrower.Products)
+	jMarshal, _ := json.Marshal(bank.Products)
 	if err := json.Unmarshal(jMarshal, &product); err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")
 	}
@@ -93,7 +93,7 @@ func BorrowerBankProductDetails(c echo.Context) error {
 	sProduct := models.ServiceProduct{}
 
 	productID, _ := strconv.Atoi(c.Param("product_id"))
-	_, err := sProduct.FindbyID(productID)
+	err := sProduct.FindbyID(productID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")
 	}

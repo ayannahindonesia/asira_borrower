@@ -13,7 +13,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/spf13/viper"
 	"github.com/xlzd/gotp"
-	basemodel "gitlab.com/asira-ayannah/basemodel"
+	"gitlab.com/asira-ayannah/basemodel"
 )
 
 var (
@@ -120,7 +120,7 @@ func (x *Application) LoadConfigs() error {
 	return nil
 }
 
-// Loads DB postgres configs
+// Loads DBinit configs
 func (x *Application) DBinit() error {
 	dbconf := x.Config.GetStringMap(fmt.Sprintf("%s.database", x.ENV))
 
