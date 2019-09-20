@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	basemodel "gitlab.com/asira-ayannah/basemodel"
+	"gitlab.com/asira-ayannah/basemodel"
 )
 
 type (
@@ -15,29 +15,31 @@ type (
 	}
 )
 
-func (b *BankType) Create() (*BankType, error) {
-	err := Create(&b)
-	return b, err
+func (b *BankType) Create() error {
+	err := basemodel.Create(&b)
+	return err
 }
 
-func (b *BankType) Save() (*BankType, error) {
-	err := Save(&b)
-	return b, err
+func (b *BankType) Save() error {
+	err := basemodel.Save(&b)
+	return err
 }
 
-func (b *BankType) Delete() (*BankType, error) {
-	err := Delete(&b)
-	return b, err
+func (b *BankType) Delete() error {
+	err := basemodel.Delete(&b)
+	return err
 }
 
-func (b *BankType) FindbyID(id int) (*BankType, error) {
-	err := FindbyID(&b, id)
-	return b, err
+func (b *BankType) FindbyID(id int) error {
+	err := basemodel.FindbyID(&b, id)
+	return err
 }
 
-func (b *BankType) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
+func (b *BankType) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result basemodel.PagedFindResult, err error) {
 	bank_type := []BankType{}
-	result, err = PagedFilterSearch(&bank_type, page, rows, orderby, sort, filter)
+	order := []string{orderby}
+	sorts := []string{sort}
+	result, err = basemodel.PagedFindFilter(&bank_type, page, rows, order, sorts, filter)
 
 	return result, err
 }

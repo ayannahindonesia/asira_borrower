@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	basemodel "gitlab.com/asira-ayannah/basemodel"
+	"gitlab.com/asira-ayannah/basemodel"
 )
 
 type LoanPurpose struct {
@@ -14,35 +14,37 @@ type LoanPurpose struct {
 }
 
 func (l *LoanPurpose) Create() (err error) {
-	err = Create(&l)
+	err = basemodel.Create(&l)
 	return err
 }
 
 func (l *LoanPurpose) Save() (err error) {
-	err = Save(&l)
+	err = basemodel.Save(&l)
 	return err
 }
 
 func (l *LoanPurpose) Delete() (err error) {
 	l.DeletedTime = time.Now()
-	err = Save(&l)
+	err = basemodel.Save(&l)
 
 	return err
 }
 
 func (l *LoanPurpose) FindbyID(id int) (err error) {
-	err = FindbyID(&l, id)
+	err = basemodel.FindbyID(&l, id)
 	return err
 }
 
 func (l *LoanPurpose) FilterSearchSingle(filter interface{}) (err error) {
-	err = FilterSearchSingle(&l, filter)
+	err = basemodel.SingleFindFilter(&l, filter)
 	return err
 }
 
-func (l *LoanPurpose) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
+func (l *LoanPurpose) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result basemodel.PagedFindResult, err error) {
 	loan_purposes := []LoanPurpose{}
-	result, err = PagedFilterSearch(&loan_purposes, page, rows, orderby, sort, filter)
+	order := []string{orderby}
+	sorts := []string{sort}
+	result, err = basemodel.PagedFindFilter(&loan_purposes, page, rows, order, sorts, filter)
 
 	return result, err
 }

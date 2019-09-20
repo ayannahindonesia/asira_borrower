@@ -13,7 +13,7 @@ func GetImageB64String(c echo.Context) error {
 	image := models.Image{}
 
 	imageId, _ := strconv.Atoi(c.Param("image_id"))
-	_, err := image.FindbyID(imageId)
+	err := image.FindbyID(imageId)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "Gambar Tidak Ditemukan")
 	}

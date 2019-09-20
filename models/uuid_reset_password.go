@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	basemodel "gitlab.com/asira-ayannah/basemodel"
+	"gitlab.com/asira-ayannah/basemodel"
 )
 
 type (
@@ -26,9 +26,9 @@ func (i *Uuid_Reset_Password) BeforeCreate() (err error) {
 	return nil
 }
 
-func (i *Uuid_Reset_Password) Create() (*Uuid_Reset_Password, error) {
-	err := Create(&i)
-	return i, err
+func (i *Uuid_Reset_Password) Create() error {
+	err := basemodel.Create(&i)
+	return err
 }
 
 // gorm callback hook
@@ -37,17 +37,17 @@ func (i *Uuid_Reset_Password) BeforeSave() (err error) {
 	return nil
 }
 
-func (i *Uuid_Reset_Password) Save() (*Uuid_Reset_Password, error) {
-	err := Save(&i)
-	return i, err
+func (i *Uuid_Reset_Password) Save() error {
+	err := basemodel.Save(&i)
+	return err
 }
 
-func (l *Uuid_Reset_Password) FilterSearchSingle(filter interface{}) (*Uuid_Reset_Password, error) {
-	err := FilterSearchSingle(&l, filter)
-	return l, err
+func (l *Uuid_Reset_Password) FilterSearchSingle(filter interface{}) error {
+	err := basemodel.SingleFindFilter(&l, filter)
+	return err
 }
 
-func (i *Uuid_Reset_Password) Delete() (*Uuid_Reset_Password, error) {
-	err := Delete(&i)
-	return i, err
+func (i *Uuid_Reset_Password) Delete() error {
+	err := basemodel.Delete(&i)
+	return err
 }

@@ -13,7 +13,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/spf13/viper"
 	"github.com/xlzd/gotp"
-	basemodel "gitlab.com/asira-ayannah/basemodel"
+	"gitlab.com/asira-ayannah/basemodel"
 )
 
 var (
@@ -120,27 +120,9 @@ func (x *Application) LoadConfigs() error {
 	return nil
 }
 
-// Loads DB postgres configs
+// Loads DBinit configs
 func (x *Application) DBinit() error {
 	dbconf := x.Config.GetStringMap(fmt.Sprintf("%s.database", x.ENV))
-	// connectionString := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=%s", dbconf["username"].(string), dbconf["password"].(string), dbconf["host"].(string), dbconf["port"].(string), dbconf["table"].(string), dbconf["sslmode"].(string))
-
-	// db, err := gorm.Open("postgres", connectionString)
-	// if err != nil {
-	// 	return err
-	// }
-	// if err = db.DB().Ping(); err != nil {
-	// 	return err
-	// }
-
-	// db.LogMode(dbconf["logmode"].(bool))
-
-	// db.Exec(fmt.Sprintf("SET TIMEZONE TO '%s'", dbconf["timezone"].(string)))
-	// db.DB().SetConnMaxLifetime(time.Minute * time.Duration(dbconf["maxlifetime"].(int)))
-	// db.DB().SetMaxIdleConns(dbconf["idle_conns"].(int))
-	// db.DB().SetMaxOpenConns(dbconf["open_conns"].(int))
-
-	// x.DB = db
 	Cons := basemodel.DBConfig{
 		Adapter:        basemodel.PostgresAdapter,
 		Host:           dbconf["host"].(string),

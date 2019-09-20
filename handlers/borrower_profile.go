@@ -22,12 +22,12 @@ func BorrowerProfile(c echo.Context) error {
 	borrowerModel := models.Borrower{}
 
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
-	borrower, err := borrowerModel.FindbyID(borrowerID)
+	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 
-	return c.JSON(http.StatusOK, borrower)
+	return c.JSON(http.StatusOK, borrowerModel)
 }
 
 func BorrowerProfileEdit(c echo.Context) error {
@@ -40,11 +40,11 @@ func BorrowerProfileEdit(c echo.Context) error {
 	borrowerModel := models.Borrower{}
 
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
-	borrower, err := borrowerModel.FindbyID(borrowerID)
+	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
-	password := borrower.Password
+	password := borrowerModel.Password
 
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{},
@@ -93,18 +93,18 @@ func BorrowerProfileEdit(c echo.Context) error {
 		"bank_accountnumber":    []string{"unique:borrowers,bank_accountnumber"},
 	}
 
-	validate := validateRequestPayload(c, payloadRules, &borrower)
+	validate := validateRequestPayload(c, payloadRules, &borrowerModel)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	borrower.Password = password
-	_, err = borrower.Save()
+	borrowerModel.Password = password
+	err = borrowerModel.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal Membuat Akun")
 	}
 
-	return c.JSON(http.StatusOK, borrower)
+	return c.JSON(http.StatusOK, borrowerModel)
 }
 
 func BorrowerChangePassword(c echo.Context) error {
@@ -117,7 +117,7 @@ func BorrowerChangePassword(c echo.Context) error {
 	borrowerModel := models.Borrower{}
 
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
-	borrower, err := borrowerModel.FindbyID(borrowerID)
+	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun Tidak ditemukan")
 	}
@@ -126,18 +126,18 @@ func BorrowerChangePassword(c echo.Context) error {
 		"password": []string{},
 	}
 
-	validate := validateRequestPayload(c, payloadRules, &borrower)
+	validate := validateRequestPayload(c, payloadRules, &borrowerModel)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	passwordByte, err := bcrypt.GenerateFromPassword([]byte(borrower.Password), bcrypt.DefaultCost)
+	passwordByte, err := bcrypt.GenerateFromPassword([]byte(borrowerModel.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	borrower.Password = string(passwordByte)
-	_, err = borrower.Save()
+	borrowerModel.Password = string(passwordByte)
+	err = borrowerModel.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Ubah Password Gagal")
 	}

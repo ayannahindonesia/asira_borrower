@@ -40,10 +40,10 @@ func BorrowerGetDetails(c echo.Context) error {
 	borrowerModel := models.Borrower{}
 
 	borrowerID, _ := strconv.Atoi(c.Param("borrower_id"))
-	borrower, err := borrowerModel.FindbyID(borrowerID)
+	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "Borrower ID tidak ditemukan")
 	}
 
-	return c.JSON(http.StatusOK, borrower)
+	return c.JSON(http.StatusOK, borrowerModel)
 }

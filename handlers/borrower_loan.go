@@ -40,13 +40,13 @@ func BorrowerLoanApply(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	newLoan, err := loan.Create()
+	err := loan.Create()
 	if err != nil {
 		log.Printf("apply : %v", loan)
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat Loan")
 	}
 
-	return c.JSON(http.StatusCreated, newLoan)
+	return c.JSON(http.StatusCreated, loan)
 }
 
 func BorrowerLoanGet(c echo.Context) error {
@@ -107,7 +107,7 @@ func BorrowerLoanGetDetails(c echo.Context) error {
 		ID    int           `json:"id"`
 		Owner sql.NullInt64 `json:"owner"`
 	}
-	result, err := loan.FilterSearchSingle(&Filter{
+	err = loan.FilterSearchSingle(&Filter{
 		ID: loan_id,
 		Owner: sql.NullInt64{
 			Int64: int64(borrowerID),
@@ -118,7 +118,7 @@ func BorrowerLoanGetDetails(c echo.Context) error {
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v tidak ditemukan", loan_id))
 	}
 
-	return c.JSON(http.StatusOK, result)
+	return c.JSON(http.StatusOK, loan)
 }
 
 func BorrowerLoanOTPrequest(c echo.Context) error {
@@ -140,7 +140,7 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 		ID    int           `json:"id"`
 		Owner sql.NullInt64 `json:"owner"`
 	}
-	result, err := loan.FilterSearchSingle(&Filter{
+	err = loan.FilterSearchSingle(&Filter{
 		ID: loan_id,
 		Owner: sql.NullInt64{
 			Int64: int64(borrowerID),
@@ -151,10 +151,10 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 		return returnInvalidResponse(http.StatusNotFound, err, "query result error")
 	}
 
-	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(result.ID)) // combine borrower id with loan id as counter
+	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
 	counter, _ := strconv.Atoi(catenate)
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
-	log.Printf("generate otp code for loan id %v : %v", result.ID, otpCode)
+	log.Printf("generate otp code for loan id %v : %v", loan.ID, otpCode)
 
 	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Terkirim"})
 }
@@ -191,7 +191,7 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 		ID    int           `json:"id"`
 		Owner sql.NullInt64 `json:"owner"`
 	}
-	result, err := loan.FilterSearchSingle(&Filter{
+	err = loan.FilterSearchSingle(&Filter{
 		ID: loan_id,
 		Owner: sql.NullInt64{
 			Int64: int64(borrowerID),
@@ -202,25 +202,25 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 		return returnInvalidResponse(http.StatusNotFound, err, "ID tidak ditemukan")
 	}
 
-	if result.OTPverified {
+	if loan.OTPverified {
 		return returnInvalidResponse(http.StatusBadRequest, "", fmt.Sprintf("loan %v sudah di verifikasi", loan_id))
 	}
 
-	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(result.ID)) // combine borrower id with loan id as counter
+	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
 	counter, _ := strconv.Atoi(catenate)
 	if asira.App.OTP.HOTP.Verify(LoanOTPverify.OTPcode, counter) {
-		result.OTPverified = true
-		result.Save()
+		loan.OTPverified = true
+		loan.Save()
 
-		return c.JSON(http.StatusOK, map[string]interface{}{"message": fmt.Sprintf("loan %v verified", result.ID)})
+		return c.JSON(http.StatusOK, map[string]interface{}{"message": fmt.Sprintf("loan %v verified", loan.ID)})
 	}
 
 	// bypass otp
 	if asira.App.ENV == "development" && LoanOTPverify.OTPcode == "888999" {
-		result.OTPverified = true
-		result.Save()
+		loan.OTPverified = true
+		loan.Save()
 
-		return c.JSON(http.StatusOK, map[string]interface{}{"message": fmt.Sprintf("loan %v verified", result.ID)})
+		return c.JSON(http.StatusOK, map[string]interface{}{"message": fmt.Sprintf("loan %v verified", loan.ID)})
 	}
 
 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP yang anda masukan salah")
