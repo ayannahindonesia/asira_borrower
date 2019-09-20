@@ -27,12 +27,12 @@ func AddRole(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	newRoles, err := Iroles.Create()
+	err := Iroles.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat Internal Roles")
 	}
 
-	return c.JSON(http.StatusCreated, newRoles)
+	return c.JSON(http.StatusCreated, Iroles)
 }
 
 func UpdateRole(c echo.Context) error {
@@ -40,7 +40,7 @@ func UpdateRole(c echo.Context) error {
 	Iroles_id, _ := strconv.Atoi(c.Param("role_id"))
 
 	Iroles := models.InternalRoles{}
-	_, err := Iroles.FindbyID(Iroles_id)
+	err := Iroles.FindbyID(Iroles_id)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("Internal Role %v tidak ditemukan", Iroles_id))
 	}
@@ -57,7 +57,7 @@ func UpdateRole(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	_, err = Iroles.Save()
+	err = Iroles.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, fmt.Sprintf("Gagal update Internal Roles %v", Iroles_id))
 	}
@@ -91,7 +91,7 @@ func RoleGetDetails(c echo.Context) error {
 	Iroles := models.InternalRoles{}
 
 	IrolesID, _ := strconv.Atoi(c.Param("role_id"))
-	_, err := Iroles.FindbyID(IrolesID)
+	err := Iroles.FindbyID(IrolesID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "Role ID tidak ditemukan")
 	}
