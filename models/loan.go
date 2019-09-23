@@ -9,11 +9,12 @@ import (
 	"unicode"
 
 	"github.com/jinzhu/gorm/dialects/postgres"
+	"gitlab.com/asira-ayannah/basemodel"
 )
 
 type (
 	Loan struct {
-		BaseModel
+		basemodel.BaseModel
 		DeletedTime      time.Time      `json:"deleted_time" gorm:"column:deleted_time"`
 		Owner            sql.NullInt64  `json:"owner" gorm:"column:owner;foreignkey"`
 		Status           string         `json:"status" gorm:"column:status;type:varchar(255)" sql:"DEFAULT:'processing'"`
@@ -44,7 +45,7 @@ type (
 // gorm callback hook
 func (l *Loan) BeforeCreate() (err error) {
 	borrower := Borrower{}
-	_, err = borrower.FindbyID(int(l.Owner.Int64))
+	err = borrower.FindbyID(int(l.Owner.Int64))
 	if err != nil {
 		return err
 	}
@@ -70,7 +71,7 @@ func (l *Loan) BeforeCreate() (err error) {
 
 func (l *Loan) SetProductLoanReferences() (err error) {
 	product := ServiceProduct{}
-	_, err = product.FindbyID(int(l.Product))
+	err = product.FindbyID(int(l.Product))
 	if err != nil {
 		return err
 	}
@@ -152,43 +153,45 @@ func (l *Loan) Calculate() (err error) {
 	return nil
 }
 
-func (l *Loan) Create() (*Loan, error) {
-	err := Create(&l)
-	return l, err
+func (l *Loan) Create() error {
+	err := basemodel.Create(&l)
+	return err
 }
 
-func (l *Loan) Save() (*Loan, error) {
-	err := Save(&l)
+func (l *Loan) Save() error {
+	err := basemodel.Save(&l)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if l.OTPverified {
 		err = KafkaSubmitModel(l, "loan")
 	}
-	return l, err
+	return err
 }
 
-func (l *Loan) Delete() (*Loan, error) {
+func (l *Loan) Delete() error {
 	l.DeletedTime = time.Now()
-	err := Save(&l)
+	err := basemodel.Save(&l)
 
-	return l, err
+	return err
 }
 
-func (l *Loan) FindbyID(id int) (*Loan, error) {
-	err := FindbyID(&l, id)
-	return l, err
+func (l *Loan) FindbyID(id int) error {
+	err := basemodel.FindbyID(&l, id)
+	return err
 }
 
-func (l *Loan) FilterSearchSingle(filter interface{}) (*Loan, error) {
-	err := FilterSearchSingle(&l, filter)
-	return l, err
+func (l *Loan) FilterSearchSingle(filter interface{}) error {
+	err := basemodel.SingleFindFilter(&l, filter)
+	return err
 }
 
-func (l *Loan) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
+func (l *Loan) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result basemodel.PagedFindResult, err error) {
 	loans := []Loan{}
-	result, err = PagedFilterSearch(&loans, page, rows, orderby, sort, filter)
+	var orders []string
+	var sorts []string
+	result, err = basemodel.PagedFindFilter(&loans, page, rows, orders, sorts, filter)
 
 	return result, err
 }

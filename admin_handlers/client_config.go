@@ -26,10 +26,10 @@ func CreateClientConfig(c echo.Context) error {
 	}
 
 	clientC.Secret = guuid.New().String()
-	newConfig, err := clientC.Create()
+	err := clientC.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat Client Config")
 	}
 
-	return c.JSON(http.StatusCreated, newConfig)
+	return c.JSON(http.StatusCreated, clientC)
 }

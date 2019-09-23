@@ -134,28 +134,28 @@ func RegisterBorrower(c echo.Context) error {
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
-	image := models.Image{
+	IdCardImage := models.Image{
 		Image_string: register.IdCardImage,
 	}
-	IdCardImage, err := image.Create()
+	err := IdCardImage.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 
-	image = models.Image{
+	TaxIdImage := models.Image{
 		Image_string: register.TaxIDImage,
 	}
-	TaxIdImage, err := image.Create()
+	err = TaxIdImage.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 	borrower := models.Borrower{
 		IdCardImage: sql.NullInt64{
-			Int64: int64(IdCardImage.BaseModel.ID),
+			Int64: int64(IdCardImage.ID),
 			Valid: true,
 		},
 		TaxIDImage: sql.NullInt64{
-			Int64: int64(TaxIdImage.BaseModel.ID),
+			Int64: int64(TaxIdImage.ID),
 			Valid: true,
 		},
 		Bank: sql.NullInt64{
@@ -169,12 +169,12 @@ func RegisterBorrower(c echo.Context) error {
 	}
 	json.Unmarshal(r, &borrower)
 
-	newBorrower, err := borrower.Create()
+	err = borrower.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 
-	return c.JSON(http.StatusCreated, newBorrower)
+	return c.JSON(http.StatusCreated, borrower)
 }
 func RequestOTPverifyAccount(c echo.Context) error {
 	defer c.Request().Body.Close()
@@ -241,7 +241,7 @@ func VerifyAccountOTP(c echo.Context) error {
 
 func updateAccountOTPstatus(borrowerID int) {
 	modelBorrower := models.Borrower{}
-	borrower, _ := modelBorrower.FindbyID(borrowerID)
-	borrower.OTPverified = true
-	borrower.Save()
+	_ = modelBorrower.FindbyID(borrowerID)
+	modelBorrower.OTPverified = true
+	modelBorrower.Save()
 }

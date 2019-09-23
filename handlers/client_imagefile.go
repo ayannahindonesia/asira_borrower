@@ -13,9 +13,9 @@ func ClientImageFile(c echo.Context) error {
 	imageModel := models.Image{}
 
 	imageId, _ := strconv.Atoi(c.Param("file_id"))
-	image, err := imageModel.FindbyID(imageId)
+	err := imageModel.FindbyID(imageId)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Gambar Tidak Ditemukan")
 	}
-	return c.JSON(http.StatusOK, image)
+	return c.JSON(http.StatusOK, imageModel)
 }

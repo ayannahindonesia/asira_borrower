@@ -4,11 +4,12 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm/dialects/postgres"
+	"gitlab.com/asira-ayannah/basemodel"
 )
 
 type (
 	Bank struct {
-		BaseModel
+		basemodel.BaseModel
 		DeletedTime         time.Time      `json:"deleted_time" gorm:"column:deleted_time" sql:"DEFAULT:current_timestamp"`
 		Name                string         `json:"name" gorm:"column:name;type:varchar(255)"`
 		Type                int            `json:"type" gorm:"column:type;type:varchar(255)"`
@@ -29,9 +30,9 @@ func (b *Bank) BeforeCreate() (err error) {
 	return nil
 }
 
-func (b *Bank) Create() (*Bank, error) {
-	err := Create(&b)
-	return b, err
+func (b *Bank) Create() error {
+	err := basemodel.Create(&b)
+	return err
 }
 
 // gorm callback hook
@@ -39,24 +40,31 @@ func (b *Bank) BeforeSave() (err error) {
 	return nil
 }
 
-func (b *Bank) Save() (*Bank, error) {
-	err := Save(&b)
-	return b, err
+func (b *Bank) Save() error {
+	err := basemodel.Save(&b)
+	return err
 }
 
-func (b *Bank) Delete() (*Bank, error) {
-	err := Delete(&b)
-	return b, err
+func (b *Bank) Delete() error {
+	err := basemodel.Delete(&b)
+	return err
 }
 
-func (b *Bank) FindbyID(id int) (*Bank, error) {
-	err := FindbyID(&b, id)
-	return b, err
+func (b *Bank) FindbyID(id int) error {
+	err := basemodel.FindbyID(&b, id)
+	return err
 }
 
-func (b *Bank) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
+func (b *Bank) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result basemodel.PagedFindResult, err error) {
 	banks := []Bank{}
-	result, err = PagedFilterSearch(&banks, page, rows, orderby, sort, filter)
+	order := []string{orderby}
+	sorts := []string{sort}
+	result, err = basemodel.PagedFindFilter(&banks, page, rows, order, sorts, filter)
 
 	return result, err
+}
+
+func (b *Bank) FilterSearchSingle(filter interface{}) (err error) {
+	err = basemodel.SingleFindFilter(&b, filter)
+	return err
 }
