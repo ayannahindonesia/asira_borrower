@@ -534,7 +534,7 @@ func TestSeed() {
 		}
 
 		//seed uuid
-		uuid := models.Uuid_Reset_Password{
+		uuid := models.InternalRoles{
 			UUID: "f4f71eae-2cc9-4289-94e4-2421df67d4d7",
 			Borrower: sql.NullInt64{
 				Int64: int64(1),
@@ -542,6 +542,15 @@ func TestSeed() {
 			},
 		}
 		uuid.Create()
+
+		//seed uuid
+		iroles := models.Uuid_Reset_Password{
+			Name:        "admin",
+			Description: "ini admin",
+			Status:      true,
+			System:      "Core",
+		}
+		iroles.Create()
 
 		client := []models.Client_config{
 			models.Client_config{
