@@ -103,12 +103,24 @@ func FilterSearchSingle(i interface{}, filter interface{}) (err error) {
 	db := asira.App.DB
 
 	// filtering
+	log.Printf("filter : %v", filter)
 	refFilter := reflect.ValueOf(filter).Elem()
 	refType := refFilter.Type()
 	for x := 0; x < refFilter.NumField(); x++ {
 		field := refFilter.Field(x)
 		if field.Interface() != "" {
-			db = db.Where(fmt.Sprintf("%s = ?", refType.Field(x).Tag.Get("json")), field.Interface())
+			switch refType.Field(x).Tag.Get("condition") {
+			default:
+				db = db.Where(fmt.Sprintf("%s = ?", refType.Field(x).Tag.Get("json")), field.Interface())
+			case "LIKE":
+				db = db.Where(fmt.Sprintf("LOWER(%s) %s ?", refType.Field(x).Tag.Get("json"), refType.Field(x).Tag.Get("condition")), "%"+strings.ToLower(field.Interface().(string))+"%")
+			case "OR":
+				var e []string
+				for _, v := range field.Interface().([]string) {
+					e = append(e, refType.Field(x).Tag.Get("json")+" = '"+v+"'")
+				}
+				db = db.Where(strings.Join(e, " OR "))
+			}
 		}
 	}
 
