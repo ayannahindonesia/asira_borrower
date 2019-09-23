@@ -1,48 +1,47 @@
 package models
 
+import (
+	"gitlab.com/asira-ayannah/basemodel"
+)
+
 type (
 	BankService struct {
-		BaseModel
+		basemodel.BaseModel
 		Name    string `json:"name" gorm:"column:name"`
 		ImageID int    `json:"image_id" gorm:"column:image_id"`
 		Status  string `json:"status" gorm:"column:status"`
 	}
 )
 
-func (b *BankService) Create() (*BankService, error) {
-	err := Create(&b)
-	return b, err
+func (b *BankService) Create() error {
+	err := basemodel.Create(&b)
+	return err
 }
 
-func (b *BankService) Save() (*BankService, error) {
-	err := Save(&b)
-	return b, err
+func (b *BankService) Save() error {
+	err := basemodel.Save(&b)
+	return err
 }
 
-func (b *BankService) Delete() (*BankService, error) {
-	err := Delete(&b)
-	return b, err
+func (b *BankService) Delete() error {
+	err := basemodel.Delete(&b)
+	return err
 }
 
-func (b *BankService) FindbyID(id int) (*BankService, error) {
-	err := FindbyID(&b, id)
-	return b, err
+func (b *BankService) FindbyID(id int) error {
+	err := basemodel.FindbyID(&b, id)
+	return err
 }
 
-func (b *BankService) FilterSearchSingle(filter interface{}) (*BankService, error) {
-	err := FilterSearchSingle(&b, filter)
-	return b, err
-}
-
-func (b *BankService) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result PagedSearchResult, err error) {
+func (b *BankService) FilterSearch(filter interface{}) (result basemodel.PagedFindResult, err error) {
 	bank_type := []BankService{}
-	result, err = PagedFilterSearch(&bank_type, page, rows, orderby, sort, filter)
-
+	var orders []string
+	var sort []string
+	result, err = basemodel.PagedFindFilter(&bank_type, 0, 0, orders, sort, filter)
 	return result, err
 }
 
-func (b *BankService) FilterSearch(filter interface{}) (SearchResult, error) {
-	bank_type := []BankService{}
-	result, err := FilterSearch(&bank_type, filter)
-	return result, err
+func (b *BankService) FilterSearchSingle(filter interface{}) (err error) {
+	err = basemodel.SingleFindFilter(&b, filter)
+	return err
 }

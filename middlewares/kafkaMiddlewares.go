@@ -8,6 +8,7 @@ import (
 	"log"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/Shopify/sarama"
 )
@@ -19,8 +20,9 @@ type (
 	}
 
 	Loan struct {
-		ID     int    `json:"id"`
-		Status string `json:"status"`
+		ID           int       `json:"id"`
+		Status       string    `json:"status"`
+		DisburseDate time.Time `json:"disburse_date"`
 	}
 )
 
@@ -92,12 +94,12 @@ func processMessage(kafkaMessage []byte) (err error) {
 
 			if a["delete"] != nil && a["delete"].(bool) == true {
 				ID := int(a["id"].(float64))
-				result, err := bankType.FindbyID(ID)
+				err = bankType.FindbyID(ID)
 				if err != nil {
 					return err
 				}
 
-				_, err = result.Delete()
+				err = bankType.Delete()
 				if err != nil {
 					return err
 				}
@@ -106,7 +108,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 				if err != nil {
 					return err
 				}
-				_, err = bankType.Save()
+				bankType.Save()
 				return err
 			}
 
@@ -124,12 +126,12 @@ func processMessage(kafkaMessage []byte) (err error) {
 
 			if a["delete"] != nil && a["delete"].(bool) == true {
 				ID := int(a["id"].(float64))
-				result, err := bank.FindbyID(ID)
+				err = bank.FindbyID(ID)
 				if err != nil {
 					return err
 				}
 
-				_, err = result.Delete()
+				err = bank.Delete()
 				if err != nil {
 					return err
 				}
@@ -138,7 +140,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 				if err != nil {
 					return err
 				}
-				_, err = bank.Save()
+				bank.Save()
 				return err
 			}
 
@@ -155,12 +157,12 @@ func processMessage(kafkaMessage []byte) (err error) {
 
 			if a["delete"] != nil && a["delete"].(bool) == true {
 				ID := int(a["id"].(float64))
-				result, err := bankService.FindbyID(ID)
+				err := bankService.FindbyID(ID)
 				if err != nil {
 					return err
 				}
 
-				_, err = result.Delete()
+				err = bankService.Delete()
 				if err != nil {
 					return err
 				}
@@ -169,7 +171,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 				if err != nil {
 					return err
 				}
-				_, err = bankService.Save()
+				err = bankService.Save()
 				return err
 			}
 
@@ -186,12 +188,12 @@ func processMessage(kafkaMessage []byte) (err error) {
 
 			if a["delete"] != nil && a["delete"].(bool) == true {
 				ID := int(a["id"].(float64))
-				result, err := serviceProduct.FindbyID(ID)
+				err := serviceProduct.FindbyID(ID)
 				if err != nil {
 					return err
 				}
 
-				_, err = result.Delete()
+				err = serviceProduct.Delete()
 				if err != nil {
 					return err
 				}
@@ -200,7 +202,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 				if err != nil {
 					return err
 				}
-				_, err = serviceProduct.Save()
+				err = serviceProduct.Save()
 				return err
 			}
 
@@ -226,12 +228,13 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		return err
 	}
 
-	data, err := loan.FindbyID(loanData.ID)
+	err = loan.FindbyID(loanData.ID)
 	if err != nil {
 		return err
 	}
 
-	data.Status = loanData.Status
-	_, err = data.Save()
+	loan.Status = loanData.Status
+	loan.DisburseDate = loanData.DisburseDate
+	err = loan.Save()
 	return err
 }

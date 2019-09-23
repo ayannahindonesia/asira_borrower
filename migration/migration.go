@@ -148,36 +148,6 @@ func Seed() {
 			borrower.Create()
 		}
 
-		purposes := []models.LoanPurpose{
-			models.LoanPurpose{
-				Name:   "Pendidikan",
-				Status: "active",
-			},
-			models.LoanPurpose{
-				Name:   "Rumah Tangga",
-				Status: "active",
-			},
-			models.LoanPurpose{
-				Name:   "Kesehatan",
-				Status: "active",
-			},
-			models.LoanPurpose{
-				Name:   "Berdagang",
-				Status: "active",
-			},
-			models.LoanPurpose{
-				Name:   "Bertani",
-				Status: "active",
-			},
-			models.LoanPurpose{
-				Name:   "Berjudi",
-				Status: "inactive",
-			},
-		}
-		for _, purpose := range purposes {
-			purpose.Create()
-		}
-
 		// seed loans
 		loans := []models.Loan{
 			models.Loan{
@@ -232,6 +202,14 @@ func Seed() {
 			},
 		}
 		uuid.Create()
+
+		roles := models.InternalRoles{
+			Name:        "Admin",
+			System:      "Core",
+			Description: "Role Admin",
+			Status:      true,
+		}
+		roles.Create()
 	}
 }
 
@@ -565,6 +543,19 @@ func TestSeed() {
 		}
 		uuid.Create()
 
+		//seed internal roles
+		iroles := []models.InternalRoles{
+			models.InternalRoles{
+				Name:        "admin",
+				Description: "ini admin",
+				Status:      true,
+				System:      "Core",
+			},
+		}
+		for _, irole := range iroles {
+			irole.Create()
+		}
+
 		client := []models.Client_config{
 			models.Client_config{
 				Name:   "admin",
@@ -600,6 +591,7 @@ func Truncate(tableList []string) (err error) {
 				"loans",
 				"uuid_reset_passwords",
 				"client_configs",
+				"internal_roles",
 			}
 		}
 

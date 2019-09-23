@@ -19,12 +19,15 @@ func BorrowerGetAll(c echo.Context) error {
 	sort := c.QueryParam("sort")
 	// filters
 	fullname := c.QueryParam("fullname")
+	id := c.QueryParam("id")
 
 	type Filter struct {
 		Fullname string `json:"fullname" condition:"LIKE"`
+		ID       string `json:"id"`
 	}
 	result, err := borrower.PagedFilterSearch(page, rows, orderby, sort, &Filter{
 		Fullname: fullname,
+		ID:       id,
 	})
 
 	if err != nil {
@@ -40,10 +43,10 @@ func BorrowerGetDetails(c echo.Context) error {
 	borrowerModel := models.Borrower{}
 
 	borrowerID, _ := strconv.Atoi(c.Param("borrower_id"))
-	borrower, err := borrowerModel.FindbyID(borrowerID)
+	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "Borrower ID tidak ditemukan")
 	}
 
-	return c.JSON(http.StatusOK, borrower)
+	return c.JSON(http.StatusOK, borrowerModel)
 }

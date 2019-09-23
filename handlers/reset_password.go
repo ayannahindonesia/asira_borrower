@@ -32,12 +32,12 @@ func ClientResetPassword(c echo.Context) error {
 
 		uuid := models.Uuid_Reset_Password{
 			Borrower: sql.NullInt64{
-				Int64: int64(borrower.BaseModel.ID),
+				Int64: int64(borrower.ID),
 				Valid: true,
 			},
 			UUID: id.String(),
 		}
-		Reset, err := uuid.Create()
+		err := uuid.Create()
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 		}
@@ -49,7 +49,7 @@ func ClientResetPassword(c echo.Context) error {
 		}
 		to := borrower.Email
 		subject := "[NO REPLY] - Reset Password Aplikasi ASIRA"
-		link := baseURL + "/deepLinks/" + Reset.UUID
+		link := baseURL + "/deepLinks/" + uuid.UUID
 		message := "Hai Nasabah,\n\nIni adalah email untuk melakukan reset login akun anda. Silahkan klik link di bawah ini agar dapat melakukan reset login akun.\nLink ini hanya valid dalam waktu 24 jam.\n" + link + " \n\n\n Ayannah Solusi Nusantara Team"
 
 		err = sendMail(to, subject, message)
@@ -87,24 +87,24 @@ func ChangePassword(c echo.Context) error {
 	type Filter struct {
 		UUID string `json:"uuid"`
 	}
-	result, err := uuid_reset_password.FilterSearchSingle(&Filter{
+	err := uuid_reset_password.FilterSearchSingle(&Filter{
 		UUID: reset.UUID,
 	})
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("UUID : %v tidak ditemukan", reset.UUID))
 	}
 
-	if result.Used == true {
+	if uuid_reset_password.Used == true {
 		return returnInvalidResponse(http.StatusNotFound, "", "Anda telah melakukan pergantian password")
 	}
 
-	diff := now.Sub(result.Expired)
+	diff := now.Sub(uuid_reset_password.Expired)
 	if diff > 0 {
 		return returnInvalidResponse(http.StatusNotFound, "", "Link Expired")
 	}
 	//check Borrower ID
 	borrowerModel := models.Borrower{}
-	borrower, err := borrowerModel.FindbyID(int(result.Borrower.Int64))
+	err = borrowerModel.FindbyID(int(uuid_reset_password.Borrower.Int64))
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun Tidak ditemukan")
 	}
@@ -114,14 +114,14 @@ func ChangePassword(c echo.Context) error {
 		return err
 	}
 
-	borrower.Password = string(passwordByte)
-	_, err = borrower.Save()
+	borrowerModel.Password = string(passwordByte)
+	err = borrowerModel.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Ubah Password Gagal")
 	}
 
-	result.Used = true
-	result.Save()
+	uuid_reset_password.Used = true
+	uuid_reset_password.Save()
 
 	responseBody := map[string]interface{}{
 		"status":  true,

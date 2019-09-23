@@ -19,13 +19,16 @@ func LoanGetAll(c echo.Context) error {
 	sort := c.QueryParam("sort")
 	//owner ID / Borrower ID
 	owner := c.QueryParam("owner")
+	id := c.QueryParam("id")
 
 	type Filter struct {
 		Owner string `json:"owner"`
+		ID    string `json:"id"`
 	}
 
 	result, err := loan.PagedFilterSearch(page, rows, orderby, sort, &Filter{
 		Owner: owner,
+		ID:    id,
 	})
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "Loan tidak Ditemukan")
@@ -40,10 +43,10 @@ func LoanGetDetails(c echo.Context) error {
 	loanModel := models.Loan{}
 
 	loanID, _ := strconv.Atoi(c.Param("loan_id"))
-	loan, err := loanModel.FindbyID(loanID)
+	err := loanModel.FindbyID(loanID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "Loan ID tidak ditemukan")
 	}
 
-	return c.JSON(http.StatusOK, loan)
+	return c.JSON(http.StatusOK, loanModel)
 }

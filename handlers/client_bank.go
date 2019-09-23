@@ -35,10 +35,10 @@ func ClientBankbyID(c echo.Context) error {
 
 	bank := models.Bank{}
 	bankID, _ := strconv.Atoi(c.Param("bank_id"))
-	result, err := bank.FindbyID(bankID)
+	err := bank.FindbyID(bankID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "bank tidak ditemukan")
 	}
 
-	return c.JSON(http.StatusOK, result)
+	return c.JSON(http.StatusOK, bank)
 }

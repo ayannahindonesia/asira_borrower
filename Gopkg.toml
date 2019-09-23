@@ -19,3 +19,8 @@
 # [[override]]
 #  name = "github.com/x/y"
 #  version = "2.4.0"
+
+[[constraint]]
+    name= "gitlab.com/asira-ayannah/basemodel"
+    branch = "master"
+    source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@gitlab.com/asira-ayannah/basemodel.git"
