@@ -46,7 +46,7 @@ func BorrowerLoanApply(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error")
 	}
 
-	err := loan.Create()
+	err = loan.Create()
 	if err != nil {
 		log.Printf("apply : %v", loan)
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat Loan")
@@ -253,7 +253,7 @@ func validateLoansServicenProduct(l models.Loan) (err error) {
 	var services []string
 	json.Unmarshal(bank.Services.RawMessage, &services)
 	service := models.BankService{}
-	_, err = service.FilterSearchSingle(&FilterService{
+	err = service.FilterSearchSingle(&FilterService{
 		Name: services,
 		ID:   l.Service,
 	})
@@ -264,7 +264,7 @@ func validateLoansServicenProduct(l models.Loan) (err error) {
 	var products []string
 	json.Unmarshal(bank.Products.RawMessage, &products)
 	product := models.ServiceProduct{}
-	_, err = product.FilterSearchSingle(&FilterProduct{
+	err = product.FilterSearchSingle(&FilterProduct{
 		Name:    products,
 		Service: service.ID,
 		ID:      l.Product,
