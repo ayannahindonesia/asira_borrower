@@ -19,12 +19,15 @@ func BorrowerGetAll(c echo.Context) error {
 	sort := c.QueryParam("sort")
 	// filters
 	fullname := c.QueryParam("fullname")
+	id := c.QueryParam("id")
 
 	type Filter struct {
 		Fullname string `json:"fullname" condition:"LIKE"`
+		ID       string `json:"id"`
 	}
 	result, err := borrower.PagedFilterSearch(page, rows, orderby, sort, &Filter{
 		Fullname: fullname,
+		ID:       id,
 	})
 
 	if err != nil {

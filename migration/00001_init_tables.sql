@@ -66,6 +66,8 @@ CREATE TABLE "banks" (
     "products" jsonb DEFAULT '[]',
     "pic" varchar(255),
     "phone" varchar(255),
+    "adminfee_setup" varchar(255),
+    "convfee_setup" varchar(255),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -154,12 +156,14 @@ CREATE TABLE "loans" (
     "fees" jsonb DEFAULT '[]',
     "interest" FLOAT NOT NULL,
     "total_loan" FLOAT NOT NULL,
+    "disburse_amount" FLOAT NOT NULL,
     "due_date" timestamptz,
     "layaway_plan" FLOAT NOT NULL,
     "loan_intention" varchar(255) NOT NULL,
     "intention_details" text NOT NULL,
     "borrower_info" jsonb DEFAULT '[]',
     "otp_verified" BOOLEAN,
+    "disburse_date" timestamptz,
     FOREIGN KEY ("owner") REFERENCES borrowers(id),
     FOREIGN KEY ("service") REFERENCES bank_services(id),
     FOREIGN KEY ("product") REFERENCES service_products(id),
@@ -188,6 +192,17 @@ CREATE TABLE "client_configs" (
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
+
+CREATE TABLE "internal_roles" (
+    "id" bigserial,
+    "name" varchar(255) NOT NULL,
+    "system" varchar(255) NOT NULL,
+    "description" text,
+    "status" BOOLEAN,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 DROP TABLE IF EXISTS "service_products" CASCADE;
@@ -200,3 +215,4 @@ DROP TABLE IF EXISTS "loan_purposes" CASCADE;
 DROP TABLE IF EXISTS "loans" CASCADE;
 DROP TABLE IF EXISTS "uuid_reset_passwords" CASCADE;
 DROP TABLE IF EXISTS "client_configs" CASCADE;
+DROP TABLE IF EXISTS "internal_roles" CASCADE;

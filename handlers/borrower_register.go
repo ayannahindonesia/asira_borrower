@@ -36,6 +36,7 @@ func RegisterBorrower(c echo.Context) error {
 			IdCardImage          string    `json:"idcard_image"`
 			TaxIDImage           string    `json:"taxid_image"`
 			TaxIDnumber          string    `json:"taxid_number"`
+			Nationality          string    `json:"nationality"`
 			Email                string    `json:"email"`
 			Birthday             time.Time `json:"birthday"`
 			Birthplace           string    `json:"birthplace"`
