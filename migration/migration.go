@@ -544,13 +544,17 @@ func TestSeed() {
 		uuid.Create()
 
 		//seed uuid
-		iroles := models.Uuid_Reset_Password{
-			Name:        "admin",
-			Description: "ini admin",
-			Status:      true,
-			System:      "Core",
+		iroles := []models.Uuid_Reset_Password{
+			models.Uuid_Reset_Password{
+				Name:        "admin",
+				Description: "ini admin",
+				Status:      true,
+				System:      "Core",
+			},
 		}
-		iroles.Create()
+		for _, irole := range iroles {
+			irole.Create()
+		}
 
 		client := []models.Client_config{
 			models.Client_config{
