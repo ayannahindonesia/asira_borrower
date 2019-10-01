@@ -51,7 +51,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 		"gender":                []string{},
 		"idcard_number":         []string{},
 		"taxid_number":          []string{},
-		"email":                 []string{"email", "unique:borrowers,taxid_number"},
+		"email":                 []string{"email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{},
 		"last_education":        []string{},
