@@ -96,6 +96,8 @@ func TestBorrowerLoanApply(t *testing.T) {
 		"loan_amount":       "5000000",
 		"loan_intention":    "not valid",
 		"intention_details": "the details",
+		"product":           1,
+		"service":           1,
 	}
 	auth.POST("/borrower/loan").WithJSON(payload).
 		Expect().

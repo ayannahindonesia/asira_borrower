@@ -67,18 +67,18 @@ func TestBorrowerBankProductGet(t *testing.T) {
 		req.WithHeader("Authorization", "Bearer "+borrowertoken)
 	})
 
-	obj := auth.GET("/borrower/service_products").
+	obj := auth.GET("/borrower/bank_products").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 	obj.ContainsKey("total_data").ValueEqual("total_data", 2)
 
 	// valid response of loan details
-	obj = auth.GET("/borrower/service_products/1").
+	obj = auth.GET("/borrower/bank_products/1").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 	obj.ContainsKey("id").ValueEqual("id", 1)
 	// loan id not found
-	obj = auth.GET("/borrower/service_products/99").
+	obj = auth.GET("/borrower/bank_products/99").
 		Expect().
 		Status(http.StatusForbidden).JSON().Object()
 }

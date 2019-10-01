@@ -245,7 +245,7 @@ func validateLoansServicenProduct(l models.Loan) (err error) {
 		}
 		FilterProduct struct {
 			Name    []string `json:"name" condition:"OR"`
-			Service uint64   `json:"service"`
+			Service uint64   `json:"bank_service_id"`
 			ID      uint64   `json:"id"`
 		}
 	)

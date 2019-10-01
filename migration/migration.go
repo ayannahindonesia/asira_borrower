@@ -46,6 +46,18 @@ func Seed() {
 			models.Image{
 				Image_string: string(b64image),
 			},
+			models.Image{
+				Image_string: string(b64image),
+			},
+			models.Image{
+				Image_string: string(b64image),
+			},
+			models.Image{
+				Image_string: string(b64image),
+			},
+			models.Image{
+				Image_string: string(b64image),
+			},
 		}
 		for _, image := range images {
 			image.Create()
@@ -226,6 +238,18 @@ func TestSeed() {
 			models.Image{
 				Image_string: string(b64image),
 			},
+			models.Image{
+				Image_string: string(b64image),
+			},
+			models.Image{
+				Image_string: string(b64image),
+			},
+			models.Image{
+				Image_string: string(b64image),
+			},
+			models.Image{
+				Image_string: string(b64image),
+			},
 		}
 		for _, image := range images {
 			image.Create()
@@ -250,30 +274,68 @@ func TestSeed() {
 			bankType.Create()
 		}
 
+		// seed banks
+		services := []string{"Pinjaman PNS", "Pinjaman Lainnya"}
+		service_product := []string{"Product A", "Product B"}
+		jMarshal, _ := json.Marshal(services)
+		jMarshalProduct, _ := json.Marshal(service_product)
+		banks := []models.Bank{
+			models.Bank{
+				Name:     "Bank A",
+				Type:     1,
+				Address:  "Bank A Address",
+				Province: "Province A",
+				City:     "City A",
+				Services: postgres.Jsonb{jMarshal},
+				Products: postgres.Jsonb{jMarshalProduct},
+				PIC:      "Bank A PIC",
+				Phone:    "081234567890",
+			},
+			models.Bank{
+				Name:     "Bank B",
+				Type:     2,
+				Address:  "Bank B Address",
+				Province: "Province B",
+				City:     "City B",
+				Services: postgres.Jsonb{jMarshal},
+				Products: postgres.Jsonb{jMarshal},
+				PIC:      "Bank B PIC",
+				Phone:    "081234567891",
+			},
+		}
+		for _, bank := range banks {
+			bank.Create()
+		}
+
 		// seed bank services
 		bankServices := []models.BankService{
 			models.BankService{
 				Name:    "Pinjaman PNS",
+				BankID:  1,
 				ImageID: 1,
 				Status:  "active",
 			},
 			models.BankService{
 				Name:    "Pinjaman Pensiun",
+				BankID:  1,
 				ImageID: 1,
 				Status:  "active",
 			},
 			models.BankService{
 				Name:    "Pinjaman UMKN",
+				BankID:  1,
 				ImageID: 1,
 				Status:  "active",
 			},
 			models.BankService{
 				Name:    "Pinjaman Mikro",
+				BankID:  1,
 				ImageID: 1,
 				Status:  "inactive",
 			},
 			models.BankService{
 				Name:    "Pinjaman Lainnya",
+				BankID:  1,
 				ImageID: 1,
 				Status:  "inactive",
 			},
@@ -325,38 +387,6 @@ func TestSeed() {
 		}
 		for _, bankProduct := range bankProducts {
 			bankProduct.Create()
-		}
-		// seed banks
-		services := []string{"Pinjaman PNS", "Pinjaman Lainnya"}
-		service_product := []string{"Product A", "Product B"}
-		jMarshal, _ := json.Marshal(services)
-		jMarshalProduct, _ := json.Marshal(service_product)
-		banks := []models.Bank{
-			models.Bank{
-				Name:     "Bank A",
-				Type:     1,
-				Address:  "Bank A Address",
-				Province: "Province A",
-				City:     "City A",
-				Services: postgres.Jsonb{jMarshal},
-				Products: postgres.Jsonb{jMarshalProduct},
-				PIC:      "Bank A PIC",
-				Phone:    "081234567890",
-			},
-			models.Bank{
-				Name:     "Bank B",
-				Type:     2,
-				Address:  "Bank B Address",
-				Province: "Province B",
-				City:     "City B",
-				Services: postgres.Jsonb{jMarshal},
-				Products: postgres.Jsonb{jMarshal},
-				PIC:      "Bank B PIC",
-				Phone:    "081234567891",
-			},
-		}
-		for _, bank := range banks {
-			bank.Create()
 		}
 
 		// seed borrowers
@@ -586,7 +616,7 @@ func Truncate(tableList []string) (err error) {
 				"bank_types",
 				"banks",
 				"bank_services",
-				"service_products",
+				"bank_products",
 				"images",
 				"borrowers",
 				"loan_purposes",

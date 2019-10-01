@@ -206,7 +206,7 @@ CREATE TABLE "internal_roles" (
 ) WITH (OIDS = FALSE);
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
-DROP TABLE IF EXISTS "service_products" CASCADE;
+DROP TABLE IF EXISTS "bank_products" CASCADE;
 DROP TABLE IF EXISTS "bank_services" CASCADE;
 DROP TABLE IF EXISTS "banks" CASCADE;
 DROP TABLE IF EXISTS "bank_types" CASCADE;

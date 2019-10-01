@@ -49,8 +49,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{},
 		"gender":                []string{},
-		"idcard_number":         []string{"unique:borrowers,idcard_number"},
-		"taxid_number":          []string{"unique:borrowers,taxid_number"},
+		"idcard_number":         []string{},
+		"taxid_number":          []string{},
 		"email":                 []string{"email", "unique:borrowers,taxid_number"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{},
@@ -90,7 +90,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 		"related_homenumber":    []string{},
 		"related_address":       []string{},
 		"bank":                  []string{},
-		"bank_accountnumber":    []string{"unique:borrowers,bank_accountnumber"},
+		"bank_accountnumber":    []string{},
 	}
 
 	validate := validateRequestPayload(c, payloadRules, &borrowerModel)
