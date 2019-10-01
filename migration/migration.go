@@ -283,14 +283,19 @@ func TestSeed() {
 		}
 
 		// seed service products
-		feesMarshal, _ := json.Marshal(map[string]interface{}{
-			"description": "Admin Fee",
-			"amount":      2500,
+		feesMarshal, _ := json.Marshal([]interface{}{
+			map[string]interface{}{
+				"description": "Admin Fee",
+				"amount":      "2500",
+			},
+			map[string]interface{}{
+				"description": "Convinience Fee",
+				"amount":      "2%",
+			},
 		})
-		collateralMarshal, _ := json.Marshal([]string{"Surat Tanah", "BPKB"})
-		financeMarshal, _ := json.Marshal([]string{"Pendidikan"})
-		serviceProducts := []models.ServiceProduct{
-			models.ServiceProduct{
+		bankProducts := []models.BankProduct{
+			models.BankProduct{
+				BankServiceID:   1,
 				Name:            "Product A",
 				MinTimeSpan:     1,
 				MaxTimeSpan:     6,
@@ -298,14 +303,13 @@ func TestSeed() {
 				MinLoan:         1000000,
 				MaxLoan:         10000000,
 				Fees:            postgres.Jsonb{feesMarshal},
-				ASN_Fee:         "1%",
-				Service:         1,
-				Collaterals:     postgres.Jsonb{collateralMarshal},
-				FinancingSector: postgres.Jsonb{financeMarshal},
+				Collaterals:     []string{"Surat Tanah", "BPKB"},
+				FinancingSector: []string{"Pendidikan"},
 				Assurance:       "an Assurance",
 				Status:          "active",
 			},
-			models.ServiceProduct{
+			models.BankProduct{
+				BankServiceID:   1,
 				Name:            "Product B",
 				MinTimeSpan:     3,
 				MaxTimeSpan:     12,
@@ -313,16 +317,14 @@ func TestSeed() {
 				MinLoan:         5000000,
 				MaxLoan:         8000000,
 				Fees:            postgres.Jsonb{feesMarshal},
-				ASN_Fee:         "1%",
-				Service:         1,
-				Collaterals:     postgres.Jsonb{collateralMarshal},
-				FinancingSector: postgres.Jsonb{financeMarshal},
+				Collaterals:     []string{"Surat Tanah", "BPKB"},
+				FinancingSector: []string{"Pendidikan"},
 				Assurance:       "an Assurance",
 				Status:          "active",
 			},
 		}
-		for _, serviceProduct := range serviceProducts {
-			serviceProduct.Create()
+		for _, bankProduct := range bankProducts {
+			bankProduct.Create()
 		}
 		// seed banks
 		services := []string{"Pinjaman PNS", "Pinjaman Lainnya"}

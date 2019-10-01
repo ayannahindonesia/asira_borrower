@@ -8,32 +8,38 @@ type (
 	BankService struct {
 		basemodel.BaseModel
 		Name    string `json:"name" gorm:"column:name"`
-		ImageID int    `json:"image_id" gorm:"column:image_id"`
+		BankID  uint64 `json:"bank_id" gorm:"column:bank_id"`
+		ImageID uint64 `json:"image_id" gorm:"column:image_id"`
 		Status  string `json:"status" gorm:"column:status"`
 	}
 )
 
-func (b *BankService) Create() error {
-	err := basemodel.Create(&b)
+func (model *BankService) Create() error {
+	err := basemodel.Create(&model)
 	return err
 }
 
-func (b *BankService) Save() error {
-	err := basemodel.Save(&b)
+func (model *BankService) Save() error {
+	err := basemodel.Save(&model)
 	return err
 }
 
-func (b *BankService) Delete() error {
-	err := basemodel.Delete(&b)
+func (model *BankService) FirstOrCreate() (err error) {
+	err = basemodel.FirstOrCreate(&model)
+	return nil
+}
+
+func (model *BankService) Delete() error {
+	err := basemodel.Delete(&model)
 	return err
 }
 
-func (b *BankService) FindbyID(id int) error {
-	err := basemodel.FindbyID(&b, id)
+func (model *BankService) FindbyID(id int) error {
+	err := basemodel.FindbyID(&model, id)
 	return err
 }
 
-func (b *BankService) FilterSearch(filter interface{}) (result basemodel.PagedFindResult, err error) {
+func (model *BankService) FilterSearch(filter interface{}) (result basemodel.PagedFindResult, err error) {
 	bank_type := []BankService{}
 	var orders []string
 	var sort []string
@@ -41,7 +47,7 @@ func (b *BankService) FilterSearch(filter interface{}) (result basemodel.PagedFi
 	return result, err
 }
 
-func (b *BankService) FilterSearchSingle(filter interface{}) (err error) {
-	err = basemodel.SingleFindFilter(&b, filter)
+func (model *BankService) FilterSearchSingle(filter interface{}) (err error) {
+	err = basemodel.SingleFindFilter(&model, filter)
 	return err
 }

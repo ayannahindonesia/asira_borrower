@@ -263,7 +263,7 @@ func validateLoansServicenProduct(l models.Loan) (err error) {
 
 	var products []string
 	json.Unmarshal(bank.Products.RawMessage, &products)
-	product := models.ServiceProduct{}
+	product := models.BankProduct{}
 	err = product.FilterSearchSingle(&FilterProduct{
 		Name:    products,
 		Service: service.ID,

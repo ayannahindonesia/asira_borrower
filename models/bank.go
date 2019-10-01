@@ -25,37 +25,32 @@ type (
 	}
 )
 
-// gorm callback hook
-func (b *Bank) BeforeCreate() (err error) {
+func (model *Bank) Create() error {
+	err := basemodel.Create(&model)
+	return err
+}
+
+func (model *Bank) FirstOrCreate() (err error) {
+	err = basemodel.FirstOrCreate(&model)
 	return nil
 }
 
-func (b *Bank) Create() error {
-	err := basemodel.Create(&b)
+func (model *Bank) Save() error {
+	err := basemodel.Save(&model)
 	return err
 }
 
-// gorm callback hook
-func (b *Bank) BeforeSave() (err error) {
-	return nil
-}
-
-func (b *Bank) Save() error {
-	err := basemodel.Save(&b)
+func (model *Bank) Delete() error {
+	err := basemodel.Delete(&model)
 	return err
 }
 
-func (b *Bank) Delete() error {
-	err := basemodel.Delete(&b)
+func (model *Bank) FindbyID(id int) error {
+	err := basemodel.FindbyID(&model, id)
 	return err
 }
 
-func (b *Bank) FindbyID(id int) error {
-	err := basemodel.FindbyID(&b, id)
-	return err
-}
-
-func (b *Bank) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result basemodel.PagedFindResult, err error) {
+func (model *Bank) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result basemodel.PagedFindResult, err error) {
 	banks := []Bank{}
 	order := []string{orderby}
 	sorts := []string{sort}
@@ -64,7 +59,7 @@ func (b *Bank) PagedFilterSearch(page int, rows int, orderby string, sort string
 	return result, err
 }
 
-func (b *Bank) FilterSearchSingle(filter interface{}) (err error) {
-	err = basemodel.SingleFindFilter(&b, filter)
+func (model *Bank) FilterSearchSingle(filter interface{}) (err error) {
+	err = basemodel.SingleFindFilter(&model, filter)
 	return err
 }

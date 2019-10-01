@@ -80,7 +80,7 @@ func BorrowerBankProduct(c echo.Context) error {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")
 	}
 
-	bankProduct := models.ServiceProduct{}
+	bankProduct := models.BankProduct{}
 	result, err := bankProduct.FilterSearch(&Filter{
 		NameOR: product,
 	})
@@ -90,12 +90,12 @@ func BorrowerBankProduct(c echo.Context) error {
 
 func BorrowerBankProductDetails(c echo.Context) error {
 	defer c.Request().Body.Close()
-	sProduct := models.ServiceProduct{}
+	bankProduct := models.BankProduct{}
 
 	productID, _ := strconv.Atoi(c.Param("product_id"))
-	err := sProduct.FindbyID(productID)
+	err := bankProduct.FindbyID(productID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")
 	}
-	return c.JSON(http.StatusOK, sProduct)
+	return c.JSON(http.StatusOK, bankProduct)
 }
