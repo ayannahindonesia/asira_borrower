@@ -48,7 +48,7 @@ func init() {
 	var err error
 	App = &Application{}
 	App.Name = "asira_borrower"
-	App.Port = os.Getenv("PORT")
+	App.Port = os.Getenv("APPPORT")
 	App.Version = os.Getenv("APPVER")
 	App.loadENV()
 	if err = App.LoadConfigs(); err != nil {
