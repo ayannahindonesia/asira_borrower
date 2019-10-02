@@ -87,7 +87,7 @@ func (l *Loan) Calculate() (err error) {
 	var (
 		totalfee       float64
 		fee            float64
-		convinienceFee float64
+		convenienceFee float64
 		fees           LoanFees
 		owner          Borrower
 		bank           Bank
@@ -112,8 +112,8 @@ func (l *Loan) Calculate() (err error) {
 			fee = float64(f)
 		}
 
-		if strings.ToLower(v.Description) == "convinience fee" {
-			convinienceFee += fee
+		if strings.ToLower(v.Description) == "convenience fee" {
+			convenienceFee += fee
 		} else {
 			totalfee += fee
 		}
@@ -142,13 +142,13 @@ func (l *Loan) Calculate() (err error) {
 	// 	asnFee = float64(f)
 	// }
 
-	switch bank.ConvinienceFeeSetup {
+	switch bank.ConvenienceFeeSetup {
 	case "potong_plafon":
-		l.DisburseAmount = l.DisburseAmount - convinienceFee
+		l.DisburseAmount = l.DisburseAmount - convenienceFee
 		l.TotalLoan = l.LoanAmount + interest
 		break
 	case "beban_plafon":
-		l.TotalLoan = l.LoanAmount + interest + convinienceFee + totalfee
+		l.TotalLoan = l.LoanAmount + interest + convenienceFee + totalfee
 		break
 	}
 

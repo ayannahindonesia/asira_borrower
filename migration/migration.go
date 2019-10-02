@@ -351,7 +351,7 @@ func TestSeed() {
 				"amount":      "2500",
 			},
 			map[string]interface{}{
-				"description": "Convinience Fee",
+				"description": "Convenience Fee",
 				"amount":      "2%",
 			},
 		})
