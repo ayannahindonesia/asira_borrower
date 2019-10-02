@@ -70,7 +70,7 @@ func (l *Loan) BeforeCreate() (err error) {
 }
 
 func (l *Loan) SetProductLoanReferences() (err error) {
-	product := ServiceProduct{}
+	product := BankProduct{}
 	err = product.FindbyID(int(l.Product))
 	if err != nil {
 		return err
@@ -85,11 +85,13 @@ func (l *Loan) SetProductLoanReferences() (err error) {
 func (l *Loan) Calculate() (err error) {
 	// calculate total loan
 	var (
-		totalfee float64
-		fees     LoanFees
-		owner    Borrower
-		bank     Bank
-		product  ServiceProduct
+		totalfee       float64
+		fee            float64
+		convenienceFee float64
+		fees           LoanFees
+		owner          Borrower
+		bank           Bank
+		product        BankProduct
 	)
 
 	owner.FindbyID(int(l.Owner.Int64))
@@ -98,7 +100,6 @@ func (l *Loan) Calculate() (err error) {
 
 	json.Unmarshal(l.Fees.RawMessage, &fees)
 
-	var fee float64
 	for _, v := range fees {
 		if strings.ContainsAny(v.Amount, "%") {
 			feeString := strings.TrimFunc(v.Amount, func(r rune) bool {
@@ -111,7 +112,11 @@ func (l *Loan) Calculate() (err error) {
 			fee = float64(f)
 		}
 
-		totalfee += fee
+		if strings.ToLower(v.Description) == "convenience fee" {
+			convenienceFee += fee
+		} else {
+			totalfee += fee
+		}
 	}
 	interest := (l.Interest / 100) * l.LoanAmount
 	l.DisburseAmount = l.LoanAmount
@@ -125,25 +130,25 @@ func (l *Loan) Calculate() (err error) {
 		// 	break
 	}
 
-	var asnFee float64
-	if strings.ContainsAny(product.ASN_Fee, "%") {
-		asnFeeString := strings.TrimFunc(product.ASN_Fee, func(r rune) bool {
-			return !unicode.IsNumber(r)
-		})
-		f, _ := strconv.Atoi(asnFeeString)
-		asnFee = (float64(f) / 100) * l.LoanAmount
-	} else {
-		f, _ := strconv.Atoi(product.ASN_Fee)
-		asnFee = float64(f)
-	}
+	// var asnFee float64
+	// if strings.ContainsAny(product.ASN_Fee, "%") {
+	// 	asnFeeString := strings.TrimFunc(product.ASN_Fee, func(r rune) bool {
+	// 		return !unicode.IsNumber(r)
+	// 	})
+	// 	f, _ := strconv.Atoi(asnFeeString)
+	// 	asnFee = (float64(f) / 100) * l.LoanAmount
+	// } else {
+	// 	f, _ := strconv.Atoi(product.ASN_Fee)
+	// 	asnFee = float64(f)
+	// }
 
-	switch bank.ConvinienceFeeSetup {
+	switch bank.ConvenienceFeeSetup {
 	case "potong_plafon":
-		l.DisburseAmount = l.DisburseAmount - asnFee
+		l.DisburseAmount = l.DisburseAmount - convenienceFee
 		l.TotalLoan = l.LoanAmount + interest
 		break
 	case "beban_plafon":
-		l.TotalLoan = l.LoanAmount + interest + asnFee + totalfee
+		l.TotalLoan = l.LoanAmount + interest + convenienceFee + totalfee
 		break
 	}
 

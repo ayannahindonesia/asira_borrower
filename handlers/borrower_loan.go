@@ -245,7 +245,7 @@ func validateLoansServicenProduct(l models.Loan) (err error) {
 		}
 		FilterProduct struct {
 			Name    []string `json:"name" condition:"OR"`
-			Service uint64   `json:"service"`
+			Service uint64   `json:"bank_service_id"`
 			ID      uint64   `json:"id"`
 		}
 	)
@@ -263,7 +263,7 @@ func validateLoansServicenProduct(l models.Loan) (err error) {
 
 	var products []string
 	json.Unmarshal(bank.Products.RawMessage, &products)
-	product := models.ServiceProduct{}
+	product := models.BankProduct{}
 	err = product.FilterSearchSingle(&FilterProduct{
 		Name:    products,
 		Service: service.ID,
