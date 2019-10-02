@@ -12,6 +12,7 @@ services:
     environment:
       - APPNAME=asira_borrower
       - ENV=dev
+      - PORT=8000
     container_name: asira_borrower
     
   # zookeeper:
