@@ -88,6 +88,7 @@ func LoanPurposePatch(c echo.Context) error {
 	}
 
 	payloadRules := govalidator.MapData{
+		"id":     []string{"unrequired"},
 		"name":   []string{},
 		"status": []string{"loan_purpose_status"},
 	}
