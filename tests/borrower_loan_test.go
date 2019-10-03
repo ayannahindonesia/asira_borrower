@@ -74,7 +74,6 @@ func TestBorrowerLoanApply(t *testing.T) {
 		"loan_intention":    "Pendidikan",
 		"intention_details": "the details",
 		"product":           1,
-		"service":           1,
 	}
 
 	// valid response
@@ -97,11 +96,21 @@ func TestBorrowerLoanApply(t *testing.T) {
 		"loan_intention":    "not valid",
 		"intention_details": "the details",
 		"product":           1,
-		"service":           1,
 	}
 	auth.POST("/borrower/loan").WithJSON(payload).
 		Expect().
 		Status(http.StatusUnprocessableEntity).JSON().Object()
+
+	payload = map[string]interface{}{
+		"installment":       6,
+		"loan_amount":       5000000,
+		"loan_intention":    "Pendidikan",
+		"intention_details": "the details",
+		"product":           99,
+	}
+	auth.POST("/borrower/loan").WithJSON(payload).
+		Expect().
+		Status(http.StatusInternalServerError).JSON().Object()
 
 	// test otp
 	auth.GET("/borrower/loan/4/otp").

@@ -172,7 +172,6 @@ func Seed() {
 				LoanIntention:    "Pendidikan",
 				IntentionDetails: "a loan 1 intention details",
 				Product:          1,
-				Service:          1,
 			},
 			models.Loan{
 				Owner: sql.NullInt64{
@@ -185,7 +184,6 @@ func Seed() {
 				LoanIntention:    "Rumah Tangga",
 				IntentionDetails: "a loan 2 intention details",
 				Product:          1,
-				Service:          1,
 			},
 			models.Loan{
 				Owner: sql.NullInt64{
@@ -198,7 +196,6 @@ func Seed() {
 				LoanIntention:    "Kesehatan",
 				IntentionDetails: "a loan 3 intention details",
 				Product:          1,
-				Service:          1,
 			},
 		}
 		for _, loan := range loans {
@@ -532,7 +529,6 @@ func TestSeed() {
 				LoanIntention:    "Pendidikan",
 				IntentionDetails: "a loan 1 intention details",
 				Product:          1,
-				Service:          1,
 			},
 			models.Loan{
 				Owner: sql.NullInt64{
@@ -545,7 +541,6 @@ func TestSeed() {
 				LoanIntention:    "Rumah Tangga",
 				IntentionDetails: "a loan 2 intention details",
 				Product:          1,
-				Service:          1,
 			},
 			models.Loan{
 				Owner: sql.NullInt64{
@@ -558,7 +553,6 @@ func TestSeed() {
 				LoanIntention:    "Kesehatan",
 				IntentionDetails: "a loan 3 intention details",
 				Product:          1,
-				Service:          1,
 			},
 		}
 		for _, loan := range loans {

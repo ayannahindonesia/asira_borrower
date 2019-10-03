@@ -4,7 +4,6 @@ import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -32,7 +31,6 @@ func BorrowerLoanApply(c echo.Context) error {
 		"installment":       []string{"required"},
 		"loan_intention":    []string{"required", "loan_purposes"},
 		"intention_details": []string{"required"},
-		"service":           []string{"required"},
 		"product":           []string{"required"},
 	}
 
@@ -41,12 +39,12 @@ func BorrowerLoanApply(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	err := validateLoansServicenProduct(loan)
-	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error")
-	}
+	// err := validateLoansProduct(loan)
+	// if err != nil {
+	// 	return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error")
+	// }
 
-	err = loan.Create()
+	err := loan.Create()
 	if err != nil {
 		log.Printf("apply : %v", loan)
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat Loan")
@@ -232,45 +230,23 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP yang anda masukan salah")
 }
 
-func validateLoansServicenProduct(l models.Loan) (err error) {
-	bank := models.Bank{}
-	borrower := models.Borrower{}
-	borrower.FindbyID(int(l.Owner.Int64))
-	bank.FindbyID(int(borrower.Bank.Int64))
+func validateLoansProduct(l models.Loan) (err error) {
+	var count int
 
-	type (
-		FilterService struct {
-			Name []string `json:"name" condition:"OR"`
-			ID   uint64   `json:"id"`
-		}
-		FilterProduct struct {
-			Name    []string `json:"name" condition:"OR"`
-			Service uint64   `json:"bank_service_id"`
-			ID      uint64   `json:"id"`
-		}
-	)
+	db := asira.App.DB
 
-	var services []string
-	json.Unmarshal(bank.Services.RawMessage, &services)
-	service := models.BankService{}
-	err = service.FilterSearchSingle(&FilterService{
-		Name: services,
-		ID:   l.Service,
-	})
-	if err != nil {
-		return err
-	}
+	err = db.Table("bank_products p").
+		Select("*").
+		Joins("INNER JOIN loans l ON l.product = p.id").
+		Joins("INNER JOIN borrowers bo ON l.owner = bo.id").
+		Joins("INNER JOIN bank_services s ON s.id = p.bank_service_id").
+		Joins("INNER JOIN banks b ON b.id = s.bank_id").
+		Where("l.id = ?", l.ID).
+		Where("b.id = bo.bank").
+		Where("bo.id = ?", l.Owner.Int64).Count(&count).Error
 
-	var products []string
-	json.Unmarshal(bank.Products.RawMessage, &products)
-	product := models.BankProduct{}
-	err = product.FilterSearchSingle(&FilterProduct{
-		Name:    products,
-		Service: service.ID,
-		ID:      l.Product,
-	})
-	if err != nil {
-		return err
+	if count < 1 {
+		err = fmt.Errorf("product not found")
 	}
 
 	return err
