@@ -46,39 +46,39 @@ func TestBorrowerBankServicesGet(t *testing.T) {
 		Status(http.StatusForbidden).JSON().Object()
 }
 
-// func TestBorrowerBankProductGet(t *testing.T) {
-// 	RebuildData()
+func TestBorrowerBankProductGet(t *testing.T) {
+	RebuildData()
 
-// 	api := router.NewRouter()
+	api := router.NewRouter()
 
-// 	server := httptest.NewServer(api)
+	server := httptest.NewServer(api)
 
-// 	defer server.Close()
+	defer server.Close()
 
-// 	e := httpexpect.New(t, server.URL)
+	e := httpexpect.New(t, server.URL)
 
-// 	auth := e.Builder(func(req *httpexpect.Request) {
-// 		req.WithHeader("Authorization", "Basic "+clientBasicToken)
-// 	})
+	auth := e.Builder(func(req *httpexpect.Request) {
+		req.WithHeader("Authorization", "Basic "+clientBasicToken)
+	})
 
-// 	borrowertoken := getBorrowerLoginToken(e, auth, "1")
+	borrowertoken := getBorrowerLoginToken(e, auth, "1")
 
-// 	auth = e.Builder(func(req *httpexpect.Request) {
-// 		req.WithHeader("Authorization", "Bearer "+borrowertoken)
-// 	})
+	auth = e.Builder(func(req *httpexpect.Request) {
+		req.WithHeader("Authorization", "Bearer "+borrowertoken)
+	})
 
-// 	obj := auth.GET("/borrower/bank_products").
-// 		Expect().
-// 		Status(http.StatusOK).JSON().Object()
-// 	obj.ContainsKey("total_data").ValueEqual("total_data", 2)
+	obj := auth.GET("/borrower/bank_products").
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+	obj.ContainsKey("total_data").ValueEqual("total_data", 2)
 
-// 	// valid response of loan details
-// 	obj = auth.GET("/borrower/bank_products/1").
-// 		Expect().
-// 		Status(http.StatusOK).JSON().Object()
-// 	obj.ContainsKey("id").ValueEqual("id", 1)
-// 	// loan id not found
-// 	obj = auth.GET("/borrower/bank_products/99").
-// 		Expect().
-// 		Status(http.StatusForbidden).JSON().Object()
-// }
+	// valid response of loan details
+	obj = auth.GET("/borrower/bank_products/1").
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+	obj.ContainsKey("id").ValueEqual("id", 1)
+	// loan id not found
+	obj = auth.GET("/borrower/bank_products/99").
+		Expect().
+		Status(http.StatusForbidden).JSON().Object()
+}
