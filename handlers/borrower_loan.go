@@ -238,10 +238,9 @@ func validateLoansProduct(l models.Loan) (err error) {
 
 	err = db.Table("bank_products p").
 		Select("p.id").
-		Joins("INNER JOIN loans l ON l.product = p.id").
-		Joins("INNER JOIN borrowers bo ON l.owner = bo.id").
-		Joins("INNER JOIN banks b ON b.id = bo.bank").
-		Joins("INNER JOIN bank_services s ON s.bank_id = b.id").
+		Joins("INNER JOIN bank_services s ON s.id = p.bank_service_id").
+		Joins("INNER JOIN banks b ON b.id = s.bank_id").
+		Joins("INNER JOIN borrowers bo ON bo.bank = b.id").
 		Where("p.id = ?", l.Product).
 		Where("bo.id = ?", l.Owner.Int64).Count(&count).Error
 
