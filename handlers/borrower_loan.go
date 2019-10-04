@@ -16,6 +16,7 @@ import (
 
 func BorrowerLoanApply(c echo.Context) error {
 	defer c.Request().Body.Close()
+	var err error
 
 	loan := models.Loan{}
 
@@ -39,12 +40,12 @@ func BorrowerLoanApply(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	// err := validateLoansProduct(loan)
-	// if err != nil {
-	// 	return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error")
-	// }
+	err = validateLoansProduct(loan)
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error")
+	}
 
-	err := loan.Create()
+	err = loan.Create()
 	if err != nil {
 		log.Printf("apply : %v", loan)
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat Loan")
@@ -236,17 +237,16 @@ func validateLoansProduct(l models.Loan) (err error) {
 	db := asira.App.DB
 
 	err = db.Table("bank_products p").
-		Select("*").
+		Select("p.id").
 		Joins("INNER JOIN loans l ON l.product = p.id").
 		Joins("INNER JOIN borrowers bo ON l.owner = bo.id").
-		Joins("INNER JOIN bank_services s ON s.id = p.bank_service_id").
-		Joins("INNER JOIN banks b ON b.id = s.bank_id").
-		Where("l.id = ?", l.ID).
-		Where("b.id = bo.bank").
+		Joins("INNER JOIN banks b ON b.id = bo.bank").
+		Joins("INNER JOIN bank_services s ON s.bank_id = b.id").
+		Where("p.id = ?", l.Product).
 		Where("bo.id = ?", l.Owner.Int64).Count(&count).Error
 
 	if count < 1 {
-		err = fmt.Errorf("product not found")
+		err = fmt.Errorf("invalid product")
 	}
 
 	return err
