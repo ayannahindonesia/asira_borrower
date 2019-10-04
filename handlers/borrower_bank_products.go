@@ -31,11 +31,11 @@ func BorrowerBankProduct(c echo.Context) error {
 	var count int
 
 	err = db.Table("bank_products p").
-		Select("p").
+		Select("p.*").
 		Joins("INNER JOIN bank_services s ON s.id = p.bank_service_id").
 		Joins("INNER JOIN banks b ON b.id = s.bank_id").
 		Joins("INNER JOIN borrowers bo ON bo.bank = b.id").
-		Where("bo.id = ?", borrowerID).Scan(&results).Count(&count).Error
+		Where("bo.id = ?", borrowerID).Find(&results).Count(&count).Error
 
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")
