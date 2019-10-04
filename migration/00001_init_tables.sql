@@ -29,8 +29,6 @@ CREATE TABLE "banks" (
     "address" text,
     "province" varchar(255),
     "city" varchar(255),
-    "services" jsonb DEFAULT '[]',
-    "products" jsonb DEFAULT '[]',
     "pic" varchar(255),
     "phone" varchar(255),
     "adminfee_setup" varchar(255),

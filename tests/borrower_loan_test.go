@@ -110,7 +110,7 @@ func TestBorrowerLoanApply(t *testing.T) {
 	}
 	auth.POST("/borrower/loan").WithJSON(payload).
 		Expect().
-		Status(http.StatusInternalServerError).JSON().Object()
+		Status(http.StatusUnprocessableEntity).JSON().Object()
 
 	// test otp
 	auth.GET("/borrower/loan/4/otp").
