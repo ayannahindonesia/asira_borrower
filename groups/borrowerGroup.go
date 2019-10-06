@@ -25,8 +25,8 @@ func BorrowerGroup(e *echo.Echo) {
 	// Bank Endpoint
 	g.GET("/bank_services", handlers.BorrowerBankService)
 	g.GET("/bank_services/:service_id", handlers.BorrowerBankServiceDetails)
-	g.GET("/service_products", handlers.BorrowerBankProduct)
-	g.GET("/service_products/:product_id", handlers.BorrowerBankProductDetails)
+	g.GET("/bank_products", handlers.BorrowerBankProduct)
+	g.GET("/bank_products/:product_id", handlers.BorrowerBankProductDetails)
 }
 
 func UnverifiedBorrowerGroup(e *echo.Echo) {

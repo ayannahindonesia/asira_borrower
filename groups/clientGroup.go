@@ -23,6 +23,10 @@ func ClientGroup(e *echo.Echo) {
 	g.GET("/banks", handlers.ClientBanks)
 	g.GET("/banks/:bank_id", handlers.ClientBankbyID)
 
+	//bank service
+	g.GET("/bank_services", handlers.ClientBankServices)
+	g.GET("/bank_services/:id", handlers.ClientBankServicebyID)
+
 	// loan purposes
 	g.GET("/loan_purposes", admin_handlers.LoanPurposeList)
 	g.GET("/loan_purposes/:loan_purpose_id", admin_handlers.LoanPurposeDetail)

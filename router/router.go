@@ -14,7 +14,8 @@ func NewRouter() *echo.Echo {
 
 	// ignore /api-borrower
 	e.Pre(middleware.Rewrite(map[string]string{
-		"/api-borrower/*": "/$1",
+		"/api-borrower/*":       "/$1",
+		"/api-borrower-devel/*": "/$1",
 	}))
 
 	// e.GET("/test", handlers.Test)

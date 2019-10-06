@@ -90,7 +90,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 		"related_homenumber":    []string{},
 		"related_address":       []string{},
 		"bank":                  []string{},
-		"bank_accountnumber":    []string{"unique:borrowers,bank_accountnumber"},
+		"bank_accountnumber":    []string{},
 	}
 
 	validate := validateRequestPayload(c, payloadRules, &borrowerModel)

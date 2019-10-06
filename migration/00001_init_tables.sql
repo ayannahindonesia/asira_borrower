@@ -19,39 +19,6 @@ CREATE TABLE "bank_types" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
-CREATE TABLE "bank_services" (
-    "id" bigserial,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_time" timestamptz,
-    "name" varchar(255),
-    "image_id" bigint,
-    "status" varchar(255),
-    PRIMARY KEY ("id")
-) WITH (OIDS = FALSE);
-
-CREATE TABLE "service_products" (
-    "id" bigserial,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_time" timestamptz,
-    "name" varchar(255),
-    "min_timespan" int,
-    "max_timespan" int,
-    "interest" int,
-    "min_loan" int,
-    "max_loan" int,
-    "fees" jsonb DEFAULT '[]',
-    "asn_fee" varchar(255),
-    "service" bigint,
-    "collaterals" jsonb DEFAULT '[]',
-    "financing_sector" jsonb DEFAULT '[]',
-    "assurance" varchar(255),
-    "status" varchar(255),
-    FOREIGN KEY ("service") REFERENCES bank_services(id),
-    PRIMARY KEY ("id")
-) WITH (OIDS = FALSE);
-
 CREATE TABLE "banks" (
     "id" bigserial,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
@@ -62,12 +29,44 @@ CREATE TABLE "banks" (
     "address" text,
     "province" varchar(255),
     "city" varchar(255),
-    "services" jsonb DEFAULT '[]',
-    "products" jsonb DEFAULT '[]',
     "pic" varchar(255),
     "phone" varchar(255),
     "adminfee_setup" varchar(255),
     "convfee_setup" varchar(255),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
+CREATE TABLE "bank_services" (
+    "id" bigserial,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_time" timestamptz,
+    "name" varchar(255),
+    "bank_id" bigserial,
+    "image_id" bigserial,
+    "status" varchar(255),
+    FOREIGN KEY ("bank_id") REFERENCES banks(id),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
+CREATE TABLE "bank_products" (
+    "id" bigserial,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_time" timestamptz,
+    "name" varchar(255),
+    "bank_service_id" bigserial,
+    "min_timespan" int,
+    "max_timespan" int,
+    "interest" int,
+    "min_loan" int,
+    "max_loan" int,
+    "fees" jsonb DEFAULT '[]',
+    "collaterals" varchar(255) ARRAY,
+    "financing_sector" varchar(255) ARRAY,
+    "assurance" varchar(255),
+    "status" varchar(255),
+    FOREIGN KEY ("bank_service_id") REFERENCES bank_services(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -80,9 +79,9 @@ CREATE TABLE "borrowers" (
     "nickname" varchar(255),
     "gender" varchar(1) NOT NULL,
     "idcard_number" varchar(255) NOT NULL UNIQUE,
-    "idcard_image" bigint,
+    "idcard_image" bigserial,
     "taxid_number" varchar(255),
-    "taxid_image" bigint,
+    "taxid_image" bigserial,
     "nationality" varchar(255),
     "email" varchar(255) NOT NULL UNIQUE,
     "birthday" DATE NOT NULL,
@@ -122,7 +121,7 @@ CREATE TABLE "borrowers" (
     "related_phonenumber" varchar(255) NOT NULL,
     "related_homenumber" varchar(255),
     "related_address" text,
-    "bank" bigint,
+    "bank" bigserial,
     "bank_accountnumber" varchar(255),
     "otp_verified" BOOLEAN,
     "password" varchar(255) NOT NULL,
@@ -147,9 +146,8 @@ CREATE TABLE "loans" (
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
-    "owner" bigint,
-    "service" bigint,
-    "product" bigint,
+    "owner" bigserial,
+    "product" bigserial,
     "status" varchar(255) DEFAULT  ('processing'),
     "loan_amount" FLOAT NOT NULL,
     "installment" int NOT NULL,
@@ -165,15 +163,14 @@ CREATE TABLE "loans" (
     "otp_verified" BOOLEAN,
     "disburse_date" timestamptz,
     FOREIGN KEY ("owner") REFERENCES borrowers(id),
-    FOREIGN KEY ("service") REFERENCES bank_services(id),
-    FOREIGN KEY ("product") REFERENCES service_products(id),
+    FOREIGN KEY ("product") REFERENCES bank_products(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
 CREATE TABLE "uuid_reset_passwords" (
     "id" bigserial,
     "uuid" varchar(255) NOT NULL,
-    "borrower" bigint,
+    "borrower" bigserial,
     "expired" timestamptz,
     "used"  BOOLEAN,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
@@ -205,7 +202,7 @@ CREATE TABLE "internal_roles" (
 ) WITH (OIDS = FALSE);
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
-DROP TABLE IF EXISTS "service_products" CASCADE;
+DROP TABLE IF EXISTS "bank_products" CASCADE;
 DROP TABLE IF EXISTS "bank_services" CASCADE;
 DROP TABLE IF EXISTS "banks" CASCADE;
 DROP TABLE IF EXISTS "bank_types" CASCADE;

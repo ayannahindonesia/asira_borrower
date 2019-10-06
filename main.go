@@ -39,7 +39,7 @@ func main() {
 				AllowHeaders: []string{"*"},
 			}))
 		}
-		e.Logger.Fatal(e.Start(":8000"))
+		e.Logger.Fatal(e.Start(":" + asira.App.Port))
 		os.Exit(0)
 		break
 	case "seed":
