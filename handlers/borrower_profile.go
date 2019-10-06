@@ -49,8 +49,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{},
 		"gender":                []string{},
-		"idcard_number":         []string{"unique:borrowers,idcard_number"},
-		"taxid_number":          []string{"unique:borrowers,taxid_number"},
+		"idcard_number":         []string{"unique_edit:borrowers,idcard_number"},
+		"taxid_number":          []string{"unique_edit:borrowers,taxid_number"},
 		"email":                 []string{"email", "unique:borrowers,taxid_number"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{},
