@@ -176,9 +176,9 @@ func processMessage(kafkaMessage []byte) (err error) {
 			}
 
 		}
-	case "bank_service_product":
+	case "bank_product":
 		{
-			var serviceProduct models.ServiceProduct
+			var bankProduct models.BankProduct
 			var a map[string]interface{}
 
 			err = json.Unmarshal([]byte(data[1]), &a)
@@ -188,21 +188,21 @@ func processMessage(kafkaMessage []byte) (err error) {
 
 			if a["delete"] != nil && a["delete"].(bool) == true {
 				ID := int(a["id"].(float64))
-				err := serviceProduct.FindbyID(ID)
+				err := bankProduct.FindbyID(ID)
 				if err != nil {
 					return err
 				}
 
-				err = serviceProduct.Delete()
+				err = bankProduct.Delete()
 				if err != nil {
 					return err
 				}
 			} else {
-				err = json.Unmarshal([]byte(data[1]), &serviceProduct)
+				err = json.Unmarshal([]byte(data[1]), &bankProduct)
 				if err != nil {
 					return err
 				}
-				err = serviceProduct.Save()
+				err = bankProduct.Save()
 				return err
 			}
 
