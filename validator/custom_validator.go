@@ -48,6 +48,39 @@ func (a *AsiraValidator) CustomValidatorRules() {
 		return nil
 	})
 
+	govalidator.AddCustomRule("unique_edit", func(field string, rule string, message string, value interface{}) error {
+		var (
+			queryRow *gorm.DB
+			total    int
+		)
+
+		query := `SELECT COUNT(*) as total FROM %s WHERE %s = ?`
+		params := strings.Split(strings.TrimPrefix(rule, fmt.Sprintf("%s:", "unique")), ",")
+
+		if len(params) == 2 {
+			query = fmt.Sprintf(query, params[0], params[1])
+			queryRow = a.DB.Raw(query, value)
+		} else if len(params) == 4 {
+			query += ` AND %s != ?`
+			query = fmt.Sprintf(query, params[0], params[1], params[2])
+			queryRow = a.DB.Raw(query, value, params[3])
+		} else {
+			return fmt.Errorf("Arguments not enough")
+		}
+
+		queryRow.Row().Scan(&total)
+
+		if total > 1 {
+			if message != "" {
+				return errors.New(message)
+			}
+
+			return fmt.Errorf("The %s has already been taken", field)
+		}
+
+		return nil
+	})
+
 	// validator for pagination
 	govalidator.AddCustomRule("asc_desc", func(field string, rule string, message string, value interface{}) error {
 		val := value.(string)

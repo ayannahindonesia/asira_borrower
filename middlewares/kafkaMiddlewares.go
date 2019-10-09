@@ -108,7 +108,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 				if err != nil {
 					return err
 				}
-				bankType.FirstOrCreate()
+				bankType.Save()
 				return err
 			}
 
@@ -140,7 +140,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 				if err != nil {
 					return err
 				}
-				bank.FirstOrCreate()
+				bank.Save()
 				return err
 			}
 
@@ -171,7 +171,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 				if err != nil {
 					return err
 				}
-				err = bankService.FirstOrCreate()
+				err = bankService.Save()
 				return err
 			}
 
@@ -202,7 +202,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 				if err != nil {
 					return err
 				}
-				err = bankProduct.FirstOrCreate()
+				err = bankProduct.Save()
 				return err
 			}
 

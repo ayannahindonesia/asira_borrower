@@ -29,8 +29,6 @@ CREATE TABLE "banks" (
     "address" text,
     "province" varchar(255),
     "city" varchar(255),
-    "services" jsonb DEFAULT '[]',
-    "products" jsonb DEFAULT '[]',
     "pic" varchar(255),
     "phone" varchar(255),
     "adminfee_setup" varchar(255),
@@ -149,7 +147,6 @@ CREATE TABLE "loans" (
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
     "owner" bigserial,
-    "service" bigserial,
     "product" bigserial,
     "status" varchar(255) DEFAULT  ('processing'),
     "loan_amount" FLOAT NOT NULL,
@@ -166,7 +163,6 @@ CREATE TABLE "loans" (
     "otp_verified" BOOLEAN,
     "disburse_date" timestamptz,
     FOREIGN KEY ("owner") REFERENCES borrowers(id),
-    FOREIGN KEY ("service") REFERENCES bank_services(id),
     FOREIGN KEY ("product") REFERENCES bank_products(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
