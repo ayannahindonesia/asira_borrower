@@ -23,6 +23,7 @@ type (
 		ID           int       `json:"id"`
 		Status       string    `json:"status"`
 		DisburseDate time.Time `json:"disburse_date"`
+		RejectReason string    `json:"reject_reason"`
 	}
 )
 
@@ -235,6 +236,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 
 	loan.Status = loanData.Status
 	loan.DisburseDate = loanData.DisburseDate
+	loan.RejectReason = loanData.RejectReason
 	err = loan.Save()
 	return err
 }

@@ -32,6 +32,7 @@ type (
 		BorrowerInfo     postgres.Jsonb `json:"borrower_info" gorm:"column:borrower_info;type:jsonb"`
 		OTPverified      bool           `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
 		DisburseDate     time.Time      `json:"disburse_date" gorm:"column:disburse_date"`
+		RejectReason     string         `json:"reject_reason" gorm:"column:reject_reason"`
 	}
 
 	LoanFee struct { // temporary hardcoded
@@ -128,18 +129,6 @@ func (l *Loan) Calculate() (err error) {
 		// 	l.DisburseAmount = l.DisburseAmount + totalfee
 		// 	break
 	}
-
-	// var asnFee float64
-	// if strings.ContainsAny(product.ASN_Fee, "%") {
-	// 	asnFeeString := strings.TrimFunc(product.ASN_Fee, func(r rune) bool {
-	// 		return !unicode.IsNumber(r)
-	// 	})
-	// 	f, _ := strconv.Atoi(asnFeeString)
-	// 	asnFee = (float64(f) / 100) * l.LoanAmount
-	// } else {
-	// 	f, _ := strconv.Atoi(product.ASN_Fee)
-	// 	asnFee = float64(f)
-	// }
 
 	switch bank.ConvenienceFeeSetup {
 	case "potong_plafon":
