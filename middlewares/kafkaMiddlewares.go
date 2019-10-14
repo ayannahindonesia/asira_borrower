@@ -213,6 +213,37 @@ func processMessage(kafkaMessage []byte) (err error) {
 		if err != nil {
 			return err
 		}
+	case "loan_purpose":
+		{
+			var LoanPurpose models.LoanPurpose
+			var a map[string]interface{}
+
+			err = json.Unmarshal([]byte(data[1]), &a)
+			if err != nil {
+				return err
+			}
+
+			if a["delete"] != nil && a["delete"].(bool) == true {
+				ID := int(a["id"].(float64))
+				err := LoanPurpose.FindbyID(ID)
+				if err != nil {
+					return err
+				}
+
+				err = LoanPurpose.Delete()
+				if err != nil {
+					return err
+				}
+			} else {
+				err = json.Unmarshal([]byte(data[1]), &LoanPurpose)
+				if err != nil {
+					return err
+				}
+				err = LoanPurpose.Save()
+				return err
+			}
+
+		}
 	default:
 		return nil
 	}

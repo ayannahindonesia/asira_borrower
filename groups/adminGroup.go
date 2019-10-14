@@ -30,10 +30,7 @@ func AdminGroup(e *echo.Echo) {
 
 	// Loan Purpose
 	g.GET("/loan_purposes", admin_handlers.LoanPurposeList)
-	g.POST("/loan_purposes", admin_handlers.LoanPurposeNew)
 	g.GET("/loan_purposes/:loan_purpose_id", admin_handlers.LoanPurposeDetail)
-	g.PATCH("/loan_purposes/:loan_purpose_id", admin_handlers.LoanPurposePatch)
-	g.DELETE("/loan_purposes/:loan_purpose_id", admin_handlers.LoanPurposeDelete)
 
 	// Role
 	g.GET("/internal_role", admin_handlers.GetAllRole)
