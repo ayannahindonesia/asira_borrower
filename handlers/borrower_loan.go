@@ -6,12 +6,14 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"math"
 	"net/http"
 	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/thedevsaddam/govalidator"
+	"gitlab.com/asira-ayannah/basemodel"
 )
 
 func BorrowerLoanApply(c echo.Context) error {
@@ -57,37 +59,65 @@ func BorrowerLoanApply(c echo.Context) error {
 func BorrowerLoanGet(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	loan := models.Loan{}
+	db := asira.App.DB
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 
+	type Loans struct {
+		models.Loan
+		ProductName string `json:"product_name"`
+		ServiceName string `json:"service_name"`
+	}
+	var results []Loans
+	var totalRows int
+	var offset int
+	var rows int
+	var page int
+
 	// pagination parameters
-	rows, err := strconv.Atoi(c.QueryParam("rows"))
-	page, err := strconv.Atoi(c.QueryParam("page"))
-	orderby := c.QueryParam("orderby")
-	sort := c.QueryParam("sort")
-
-	// filters
-	status := c.QueryParam("status")
-
-	type Filter struct {
-		Owner  sql.NullInt64 `json:"owner"`
-		Status string        `json:"status"`
+	if c.QueryParam("rows") != "all" {
+		rows, _ = strconv.Atoi(c.QueryParam("rows"))
+		page, _ = strconv.Atoi(c.QueryParam("page"))
+		if page <= 0 {
+			page = 1
+		}
+		if rows <= 0 {
+			rows = 25
+		}
+		offset = (page * rows) - rows
 	}
 
-	result, err := loan.PagedFilterSearch(page, rows, orderby, sort, &Filter{
-		Owner: sql.NullInt64{
-			Int64: int64(borrowerID),
-			Valid: true,
-		},
-		Status: status,
-	})
+	db = db.Table("loans l").
+		Select("*, bp.name as product_name, bs.name as service_name").
+		Joins("INNER JOIN bank_products bp ON bp.id = l.product").
+		Joins("INNER JOIN bank_services bs ON bs.id = bp.bank_service_id").
+		Where("l.owner = ?", borrowerID)
 
+	if status := c.QueryParam("status"); len(status) > 0 {
+		db = db.Where("l.status = ?", status)
+	}
+
+	if rows > 0 && offset > 0 {
+		db = db.Limit(rows).Offset(offset)
+	}
+	err := db.Find(&results).Count(&totalRows).Error
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "query result error")
+		returnInvalidResponse(http.StatusInternalServerError, err, "pencarian loan gagal")
+	}
+
+	lastPage := int(math.Ceil(float64(totalRows) / float64(rows)))
+
+	result := basemodel.PagedFindResult{
+		TotalData:   totalRows,
+		Rows:        rows,
+		CurrentPage: page,
+		LastPage:    lastPage,
+		From:        offset + 1,
+		To:          offset + rows,
+		Data:        results,
 	}
 
 	return c.JSON(http.StatusOK, result)
