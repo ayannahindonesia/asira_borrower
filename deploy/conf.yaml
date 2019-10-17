@@ -24,9 +24,9 @@ staging:
     log_verbose: true
     topics:
       produces:
-        for_lender: asira_borrower_to_lender_devel
+        for_lender: asira_borrower_to_lender_staging
       consumes:
-        for_borrower: asira_lender_to_borrower_devel
+        for_borrower: asira_lender_to_borrower_staging
   jwt:
     duration: 10080 # in minutes
     jwt_secret: sXQ8jUMpueOvN5P3cdCR
@@ -60,9 +60,9 @@ production:
     log_verbose: true
     topics:
       produces:
-        for_lender: asira_borrower_to_lender_devel
+        for_lender: asira_borrower_to_lender_staging
       consumes:
-        for_borrower: asira_lender_to_borrower_devel
+        for_borrower: asira_lender_to_borrower_staging
   jwt:
     duration: 10080 # in minutes
     jwt_secret: sXQ8jUMpueOvN5P3cdCR

@@ -12,8 +12,6 @@ RUN go get -u github.com/golang/dep/cmd/dep
 
 CMD if [ "${APPENV}" = "staging" ] || [ "${APPENV}" = "production" ] ; then \
         cp deploy/conf.yaml config.yaml \
-        && echo "&{APPENV}" \
-        && cat config.yaml ; \
     elif [ "${APPENV}" = "dev" ] ; then \
         cp deploy/dev-config.yaml config.yaml ; \
     fi \
