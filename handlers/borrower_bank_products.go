@@ -18,25 +18,23 @@ func BorrowerBankProduct(c echo.Context) error {
 	borrowerModel := models.Borrower{}
 
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
-	err := borrowerModel.FindbyID(borrowerID)
-	if err != nil {
-		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
-	}
-
-	bank := models.Bank{}
-	bank.FindbyID(int(borrowerModel.Bank.Int64))
 
 	db := asira.App.DB
 	var results []models.Product
 	var count int
 
-	err = db.Table("banks b").
+	db = db.Table("banks b").
 		Select("p.*").
 		Joins("INNER JOIN borrowers bo ON bo.bank = b.id").
 		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
 		Joins("INNER JOIN products p ON p.service_id = s.id AND p.id IN (SELECT UNNEST(b.products))").
-		Where("bo.id = ?", borrowerID).Find(&results).Count(&count).Error
+		Where("bo.id = ?", borrowerID)
 
+	if serviceID := c.Param("service_id"); len(serviceID) > 0 {
+		db = db.Where("s.id = ?", serviceID)
+	}
+
+	err = db.Find(&results).Count(&count).Error
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")
 	}
