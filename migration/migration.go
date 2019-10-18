@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/lib/pq"
 )
 
 func Seed() {
@@ -184,6 +185,7 @@ func Seed() {
 				LoanIntention:    "Rumah Tangga",
 				IntentionDetails: "a loan 2 intention details",
 				Product:          1,
+				OTPverified:      true,
 			},
 			models.Loan{
 				Owner: sql.NullInt64{
@@ -196,6 +198,7 @@ func Seed() {
 				LoanIntention:    "Kesehatan",
 				IntentionDetails: "a loan 3 intention details",
 				Product:          1,
+				OTPverified:      true,
 			},
 		}
 		for _, loan := range loans {
@@ -281,6 +284,8 @@ func TestSeed() {
 				City:     "City A",
 				PIC:      "Bank A PIC",
 				Phone:    "081234567890",
+				Services: pq.Int64Array{1, 2},
+				Products: pq.Int64Array{1, 2},
 			},
 			models.Bank{
 				Name:     "Bank B",
@@ -290,6 +295,8 @@ func TestSeed() {
 				City:     "City B",
 				PIC:      "Bank B PIC",
 				Phone:    "081234567891",
+				Services: pq.Int64Array{1, 2},
+				Products: pq.Int64Array{1, 2},
 			},
 		}
 		for _, bank := range banks {
@@ -297,40 +304,35 @@ func TestSeed() {
 		}
 
 		// seed bank services
-		bankServices := []models.BankService{
-			models.BankService{
+		services := []models.Service{
+			models.Service{
 				Name:    "Pinjaman PNS",
-				BankID:  1,
 				ImageID: 1,
 				Status:  "active",
 			},
-			models.BankService{
+			models.Service{
 				Name:    "Pinjaman Pensiun",
-				BankID:  1,
 				ImageID: 1,
 				Status:  "active",
 			},
-			models.BankService{
+			models.Service{
 				Name:    "Pinjaman UMKN",
-				BankID:  1,
 				ImageID: 1,
 				Status:  "active",
 			},
-			models.BankService{
+			models.Service{
 				Name:    "Pinjaman Mikro",
-				BankID:  1,
 				ImageID: 1,
 				Status:  "inactive",
 			},
-			models.BankService{
+			models.Service{
 				Name:    "Pinjaman Lainnya",
-				BankID:  1,
 				ImageID: 1,
 				Status:  "inactive",
 			},
 		}
-		for _, bankService := range bankServices {
-			bankService.Create()
+		for _, service := range services {
+			service.Create()
 		}
 
 		// seed service products
@@ -344,9 +346,9 @@ func TestSeed() {
 				"amount":      "2%",
 			},
 		})
-		bankProducts := []models.BankProduct{
-			models.BankProduct{
-				BankServiceID:   1,
+		products := []models.Product{
+			models.Product{
+				ServiceID:       1,
 				Name:            "Product A",
 				MinTimeSpan:     1,
 				MaxTimeSpan:     6,
@@ -359,8 +361,8 @@ func TestSeed() {
 				Assurance:       "an Assurance",
 				Status:          "active",
 			},
-			models.BankProduct{
-				BankServiceID:   1,
+			models.Product{
+				ServiceID:       1,
 				Name:            "Product B",
 				MinTimeSpan:     3,
 				MaxTimeSpan:     12,
@@ -374,8 +376,8 @@ func TestSeed() {
 				Status:          "active",
 			},
 		}
-		for _, bankProduct := range bankProducts {
-			bankProduct.Create()
+		for _, product := range products {
+			product.Create()
 		}
 
 		// seed borrowers
@@ -533,6 +535,7 @@ func TestSeed() {
 				LoanIntention:    "Rumah Tangga",
 				IntentionDetails: "a loan 2 intention details",
 				Product:          1,
+				OTPverified:      true,
 			},
 			models.Loan{
 				Owner: sql.NullInt64{
@@ -545,6 +548,7 @@ func TestSeed() {
 				LoanIntention:    "Kesehatan",
 				IntentionDetails: "a loan 3 intention details",
 				Product:          1,
+				OTPverified:      true,
 			},
 		}
 		for _, loan := range loans {
@@ -601,8 +605,8 @@ func Truncate(tableList []string) (err error) {
 			tableList = []string{
 				"bank_types",
 				"banks",
-				"bank_services",
-				"bank_products",
+				"services",
+				"products",
 				"images",
 				"borrowers",
 				"loan_purposes",

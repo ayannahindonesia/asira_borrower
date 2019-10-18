@@ -69,7 +69,7 @@ func (l *Loan) BeforeCreate() (err error) {
 }
 
 func (l *Loan) SetProductLoanReferences() (err error) {
-	product := BankProduct{}
+	product := Product{}
 	err = product.FindbyID(int(l.Product))
 	if err != nil {
 		return err
@@ -90,7 +90,7 @@ func (l *Loan) Calculate() (err error) {
 		fees           LoanFees
 		owner          Borrower
 		bank           Bank
-		product        BankProduct
+		product        Product
 	)
 
 	owner.FindbyID(int(l.Owner.Int64))
@@ -159,6 +159,13 @@ func (l *Loan) Calculate() (err error) {
 
 func (l *Loan) Create() error {
 	err := basemodel.Create(&l)
+	if err != nil {
+		return err
+	}
+
+	if l.OTPverified {
+		err = KafkaSubmitModel(l, "loan")
+	}
 	return err
 }
 

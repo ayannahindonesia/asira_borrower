@@ -92,8 +92,8 @@ func BorrowerLoanGet(c echo.Context) error {
 
 	db = db.Table("loans l").
 		Select("*, bp.name as product_name, bs.name as service_name").
-		Joins("INNER JOIN bank_products bp ON bp.id = l.product").
-		Joins("INNER JOIN bank_services bs ON bs.id = bp.bank_service_id").
+		Joins("INNER JOIN products bp ON bp.id = l.product").
+		Joins("INNER JOIN services bs ON bs.id = bp.service_id").
 		Where("l.owner = ?", borrowerID)
 
 	if status := c.QueryParam("status"); len(status) > 0 {
@@ -266,11 +266,11 @@ func validateLoansProduct(l models.Loan) (err error) {
 
 	db := asira.App.DB
 
-	err = db.Table("bank_products p").
+	err = db.Table("banks b").
 		Select("p.id").
-		Joins("INNER JOIN bank_services s ON s.id = p.bank_service_id").
-		Joins("INNER JOIN banks b ON b.id = s.bank_id").
 		Joins("INNER JOIN borrowers bo ON bo.bank = b.id").
+		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
+		Joins("INNER JOIN products p ON p.service_id = s.id").
 		Where("p.id = ?", l.Product).
 		Where("bo.id = ?", l.Owner.Int64).Count(&count).Error
 

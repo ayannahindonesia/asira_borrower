@@ -27,14 +27,14 @@ func BorrowerBankProduct(c echo.Context) error {
 	bank.FindbyID(int(borrowerModel.Bank.Int64))
 
 	db := asira.App.DB
-	var results []models.BankProduct
+	var results []models.Product
 	var count int
 
-	err = db.Table("bank_products p").
+	err = db.Table("banks b").
 		Select("p.*").
-		Joins("INNER JOIN bank_services s ON s.id = p.bank_service_id").
-		Joins("INNER JOIN banks b ON b.id = s.bank_id").
 		Joins("INNER JOIN borrowers bo ON bo.bank = b.id").
+		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
+		Joins("INNER JOIN products p ON p.service_id = s.id").
 		Where("bo.id = ?", borrowerID).Find(&results).Count(&count).Error
 
 	if err != nil {
@@ -42,8 +42,8 @@ func BorrowerBankProduct(c echo.Context) error {
 	}
 
 	type Result struct {
-		TotalData int                  `json:"total_data"`
-		Data      []models.BankProduct `json:"data"`
+		TotalData int              `json:"total_data"`
+		Data      []models.Product `json:"data"`
 	}
 
 	return c.JSON(http.StatusOK, &Result{TotalData: count, Data: results})
@@ -51,7 +51,7 @@ func BorrowerBankProduct(c echo.Context) error {
 
 func BorrowerBankProductDetails(c echo.Context) error {
 	defer c.Request().Body.Close()
-	bankProduct := models.BankProduct{}
+	bankProduct := models.Product{}
 
 	productID, _ := strconv.Atoi(c.Param("product_id"))
 	err := bankProduct.FindbyID(productID)

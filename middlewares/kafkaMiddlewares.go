@@ -113,7 +113,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 			}
 
 		}
-
+		break
 	case "bank":
 		{
 			var bank models.Bank
@@ -145,9 +145,9 @@ func processMessage(kafkaMessage []byte) (err error) {
 			}
 
 		}
-	case "bank_service":
+	case "service":
 		{
-			var bankService models.BankService
+			var service models.Service
 			var a map[string]interface{}
 
 			err = json.Unmarshal([]byte(data[1]), &a)
@@ -157,28 +157,28 @@ func processMessage(kafkaMessage []byte) (err error) {
 
 			if a["delete"] != nil && a["delete"].(bool) == true {
 				ID := int(a["id"].(float64))
-				err := bankService.FindbyID(ID)
+				err := service.FindbyID(ID)
 				if err != nil {
 					return err
 				}
 
-				err = bankService.Delete()
+				err = service.Delete()
 				if err != nil {
 					return err
 				}
 			} else {
-				err = json.Unmarshal([]byte(data[1]), &bankService)
+				err = json.Unmarshal([]byte(data[1]), &service)
 				if err != nil {
 					return err
 				}
-				err = bankService.Save()
+				err = service.Save()
 				return err
 			}
 
 		}
-	case "bank_product":
+	case "product":
 		{
-			var bankProduct models.BankProduct
+			var product models.Product
 			var a map[string]interface{}
 
 			err = json.Unmarshal([]byte(data[1]), &a)
@@ -188,21 +188,21 @@ func processMessage(kafkaMessage []byte) (err error) {
 
 			if a["delete"] != nil && a["delete"].(bool) == true {
 				ID := int(a["id"].(float64))
-				err := bankProduct.FindbyID(ID)
+				err := product.FindbyID(ID)
 				if err != nil {
 					return err
 				}
 
-				err = bankProduct.Delete()
+				err = product.Delete()
 				if err != nil {
 					return err
 				}
 			} else {
-				err = json.Unmarshal([]byte(data[1]), &bankProduct)
+				err = json.Unmarshal([]byte(data[1]), &product)
 				if err != nil {
 					return err
 				}
-				err = bankProduct.Save()
+				err = product.Save()
 				return err
 			}
 
@@ -213,8 +213,10 @@ func processMessage(kafkaMessage []byte) (err error) {
 		if err != nil {
 			return err
 		}
+		break
 	default:
 		return nil
+		break
 	}
 	return nil
 }

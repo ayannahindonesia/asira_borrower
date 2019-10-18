@@ -12,7 +12,7 @@ import (
 func ClientBankServices(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	bankService := models.BankService{}
+	bankService := models.Service{}
 
 	// pagination parameters
 	rows, err := strconv.Atoi(c.QueryParam("rows"))
@@ -23,14 +23,12 @@ func ClientBankServices(c echo.Context) error {
 	// filters
 	type Filter struct {
 		Name    string `json:"name"`
-		BankID  string `json:"bank_id"`
 		ImageID string `json:"image_id"`
 		Status  string `json:"status"`
 	}
 
 	result, err := bankService.PagedFindFilter(page, rows, orderby, sort, &Filter{
 		Name:    c.QueryParam("name"),
-		BankID:  c.QueryParam("bank_id"),
 		ImageID: c.QueryParam("image_id"),
 		Status:  c.QueryParam("status"),
 	})
@@ -45,7 +43,7 @@ func ClientBankServices(c echo.Context) error {
 func ClientBankServicebyID(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	bankService := models.BankService{}
+	bankService := models.Service{}
 	id, _ := strconv.Atoi(c.Param("id"))
 	err := bankService.FindbyID(id)
 	if err != nil {

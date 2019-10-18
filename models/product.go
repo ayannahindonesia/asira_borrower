@@ -1,16 +1,19 @@
 package models
 
 import (
+	"time"
+
 	"github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/lib/pq"
 	"gitlab.com/asira-ayannah/basemodel"
 )
 
 type (
-	BankProduct struct {
+	Product struct {
 		basemodel.BaseModel
-		BankServiceID   uint64         `json:"bank_service_id"`
-		Name            string         `json:"name" gorm:"column:name"`
+		DeletedTime     time.Time      `json:"deleted_time" gorm:"column:deleted_time"`
+		Name            string         `json:"name" gorm:"column:name;type:varchar(255)"`
+		ServiceID       uint64         `json:"service_id" gorm:"column:service_id`
 		MinTimeSpan     int            `json:"min_timespan" gorm:"column:min_timespan"`
 		MaxTimeSpan     int            `json:"max_timespan" gorm:"column:max_timespan"`
 		Interest        float64        `json:"interest" gorm:"column:interest"`
@@ -20,44 +23,44 @@ type (
 		Collaterals     pq.StringArray `json:"collaterals" gorm:"column:collaterals"`
 		FinancingSector pq.StringArray `json:"financing_sector" gorm:"column:financing_sector"`
 		Assurance       string         `json:"assurance" gorm:"column:assurance"`
-		Status          string         `json:"status" gorm:"column:status"`
+		Status          string         `json:"status" gorm:"column:status;type:varchar(255)"`
 	}
 )
 
-func (model *BankProduct) Create() error {
+func (model *Product) Create() error {
 	err := basemodel.Create(&model)
 	return err
 }
 
-func (model *BankProduct) Save() error {
+func (model *Product) Save() error {
 	err := basemodel.Save(&model)
 	return err
 }
 
-func (model *BankProduct) FirstOrCreate() (err error) {
+func (model *Product) FirstOrCreate() (err error) {
 	err = basemodel.FirstOrCreate(&model)
 	return nil
 }
 
-func (model *BankProduct) Delete() error {
+func (model *Product) Delete() error {
 	err := basemodel.Delete(&model)
 	return err
 }
 
-func (model *BankProduct) FindbyID(id int) error {
+func (model *Product) FindbyID(id int) error {
 	err := basemodel.FindbyID(&model, id)
 	return err
 }
 
-func (model *BankProduct) FilterSearch(filter interface{}) (result basemodel.PagedFindResult, err error) {
-	product := []BankProduct{}
+func (model *Product) FilterSearch(filter interface{}) (result basemodel.PagedFindResult, err error) {
+	product := []Product{}
 	var orders []string
 	var sort []string
 	result, err = basemodel.PagedFindFilter(&product, 0, 0, orders, sort, filter)
 	return result, err
 }
 
-func (model *BankProduct) FilterSearchSingle(filter interface{}) (err error) {
+func (model *Product) FilterSearchSingle(filter interface{}) (err error) {
 	err = basemodel.SingleFindFilter(&model, filter)
 	return err
 }
