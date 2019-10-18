@@ -34,7 +34,7 @@ func BorrowerBankProduct(c echo.Context) error {
 		Select("p.*").
 		Joins("INNER JOIN borrowers bo ON bo.bank = b.id").
 		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
-		Joins("INNER JOIN products p ON p.service_id = s.id AND p.service_id IN (SELECT UNNEST(b.products))").
+		Joins("INNER JOIN products p ON p.service_id = s.id AND p.id IN (SELECT UNNEST(b.products))").
 		Where("bo.id = ?", borrowerID).Find(&results).Count(&count).Error
 
 	if err != nil {
