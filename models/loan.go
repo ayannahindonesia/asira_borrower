@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -91,6 +92,7 @@ func (l *Loan) Calculate() (err error) {
 		owner          Borrower
 		bank           Bank
 		product        Product
+		parsedFees     LoanFees
 	)
 
 	owner.FindbyID(int(l.Owner.Int64))
@@ -111,12 +113,22 @@ func (l *Loan) Calculate() (err error) {
 			fee = float64(f)
 		}
 
+		// parse fees
+		parsedFees = append(parsedFees, LoanFee{
+			Description: v.Description,
+			Amount:      fmt.Sprint(fee),
+		})
+
 		if strings.ToLower(v.Description) == "convenience fee" {
 			convenienceFee += fee
 		} else {
 			totalfee += fee
 		}
 	}
+	// parse fees
+	jMarshal, _ := json.Marshal(parsedFees)
+	l.Fees = postgres.Jsonb{jMarshal}
+
 	interest := (l.Interest / 100) * l.LoanAmount
 	l.DisburseAmount = l.LoanAmount
 
