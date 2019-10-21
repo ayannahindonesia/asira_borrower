@@ -33,7 +33,7 @@ func TestBorrowerBankServicesGet(t *testing.T) {
 	obj := auth.GET("/borrower/bank_services").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
-	obj.ContainsKey("total_data").ValueEqual("total_data", 5)
+	obj.ContainsKey("total_data").ValueEqual("total_data", 2)
 
 	// valid response of loan details
 	obj = auth.GET("/borrower/bank_services/1").

@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -32,6 +33,7 @@ type (
 		BorrowerInfo     postgres.Jsonb `json:"borrower_info" gorm:"column:borrower_info;type:jsonb"`
 		OTPverified      bool           `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
 		DisburseDate     time.Time      `json:"disburse_date" gorm:"column:disburse_date"`
+		RejectReason     string         `json:"reject_reason" gorm:"column:reject_reason"`
 	}
 
 	LoanFee struct { // temporary hardcoded
@@ -69,7 +71,7 @@ func (l *Loan) BeforeCreate() (err error) {
 }
 
 func (l *Loan) SetProductLoanReferences() (err error) {
-	product := BankProduct{}
+	product := Product{}
 	err = product.FindbyID(int(l.Product))
 	if err != nil {
 		return err
@@ -90,7 +92,8 @@ func (l *Loan) Calculate() (err error) {
 		fees           LoanFees
 		owner          Borrower
 		bank           Bank
-		product        BankProduct
+		product        Product
+		parsedFees     LoanFees
 	)
 
 	owner.FindbyID(int(l.Owner.Int64))
@@ -111,12 +114,22 @@ func (l *Loan) Calculate() (err error) {
 			fee = float64(f)
 		}
 
+		// parse fees
+		parsedFees = append(parsedFees, LoanFee{
+			Description: v.Description,
+			Amount:      fmt.Sprint(fee),
+		})
+
 		if strings.ToLower(v.Description) == "convenience fee" {
 			convenienceFee += fee
 		} else {
 			totalfee += fee
 		}
 	}
+	// parse fees
+	jMarshal, _ := json.Marshal(parsedFees)
+	l.Fees = postgres.Jsonb{jMarshal}
+
 	interest := (l.Interest / 100) * l.LoanAmount
 	l.DisburseAmount = l.LoanAmount
 
@@ -128,18 +141,6 @@ func (l *Loan) Calculate() (err error) {
 		// 	l.DisburseAmount = l.DisburseAmount + totalfee
 		// 	break
 	}
-
-	// var asnFee float64
-	// if strings.ContainsAny(product.ASN_Fee, "%") {
-	// 	asnFeeString := strings.TrimFunc(product.ASN_Fee, func(r rune) bool {
-	// 		return !unicode.IsNumber(r)
-	// 	})
-	// 	f, _ := strconv.Atoi(asnFeeString)
-	// 	asnFee = (float64(f) / 100) * l.LoanAmount
-	// } else {
-	// 	f, _ := strconv.Atoi(product.ASN_Fee)
-	// 	asnFee = float64(f)
-	// }
 
 	switch bank.ConvenienceFeeSetup {
 	case "potong_plafon":
@@ -159,6 +160,13 @@ func (l *Loan) Calculate() (err error) {
 
 func (l *Loan) Create() error {
 	err := basemodel.Create(&l)
+	if err != nil {
+		return err
+	}
+
+	if l.OTPverified {
+		err = KafkaSubmitModel(l, "loan")
+	}
 	return err
 }
 

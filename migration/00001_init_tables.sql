@@ -33,29 +33,30 @@ CREATE TABLE "banks" (
     "phone" varchar(255),
     "adminfee_setup" varchar(255),
     "convfee_setup" varchar(255),
+    "services" int ARRAY,
+    "products" int ARRAY,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
-CREATE TABLE "bank_services" (
+CREATE TABLE "services" (
     "id" bigserial,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
     "name" varchar(255),
-    "bank_id" bigserial,
     "image_id" bigserial,
     "status" varchar(255),
-    FOREIGN KEY ("bank_id") REFERENCES banks(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
-CREATE TABLE "bank_products" (
+CREATE TABLE "products" (
     "id" bigserial,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
     "name" varchar(255),
-    "bank_service_id" bigserial,
+    "status" varchar(255),
+    "service_id" bigserial,
     "min_timespan" int,
     "max_timespan" int,
     "interest" int,
@@ -65,8 +66,7 @@ CREATE TABLE "bank_products" (
     "collaterals" varchar(255) ARRAY,
     "financing_sector" varchar(255) ARRAY,
     "assurance" varchar(255),
-    "status" varchar(255),
-    FOREIGN KEY ("bank_service_id") REFERENCES bank_services(id),
+    FOREIGN KEY ("service_id") REFERENCES services(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -162,8 +162,9 @@ CREATE TABLE "loans" (
     "borrower_info" jsonb DEFAULT '[]',
     "otp_verified" BOOLEAN,
     "disburse_date" timestamptz,
+    "reject_reason" text,
     FOREIGN KEY ("owner") REFERENCES borrowers(id),
-    FOREIGN KEY ("product") REFERENCES bank_products(id),
+    FOREIGN KEY ("product") REFERENCES products(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -200,10 +201,12 @@ CREATE TABLE "internal_roles" (
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
+
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
-DROP TABLE IF EXISTS "bank_products" CASCADE;
-DROP TABLE IF EXISTS "bank_services" CASCADE;
+
+DROP TABLE IF EXISTS "products" CASCADE;
+DROP TABLE IF EXISTS "services" CASCADE;
 DROP TABLE IF EXISTS "banks" CASCADE;
 DROP TABLE IF EXISTS "bank_types" CASCADE;
 DROP TABLE IF EXISTS "images" CASCADE;
