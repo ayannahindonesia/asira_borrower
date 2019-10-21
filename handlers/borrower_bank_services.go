@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -23,22 +23,29 @@ func BorrowerBankService(c echo.Context) error {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 
-	type Filter struct {
-		BankID string `json:"bank_id"`
-		// NameOR []string `json:"name" condition:"OR"`
+	db := asira.App.DB
+	var results []models.Service
+	var count int
+
+	err = db.Table("services").
+		Select("*").
+		Where("id IN (SELECT UNNEST(services) FROM banks WHERE id = ?)", borrowerModel.Bank.Int64).Find(&results).Count(&count).Error
+
+	if err != nil {
+		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")
 	}
 
-	bankService := models.BankService{}
-	result, err := bankService.PagedFindFilter(0, 0, []string{}, []string{}, &Filter{
-		BankID: fmt.Sprintf("%v", borrowerModel.Bank.Int64),
-	})
+	type Result struct {
+		TotalData int              `json:"total_data"`
+		Data      []models.Service `json:"data"`
+	}
 
-	return c.JSON(http.StatusOK, result)
+	return c.JSON(http.StatusOK, &Result{TotalData: count, Data: results})
 }
 
 func BorrowerBankServiceDetails(c echo.Context) error {
 	defer c.Request().Body.Close()
-	bServices := models.BankService{}
+	bServices := models.Service{}
 
 	serviceID, _ := strconv.Atoi(c.Param("service_id"))
 	err := bServices.FindbyID(serviceID)
