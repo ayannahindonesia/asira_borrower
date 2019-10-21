@@ -15,8 +15,6 @@ func BorrowerBankProduct(c echo.Context) error {
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 
-	borrowerModel := models.Borrower{}
-
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 
 	db := asira.App.DB
