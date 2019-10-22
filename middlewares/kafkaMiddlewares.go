@@ -144,6 +144,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 				return err
 			}
 		}
+		break
 	case "service":
 		{
 			var service models.Service
@@ -174,6 +175,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 				return err
 			}
 		}
+		break
 	case "product":
 		{
 			var product models.Product
@@ -204,6 +206,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 				return err
 			}
 		}
+		break
 	case "loan_purpose":
 		{
 			var loanPurpose models.LoanPurpose
@@ -234,6 +237,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 				return err
 			}
 		}
+		break
 	case "loan":
 		log.Printf("message : %v", string(kafkaMessage))
 		err = loanUpdate([]byte(data[1]))
