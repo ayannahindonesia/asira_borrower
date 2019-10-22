@@ -33,6 +33,7 @@ type (
 		BorrowerInfo     postgres.Jsonb `json:"borrower_info" gorm:"column:borrower_info;type:jsonb"`
 		OTPverified      bool           `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
 		DisburseDate     time.Time      `json:"disburse_date" gorm:"column:disburse_date"`
+		DisburseStatus   string         `json:"disburse_status" gorm:"column:disburse_status" sql:"DEFAULT:'processing'"`
 		RejectReason     string         `json:"reject_reason" gorm:"column:reject_reason"`
 	}
 
