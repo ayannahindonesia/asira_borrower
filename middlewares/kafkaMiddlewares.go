@@ -112,7 +112,6 @@ func processMessage(kafkaMessage []byte) (err error) {
 				bankType.Save()
 				return err
 			}
-
 		}
 		break
 	case "bank":
@@ -144,7 +143,6 @@ func processMessage(kafkaMessage []byte) (err error) {
 				bank.Save()
 				return err
 			}
-
 		}
 	case "service":
 		{
@@ -175,7 +173,6 @@ func processMessage(kafkaMessage []byte) (err error) {
 				err = service.Save()
 				return err
 			}
-
 		}
 	case "product":
 		{
@@ -206,7 +203,36 @@ func processMessage(kafkaMessage []byte) (err error) {
 				err = product.Save()
 				return err
 			}
+		}
+	case "loan_purpose":
+		{
+			var loanPurpose models.LoanPurpose
+			var a map[string]interface{}
 
+			err = json.Unmarshal([]byte(data[1]), &a)
+			if err != nil {
+				return err
+			}
+
+			if a["delete"] != nil && a["delete"].(bool) == true {
+				ID := int(a["id"].(float64))
+				err := loanPurpose.FindbyID(ID)
+				if err != nil {
+					return err
+				}
+
+				err = loanPurpose.Delete()
+				if err != nil {
+					return err
+				}
+			} else {
+				err = json.Unmarshal([]byte(data[1]), &loanPurpose)
+				if err != nil {
+					return err
+				}
+				err = loanPurpose.Save()
+				return err
+			}
 		}
 	case "loan":
 		log.Printf("message : %v", string(kafkaMessage))
