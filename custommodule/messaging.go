@@ -58,7 +58,7 @@ func (model *Messaging) ClientAuth() (err error) {
 
 	expires := 1200
 	if parseresponse["expires_in"] != nil {
-		expires = parseresponse["expires_in"].(int)
+		expires = int(parseresponse["expires_in"].(float64))
 	}
 	model.Expire = time.Now().Local().Add(time.Second * time.Duration(expires))
 

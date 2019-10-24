@@ -36,6 +36,13 @@ development:
     port : 587
     email : apranta123@gmail.com
     password : Animajid01
+  messaging:
+    key: clientkey
+    secret: clientsecret
+    url: http://asira.ayannah.com/api-messaging
+    client_auth: /clientauth
+    sms: /client/message_otp_send
+    
 staging:
 
 production:
