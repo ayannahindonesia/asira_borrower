@@ -35,6 +35,12 @@ staging:
     port : 587
     email : apranta123@gmail.com
     password : Animajid01
+  messaging:
+    key: clientkey
+    secret: clientsecret
+    url: http://asira.ayannah.com/api-messaging
+    client_auth: /clientauth
+    sms: /client/message_otp_send
 
 production:
   react_cors: true
@@ -71,3 +77,9 @@ production:
     port : 587
     email : apranta123@gmail.com
     password : Animajid01
+  messaging:
+    key: clientkey
+    secret: clientsecret
+    url: http://asira.ayannah.com/api-messaging
+    client_auth: /clientauth
+    sms: /client/message_otp_send
