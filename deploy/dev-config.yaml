@@ -41,8 +41,8 @@ development:
     secret: clientsecret
     url: http://asira.ayannah.com/api-messaging
     client_auth: /clientauth
-    sms: /client/message_otp_send
-    
+    sms: /client/message_sms_send
+
 staging:
 
 production:
