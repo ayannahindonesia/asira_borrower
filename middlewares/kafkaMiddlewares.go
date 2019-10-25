@@ -20,10 +20,11 @@ type (
 	}
 
 	Loan struct {
-		ID           int       `json:"id"`
-		Status       string    `json:"status"`
-		DisburseDate time.Time `json:"disburse_date"`
-		RejectReason string    `json:"reject_reason"`
+		ID                  int       `json:"id"`
+		Status              string    `json:"status"`
+		DisburseDate        time.Time `json:"disburse_date"`
+		DisburseDateChanged bool      `json:"disburse_date_changed"`
+		RejectReason        string    `json:"reject_reason"`
 	}
 )
 
@@ -238,6 +239,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 
 	loan.Status = loanData.Status
 	loan.DisburseDate = loanData.DisburseDate
+	loan.DisburseDateChanged = loanData.DisburseDateChanged
 	loan.RejectReason = loanData.RejectReason
 	err = loan.SaveNoKafka()
 	return err
