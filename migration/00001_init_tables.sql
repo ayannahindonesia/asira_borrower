@@ -162,6 +162,7 @@ CREATE TABLE "loans" (
     "borrower_info" jsonb DEFAULT '[]',
     "otp_verified" BOOLEAN,
     "disburse_date" timestamptz,
+    "disburse_date_changed" BOOLEAN,
     "disburse_status" varchar(255) DEFAULT ('processing'),
     "reject_reason" text,
     FOREIGN KEY ("owner") REFERENCES borrowers(id),
