@@ -239,6 +239,6 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	loan.Status = loanData.Status
 	loan.DisburseDate = loanData.DisburseDate
 	loan.RejectReason = loanData.RejectReason
-	err = loan.Save()
+	err = loan.SaveNoKafka()
 	return err
 }
