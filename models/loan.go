@@ -183,6 +183,15 @@ func (l *Loan) Save() error {
 	return err
 }
 
+func (l *Loan) SaveNoKafka() error {
+	err := basemodel.Save(&l)
+	if err != nil {
+		return err
+	}
+
+	return err
+}
+
 func (l *Loan) Delete() error {
 	l.DeletedTime = time.Now()
 	err := basemodel.Save(&l)
