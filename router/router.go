@@ -21,7 +21,6 @@ func NewRouter() *echo.Echo {
 	// e.GET("/test", handlers.Test)
 	e.GET("/clientauth", handlers.ClientLogin)
 	e.GET("/ping", handlers.Ping)
-	e.GET("/test_loan_notification", handlers.LoanNotif)
 
 	// files url
 	gopath, _ := os.Getwd()
