@@ -241,6 +241,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 		break
 	case "loan":
 		log.Printf("message : %v", string(kafkaMessage))
+		sendPushNotification(data)
 		err = loanUpdate([]byte(data[1]))
 		if err != nil {
 			return err
@@ -251,6 +252,11 @@ func processMessage(kafkaMessage []byte) (err error) {
 		break
 	}
 	return nil
+}
+
+func sendPushNotification(data []string) {
+	//topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.consumes", asira.App.ENV))
+	log.Println("PUSH NOTIF : ", data[1])
 }
 
 func loanUpdate(kafkaMessage []byte) (err error) {
