@@ -57,7 +57,8 @@ func LoanNotificationSimulate(c echo.Context) error {
 	if simulate != "approve" && simulate != "reject" {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "simulate = [ \"approve\" | \"reject\" ]")
 	}
-	err = LoanSimulateApproveReject(loan, simulate)
+	tokenparam := c.QueryParam("token")
+	err = LoanSimulateApproveReject(&loan, simulate, tokenparam)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, loan, err.Error()) //"failed to simulate loan approve / reject : ",
 	}
@@ -65,7 +66,7 @@ func LoanNotificationSimulate(c echo.Context) error {
 	return c.JSON(http.StatusCreated, loan)
 }
 
-func LoanSimulateApproveReject(loan models.Loan, status string) error {
+func LoanSimulateApproveReject(loan *models.Loan, status string, token string) error {
 
 	loan.Status = status
 	loan.DisburseDate = time.Now()
@@ -77,7 +78,7 @@ func LoanSimulateApproveReject(loan models.Loan, status string) error {
 	}
 	jsonReq, _ := json.Marshal(loan)
 	//TODO: send notification
-	err := asira.App.Messaging.SendNotificationByToken("testing", string(jsonReq), "cEh41s_l_t4:APA91bGaE1OLrCN0P3myiSslwtddtmZMDj4uy_0YbJJ3qvt_N_f81HdxJL5juuuud18OW3zfKZqLDMbn83O1EoBBhGHvJMKupupb5CUsSaWc9A4b6bItmDEctwZ3F-5ENoJfHPZP4NMn")
+	err := asira.App.Messaging.SendNotificationByToken("testing", string(jsonReq), token)
 	if err != nil {
 		return err //returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending notification")
 	}
