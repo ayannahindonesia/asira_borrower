@@ -24,6 +24,7 @@ type (
 		ClientAuth       string
 		SMS              string
 		PushNotification string
+		TestingFCMToken  string
 	}
 )
 
@@ -125,7 +126,9 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 	if err != nil {
 		return err
 	}
-
+	if firebase_token == nil {
+		firebase_token = Messaging.TestingFCMToken
+	}
 	payload, _ := json.Marshal(map[string]interface{}{
 		"title":          title,
 		"message_body":   message_body,
