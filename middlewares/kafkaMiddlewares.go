@@ -272,5 +272,14 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	loan.DisburseDateChanged = loanData.DisburseDateChanged
 	loan.RejectReason = loanData.RejectReason
 	err = loan.SaveNoKafka()
+
+	//TODO: messaging (notification) if fail is need to save ???
+	marshaled, err := json.Marshal(loan)
+	//send notif
+	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", string(marshaled), nil)
+	if err != nil {
+		return err
+	}
+
 	return err
 }

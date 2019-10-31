@@ -22,6 +22,9 @@ func BorrowerGroup(e *echo.Echo) {
 	g.GET("/loan/:loan_id/otp", handlers.BorrowerLoanOTPrequest)
 	g.POST("/loan/:loan_id/verify", handlers.BorrowerLoanOTPverify)
 
+	//NOTE: just for simulation, TODO delete in production
+	g.POST("/loan_notification_simulate", handlers.LoanNotificationSimulate)
+
 	// Bank Endpoint
 	g.GET("/bank_services", handlers.BorrowerBankService)
 	g.GET("/bank_services/:service_id", handlers.BorrowerBankServiceDetails)

@@ -21,8 +21,10 @@ type (
 		Endpoints MessagingEndpoints
 	}
 	MessagingEndpoints struct {
-		ClientAuth string
-		SMS        string
+		ClientAuth       string
+		SMS              string
+		PushNotification string
+		TestingFCMToken  string
 	}
 )
 
@@ -105,6 +107,44 @@ func (model *Messaging) SendSMS(number string, message string) (err error) {
 	}
 	defer response.Body.Close()
 
+	if response.StatusCode != http.StatusOK {
+		body, _ := ioutil.ReadAll(response.Body)
+		log.Printf("Failed sending sms : %s", string(body))
+
+		return fmt.Errorf("Failed sending SMS")
+	}
+
+	return nil
+}
+
+func (model *Messaging) SendNotificationByToken(title string, message_body string, firebase_token string) (err error) {
+
+	//bug cycling call dependency
+	// topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.messaging.push_notification", asira.App.ENV))
+
+	err = model.RefreshToken()
+	if err != nil {
+		return err
+	}
+	if firebase_token == nil {
+		firebase_token = Messaging.TestingFCMToken
+	}
+	payload, _ := json.Marshal(map[string]interface{}{
+		"title":          title,
+		"message_body":   message_body,
+		"firebase_token": firebase_token,
+	})
+
+	request, _ := http.NewRequest("POST", model.URL+model.Endpoints.PushNotification, bytes.NewBuffer(payload))
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", model.Token))
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	log.Println("PUSH NOTIF : ", response)
 	if response.StatusCode != http.StatusOK {
 		body, _ := ioutil.ReadAll(response.Body)
 		log.Printf("Failed sending sms : %s", string(body))
