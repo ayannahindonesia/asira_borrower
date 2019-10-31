@@ -76,7 +76,7 @@ func Seed() {
 				Birthplace:           "a birthplace",
 				LastEducation:        "a last edu",
 				MotherName:           "a mom",
-				Phone:                "082297335657",
+				Phone:                "081234567890",
 				MarriedStatus:        "single",
 				SpouseName:           "a spouse",
 				SpouseBirthday:       time.Now(),
