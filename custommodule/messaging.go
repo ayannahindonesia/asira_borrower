@@ -127,7 +127,7 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 		return err
 	}
 	if firebase_token == "" {
-		firebase_token = Messaging.TestingFCMToken
+		firebase_token = model.Endpoints.PushNotification
 	}
 	payload, _ := json.Marshal(map[string]interface{}{
 		"title":          title,
