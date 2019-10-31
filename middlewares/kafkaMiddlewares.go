@@ -276,7 +276,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	//TODO: messaging (notification) if fail is need to save ???
 	marshaled, err := json.Marshal(loan)
 	//send notif
-	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", string(marshaled), nil)
+	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", string(marshaled), "")
 	if err != nil {
 		return err
 	}
