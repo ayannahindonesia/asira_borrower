@@ -43,6 +43,7 @@ func validateJWTadmin(next echo.HandlerFunc) echo.HandlerFunc {
 			if claims["role"] == "admin" {
 				return next(c)
 			} else {
+				fmt.Println("validateJWTadmin : ", claims["role"])
 				return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("%s", "invalid role"))
 			}
 		}
@@ -60,6 +61,7 @@ func validateJWTclient(next echo.HandlerFunc) echo.HandlerFunc {
 			if claims["role"] == "client" {
 				return next(c)
 			} else {
+				fmt.Println("validateJWTclient : ", claims["role"])
 				return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("%s", "invalid role"))
 			}
 		}
@@ -74,6 +76,7 @@ func validateJWTborrower(next echo.HandlerFunc) echo.HandlerFunc {
 		token := user.(*jwt.Token)
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			fmt.Println("validateJWTborrower : ", claims["role"])
 			if claims["role"] == "borrower" {
 				return next(c)
 			} else if claims["role"] == "unverified_borrower" {
@@ -93,6 +96,7 @@ func validateJWTunverifiedBorrower(next echo.HandlerFunc) echo.HandlerFunc {
 		token := user.(*jwt.Token)
 
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			fmt.Println("validateJWTunverifiedBorrower : ", claims["role"])
 			if claims["role"] == "unverified_borrower" {
 				return next(c)
 			} else {
