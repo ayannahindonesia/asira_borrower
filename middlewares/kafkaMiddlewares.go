@@ -256,6 +256,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 func loanUpdate(kafkaMessage []byte) (err error) {
 	var loanData Loan
 	loan := models.Loan{}
+	borrower := models.Borrower{}
 
 	err = json.Unmarshal(kafkaMessage, &loanData)
 	if err != nil {
@@ -273,10 +274,14 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	loan.RejectReason = loanData.RejectReason
 	err = loan.SaveNoKafka()
 
+	err = borrower.FindbyID(int(loan.Owner.Int64))
+	if err != nil {
+		return err
+	}
 	//TODO: messaging (notification) if fail is need to save ???
 	marshaled, err := json.Marshal(loan)
 	//send notif
-	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", string(marshaled), "")
+	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", string(marshaled), borrower.FCMToken)
 	if err != nil {
 		return err
 	}
