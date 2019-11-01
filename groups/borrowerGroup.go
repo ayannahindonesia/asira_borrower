@@ -25,6 +25,9 @@ func BorrowerGroup(e *echo.Echo) {
 	//NOTE: just for simulation, TODO delete in production
 	g.POST("/loan_notification_simulate", handlers.LoanNotificationSimulate)
 
+	//NOTE: update fcm token registration from client
+	g.PATCH("/fcm_token", handlers.FCMTokenUpdate)
+
 	// Bank Endpoint
 	g.GET("/bank_services", handlers.BorrowerBankService)
 	g.GET("/bank_services/:service_id", handlers.BorrowerBankServiceDetails)

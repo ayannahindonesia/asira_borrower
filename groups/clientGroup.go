@@ -19,8 +19,6 @@ func ClientGroup(e *echo.Echo) {
 	g.POST("/reset_password", handlers.ClientResetPassword)
 	g.POST("/change_password", handlers.ChangePassword)
 
-	g.PATCH("/fcm_token", handlers.FCMTokenUpdate)
-
 	//banks
 	g.GET("/banks", handlers.ClientBanks)
 	g.GET("/banks/:bank_id", handlers.ClientBankbyID)

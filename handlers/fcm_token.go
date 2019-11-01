@@ -7,7 +7,6 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/thedevsaddam/govalidator"
-	"golang.org/x/crypto/bcrypt"
 
 	"github.com/labstack/echo"
 )
@@ -19,10 +18,10 @@ func FCMTokenUpdate(c echo.Context) error {
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 
-	borrowerModel := models.Borrower{}
+	borrower := models.Borrower{}
 
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
-	borrower, err := borrowerModel.FindbyID(borrowerID)
+	err := borrower.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "unauthorized")
 	}
@@ -36,13 +35,8 @@ func FCMTokenUpdate(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	passwordByte, err := bcrypt.GenerateFromPassword([]byte(borrower.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-
-	borrower.Password = borrower.
-	_, err = borrower.Save()
+	borrower.FCMToken = borrower.FCMToken
+	err = borrower.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error saving Password")
 	}
