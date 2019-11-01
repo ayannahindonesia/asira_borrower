@@ -1,6 +1,7 @@
 package asira
 
 import (
+	"asira_borrower/custommodule"
 	"asira_borrower/validator"
 	"fmt"
 	"log"
@@ -22,14 +23,15 @@ var (
 
 type (
 	Application struct {
-		Name    string        `json:"name"`
-		Port    string        `json:"port"`
-		Version string        `json:"version"`
-		ENV     string        `json:"env"`
-		Config  viper.Viper   `json:"prog_config"`
-		DB      *gorm.DB      `json:"db"`
-		OTP     OTP           `json:"otp"`
-		Kafka   KafkaInstance `json:"kafka"`
+		Name      string        `json:"name"`
+		Port      string        `json:"port"`
+		Version   string        `json:"version"`
+		ENV       string        `json:"env"`
+		Config    viper.Viper   `json:"prog_config"`
+		DB        *gorm.DB      `json:"db"`
+		OTP       OTP           `json:"otp"`
+		Kafka     KafkaInstance `json:"kafka"`
+		Messaging custommodule.Messaging
 	}
 
 	OTP struct {
@@ -59,6 +61,7 @@ func init() {
 	}
 
 	App.KafkaInit()
+	App.MessagingInit()
 
 	otpSecret := gotp.RandomSecret(16)
 	App.OTP = OTP{
@@ -163,4 +166,18 @@ func (x *Application) KafkaInit() {
 	x.Kafka.Config.Producer.RequiredAcks = sarama.WaitForAll
 	x.Kafka.Config.Consumer.Return.Errors = true
 	x.Kafka.Host = strings.Join([]string{kafkaConf["host"].(string), kafkaConf["port"].(string)}, ":")
+}
+
+// MessagingInit func
+func (x *Application) MessagingInit() {
+	messagingConfig := x.Config.GetStringMap(fmt.Sprintf("%s.messaging", x.ENV))
+
+	endpoints := custommodule.MessagingEndpoints{
+		ClientAuth:       messagingConfig["client_auth"].(string),
+		SMS:              messagingConfig["sms"].(string),
+		PushNotification: messagingConfig["push_notification"].(string),
+		TestingFCMToken:  messagingConfig["testing_fcm_token"].(string),
+	}
+
+	x.Messaging.SetConfig(messagingConfig["key"].(string), messagingConfig["secret"].(string), messagingConfig["url"].(string), endpoints)
 }

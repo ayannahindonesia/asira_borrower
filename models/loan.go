@@ -16,24 +16,26 @@ import (
 type (
 	Loan struct {
 		basemodel.BaseModel
-		DeletedTime      time.Time      `json:"deleted_time" gorm:"column:deleted_time"`
-		Owner            sql.NullInt64  `json:"owner" gorm:"column:owner;foreignkey"`
-		Status           string         `json:"status" gorm:"column:status;type:varchar(255)" sql:"DEFAULT:'processing'"`
-		LoanAmount       float64        `json:"loan_amount" gorm:"column:loan_amount;type:int;not null"`
-		Installment      int            `json:"installment" gorm:"column:installment;type:int;not null"` // plan of how long loan to be paid
-		Fees             postgres.Jsonb `json:"fees" gorm:"column:fees;type:jsonb"`
-		Interest         float64        `json:"interest" gorm:"column:interest;type:int;not null"`
-		TotalLoan        float64        `json:"total_loan" gorm:"column:total_loan;type:int;not null"`
-		DisburseAmount   float64        `json:"disburse_amount" gorm:"column:disburse_amount;type:int;not null"`
-		DueDate          time.Time      `json:"due_date" gorm:"column:due_date"`
-		LayawayPlan      float64        `json:"layaway_plan" gorm:"column:layaway_plan;type:int;not null"` // how much borrower will pay per month
-		Product          uint64         `json:"product" gorm:"column:product;foreignkey"`
-		LoanIntention    string         `json:"loan_intention" gorm:"column:loan_intention;type:varchar(255);not null"`
-		IntentionDetails string         `json:"intention_details" gorm:"column:intention_details;type:text;not null"`
-		BorrowerInfo     postgres.Jsonb `json:"borrower_info" gorm:"column:borrower_info;type:jsonb"`
-		OTPverified      bool           `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
-		DisburseDate     time.Time      `json:"disburse_date" gorm:"column:disburse_date"`
-		RejectReason     string         `json:"reject_reason" gorm:"column:reject_reason"`
+		DeletedTime         time.Time      `json:"deleted_time" gorm:"column:deleted_time"`
+		Owner               sql.NullInt64  `json:"owner" gorm:"column:owner;foreignkey"`
+		Status              string         `json:"status" gorm:"column:status;type:varchar(255)" sql:"DEFAULT:'processing'"`
+		LoanAmount          float64        `json:"loan_amount" gorm:"column:loan_amount;type:int;not null"`
+		Installment         int            `json:"installment" gorm:"column:installment;type:int;not null"` // plan of how long loan to be paid
+		Fees                postgres.Jsonb `json:"fees" gorm:"column:fees;type:jsonb"`
+		Interest            float64        `json:"interest" gorm:"column:interest;type:int;not null"`
+		TotalLoan           float64        `json:"total_loan" gorm:"column:total_loan;type:int;not null"`
+		DisburseAmount      float64        `json:"disburse_amount" gorm:"column:disburse_amount;type:int;not null"`
+		DueDate             time.Time      `json:"due_date" gorm:"column:due_date"`
+		LayawayPlan         float64        `json:"layaway_plan" gorm:"column:layaway_plan;type:int;not null"` // how much borrower will pay per month
+		Product             uint64         `json:"product" gorm:"column:product;foreignkey"`
+		LoanIntention       string         `json:"loan_intention" gorm:"column:loan_intention;type:varchar(255);not null"`
+		IntentionDetails    string         `json:"intention_details" gorm:"column:intention_details;type:text;not null"`
+		BorrowerInfo        postgres.Jsonb `json:"borrower_info" gorm:"column:borrower_info;type:jsonb"`
+		OTPverified         bool           `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
+		DisburseDate        time.Time      `json:"disburse_date" gorm:"column:disburse_date"`
+		DisburseDateChanged bool           `json:"disburse_date_changed" gorm:"column:disburse_date_changed"`
+		DisburseStatus      string         `json:"disburse_status" gorm:"column:disburse_status" sql:"DEFAULT:'processing'"`
+		RejectReason        string         `json:"reject_reason" gorm:"column:reject_reason"`
 	}
 
 	LoanFee struct { // temporary hardcoded
@@ -179,6 +181,15 @@ func (l *Loan) Save() error {
 	if l.OTPverified {
 		err = KafkaSubmitModel(l, "loan")
 	}
+	return err
+}
+
+func (l *Loan) SaveNoKafka() error {
+	err := basemodel.Save(&l)
+	if err != nil {
+		return err
+	}
+
 	return err
 }
 
