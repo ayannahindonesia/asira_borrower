@@ -20,10 +20,11 @@ type (
 	}
 
 	Loan struct {
-		ID           int       `json:"id"`
-		Status       string    `json:"status"`
-		DisburseDate time.Time `json:"disburse_date"`
-		RejectReason string    `json:"reject_reason"`
+		ID                  int       `json:"id"`
+		Status              string    `json:"status"`
+		DisburseDate        time.Time `json:"disburse_date"`
+		DisburseDateChanged bool      `json:"disburse_date_changed"`
+		RejectReason        string    `json:"reject_reason"`
 	}
 )
 
@@ -112,7 +113,6 @@ func processMessage(kafkaMessage []byte) (err error) {
 				bankType.Save()
 				return err
 			}
-
 		}
 		break
 	case "bank":
@@ -144,8 +144,8 @@ func processMessage(kafkaMessage []byte) (err error) {
 				bank.Save()
 				return err
 			}
-
 		}
+		break
 	case "service":
 		{
 			var service models.Service
@@ -175,8 +175,8 @@ func processMessage(kafkaMessage []byte) (err error) {
 				err = service.Save()
 				return err
 			}
-
 		}
+		break
 	case "product":
 		{
 			var product models.Product
@@ -206,8 +206,39 @@ func processMessage(kafkaMessage []byte) (err error) {
 				err = product.Save()
 				return err
 			}
-
 		}
+		break
+	case "loan_purpose":
+		{
+			var loanPurpose models.LoanPurpose
+			var a map[string]interface{}
+
+			err = json.Unmarshal([]byte(data[1]), &a)
+			if err != nil {
+				return err
+			}
+
+			if a["delete"] != nil && a["delete"].(bool) == true {
+				ID := int(a["id"].(float64))
+				err := loanPurpose.FindbyID(ID)
+				if err != nil {
+					return err
+				}
+
+				err = loanPurpose.Delete()
+				if err != nil {
+					return err
+				}
+			} else {
+				err = json.Unmarshal([]byte(data[1]), &loanPurpose)
+				if err != nil {
+					return err
+				}
+				err = loanPurpose.Save()
+				return err
+			}
+		}
+		break
 	case "loan":
 		log.Printf("message : %v", string(kafkaMessage))
 		err = loanUpdate([]byte(data[1]))
@@ -238,7 +269,8 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 
 	loan.Status = loanData.Status
 	loan.DisburseDate = loanData.DisburseDate
+	loan.DisburseDateChanged = loanData.DisburseDateChanged
 	loan.RejectReason = loanData.RejectReason
-	err = loan.Save()
+	err = loan.SaveNoKafka()
 	return err
 }

@@ -160,6 +160,7 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	loan := models.Loan{}
+	borrower := models.Borrower{}
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
@@ -186,10 +187,17 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 		return returnInvalidResponse(http.StatusNotFound, err, "query result error")
 	}
 
+	borrower.FindbyID(borrowerID)
+
 	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
 	counter, _ := strconv.Atoi(catenate)
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
-	log.Printf("generate otp code for loan id %v : %v", loan.ID, otpCode)
+
+	message := fmt.Sprintf("Code OTP Pengajuan Pinjaman anda adalah %s", otpCode)
+	err = asira.App.Messaging.SendSMS(borrower.Phone, message)
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending otp")
+	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Terkirim"})
 }

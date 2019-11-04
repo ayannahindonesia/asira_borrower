@@ -34,8 +34,15 @@ development:
   mailer:
     host : smtp.gmail.com
     port : 587
-    email : apranta123@gmail.com
-    password : Animajid01
+    email : infra.ayannah@gmail.com 
+    password : jakarta2019
+  messaging:
+    key: clientkey
+    secret: clientsecret
+    url: http://asira.ayannah.com/api-messaging
+    client_auth: /clientauth
+    sms: /client/message_sms_send
+
 staging:
 
 production:

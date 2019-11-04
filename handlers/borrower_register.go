@@ -5,7 +5,7 @@ import (
 	"asira_borrower/models"
 	"database/sql"
 	"encoding/json"
-	"log"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -198,7 +198,12 @@ func RequestOTPverifyAccount(c echo.Context) error {
 	catenate := strconv.Itoa(borrowerID) + otpRequest.Phone[len(otpRequest.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
 	counter, _ := strconv.Atoi(catenate)
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
-	log.Printf("generate otp code for phonenumber %s : %s", otpRequest.Phone, otpCode)
+
+	message := fmt.Sprintf("Code OTP Registrasi anda adalah %s", otpCode)
+	err := asira.App.Messaging.SendSMS(otpRequest.Phone, message)
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending otp")
+	}
 
 	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Terkirim"})
 }
