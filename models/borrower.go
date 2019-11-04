@@ -62,6 +62,7 @@ type (
 		BankAccountNumber    string        `json:"bank_accountnumber" gorm:"column:bank_accountnumber"`
 		OTPverified          bool          `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
 		Password             string        `json:"password" gorm:"column:password;type:text;not null"`
+		FCMToken             string        `json:"fcm_token" gorm:"column:fcm_token;type:varchar(255)"`
 	}
 )
 
