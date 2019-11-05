@@ -246,6 +246,13 @@ func processMessage(kafkaMessage []byte) (err error) {
 			return err
 		}
 		break
+	case "agent":
+		log.Printf("message : %v", string(kafkaMessage))
+		err = syncAgent([]byte(data[1]))
+		if err != nil {
+			return err
+		}
+		break
 	default:
 		return nil
 		break
@@ -287,4 +294,8 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	}
 
 	return err
+}
+
+func syncAgent(dataAgent []byte) (err error) {
+	return nil
 }
