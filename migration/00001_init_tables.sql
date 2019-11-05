@@ -125,6 +125,7 @@ CREATE TABLE "borrowers" (
     "bank_accountnumber" varchar(255),
     "otp_verified" BOOLEAN,
     "password" varchar(255) NOT NULL,
+    "fcm_token" varchar(255),
     FOREIGN KEY ("idcard_image") REFERENCES images(id),
     FOREIGN KEY ("taxid_image") REFERENCES images(id),
     FOREIGN KEY ("bank") REFERENCES banks(id),
