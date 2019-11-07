@@ -140,4 +140,13 @@ func (a *AsiraValidator) CustomValidatorRules() {
 		}
 		return nil
 	})
+
+	// validator loan purpose status
+	// govalidator.AddCustomRule("simulate_loan_status", func(field string, rule string, message string, value interface{}) error {
+	// 	val := value.(string)
+	// 	if val != "approve" && val != "reject" {
+	// 		return fmt.Errorf("The %s field must be contain either: active or inactive", field)
+	// 	}
+	// 	return nil
+	// })
 }

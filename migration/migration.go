@@ -595,6 +595,7 @@ func TestSeed() {
 		for _, clients := range client {
 			clients.Create()
 		}
+
 	}
 }
 
