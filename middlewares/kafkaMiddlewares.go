@@ -256,6 +256,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 func loanUpdate(kafkaMessage []byte) (err error) {
 	var loanData Loan
 	loan := models.Loan{}
+	borrower := models.Borrower{}
 
 	err = json.Unmarshal(kafkaMessage, &loanData)
 	if err != nil {
@@ -273,13 +274,44 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	loan.RejectReason = loanData.RejectReason
 	err = loan.SaveNoKafka()
 
-	//TODO: messaging (notification) if fail is need to save ???
-	marshaled, err := json.Marshal(loan)
+	err = borrower.FindbyID(int(loan.Owner.Int64))
+	if err != nil {
+		return err
+	}
+	//TODO: messaging (notification) if fail is need to save ??? REVISED: do backup in emailer
+	//marshaled, err := json.Marshal(loan)
+	//format data
+	formatedMsg := FormatingMessage("loan", loan)
+	//custom map data for firebase key "Data"
+	mapData := map[string]string{
+		"id":   string(loan.ID),
+		"loan": fmt.Sprintf("%f0.2", loan.LoanAmount),
+	}
 	//send notif
-	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", string(marshaled), "")
+	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", formatedMsg, mapData, borrower.FCMToken)
 	if err != nil {
 		return err
 	}
 
 	return err
+}
+
+func FormatingMessage(msgType string, object interface{}) string {
+	var msg string
+	switch msgType {
+	case "loan":
+		format := "Pinjaman anda dengan id %d sebesar %f untuk keperluan %s, "
+		approvedFormat := "telah di-SETUJUI"
+		rejectedFormat := "telah di-BATALKAN"
+
+		Loan := object.(models.Loan)
+		if Loan.Status == "approved" {
+			format += approvedFormat
+		} else {
+			format += rejectedFormat
+		}
+		msg = fmt.Sprintf(format, Loan.ID, Loan.LoanAmount, Loan.LoanIntention)
+		break
+	}
+	return msg
 }
