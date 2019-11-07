@@ -279,13 +279,17 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		return err
 	}
 	//TODO: messaging (notification) if fail is need to save ??? REVISED: do backup in emailer
-	//marshaled, err := json.Marshal(loan)
 	//format data
 	formatedMsg := FormatingMessage("loan", loan)
 	//custom map data for firebase key "Data"
+	//layout := "2019-10-21T12:34:28.726458+07:00"
+	//disburseDate, _ := time.Parse(layout, loanData.DisburseDate.String())
+	//log.Println("disburseDate ==>> ", disburseDate)
 	mapData := map[string]string{
-		"id":   string(loan.ID),
-		"loan": fmt.Sprintf("%f0.2", loan.LoanAmount),
+		"id":     fmt.Sprintf("%d", loan.ID),
+		"status": loan.Status,
+		// "loan":   fmt.Sprintf("%0.2f", loan.LoanAmount),
+		// "disburse_date": disburseDate.String(),//BUG: selalu 0001-01-01 00:00:00 +0000 UTC dari kafka
 	}
 	//send notif
 	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", formatedMsg, mapData, borrower.FCMToken)
@@ -297,20 +301,40 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 }
 
 func FormatingMessage(msgType string, object interface{}) string {
+
 	var msg string
+
 	switch msgType {
 	case "loan":
-		format := "Pinjaman anda dengan id %d sebesar %f untuk keperluan %s, "
-		approvedFormat := "telah di-SETUJUI"
-		rejectedFormat := "telah di-BATALKAN"
-
+		var (
+			status string
+			prefix string
+			//postfix string
+			owner models.Borrower
+			bank  models.Bank
+		)
+		//get loan
 		Loan := object.(models.Loan)
+
+		//get bank
+		owner.FindbyID(int(Loan.Owner.Int64))
+		bank.FindbyID(int(owner.Bank.Int64))
+
+		//NOTE format pesan (PRD 7)
+		// format := "Loan id %d %s oleh %s. "
+		format := "Pinjaman nomor %d %s oleh %s, silahkan cek di aplikasi."
+		// approvedFormat := "Dapat dicairkan pada %s"
+
 		if Loan.Status == "approved" {
-			format += approvedFormat
+			status = "diterima"
+			//postfix = approvedFormat
 		} else {
-			format += rejectedFormat
+			prefix = "Maaf, "
+			status = "ditolak"
 		}
-		msg = fmt.Sprintf(format, Loan.ID, Loan.LoanAmount, Loan.LoanIntention)
+
+		format = prefix + format                              // + postfix
+		msg = fmt.Sprintf(format, Loan.ID, status, bank.Name) //, Loan.DisburseDate)
 		break
 	}
 	return msg

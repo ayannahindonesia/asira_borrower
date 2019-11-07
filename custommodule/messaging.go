@@ -148,9 +148,9 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 	log.Println("PUSH NOTIF : ", response)
 	if response.StatusCode != http.StatusOK {
 		body, _ := ioutil.ReadAll(response.Body)
-		log.Printf("Failed sending sms : %s", string(body))
+		log.Printf("Failed sending notification : %s", string(body))
 
-		return fmt.Errorf("Failed sending SMS")
+		return fmt.Errorf("Failed sending notification")
 	}
 
 	return nil
