@@ -282,9 +282,6 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	//format data
 	formatedMsg := FormatingMessage("loan", loan)
 	//custom map data for firebase key "Data"
-	//layout := "2019-10-21T12:34:28.726458+07:00"
-	//disburseDate, _ := time.Parse(layout, loanData.DisburseDate.String())
-	//log.Println("disburseDate ==>> ", disburseDate)
 	mapData := map[string]string{
 		"id":     fmt.Sprintf("%d", loan.ID),
 		"status": loan.Status,

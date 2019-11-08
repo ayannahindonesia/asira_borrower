@@ -27,6 +27,10 @@ func BorrowerGroup(e *echo.Echo) {
 
 	//NOTE: update fcm token registration from client
 	g.PATCH("/fcm_token_update", handlers.FCMTokenUpdate)
+	//NOTE: get notification by borrower id (jti)
+	g.PATCH("/notifications", handlers.NotificationsGetBySenderID)
+	//FUTURE
+	//g.PATCH("/notifications_topic", handlers.NotificationsGetByTopic)
 
 	// Bank Endpoint
 	g.GET("/bank_services", handlers.BorrowerBankService)

@@ -24,7 +24,7 @@ type (
 		ClientAuth       string
 		SMS              string
 		PushNotification string
-		TestingFCMToken  string
+		ListNotification string
 	}
 )
 
@@ -128,6 +128,39 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 	}
 	if firebase_token == "" {
 		firebase_token = model.Endpoints.PushNotification
+	}
+	payload, _ := json.Marshal(map[string]interface{}{
+		"title":          title,
+		"message_body":   message_body,
+		"firebase_token": firebase_token,
+		"data":           map_data,
+	})
+
+	request, _ := http.NewRequest("POST", model.URL+model.Endpoints.PushNotification, bytes.NewBuffer(payload))
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", model.Token))
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+	log.Println("PUSH NOTIF : ", response)
+	if response.StatusCode != http.StatusOK {
+		body, _ := ioutil.ReadAll(response.Body)
+		log.Printf("Failed sending notification : %s", string(body))
+
+		return fmt.Errorf("Failed sending notification")
+	}
+
+	return nil
+}
+
+func (model *Messaging) GetNotificationBySenderId(senderId int64) (err error) {
+
+	err = model.RefreshToken()
+	if err != nil {
+		return err
 	}
 	payload, _ := json.Marshal(map[string]interface{}{
 		"title":          title,
