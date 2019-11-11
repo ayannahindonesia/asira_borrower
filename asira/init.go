@@ -174,10 +174,11 @@ func (x *Application) MessagingInit() {
 
 	endpoints := custommodule.MessagingEndpoints{
 		ClientAuth:       messagingConfig["client_auth"].(string),
+		AdminAuth:        messagingConfig["admin_auth"].(string),
 		SMS:              messagingConfig["sms"].(string),
 		PushNotification: messagingConfig["push_notification"].(string),
 		ListNotification: messagingConfig["list_notification"].(string),
 	}
 
-	x.Messaging.SetConfig(messagingConfig["key"].(string), messagingConfig["secret"].(string), messagingConfig["url"].(string), endpoints)
+	x.Messaging.SetConfig(messagingConfig["key"].(string), messagingConfig["secret"].(string), messagingConfig["admin_user"].(string), messagingConfig["admin_password"].(string), messagingConfig["url"].(string), endpoints)
 }
