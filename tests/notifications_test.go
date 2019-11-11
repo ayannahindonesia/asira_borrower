@@ -34,6 +34,16 @@ func TestNotificationGet(t *testing.T) {
 	auth.GET("/borrower/notifications").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
-	//obj.ContainsKey("total_data").ValueEqual("total_data", 3)
+
+	//invalid
+	auth2 := e.Builder(func(req *httpexpect.Request) {
+		req.WithHeader("Authorization", "Bearer invalid")
+	})
+	auth2.GET("/borrower/notifications").
+		WithQuery("token", "cEh").
+		Expect().
+		Status(http.StatusUnauthorized).
+		JSON().
+		Object()
 
 }
