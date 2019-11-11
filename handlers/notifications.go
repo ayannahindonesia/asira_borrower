@@ -3,12 +3,13 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
+	"encoding/json"
 	"net/http"
 	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
-
 	"github.com/labstack/echo"
+	"gitlab.com/asira-ayannah/basemodel"
 )
 
 func getBorrowerId(c echo.Context) (int, error) {
@@ -44,6 +45,7 @@ func NotificationsGetByToken(c echo.Context) error {
 	if err != nil {
 		return err //returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending notification")
 	}
-
-	return c.JSON(http.StatusOK, response)
+	var parseResponse basemodel.PagedFindResult
+	json.Unmarshal([]byte(response), &parseResponse)
+	return c.JSON(http.StatusOK, parseResponse)
 }
