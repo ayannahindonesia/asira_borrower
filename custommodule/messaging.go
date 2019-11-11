@@ -9,6 +9,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/labstack/echo"
 )
 
 type (
@@ -144,14 +146,11 @@ func (model *Messaging) AdminAuth() (err error) {
 // RefreshToken func
 func (model *Messaging) RefreshToken(auth_type string) (err error) {
 	if time.Now().After(model.Expire) {
-		switch auth_type {
-		case "client":
-			err = model.ClientAuth()
-			break
-		case "admin":
-			err = model.AdminAuth()
-			break
-		}
+		// if auth_type == "client" {
+		err = model.ClientAuth()
+		// } else if auth_type == "admin" {
+		// 	err = model.AdminAuth()
+		// }
 		if err != nil {
 			return err
 		}
@@ -195,7 +194,7 @@ func (model *Messaging) SendSMS(number string, message string) (err error) {
 func (model *Messaging) SendNotificationByToken(title string, message_body string, map_data map[string]string, firebase_token string) (err error) {
 
 	//bug cycling call dependency
-	// topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.messaging.push_notification", asira.App.ENV))
+	//topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.messaging.push_notification", asira.App.ENV))
 
 	err = model.RefreshToken("client")
 	if err != nil {
@@ -232,21 +231,37 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 }
 
 //TODO: GetNotificationBySenderId
-//NOTE: get data from Messaging microservice by FCM token
-func (model *Messaging) GetNotificationByToken(token string) (string, error) {
+//NOTE: get data from Messaging microservice
+func (model *Messaging) GetNotificationByToken(token string, c echo.Context) (string, error) {
 
-	// err := model.RefreshToken("admin")
+	//err := model.RefreshToken("admin")//BUG: gak bisa keselect
 	err := model.AdminAuth()
 	if err != nil {
 		return "", err
 	}
+
 	//+"?token="+token
 	request, _ := http.NewRequest("GET", model.URL+model.Endpoints.ListNotification, nil)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", model.Token))
-	//q := request.URL.Query()
-	//q.Add("token", fmt.Sprintf("%d", token))
-	//request.URL.RawQuery = q.Encode()
+
+	//create url query
+	q := request.URL.Query()
+
+	// pagination parameters
+	q.Add("rows", c.QueryParam("rows"))
+	q.Add("page", c.QueryParam("page"))
+	q.Add("orderby", c.QueryParam("orderby"))
+	q.Add("sort", c.QueryParam("sort"))
+	// filters
+	q.Add("id", c.QueryParam("id"))
+	q.Add("client_id", c.QueryParam("client_id"))
+	q.Add("title", c.QueryParam("title"))
+	//NOTE: token diambil dari DB (berdasarkan ID Borrower) bukan dari parameter
+	q.Add("token", token)
+	q.Add("topic", c.QueryParam("topic"))
+	q.Add("send_time", c.QueryParam("send_time"))
+	request.URL.RawQuery = q.Encode()
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return "", err
