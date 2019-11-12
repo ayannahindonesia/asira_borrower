@@ -117,7 +117,7 @@ func (model *Messaging) SendSMS(number string, message string) (err error) {
 	return nil
 }
 
-func (model *Messaging) SendNotificationByToken(title string, message_body string, firebase_token string) (err error) {
+func (model *Messaging) SendNotificationByToken(title string, message_body string, map_data map[string]string, firebase_token string) (err error) {
 
 	//bug cycling call dependency
 	// topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.messaging.push_notification", asira.App.ENV))
@@ -133,6 +133,7 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 		"title":          title,
 		"message_body":   message_body,
 		"firebase_token": firebase_token,
+		"data":           map_data,
 	})
 
 	request, _ := http.NewRequest("POST", model.URL+model.Endpoints.PushNotification, bytes.NewBuffer(payload))
@@ -147,9 +148,9 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 	log.Println("PUSH NOTIF : ", response)
 	if response.StatusCode != http.StatusOK {
 		body, _ := ioutil.ReadAll(response.Body)
-		log.Printf("Failed sending sms : %s", string(body))
+		log.Printf("Failed sending notification : %s", string(body))
 
-		return fmt.Errorf("Failed sending SMS")
+		return fmt.Errorf("Failed sending notification")
 	}
 
 	return nil

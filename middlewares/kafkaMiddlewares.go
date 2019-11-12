@@ -24,6 +24,7 @@ type (
 		Status              string    `json:"status"`
 		DisburseDate        time.Time `json:"disburse_date"`
 		DisburseDateChanged bool      `json:"disburse_date_changed"`
+		DisburseStatus      string    `json:"disburse_status"`
 		RejectReason        string    `json:"reject_reason"`
 	}
 )
@@ -277,6 +278,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 
 	loan.Status = loanData.Status
 	loan.DisburseDate = loanData.DisburseDate
+	loan.DisburseStatus = loanData.DisburseStatus
 	loan.DisburseDateChanged = loanData.DisburseDateChanged
 	loan.RejectReason = loanData.RejectReason
 	err = loan.SaveNoKafka()
@@ -285,10 +287,21 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	if err != nil {
 		return err
 	}
-	//TODO: messaging (notification) if fail is need to save ???
-	marshaled, err := json.Marshal(loan)
+	//TODO: messaging (notification) if fail is need to save ??? REVISED: do backup in emailer
+	//format data
+	formatedMsg := FormatingMessage("loan", loan)
+	//custom map data for firebase key "Data"
+	//layout := "2019-10-21T12:34:28.726458+07:00"
+	//disburseDate, _ := time.Parse(layout, loanData.DisburseDate.String())
+	//log.Println("disburseDate ==>> ", disburseDate)
+	mapData := map[string]string{
+		"id":     fmt.Sprintf("%d", loan.ID),
+		"status": loan.Status,
+		// "loan":   fmt.Sprintf("%0.2f", loan.LoanAmount),
+		// "disburse_date": disburseDate.String(),//BUG: selalu 0001-01-01 00:00:00 +0000 UTC dari kafka
+	}
 	//send notif
-	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", string(marshaled), borrower.FCMToken)
+	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", formatedMsg, mapData, borrower.FCMToken)
 	if err != nil {
 		return err
 	}
@@ -298,4 +311,43 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 
 func syncAgent(dataAgent []byte) (err error) {
 	return nil
+}
+func FormatingMessage(msgType string, object interface{}) string {
+
+	var msg string
+
+	switch msgType {
+	case "loan":
+		var (
+			status string
+			prefix string
+			//postfix string
+			owner models.Borrower
+			bank  models.Bank
+		)
+		//get loan
+		Loan := object.(models.Loan)
+
+		//get bank
+		owner.FindbyID(int(Loan.Owner.Int64))
+		bank.FindbyID(int(owner.Bank.Int64))
+
+		//NOTE format pesan (PRD 7)
+		// format := "Loan id %d %s oleh %s. "
+		format := "Pinjaman nomor %d %s oleh %s, silahkan cek di aplikasi."
+		// approvedFormat := "Dapat dicairkan pada %s"
+
+		if Loan.Status == "approved" {
+			status = "diterima"
+			//postfix = approvedFormat
+		} else {
+			prefix = "Maaf, "
+			status = "ditolak"
+		}
+
+		format = prefix + format                              // + postfix
+		msg = fmt.Sprintf(format, Loan.ID, status, bank.Name) //, Loan.DisburseDate)
+		break
+	}
+	return msg
 }
