@@ -205,6 +205,23 @@ CREATE TABLE "internal_roles" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+CREATE TABLE "agents" (
+    "id" bigserial,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_time" timestamptz,
+    "name" varchar(255),
+    "username" varchar(255),
+    "password" text,
+    "email" varchar(255),
+    "phone" varchar(255),
+    "category" varchar(255),
+    "agent_provider" bigint,
+    "banks" int ARRAY,
+    "status" varchar(255),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 
@@ -219,3 +236,4 @@ DROP TABLE IF EXISTS "loans" CASCADE;
 DROP TABLE IF EXISTS "uuid_reset_passwords" CASCADE;
 DROP TABLE IF EXISTS "client_configs" CASCADE;
 DROP TABLE IF EXISTS "internal_roles" CASCADE;
+DROP TABLE IF EXISTS "agents" CASCADE;
