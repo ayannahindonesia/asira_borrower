@@ -287,18 +287,23 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	if err != nil {
 		return err
 	}
-	//TODO: messaging (notification) if fail is need to save ??? REVISED: do backup in emailer
-	//format data
-	formatedMsg := FormatingMessage("loan", loan)
+	fmt.Printf("loanData =>> %+v", loanData)
+	var formatedMsg string
+	if loanData.DisburseStatus == "processing" && loanData.DisburseDateChanged == true {
+		//tgl pencairan diubah oleh pihak bank
+		formatedMsg = FormatingMessage("disburse_changed", loan)
+	} else if loanData.Status == "approved" && loanData.DisburseStatus == "processing" {
+		//pinjaman diterima oleh bank
+		formatedMsg = FormatingMessage("loan", loan)
+	} else if loanData.Status == "approved" && loanData.DisburseStatus == "confirmed" {
+		//pinjaman telah dicairkan
+		formatedMsg = FormatingMessage("disburse", loan)
+	}
+
 	//custom map data for firebase key "Data"
-	//layout := "2019-10-21T12:34:28.726458+07:00"
-	//disburseDate, _ := time.Parse(layout, loanData.DisburseDate.String())
-	//log.Println("disburseDate ==>> ", disburseDate)
 	mapData := map[string]string{
 		"id":     fmt.Sprintf("%d", loan.ID),
 		"status": loan.Status,
-		// "loan":   fmt.Sprintf("%0.2f", loan.LoanAmount),
-		// "disburse_date": disburseDate.String(),//BUG: selalu 0001-01-01 00:00:00 +0000 UTC dari kafka
 	}
 	//send notif
 	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", formatedMsg, mapData, borrower.FCMToken)
@@ -343,21 +348,22 @@ func FormatingMessage(msgType string, object interface{}) string {
 
 	var msg string
 
+	var (
+		status string
+		prefix string
+		//postfix string
+		owner models.Borrower
+		bank  models.Bank
+	)
+	//get loan
+	Loan := object.(models.Loan)
+
+	//get bank
+	owner.FindbyID(int(Loan.Owner.Int64))
+	bank.FindbyID(int(owner.Bank.Int64))
+
 	switch msgType {
 	case "loan":
-		var (
-			status string
-			prefix string
-			//postfix string
-			owner models.Borrower
-			bank  models.Bank
-		)
-		//get loan
-		Loan := object.(models.Loan)
-
-		//get bank
-		owner.FindbyID(int(Loan.Owner.Int64))
-		bank.FindbyID(int(owner.Bank.Int64))
 
 		//NOTE format pesan (PRD 7)
 		// format := "Loan id %d %s oleh %s. "
@@ -375,6 +381,17 @@ func FormatingMessage(msgType string, object interface{}) string {
 		format = prefix + format                              // + postfix
 		msg = fmt.Sprintf(format, Loan.ID, status, bank.Name) //, Loan.DisburseDate)
 		break
+
+	case "disburse":
+		format := "Pinjaman nomor %d dari bank %s telah dicairkan, silahkan cek di aplikasi."
+		msg = fmt.Sprintf(format, Loan.ID, bank.Name) //, Loan.DisburseDate)
+		break
+
+	case "disburse_changed":
+		format := "Maaf, tanggal pencairan untuk pinjaman %d dari bank %s direvisi menjadi tanggal %s."
+		msg = fmt.Sprintf(format, Loan.ID, bank.Name, Loan.DisburseDate)
+		break
 	}
+
 	return msg
 }
