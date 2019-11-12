@@ -15,36 +15,6 @@ import (
 	"github.com/lib/pq"
 )
 
-func agentData() []models.Agent {
-
-	return []models.Agent{
-		models.Agent{
-			Name:     "Agent K",
-			Username: "agentK",
-			Password: "password",
-			Email:    "agentk@mib.com",
-			Phone:    "081234567890",
-			Category: "agent",
-			AgentProvider: sql.NullInt64{
-				Int64: 1,
-				Valid: true,
-			},
-			Banks:  pq.Int64Array{1, 2},
-			Status: "active",
-		},
-		models.Agent{
-			Name:     "Agent J",
-			Username: "agentJ",
-			Password: "password",
-			Email:    "agentj@mib.com",
-			Phone:    "081234567891",
-			Category: "account_executive",
-			Banks:    pq.Int64Array{1},
-			Status:   "active",
-		},
-	}
-}
-
 func Seed() {
 	seeder := asira.App.DB.Begin()
 	defer seeder.Commit()
@@ -236,7 +206,32 @@ func Seed() {
 		}
 
 		//agent migration
-		agents := agentData()
+		agents := []models.Agent{
+			models.Agent{
+				Name:     "Agent K",
+				Username: "agentK",
+				Password: "password",
+				Email:    "agentk@mib.com",
+				Phone:    "081234567890",
+				Category: "agent",
+				AgentProvider: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
+				Banks:  pq.Int64Array{1, 2},
+				Status: "active",
+			},
+			models.Agent{
+				Name:     "Agent J",
+				Username: "agentJ",
+				Password: "password",
+				Email:    "agentj@mib.com",
+				Phone:    "081234567891",
+				Category: "account_executive",
+				Banks:    pq.Int64Array{1},
+				Status:   "active",
+			},
+		}
 		for _, agent := range agents {
 			agent.Create()
 		}
@@ -592,7 +587,32 @@ func TestSeed() {
 		}
 
 		//agent migration
-		agents := agentData()
+		agents := []models.Agent{
+			models.Agent{
+				Name:     "Agent K",
+				Username: "agentK",
+				Password: "password",
+				Email:    "agentk@mib.com",
+				Phone:    "081234567890",
+				Category: "agent",
+				AgentProvider: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
+				Banks:  pq.Int64Array{1, 2},
+				Status: "active",
+			},
+			models.Agent{
+				Name:     "Agent J",
+				Username: "agentJ",
+				Password: "password",
+				Email:    "agentj@mib.com",
+				Phone:    "081234567891",
+				Category: "account_executive",
+				Banks:    pq.Int64Array{1},
+				Status:   "active",
+			},
+		}
 		for _, agent := range agents {
 			agent.Create()
 		}
