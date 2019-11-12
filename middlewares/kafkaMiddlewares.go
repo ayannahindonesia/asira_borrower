@@ -310,6 +310,33 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 }
 
 func syncAgent(dataAgent []byte) (err error) {
+	var agent models.Agent
+	var a map[string]interface{}
+
+	err = json.Unmarshal(dataAgent, &a)
+	if err != nil {
+		return err
+	}
+
+	if a["delete"] != nil && a["delete"].(bool) == true {
+		ID := int(a["id"].(float64))
+		err := agent.FindbyID(ID)
+		if err != nil {
+			return err
+		}
+
+		err = agent.Delete()
+		if err != nil {
+			return err
+		}
+	} else {
+		err = json.Unmarshal(dataAgent, &agent)
+		if err != nil {
+			return err
+		}
+		err = agent.Save()
+		return err
+	}
 	return nil
 }
 func FormatingMessage(msgType string, object interface{}) string {

@@ -41,8 +41,6 @@ func (model *Agent) Create() error {
 		return err
 	}
 
-	err = KafkaSubmitModel(model, "agent")
-
 	return err
 }
 
@@ -53,8 +51,6 @@ func (model *Agent) Save() error {
 		return err
 	}
 
-	err = KafkaSubmitModel(model, "agent")
-
 	return err
 }
 
@@ -64,9 +60,6 @@ func (model *Agent) Delete() error {
 	if err != nil {
 		return err
 	}
-
-	err = KafkaSubmitModel(model, "agent_delete")
-
 	return err
 }
 
