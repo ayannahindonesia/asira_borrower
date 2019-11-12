@@ -271,6 +271,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 
 	loan.Status = loanData.Status
 	loan.DisburseDate = loanData.DisburseDate
+	loan.DisburseStatus = loanData.DisburseStatus
 	loan.DisburseDateChanged = loanData.DisburseDateChanged
 	loan.RejectReason = loanData.RejectReason
 	err = loan.SaveNoKafka()
@@ -284,12 +285,18 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	if loanData.DisburseStatus == "processing" && loanData.DisburseDateChanged == true {
 		//tgl pencairan diubah oleh pihak bank
 		formatedMsg = FormatingMessage("disburse_changed", loan)
+
 	} else if loanData.Status == "approved" && loanData.DisburseStatus == "processing" {
 		//pinjaman diterima oleh bank
-		formatedMsg = FormatingMessage("loan", loan)
+		formatedMsg = FormatingMessage("loan_approved", loan)
+
 	} else if loanData.Status == "approved" && loanData.DisburseStatus == "confirmed" {
 		//pinjaman telah dicairkan
 		formatedMsg = FormatingMessage("disburse", loan)
+
+	} else if loanData.Status == "rejected" {
+		//pinjaman ditolak oleh bank
+		formatedMsg = FormatingMessage("loan_rejected", loan)
 	}
 
 	//custom map data for firebase key "Data"
@@ -324,22 +331,21 @@ func FormatingMessage(msgType string, object interface{}) string {
 	owner.FindbyID(int(Loan.Owner.Int64))
 	bank.FindbyID(int(owner.Bank.Int64))
 
+	//NOTE format pesan (PRD 7)
+	// format := "Loan id %d %s oleh %s. "
+	format := "Pinjaman nomor %d %s oleh %s, silahkan cek di aplikasi."
+	// approvedFormat := "Dapat dicairkan pada %s"
+
 	switch msgType {
-	case "loan":
+	case "loan_approved":
+		status = "diterima"
+		format = prefix + format                              // + postfix
+		msg = fmt.Sprintf(format, Loan.ID, status, bank.Name) //, Loan.DisburseDate)
+		break
 
-		//NOTE format pesan (PRD 7)
-		// format := "Loan id %d %s oleh %s. "
-		format := "Pinjaman nomor %d %s oleh %s, silahkan cek di aplikasi."
-		// approvedFormat := "Dapat dicairkan pada %s"
-
-		if Loan.Status == "approved" {
-			status = "diterima"
-			//postfix = approvedFormat
-		} else {
-			prefix = "Maaf, "
-			status = "ditolak"
-		}
-
+	case "loan_rejected":
+		prefix = "Maaf, "
+		status = "ditolak"
 		format = prefix + format                              // + postfix
 		msg = fmt.Sprintf(format, Loan.ID, status, bank.Name) //, Loan.DisburseDate)
 		break
@@ -353,6 +359,7 @@ func FormatingMessage(msgType string, object interface{}) string {
 		format := "Maaf, tanggal pencairan untuk pinjaman %d dari bank %s direvisi menjadi tanggal %s."
 		msg = fmt.Sprintf(format, Loan.ID, bank.Name, Loan.DisburseDate)
 		break
+
 	}
 
 	return msg
