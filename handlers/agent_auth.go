@@ -54,10 +54,10 @@ func AgentLogin(c echo.Context) error {
 	// check if theres record
 	switch loginType {
 	default: // default login is using phone number
-		validKey = asira.App.DB.Where("phone = ?", credentials.Key).Find(&agent).RecordNotFound()
+		validKey = asira.App.DB.Where("phone = ? AND status = ?", credentials.Key, "active").Find(&agent).RecordNotFound()
 		break
 	case "email":
-		validKey = asira.App.DB.Where("email = ?", credentials.Key).Find(&agent).RecordNotFound()
+		validKey = asira.App.DB.Where("email = ? AND status = ?", credentials.Key, "active").Find(&agent).RecordNotFound()
 		break
 	}
 
