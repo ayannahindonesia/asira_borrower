@@ -62,7 +62,7 @@ func AgentLogin(c echo.Context) error {
 	}
 
 	if !validKey { // check the password
-		fmt.Println("agent.Password == credentials.Password ? ", agent.Password, credentials.Password)
+
 		err = bcrypt.CompareHashAndPassword([]byte(agent.Password), []byte(credentials.Password))
 		if err != nil {
 			return returnInvalidResponse(http.StatusOK, err, "Password anda salah")
