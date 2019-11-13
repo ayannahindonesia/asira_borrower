@@ -5,13 +5,11 @@ import (
 	"time"
 
 	"gitlab.com/asira-ayannah/basemodel"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type (
-	Borrower struct {
+	AgentBorrower struct {
 		basemodel.BaseModel
-		SuspendedTime        time.Time     `json:"suspended_time" gorm:"column:suspended_time"`
 		Fullname             string        `json:"fullname" gorm:"column:fullname;type:varchar(255);not_null"`
 		Nickname             string        `json:"nickname" gorm:"column:nickname"`
 		Gender               string        `json:"gender" gorm:"column:gender;type:varchar(1);not null"`
@@ -60,59 +58,33 @@ type (
 		RelatedAddress       string        `json:"related_address" gorm:"column:related_address;type:text"`
 		Bank                 sql.NullInt64 `json:"bank" gorm:"column:bank" sql:"DEFAULT:NULL"`
 		BankAccountNumber    string        `json:"bank_accountnumber" gorm:"column:bank_accountnumber"`
-		OTPverified          bool          `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
-		Password             string        `json:"password" gorm:"column:password;type:text;not null"`
-		FCMToken             string        `json:"fcm_token" gorm:"column:fcm_token;type:varchar(255)"`
+		AgentID              int64         `json:"agent_id" gorm:"column:agent_id"`
 	}
 )
 
 // gorm callback hook
-func (b *Borrower) BeforeCreate() (err error) {
-	passwordByte, err := bcrypt.GenerateFromPassword([]byte(b.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-
-	b.Password = string(passwordByte)
-	return nil
-}
-
-func (b *Borrower) Create() error {
+func (b *AgentBorrower) Create() error {
 	err := basemodel.Create(&b)
 	return err
 }
 
 // gorm callback hook
-func (b *Borrower) BeforeSave() (err error) {
+func (b *AgentBorrower) BeforeSave() (err error) {
 	return nil
 }
 
-func (b *Borrower) Save() error {
+func (b *AgentBorrower) Save() error {
 	err := basemodel.Save(&b)
 	return err
 }
 
-func (b *Borrower) Suspend() error {
-	b.SuspendedTime = time.Now()
-	err := basemodel.Save(&b)
-
-	return err
-}
-
-func (b *Borrower) Unsuspend() error {
-	b.SuspendedTime = time.Time{}
-	err := basemodel.Save(&b)
-
-	return err
-}
-
-func (b *Borrower) FindbyID(id int) error {
+func (b *AgentBorrower) FindbyID(id int) error {
 	err := basemodel.FindbyID(&b, id)
 	return err
 }
 
-func (b *Borrower) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result basemodel.PagedFindResult, err error) {
-	borrowers := []Borrower{}
+func (b *AgentBorrower) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result basemodel.PagedFindResult, err error) {
+	borrowers := []AgentBorrower{}
 	var orders []string
 	var sorts []string
 	result, err = basemodel.PagedFindFilter(&borrowers, page, rows, orders, sorts, filter)

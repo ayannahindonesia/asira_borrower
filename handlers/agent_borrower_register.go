@@ -148,7 +148,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
-	borrower := models.Borrower{
+	borrower := models.AgentBorrower{
 		AgentID: agentID,
 		IdCardImage: sql.NullInt64{
 			Int64: int64(IdCardImage.ID),
