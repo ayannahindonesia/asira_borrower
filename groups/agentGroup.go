@@ -14,4 +14,7 @@ func AgentGroup(e *echo.Echo) {
 	// agent's profile endpoints
 	g.GET("/profile", handlers.AgentProfile)
 
+	// agent's profile endpoints
+	g.POST("/register_borrower", handlers.AgentRegisterBorrower)
+
 }

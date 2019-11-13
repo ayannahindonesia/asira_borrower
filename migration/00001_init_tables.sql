@@ -49,6 +49,23 @@ CREATE TABLE "services" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+CREATE TABLE "agents" (
+    "id" bigserial,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_time" timestamptz,
+    "name" varchar(255),
+    "username" varchar(255),
+    "password" text,
+    "email" varchar(255),
+    "phone" varchar(255),
+    "category" varchar(255),
+    "agent_provider" bigint,
+    "banks" int ARRAY,
+    "status" varchar(255),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
 CREATE TABLE "products" (
     "id" bigserial,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
@@ -126,9 +143,11 @@ CREATE TABLE "borrowers" (
     "otp_verified" BOOLEAN,
     "password" varchar(255) NOT NULL,
     "fcm_token" varchar(255),
+    "agent_id" bigserial,
     FOREIGN KEY ("idcard_image") REFERENCES images(id),
     FOREIGN KEY ("taxid_image") REFERENCES images(id),
     FOREIGN KEY ("bank") REFERENCES banks(id),
+    FOREIGN KEY ("agent_id") REFERENCES agents(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -202,23 +221,6 @@ CREATE TABLE "internal_roles" (
     "status" BOOLEAN,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY ("id")
-) WITH (OIDS = FALSE);
-
-CREATE TABLE "agents" (
-    "id" bigserial,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_time" timestamptz,
-    "name" varchar(255),
-    "username" varchar(255),
-    "password" text,
-    "email" varchar(255),
-    "phone" varchar(255),
-    "category" varchar(255),
-    "agent_provider" bigint,
-    "banks" int ARRAY,
-    "status" varchar(255),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
