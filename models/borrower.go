@@ -63,6 +63,7 @@ type (
 		OTPverified          bool          `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
 		Password             string        `json:"password" gorm:"column:password;type:text;not null"`
 		FCMToken             string        `json:"fcm_token" gorm:"column:fcm_token;type:varchar(255)"`
+		AgentID              int64         `json:"agent_id" gorm:"column:agent_id"`
 	}
 )
 

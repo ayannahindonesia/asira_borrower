@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/thedevsaddam/govalidator"
 )
@@ -117,6 +119,16 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"password":              []string{"required"},
 	}
 
+	user := c.Get("user")
+	token := user.(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	agentModel := models.Agent{}
+	agentID, _ := strconv.ParseInt(claims["jti"].(string), 10, 64)
+	err := agentModel.FindbyID(int(agentID))
+	if err != nil {
+		return returnInvalidResponse(http.StatusForbidden, err, "Akun Agen tidak ditemukan")
+	}
+
 	validate := validateRequestPayload(c, payloadRules, &register)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
@@ -124,7 +136,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 	IdCardImage := models.Image{
 		Image_string: register.IdCardImage,
 	}
-	err := IdCardImage.Create()
+	err = IdCardImage.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
@@ -137,6 +149,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 	borrower := models.Borrower{
+		AgentID: agentID,
 		IdCardImage: sql.NullInt64{
 			Int64: int64(IdCardImage.ID),
 			Valid: true,
