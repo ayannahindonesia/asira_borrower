@@ -144,13 +144,9 @@ func (model *Messaging) AdminAuth() (err error) {
 }
 
 // RefreshToken func
-func (model *Messaging) RefreshToken(auth_type string) (err error) {
+func (model *Messaging) RefreshToken() (err error) {
 	if time.Now().After(model.Expire) {
-		// if auth_type == "client" {
 		err = model.ClientAuth()
-		// } else if auth_type == "admin" {
-		// 	err = model.AdminAuth()
-		// }
 		if err != nil {
 			return err
 		}
@@ -161,7 +157,7 @@ func (model *Messaging) RefreshToken(auth_type string) (err error) {
 
 // SendSMS func
 func (model *Messaging) SendSMS(number string, message string) (err error) {
-	err = model.RefreshToken("client")
+	err = model.RefreshToken()
 	if err != nil {
 		return err
 	}
@@ -196,7 +192,7 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 	//bug cycling call dependency
 	//topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.messaging.push_notification", asira.App.ENV))
 
-	err = model.RefreshToken("client")
+	err = model.RefreshToken()
 	if err != nil {
 		return err
 	}
@@ -232,10 +228,9 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 
 //TODO: GetNotificationBySenderId
 //NOTE: get data from Messaging microservice
-func (model *Messaging) GetNotificationByToken(token string, c echo.Context) (string, error) {
+func (model *Messaging) GetNotificationByRecipientID(recipient_id string, c echo.Context) (string, error) {
 
-	//err := model.RefreshToken("admin")//BUG: gak bisa keselect
-	err := model.AdminAuth()
+	err := model.RefreshToken()
 	if err != nil {
 		return "", err
 	}
@@ -255,12 +250,11 @@ func (model *Messaging) GetNotificationByToken(token string, c echo.Context) (st
 	q.Add("sort", c.QueryParam("sort"))
 	// filters
 	q.Add("id", c.QueryParam("id"))
-	q.Add("client_id", c.QueryParam("client_id"))
 	q.Add("title", c.QueryParam("title"))
-	//NOTE: token diambil dari DB (berdasarkan ID Borrower) bukan dari parameter
-	q.Add("token", token)
 	q.Add("topic", c.QueryParam("topic"))
 	q.Add("send_time", c.QueryParam("send_time"))
+	//NOTE: recipient_id tuk menandakan borrower tertentu, jd tidak ada masalah meskipun 1 recipient_id bisa memiliki banyak FCM token (case : FCM token terupdate dr device client)
+	q.Add("recipient_id", recipient_id)
 	request.URL.RawQuery = q.Encode()
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {

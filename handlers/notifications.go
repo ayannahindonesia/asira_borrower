@@ -4,6 +4,7 @@ import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -13,9 +14,8 @@ import (
 )
 
 //FUTURE: NotificationsGetByTopic
-//TODO: handler for get notification data by QueryParam AND borrower id (NotificationsGetBySenderID)
-//NOTE:  handler for get notification data by QueryParam
-func NotificationsGetByToken(c echo.Context) error {
+//NOTE:  handler for get notification data by recipient_id (custom format + borrower id; i.e. : borrower-%d)
+func NotificationsGet(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	user := c.Get("user")
@@ -28,11 +28,16 @@ func NotificationsGetByToken(c echo.Context) error {
 		return returnInvalidResponse(http.StatusForbidden, err, "unauthorized")
 	}
 
-	//get data
-	response, err := asira.App.Messaging.GetNotificationByToken(borrower.FCMToken, c)
+	//NOTE: borrower user default formater
+	recipient_id := fmt.Sprintf("borrower-%d", borrowerID)
+
+	//get notification list by recipient_id
+	response, err := asira.App.Messaging.GetNotificationByRecipientID(recipient_id, c)
 	if err != nil {
 		return err //returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending notification")
 	}
+
+	//parse result from microservice messaging
 	var parseResponse basemodel.PagedFindResult
 	json.Unmarshal([]byte(response), &parseResponse)
 	return c.JSON(http.StatusOK, parseResponse)

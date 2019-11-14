@@ -46,7 +46,7 @@ development:
     admin_user: adminkey
     admin_password: adminsecret
     admin_auth: /client/admin_login
-    list_notification: /admin/message_notification
+    list_notification: /client/message_notification
 staging:
 
 production:

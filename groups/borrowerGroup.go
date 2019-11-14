@@ -29,7 +29,7 @@ func BorrowerGroup(e *echo.Echo) {
 	g.PATCH("/fcm_token_update", handlers.FCMTokenUpdate)
 
 	//NOTE: get notification by borrower id (jti)
-	g.GET("/notifications", handlers.NotificationsGetByToken)
+	g.GET("/notifications", handlers.NotificationsGet)
 	//FUTURE
 	//g.PATCH("/notifications_topic", handlers.NotificationsGetByTopic)
 
