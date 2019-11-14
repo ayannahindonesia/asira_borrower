@@ -68,11 +68,6 @@ func (b *AgentBorrower) Create() error {
 	return err
 }
 
-// gorm callback hook
-func (b *AgentBorrower) BeforeSave() (err error) {
-	return nil
-}
-
 func (b *AgentBorrower) Save() error {
 	err := basemodel.Save(&b)
 	return err
