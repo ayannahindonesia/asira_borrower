@@ -63,7 +63,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 			RelatedPhoneNumber   string    `json:"related_phonenumber"`
 			RelatedHomePhone     string    `json:"related_homenumber"`
 			RelatedAddress       string    `json:"related_address"`
-			Bank                 int       `json:"bank"`
+			Bank                 int64     `json:"bank"`
 			BankAccountNumber    string    `json:"bank_accountnumber"`
 			Password             string    `json:"password"`
 		}
@@ -77,12 +77,12 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"idcard_number":         []string{"required", "unique:borrowers,idcard_number"},
 		"taxid_number":          []string{"unique:borrowers,taxid_number"},
 		"nationality":           []string{},
-		"email":                 []string{"email", "unique:borrowers,email"},
+		"email":                 []string{},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
 		"last_education":        []string{"required"},
 		"mother_name":           []string{"required"},
-		"phone":                 []string{"required", "unique:borrowers,phone"},
+		"phone":                 []string{},
 		"marriage_status":       []string{"required"},
 		"spouse_name":           []string{},
 		"spouse_birthday":       []string{"date"},
@@ -133,6 +133,18 @@ func AgentRegisterBorrower(c echo.Context) error {
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
+
+	validBank := false
+	for _, val := range agentModel.Banks {
+		if register.Bank == val {
+			validBank = true
+			break
+		}
+	}
+	if !validBank {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Bank tidak terdaftar untuk agent")
+	}
+
 	IdCardImage := models.Image{
 		Image_string: register.IdCardImage,
 	}
