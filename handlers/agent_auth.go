@@ -5,7 +5,6 @@ import (
 	"asira_borrower/models"
 	"fmt"
 	"net/http"
-	"regexp"
 	"strconv"
 	"time"
 
@@ -28,7 +27,6 @@ func AgentLogin(c echo.Context) error {
 
 	var (
 		credentials AgentLoginCreds
-		loginType   string
 		agent       models.Agent
 		validKey    bool
 		token       string
@@ -45,21 +43,8 @@ func AgentLogin(c echo.Context) error {
 		return returnInvalidResponse(http.StatusBadRequest, validate, "Gagal login")
 	}
 
-	emailchecker := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
-
-	if emailchecker.MatchString(credentials.Key) {
-		loginType = "email"
-	}
-
 	// check if theres record
-	switch loginType {
-	default: // default login is using phone number
-		validKey = asira.App.DB.Where("phone = ? AND status = ?", credentials.Key, "active").Find(&agent).RecordNotFound()
-		break
-	case "email":
-		validKey = asira.App.DB.Where("email = ? AND status = ?", credentials.Key, "active").Find(&agent).RecordNotFound()
-		break
-	}
+	validKey = asira.App.DB.Where("username = ? AND status = ?", credentials.Key, "active").Find(&agent).RecordNotFound()
 
 	if !validKey { // check the password
 
