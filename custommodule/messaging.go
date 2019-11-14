@@ -15,32 +15,27 @@ import (
 
 type (
 	Messaging struct {
-		Key         string
-		Secret      string
-		Token       string
-		Expire      time.Time
-		URL         string
-		AdminKey    string
-		AdminSecret string
-		Endpoints   MessagingEndpoints
+		Key       string
+		Secret    string
+		Token     string
+		Expire    time.Time
+		URL       string
+		Endpoints MessagingEndpoints
 	}
 	MessagingEndpoints struct {
 		ClientAuth       string
 		SMS              string
 		PushNotification string
 		ListNotification string
-		AdminAuth        string
 	}
 )
 
 // SetConfig func
-func (model *Messaging) SetConfig(key string, secret string, adminKey string, adminSecret string, URL string, Endpoints MessagingEndpoints) {
+func (model *Messaging) SetConfig(key string, secret string, URL string, Endpoints MessagingEndpoints) {
 	model.Key = key
 	model.Secret = secret
 	model.URL = URL
 	model.Endpoints = Endpoints
-	model.AdminKey = adminKey
-	model.AdminSecret = adminSecret
 }
 
 // ClientAuth func
@@ -64,68 +59,6 @@ func (model *Messaging) ClientAuth() (err error) {
 	}
 
 	var parseresponse map[string]interface{}
-	json.Unmarshal([]byte(buffer), &parseresponse)
-
-	expires := 1200
-	if parseresponse["expires_in"] != nil {
-		expires = int(parseresponse["expires_in"].(float64))
-	}
-	model.Expire = time.Now().Local().Add(time.Second * time.Duration(expires))
-
-	if parseresponse["token"] != nil {
-		model.Token = parseresponse["token"].(string)
-	} else {
-		return fmt.Errorf("no token detected")
-	}
-
-	return nil
-}
-
-//AdminAuth func
-func (model *Messaging) AdminAuth() (err error) {
-	var parseresponse map[string]interface{}
-
-	basicToken := base64.StdEncoding.EncodeToString([]byte(model.Key + ":" + model.Secret))
-	request, _ := http.NewRequest("GET", model.URL+model.Endpoints.ClientAuth, nil)
-	request.Header.Add("Content-Type", "application/json")
-	request.Header.Add("Authorization", fmt.Sprintf("Basic %s", basicToken))
-
-	response, err := http.DefaultClient.Do(request)
-	if err != nil {
-		return err
-	}
-	defer response.Body.Close()
-
-	buffer, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return err
-	}
-
-	//parse client login
-	json.Unmarshal([]byte(buffer), &parseresponse)
-
-	//set up payload and do login
-	payload, _ := json.Marshal(map[string]interface{}{
-		"key":      model.AdminKey,
-		"password": model.AdminSecret,
-	})
-
-	// fmt.Println("parseresponse[token] ==> ", parseresponse["token"], model.AdminKey, model.AdminSecret, model.Endpoints.AdminAuth)
-	request, _ = http.NewRequest("POST", model.URL+model.Endpoints.AdminAuth, bytes.NewBuffer(payload))
-	request.Header.Add("Content-Type", "application/json")
-	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", parseresponse["token"]))
-
-	response, err = http.DefaultClient.Do(request)
-	if err != nil {
-		return err
-	}
-	defer response.Body.Close()
-
-	buffer, err = ioutil.ReadAll(response.Body)
-	if err != nil {
-		return err
-	}
-	//parse client login
 	json.Unmarshal([]byte(buffer), &parseresponse)
 
 	expires := 1200
