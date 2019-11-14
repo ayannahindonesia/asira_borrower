@@ -78,7 +78,7 @@ func LoanSimulateApproveReject(loan *models.Loan, status string, token string) e
 	}
 	jsonReq, _ := json.Marshal(loan)
 	//MAYBEDO: general type (string, int, float) to map[string]string
-	err := asira.App.Messaging.SendNotificationByToken("testing", string(jsonReq), nil, token)
+	err := asira.App.Messaging.SendNotificationByToken("testing", string(jsonReq), nil, token, "borrower-simulate")
 	if err != nil {
 		return err //returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending notification")
 	}

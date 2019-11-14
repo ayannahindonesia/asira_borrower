@@ -304,8 +304,12 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		"id":     fmt.Sprintf("%d", loan.ID),
 		"status": loan.Status,
 	}
+
+	//set recipient ID
+	recipientID := fmt.Sprintf("borrower-%d", borrower.ID)
+
 	//send notif
-	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", formatedMsg, mapData, borrower.FCMToken)
+	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", formatedMsg, mapData, borrower.FCMToken, recipientID)
 	if err != nil {
 		return err
 	}
