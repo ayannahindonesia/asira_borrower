@@ -13,7 +13,7 @@ development:
     logmode: true
     timezone: Asia/Jakarta
   kafka:
-    host: asira_kafka
+    host: "10.148.0.3"
     port: "9092"
     user: user
     pass: oRB5KjfuHdXc

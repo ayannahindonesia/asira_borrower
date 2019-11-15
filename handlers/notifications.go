@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"asira_borrower/asira"
-	"asira_borrower/models"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -21,12 +20,7 @@ func NotificationsGet(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrower := models.Borrower{}
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
-	err := borrower.FindbyID(borrowerID)
-	if err != nil {
-		return returnInvalidResponse(http.StatusForbidden, err, "unauthorized")
-	}
 
 	//NOTE: borrower user default formater
 	recipient_id := fmt.Sprintf("borrower-%d", borrowerID)
