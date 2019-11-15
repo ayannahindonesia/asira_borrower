@@ -77,7 +77,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"idcard_number":         []string{"required", "unique:borrowers,idcard_number"},
 		"taxid_number":          []string{"unique:borrowers,taxid_number"},
 		"nationality":           []string{},
-		"email":                 []string{"regex:^[a-z0-9._%+\\-]+@[a-z0-9.\\-]+\\.[a-z]{2,4}$"},
+		"email":                 []string{"email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
 		"last_education":        []string{"required"},
