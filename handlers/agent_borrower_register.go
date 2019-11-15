@@ -134,17 +134,6 @@ func AgentRegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	// validBank := false
-	// for _, val := range agentModel.Banks {
-	// 	if register.Bank == val {
-	// 		validBank = true
-	// 		break
-	// 	}
-	// }
-	// if !validBank {
-	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Bank tidak terdaftar untuk agent")
-	// }
-
 	IdCardImage := models.Image{
 		Image_string: register.IdCardImage,
 	}
