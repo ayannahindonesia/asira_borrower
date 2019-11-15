@@ -176,7 +176,7 @@ func (x *Application) MessagingInit() {
 		ClientAuth:       messagingConfig["client_auth"].(string),
 		SMS:              messagingConfig["sms"].(string),
 		PushNotification: messagingConfig["push_notification"].(string),
-		TestingFCMToken:  messagingConfig["testing_fcm_token"].(string),
+		ListNotification: messagingConfig["list_notification"].(string),
 	}
 
 	x.Messaging.SetConfig(messagingConfig["key"].(string), messagingConfig["secret"].(string), messagingConfig["url"].(string), endpoints)
