@@ -114,7 +114,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"related_relation":      []string{"required"},
 		"related_phonenumber":   []string{"required"},
 		"related_homenumber":    []string{},
-		"bank":                  []string{"required", "valid_id:banks"},
+		"bank":                  []string{"required"},
 		"bank_accountnumber":    []string{"unique:borrowers,bank_accountnumber"},
 		"password":              []string{"required"},
 	}
@@ -129,9 +129,22 @@ func AgentRegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun Agen tidak ditemukan")
 	}
 
+	//validate
 	validate := validateRequestPayload(c, payloadRules, &register)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
+	}
+
+	//cek bank di dalam list bank agent atau tidak
+	validBank := false
+	for _, val := range agentModel.Banks {
+		if register.Bank == val {
+			validBank = true
+			break
+		}
+	}
+	if !validBank {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Bank tidak terdaftar untuk agent")
 	}
 
 	IdCardImage := models.Image{
