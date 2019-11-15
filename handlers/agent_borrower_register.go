@@ -65,7 +65,6 @@ func AgentRegisterBorrower(c echo.Context) error {
 			RelatedAddress       string    `json:"related_address"`
 			Bank                 int64     `json:"bank"`
 			BankAccountNumber    string    `json:"bank_accountnumber"`
-			Password             string    `json:"password"`
 		}
 	)
 	register := Register{}
@@ -116,7 +115,6 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"related_homenumber":    []string{},
 		"bank":                  []string{"required"},
 		"bank_accountnumber":    []string{"unique:agent_borrowers,bank_accountnumber"},
-		"password":              []string{"required"},
 	}
 
 	user := c.Get("user")
