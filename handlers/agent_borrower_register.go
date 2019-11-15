@@ -77,12 +77,12 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"idcard_number":         []string{"required", "unique:borrowers,idcard_number"},
 		"taxid_number":          []string{"unique:borrowers,taxid_number"},
 		"nationality":           []string{},
-		"email":                 []string{},
+		"email":                 []string{"regex:^[a-z0-9._%+\\-]+@[a-z0-9.\\-]+\\.[a-z]{2,4}$"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
 		"last_education":        []string{"required"},
 		"mother_name":           []string{"required"},
-		"phone":                 []string{},
+		"phone":                 []string{"id_phonenumber"},
 		"marriage_status":       []string{"required"},
 		"spouse_name":           []string{},
 		"spouse_birthday":       []string{"date"},
@@ -114,7 +114,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"related_relation":      []string{"required"},
 		"related_phonenumber":   []string{"required"},
 		"related_homenumber":    []string{},
-		"bank":                  []string{},
+		"bank":                  []string{"required", "valid_id:banks"},
 		"bank_accountnumber":    []string{"unique:borrowers,bank_accountnumber"},
 		"password":              []string{"required"},
 	}
@@ -134,16 +134,16 @@ func AgentRegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	validBank := false
-	for _, val := range agentModel.Banks {
-		if register.Bank == val {
-			validBank = true
-			break
-		}
-	}
-	if !validBank {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Bank tidak terdaftar untuk agent")
-	}
+	// validBank := false
+	// for _, val := range agentModel.Banks {
+	// 	if register.Bank == val {
+	// 		validBank = true
+	// 		break
+	// 	}
+	// }
+	// if !validBank {
+	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Bank tidak terdaftar untuk agent")
+	// }
 
 	IdCardImage := models.Image{
 		Image_string: register.IdCardImage,
