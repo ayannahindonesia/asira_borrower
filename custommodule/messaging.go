@@ -117,7 +117,7 @@ func (model *Messaging) SendSMS(number string, message string) (err error) {
 	return nil
 }
 
-func (model *Messaging) SendNotificationByToken(title string, message_body string, map_data map[string]string, firebase_token string) (err error) {
+func (model *Messaging) SendNotificationByToken(title string, message_body string, map_data map[string]string, firebase_token string, recipient_id string) (err error) {
 
 	//bug cycling call dependency
 	// topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.messaging.push_notification", asira.App.ENV))
@@ -130,6 +130,7 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 		firebase_token = model.Endpoints.PushNotification
 	}
 	payload, _ := json.Marshal(map[string]interface{}{
+		"recipient_id":   recipient_id,
 		"title":          title,
 		"message_body":   message_body,
 		"firebase_token": firebase_token,
