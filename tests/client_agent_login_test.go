@@ -35,7 +35,7 @@ func TestAgentLogin(t *testing.T) {
 	})
 
 	payload := map[string]interface{}{
-		"key":      "081234567890",
+		"key":      "agentJ",
 		"password": "password",
 	}
 
@@ -84,7 +84,7 @@ func TestAgentGetProfile(t *testing.T) {
 	obj := auth.GET("/agent/profile").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
-	obj.ContainsKey("username").ValueEqual("username", "agentK")
+	obj.ContainsKey("username").ValueEqual("username", "agentJ")
 
 	// wrong token
 	auth = e.Builder(func(req *httpexpect.Request) {

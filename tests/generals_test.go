@@ -75,12 +75,12 @@ func getAgentLoginToken(e *httpexpect.Expect, auth *httpexpect.Expect, agent_id 
 	switch agent_id {
 	case "1":
 		payload = map[string]interface{}{
-			"key":      "081234567890",
+			"key":      "agentJ",
 			"password": "password",
 		}
 	case "2":
 		payload = map[string]interface{}{
-			"key":      "081234567891",
+			"key":      "agentK",
 			"password": "password",
 		}
 	}
