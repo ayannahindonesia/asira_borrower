@@ -67,6 +67,7 @@ func AgentAllBank(c echo.Context) error {
 	tempDB.Count(&totalRows)
 	result := basemodel.PagedFindResult{
 		TotalData: totalRows,
+		Rows:      totalRows,
 		Data:      banklist,
 	}
 	return c.JSON(http.StatusOK, result)
