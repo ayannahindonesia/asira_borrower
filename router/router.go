@@ -30,6 +30,7 @@ func NewRouter() *echo.Echo {
 	groups.ClientGroup(e)
 	groups.BorrowerGroup(e)
 	groups.UnverifiedBorrowerGroup(e)
+	groups.AgentGroup(e)
 
 	return e
 }

@@ -28,6 +28,9 @@ func SetClientJWTmiddlewares(g *echo.Group, role string) {
 	case "unverified_borrower":
 		g.Use(validateJWTunverifiedBorrower)
 		break
+	case "agent":
+		g.Use(validateJWTagent)
+		break
 	default:
 		g.Use(validateJWTadmin)
 		break
@@ -78,6 +81,23 @@ func validateJWTborrower(next echo.HandlerFunc) echo.HandlerFunc {
 				return next(c)
 			} else if claims["role"] == "unverified_borrower" {
 				return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("%s", "account need to verify otp"))
+			} else {
+				return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("%s", "invalid role"))
+			}
+		}
+
+		return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("%s", "invalid token"))
+	}
+}
+
+func validateJWTagent(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		user := c.Get("user")
+		token := user.(*jwt.Token)
+
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			if claims["role"] == "agent" {
+				return next(c)
 			} else {
 				return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("%s", "invalid role"))
 			}
