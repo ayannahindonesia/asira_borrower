@@ -59,3 +59,35 @@ func getBorrowerLoginToken(e *httpexpect.Expect, auth *httpexpect.Expect, borrow
 
 	return obj.Value("token").String().Raw()
 }
+
+func getAgentLoginToken(e *httpexpect.Expect, auth *httpexpect.Expect, agent_id string) string {
+	obj := auth.GET("/clientauth").
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+
+	admintoken := obj.Value("token").String().Raw()
+
+	auth = e.Builder(func(req *httpexpect.Request) {
+		req.WithHeader("Authorization", "Bearer "+admintoken)
+	})
+
+	var payload map[string]interface{}
+	switch agent_id {
+	case "1":
+		payload = map[string]interface{}{
+			"key":      "agentJ",
+			"password": "password",
+		}
+	case "2":
+		payload = map[string]interface{}{
+			"key":      "agentK",
+			"password": "password",
+		}
+	}
+
+	obj = auth.POST("/client/agent_login").WithJSON(payload).
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+
+	return obj.Value("token").String().Raw()
+}

@@ -3,6 +3,7 @@ package validator
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/jinzhu/gorm"
@@ -140,4 +141,44 @@ func (a *AsiraValidator) CustomValidatorRules() {
 		}
 		return nil
 	})
+
+	// valid_id. must be a listed id of a model.
+	govalidator.AddCustomRule("valid_id", func(field string, rule string, message string, value interface{}) error {
+		var (
+			db    *gorm.DB
+			total int
+		)
+
+		table := strings.TrimPrefix(rule, fmt.Sprintf("%s:", "valid_id"))
+		db = a.DB
+		db.Table(table).
+			Where("id IN (?)", value).
+			Count(&total)
+
+		if total < 1 {
+			return fmt.Errorf(fmt.Sprint("value %v is not found.", value), field)
+		}
+		return nil
+	})
+
+	// validator for indonesia phone number
+	govalidator.AddCustomRule("id_phonenumber", func(field string, rule string, message string, value interface{}) error {
+		reg := regexp.MustCompile(`\+?([ -]?\d+)+|\(\d+\)([ -]\d+)`)
+		if value == nil {
+			return fmt.Errorf("no value")
+		}
+		val := value.(string)
+		if !reg.MatchString(val) {
+			return fmt.Errorf("The %s field is not a valid indonesia phone number", field)
+		}
+		return nil
+	})
+	// validator loan purpose status
+	// govalidator.AddCustomRule("simulate_loan_status", func(field string, rule string, message string, value interface{}) error {
+	// 	val := value.(string)
+	// 	if val != "approve" && val != "reject" {
+	// 		return fmt.Errorf("The %s field must be contain either: active or inactive", field)
+	// 	}
+	// 	return nil
+	// })
 }

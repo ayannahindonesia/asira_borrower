@@ -173,8 +173,10 @@ func (x *Application) MessagingInit() {
 	messagingConfig := x.Config.GetStringMap(fmt.Sprintf("%s.messaging", x.ENV))
 
 	endpoints := custommodule.MessagingEndpoints{
-		ClientAuth: messagingConfig["client_auth"].(string),
-		SMS:        messagingConfig["sms"].(string),
+		ClientAuth:       messagingConfig["client_auth"].(string),
+		SMS:              messagingConfig["sms"].(string),
+		PushNotification: messagingConfig["push_notification"].(string),
+		ListNotification: messagingConfig["list_notification"].(string),
 	}
 
 	x.Messaging.SetConfig(messagingConfig["key"].(string), messagingConfig["secret"].(string), messagingConfig["url"].(string), endpoints)

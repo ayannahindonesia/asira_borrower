@@ -42,7 +42,8 @@ development:
     url: http://asira.ayannah.com/api-messaging
     client_auth: /clientauth
     sms: /client/message_sms_send
-
+    push_notification: /client/message_notification_send
+    list_notification: /client/message_notification
 staging:
 
 production:

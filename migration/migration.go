@@ -205,6 +205,37 @@ func Seed() {
 			loan.Create()
 		}
 
+		//agent migration
+		agents := []models.Agent{
+			models.Agent{
+				Name:     "Agent K",
+				Username: "agentK",
+				Password: "password",
+				Email:    "agentk@mib.com",
+				Phone:    "081234567890",
+				Category: "agent",
+				AgentProvider: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
+				Banks:  pq.Int64Array{1, 2},
+				Status: "active",
+			},
+			models.Agent{
+				Name:     "Agent J",
+				Username: "agentJ",
+				Password: "password",
+				Email:    "agentj@mib.com",
+				Phone:    "081234567891",
+				Category: "account_executive",
+				Banks:    pq.Int64Array{1},
+				Status:   "active",
+			},
+		}
+		for _, agent := range agents {
+			agent.Create()
+		}
+
 		//seed uuid
 		uuid := models.Uuid_Reset_Password{
 			UUID: "f4f71eae-2cc9-4289-94e4-2421df67d4d7",
@@ -555,6 +586,37 @@ func TestSeed() {
 			loan.Create()
 		}
 
+		//agent migration
+		agents := []models.Agent{
+			models.Agent{
+				Name:     "Agent K",
+				Username: "agentK",
+				Password: "password",
+				Email:    "agentk@mib.com",
+				Phone:    "081234567890",
+				Category: "agent",
+				AgentProvider: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
+				Banks:  pq.Int64Array{1, 2},
+				Status: "active",
+			},
+			models.Agent{
+				Name:     "Agent J",
+				Username: "agentJ",
+				Password: "password",
+				Email:    "agentj@mib.com",
+				Phone:    "081234567891",
+				Category: "account_executive",
+				Banks:    pq.Int64Array{1},
+				Status:   "active",
+			},
+		}
+		for _, agent := range agents {
+			agent.Create()
+		}
+
 		//seed uuid
 		uuid := models.Uuid_Reset_Password{
 			UUID: "f4f71eae-2cc9-4289-94e4-2421df67d4d7",
@@ -595,6 +657,7 @@ func TestSeed() {
 		for _, clients := range client {
 			clients.Create()
 		}
+
 	}
 }
 
@@ -614,6 +677,8 @@ func Truncate(tableList []string) (err error) {
 				"uuid_reset_passwords",
 				"client_configs",
 				"internal_roles",
+				"agent_borrowers",
+				"agents",
 			}
 		}
 
