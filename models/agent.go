@@ -21,6 +21,7 @@ type Agent struct {
 	AgentProvider sql.NullInt64 `json:"agent_provider" gorm:"column:agent_provider"`
 	Banks         pq.Int64Array `json:"banks" gorm:"column:banks"`
 	Status        string        `json:"status" gorm:"column:status"`
+	FCMToken      string        `json:"fcm_token" gorm:"column:fcm_token;type:varchar(255)"`
 }
 
 // BeforeCreate gorm callback

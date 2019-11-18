@@ -74,10 +74,10 @@ func TestAgentGetProfile(t *testing.T) {
 		req.WithHeader("Authorization", "Basic "+clientBasicToken)
 	})
 
-	borrowertoken := getAgentLoginToken(e, auth, "1")
+	agentToken := getAgentLoginToken(e, auth, "1")
 
 	auth = e.Builder(func(req *httpexpect.Request) {
-		req.WithHeader("Authorization", "Bearer "+borrowertoken)
+		req.WithHeader("Authorization", "Bearer "+agentToken)
 	})
 
 	// valid response
