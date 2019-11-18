@@ -677,6 +677,8 @@ func Truncate(tableList []string) (err error) {
 				"uuid_reset_passwords",
 				"client_configs",
 				"internal_roles",
+				"agent_borrowers",
+				"agents",
 			}
 		}
 
