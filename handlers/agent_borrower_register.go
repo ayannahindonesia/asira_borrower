@@ -65,7 +65,6 @@ func AgentRegisterBorrower(c echo.Context) error {
 			RelatedAddress       string    `json:"related_address"`
 			Bank                 int64     `json:"bank"`
 			BankAccountNumber    string    `json:"bank_accountnumber"`
-			Password             string    `json:"password"`
 		}
 	)
 	register := Register{}
@@ -74,8 +73,8 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"fullname":              []string{"required"},
 		"nickname":              []string{},
 		"gender":                []string{"required"},
-		"idcard_number":         []string{"required", "unique:borrowers,idcard_number"},
-		"taxid_number":          []string{"unique:borrowers,taxid_number"},
+		"idcard_number":         []string{"required", "unique:agent_borrowers,idcard_number"},
+		"taxid_number":          []string{"unique:agent_borrowers,taxid_number"},
 		"nationality":           []string{},
 		"email":                 []string{"email"},
 		"birthday":              []string{"date"},
@@ -114,9 +113,8 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"related_relation":      []string{"required"},
 		"related_phonenumber":   []string{"required"},
 		"related_homenumber":    []string{},
-		"bank":                  []string{"required", "valid_id:banks"},
-		"bank_accountnumber":    []string{"unique:borrowers,bank_accountnumber"},
-		"password":              []string{"required"},
+		"bank":                  []string{"required"},
+		"bank_accountnumber":    []string{"unique:agent_borrowers,bank_accountnumber"},
 	}
 
 	user := c.Get("user")
@@ -129,9 +127,22 @@ func AgentRegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun Agen tidak ditemukan")
 	}
 
+	//validate
 	validate := validateRequestPayload(c, payloadRules, &register)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
+	}
+
+	//cek bank di dalam list bank agent atau tidak
+	validBank := false
+	for _, val := range agentModel.Banks {
+		if register.Bank == val {
+			validBank = true
+			break
+		}
+	}
+	if !validBank {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Bank tidak terdaftar untuk agent")
 	}
 
 	IdCardImage := models.Image{

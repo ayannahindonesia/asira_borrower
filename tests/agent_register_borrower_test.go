@@ -68,7 +68,8 @@ func TestAgentBorrower(t *testing.T) {
 		"related_relation":      "sister",
 		"bank":                  1,
 		"related_phonenumber":   "081247273727",
-		"password":              "pass123",
+		"bank_accountnumber":    "23uirhjifskafm",
+		//"password":              "pass123",
 	}
 
 	// test valid response
