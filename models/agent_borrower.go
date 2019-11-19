@@ -69,7 +69,7 @@ func (b *AgentBorrower) Create() error {
 		return err
 	}
 
-	err = KafkaSubmitModel(l, "agent_borrower")
+	err = KafkaSubmitModel(b, "agent_borrower")
 
 	return err
 }
@@ -80,7 +80,7 @@ func (b *AgentBorrower) Save() error {
 		return err
 	}
 
-	err = KafkaSubmitModel(l, "agent_borrower")
+	err = KafkaSubmitModel(b, "agent_borrower")
 	return err
 }
 
