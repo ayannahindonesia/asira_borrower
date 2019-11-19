@@ -72,7 +72,7 @@ func AgentAllBank(c echo.Context) error {
 	//create custom response
 	result := basemodel.PagedFindResult{
 		TotalData:   totalRows,
-		Rows:        totalRows,
+		Rows:        rows,
 		CurrentPage: page,
 		LastPage:    lastPage,
 		From:        offset + 1,
