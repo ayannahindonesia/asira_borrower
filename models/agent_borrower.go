@@ -65,11 +65,22 @@ type (
 // gorm callback hook
 func (b *AgentBorrower) Create() error {
 	err := basemodel.Create(&b)
+	if err != nil {
+		return err
+	}
+
+	err = KafkaSubmitModel(b, "agent_borrower")
+
 	return err
 }
 
 func (b *AgentBorrower) Save() error {
 	err := basemodel.Save(&b)
+	if err != nil {
+		return err
+	}
+
+	err = KafkaSubmitModel(b, "agent_borrower")
 	return err
 }
 
