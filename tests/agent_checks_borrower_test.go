@@ -32,7 +32,7 @@ func TestAgentChecksBorrower(t *testing.T) {
 
 	payload := map[string]interface{}{
 
-		"idcard_number": "9876123451234567789",
+		"idcard_number": "9876123451234566689",
 		"phone":         "+629812",
 		"email":         "ad@gmail.com",
 		"taxid_number":  "0987654321234567890",
