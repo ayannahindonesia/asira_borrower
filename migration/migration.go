@@ -241,8 +241,8 @@ func Seed() {
 			models.AgentBorrower{
 				Fullname:             "Full Name A",
 				Gender:               "M",
-				IdCardNumber:         "9876123451234567789",
-				TaxIDnumber:          "0987654321234567890",
+				IdCardNumber:         "9876123451234566689",
+				TaxIDnumber:          "0987654321234566690",
 				Birthday:             time.Now(),
 				Birthplace:           "a birthplace",
 				LastEducation:        "a last edu",
@@ -273,7 +273,7 @@ func Seed() {
 				OtherIncome:          2000000,
 				RelatedPersonName:    "a big sis",
 				RelatedPhoneNumber:   "08987654321",
-				BankAccountNumber:    "520384716",
+				BankAccountNumber:    "520384666",
 				Bank: sql.NullInt64{
 					Int64: 1,
 					Valid: true,
@@ -671,8 +671,8 @@ func TestSeed() {
 			models.AgentBorrower{
 				Fullname:             "Full Name A",
 				Gender:               "M",
-				IdCardNumber:         "9876123451234567789",
-				TaxIDnumber:          "0987654321234567890",
+				IdCardNumber:         "9876123451234566689",
+				TaxIDnumber:          "0987654321234566690",
 				Birthday:             time.Now(),
 				Birthplace:           "a birthplace",
 				LastEducation:        "a last edu",
@@ -703,7 +703,7 @@ func TestSeed() {
 				OtherIncome:          2000000,
 				RelatedPersonName:    "a big sis",
 				RelatedPhoneNumber:   "08987654321",
-				BankAccountNumber:    "520384716",
+				BankAccountNumber:    "520384666",
 				Bank: sql.NullInt64{
 					Int64: 1,
 					Valid: true,
