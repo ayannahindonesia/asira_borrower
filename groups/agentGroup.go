@@ -17,4 +17,7 @@ func AgentGroup(e *echo.Echo) {
 	// agent's profile endpoints
 	g.POST("/register_borrower", handlers.AgentRegisterBorrower)
 
+	//banks owned by current agent (jti)
+	g.GET("/banks", handlers.AgentAllBank)
+
 }

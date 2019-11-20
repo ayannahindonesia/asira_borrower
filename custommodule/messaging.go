@@ -9,6 +9,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/labstack/echo"
 )
 
 type (
@@ -24,7 +26,7 @@ type (
 		ClientAuth       string
 		SMS              string
 		PushNotification string
-		TestingFCMToken  string
+		ListNotification string
 	}
 )
 
@@ -38,8 +40,9 @@ func (model *Messaging) SetConfig(key string, secret string, URL string, Endpoin
 
 // ClientAuth func
 func (model *Messaging) ClientAuth() (err error) {
-	basicToken := base64.StdEncoding.EncodeToString([]byte(model.Key + ":" + model.Secret))
 
+	fmt.Println("model.Key ==> ", model.Key, model.Secret)
+	basicToken := base64.StdEncoding.EncodeToString([]byte(model.Key + ":" + model.Secret))
 	request, _ := http.NewRequest("GET", model.URL+model.Endpoints.ClientAuth, nil)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("Authorization", fmt.Sprintf("Basic %s", basicToken))
@@ -117,10 +120,10 @@ func (model *Messaging) SendSMS(number string, message string) (err error) {
 	return nil
 }
 
-func (model *Messaging) SendNotificationByToken(title string, message_body string, map_data map[string]string, firebase_token string) (err error) {
+func (model *Messaging) SendNotificationByToken(title string, message_body string, map_data map[string]string, firebase_token string, recipient_id string) (err error) {
 
 	//bug cycling call dependency
-	// topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.messaging.push_notification", asira.App.ENV))
+	//topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.messaging.push_notification", asira.App.ENV))
 
 	err = model.RefreshToken()
 	if err != nil {
@@ -130,6 +133,7 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 		firebase_token = model.Endpoints.PushNotification
 	}
 	payload, _ := json.Marshal(map[string]interface{}{
+		"recipient_id":   recipient_id,
 		"title":          title,
 		"message_body":   message_body,
 		"firebase_token": firebase_token,
@@ -154,4 +158,51 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 	}
 
 	return nil
+}
+
+//TODO: GetNotificationBySenderId
+//NOTE: get data from Messaging microservice
+func (model *Messaging) GetNotificationByRecipientID(recipient_id string, c echo.Context) (string, error) {
+
+	err := model.RefreshToken()
+	if err != nil {
+		return "", err
+	}
+
+	//+"?token="+token
+	request, _ := http.NewRequest("GET", model.URL+model.Endpoints.ListNotification, nil)
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", model.Token))
+
+	//create url query
+	q := request.URL.Query()
+
+	// pagination parameters
+	q.Add("rows", c.QueryParam("rows"))
+	q.Add("page", c.QueryParam("page"))
+	q.Add("orderby", c.QueryParam("orderby"))
+	q.Add("sort", c.QueryParam("sort"))
+	// filters
+	q.Add("id", c.QueryParam("id"))
+	q.Add("title", c.QueryParam("title"))
+	q.Add("topic", c.QueryParam("topic"))
+	q.Add("send_time", c.QueryParam("send_time"))
+	//NOTE: recipient_id tuk menandakan borrower tertentu, jd tidak ada masalah meskipun 1 recipient_id bisa memiliki banyak FCM token (case : FCM token terupdate dr device client)
+	q.Add("recipient_id", recipient_id)
+	request.URL.RawQuery = q.Encode()
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return "", err
+	}
+	defer response.Body.Close()
+	body, _ := ioutil.ReadAll(response.Body)
+	log.Println("GET NOTIF : ", response)
+	if response.StatusCode != http.StatusOK {
+
+		log.Printf("Failed get notification : %s", string(body))
+
+		return string(body), fmt.Errorf("Failed get notification")
+	}
+
+	return string(body), nil
 }
