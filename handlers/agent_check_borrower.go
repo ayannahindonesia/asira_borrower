@@ -19,9 +19,16 @@ func AgentCheckBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	type Filter struct {
-		AgentID      int64  `json:"agent_id"`
-		IdCardNumber string `json:"idcard_number"`
-		TaxIDnumber  string `json:"taxid_number"`
+		AgentID      int64  `json:"agent_id" `
+		IDCardNumber string `json:"idcard_number" condition:"LIKE"`
+		TaxIDNumber  string `json:"taxid_number" condition:"LIKE"`
+		Phone        string `json:"phone" condition:"LIKE"`
+		Email        string `json:"email" condition:"LIKE"`
+	}
+
+	type Payload struct {
+		IDCardNumber string `json:"idcard_number"`
+		TaxIDNumber  string `json:"taxid_number"`
 		Phone        string `json:"phone"`
 		Email        string `json:"email"`
 	}
@@ -38,7 +45,7 @@ func AgentCheckBorrower(c echo.Context) error {
 	}
 
 	//validate post
-	var payloadFilter Filter
+	payloadFilter := Payload{}
 	rules := govalidator.MapData{
 		"idcard_number": []string{"required"},
 		"taxid_number":  []string{},
@@ -52,8 +59,13 @@ func AgentCheckBorrower(c echo.Context) error {
 
 	//check is agent's borrower exist or not
 	var agentBorrower models.AgentBorrower
-	payloadFilter.AgentID = agentID
-	err = agentBorrower.FilterSearchSingle(payloadFilter)
+	err = agentBorrower.FilterSearchSingleWhereOr(&Filter{
+		AgentID:      agentID,
+		IDCardNumber: payloadFilter.IDCardNumber,
+		TaxIDNumber:  payloadFilter.TaxIDNumber,
+		Phone:        payloadFilter.Phone,
+		Email:        payloadFilter.Email,
+	})
 	//if exist
 	if err != nil {
 		return c.JSON(http.StatusOK, &Response{
