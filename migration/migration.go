@@ -236,6 +236,55 @@ func Seed() {
 			agent.Create()
 		}
 
+		// seed agent's borrowers
+		agentBorrowers := []models.AgentBorrower{
+			models.AgentBorrower{
+				Fullname:             "Full Name A",
+				Gender:               "M",
+				IdCardNumber:         "9876123451234567789",
+				TaxIDnumber:          "0987654321234567890",
+				Birthday:             time.Now(),
+				Birthplace:           "a birthplace",
+				LastEducation:        "a last edu",
+				MotherName:           "a mom",
+				MarriedStatus:        "single",
+				SpouseName:           "a spouse",
+				SpouseBirthday:       time.Now(),
+				SpouseLastEducation:  "master",
+				Dependants:           0,
+				Address:              "a street address",
+				Province:             "a province",
+				City:                 "a city",
+				NeighbourAssociation: "a rt",
+				Hamlets:              "a rw",
+				HomePhoneNumber:      "021837163",
+				Subdistrict:          "a camat",
+				UrbanVillage:         "a lurah",
+				HomeOwnership:        "privately owned",
+				LivedFor:             5,
+				Occupation:           "accupation",
+				EmployerName:         "amployer",
+				EmployerAddress:      "amployer address",
+				Department:           "a department",
+				BeenWorkingFor:       2,
+				DirectSuperior:       "a boss",
+				EmployerNumber:       "02188776655",
+				MonthlyIncome:        5000000,
+				OtherIncome:          2000000,
+				RelatedPersonName:    "a big sis",
+				RelatedPhoneNumber:   "08987654321",
+				BankAccountNumber:    "520384716",
+				Bank: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
+				AgentID: 1,
+			},
+		}
+		for _, agentBorrower := range agentBorrowers {
+			agentBorrower.Create()
+		}
+
 		//seed uuid
 		uuid := models.Uuid_Reset_Password{
 			UUID: "f4f71eae-2cc9-4289-94e4-2421df67d4d7",
