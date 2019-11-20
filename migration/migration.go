@@ -239,7 +239,7 @@ func Seed() {
 		// seed agent's borrowers
 		agentBorrowers := []models.AgentBorrower{
 			models.AgentBorrower{
-				Fullname:             "Full Name A",
+				Fullname:             "Full Name AB",
 				Gender:               "M",
 				IdCardNumber:         "9876123451234566689",
 				TaxIDnumber:          "0987654321234566690",
@@ -278,7 +278,10 @@ func Seed() {
 					Int64: 1,
 					Valid: true,
 				},
-				AgentID: 1,
+				AgentID: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
 			},
 		}
 		for _, agentBorrower := range agentBorrowers {
@@ -669,7 +672,7 @@ func TestSeed() {
 		// seed agent's borrowers
 		agentBorrowers := []models.AgentBorrower{
 			models.AgentBorrower{
-				Fullname:             "Full Name A",
+				Fullname:             "Full Name AB",
 				Gender:               "M",
 				IdCardNumber:         "9876123451234566689",
 				TaxIDnumber:          "0987654321234566690",
@@ -708,7 +711,10 @@ func TestSeed() {
 					Int64: 1,
 					Valid: true,
 				},
-				AgentID: 1,
+				AgentID: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
 			},
 		}
 		for _, agentBorrower := range agentBorrowers {
