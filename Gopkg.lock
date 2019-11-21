@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:d2b153ad0607c776ac9aca92d072e3c6b74143747c6c6edbe8ba73549dfde1b5"
+  digest = "1:33f56caa9ab45fedc63d3d1d3e342d9f9d00726071f22c67d06b0cd26d49a55e"
   name = "github.com/Shopify/sarama"
   packages = ["."]
   pruneopts = ""
-  revision = "1358e9c6e61694cd61b2daae79f5aa4b8073c976"
-  version = "v1.24.0"
+  revision = "675b0b1ff204c259877004140a540d6adf38db17"
+  version = "v1.24.1"
 
 [[projects]]
   digest = "1:e8f914c174ebc670d1713986d5e4f47a21f349209ac929d00558a496f59c7384"
@@ -188,7 +188,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:602dba8749048b1d46cb0cb576ad014dbdf1812d7abc9bfe9d1b9e495bc4929c"
+  digest = "1:4ceab6231efd01210f2b8b6ab360d480d49c0f44df63841ca0465920a387495d"
   name = "github.com/klauspost/compress"
   packages = [
     "flate",
@@ -201,16 +201,8 @@
     "zstd/internal/xxhash",
   ]
   pruneopts = ""
-  revision = "da9470192e5d0ad619defde5ded583e5e907d3e8"
-  version = "v1.8.6"
-
-[[projects]]
-  digest = "1:cb39bebc72505b4120988fb9e258ecffba4ed679dc04794d517198887160df80"
-  name = "github.com/klauspost/cpuid"
-  packages = ["."]
-  pruneopts = ""
-  revision = "05a8198c0f5a27739aec358908d7e12c64ce6eb7"
-  version = "v1.2.1"
+  revision = "4e96aec082898e4dad17d8aca1a7e2d01362ff6c"
+  version = "v1.9.2"
 
 [[projects]]
   digest = "1:4beb546223497fdc767dd15f2f48e271598817cecda2beaf2ad7bf43282d5bf7"
@@ -282,23 +274,23 @@
   version = "v1.1.2"
 
 [[projects]]
-  digest = "1:67d84c0ff107908e53fb2c9f42f1181a1b8b33f0c230d47281cc20ab21824c0e"
+  digest = "1:5f347ea0b4656f17f0ddffae1419dafaac4bc6ed57c92d58cadc7452f8a9ac3f"
   name = "github.com/pelletier/go-toml"
   packages = ["."]
   pruneopts = ""
-  revision = "8fe62057ea2d46ce44254c98e84e810044dbe197"
-  version = "v1.5.0"
+  revision = "903d9455db9ff1d7ac1ab199062eca7266dd11a3"
+  version = "v1.6.0"
 
 [[projects]]
-  digest = "1:f45cc60ba08316192e5c40ec31432fde3e9cdc23e09ced4c944123c30e7f8c22"
+  digest = "1:f5c875bba9e42adaba2627ec78961b655f747d885615beb1b01e40318ada65ea"
   name = "github.com/pierrec/lz4"
   packages = [
     ".",
     "internal/xxh32",
   ]
   pruneopts = ""
-  revision = "645f9b948eee34cbcc335c70999f79c29c420fbf"
-  version = "v2.3.0"
+  revision = "9085dacd1e1eca033047a5514195779360363ced"
+  version = "2.4.0"
 
 [[projects]]
   digest = "1:1d7e1867c49a6dd9856598ef7c3123604ea3daabf5b83f303ff457bcbc410b1d"
@@ -376,12 +368,12 @@
   version = "v1.0.5"
 
 [[projects]]
-  digest = "1:9b483544fcf4fc0155e566f49ee669c205fba12a36eb18e7f80510796a606db4"
+  digest = "1:6dc33597c06f8d16061307141bd5e9a0feb66cc3196ef8b1177624092a977439"
   name = "github.com/spf13/viper"
   packages = ["."]
   pruneopts = ""
-  revision = "b5bf975e5823809fb22c7644d008757f78a4259e"
-  version = "v1.4.0"
+  revision = "72b022eb357a56469725dcd03918449e2278d02e"
+  version = "v1.5.0"
 
 [[projects]]
   digest = "1:f7b541897bcde05a04a044c342ddc7425aab7e331f37b47fbb486cd16324b48e"
@@ -393,6 +385,14 @@
   pruneopts = ""
   revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
   version = "v1.4.0"
+
+[[projects]]
+  digest = "1:e818a738c880c5571b3817e9173add5c598a90f8615fa7a9bafc23fea774a603"
+  name = "github.com/subosito/gotenv"
+  packages = ["."]
+  pruneopts = ""
+  revision = "2ef7124db659d49edac6aa459693a15ae36c671a"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:6713ce21b0a4e38c3d27d27243e849a7ee47072b918d18779e9b0164a750bee9"
@@ -491,16 +491,16 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b7538a142bd590a436bd46a3095abc88de7ead968ba372dc01a6ba9c8f54cedb"
+  digest = "1:6720988f0ce117b620e238bfb9bfc4559a9dff332a0c15948c4a1099a0976bb6"
   name = "gitlab.com/asira-ayannah/basemodel"
   packages = ["."]
   pruneopts = ""
-  revision = "5c5a8bfdd5c5c8f1fbe9952dce9aab305aa1e988"
+  revision = "cfd54dc8942d15885e7642bb2cfd898ae56ccec7"
   source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@gitlab.com/asira-ayannah/basemodel.git"
 
 [[projects]]
   branch = "master"
-  digest = "1:d709f6b44dffe11337b3730ebf5ae6bb1bc9273a1c204266921205158a5a523f"
+  digest = "1:0296ee1ea79f78060b44458a816950f9b388b1cee78b870527cdb122d5010e29"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
@@ -511,11 +511,11 @@
     "pbkdf2",
   ]
   pruneopts = ""
-  revision = "87dc89f01550277dc22b74ffcf4cd89fa2f40f4c"
+  revision = "4f8c1d86b1ba699e7a66cd649947ed270a74e0bb"
 
 [[projects]]
   branch = "master"
-  digest = "1:d4d68fea45a3a5fc7645cf2538da3715384ac5eb6bcb72ce82b38cdfca8783e7"
+  digest = "1:1de58c5f172054bd703e3abfc245557214c2c4a798d338eeeaadbe15a34db483"
   name = "golang.org/x/net"
   packages = [
     "idna",
@@ -524,15 +524,15 @@
     "publicsuffix",
   ]
   pruneopts = ""
-  revision = "da9a3fd4c5820e74b24a6cb7fb438dc9b0dd377c"
+  revision = "fc4aabc6c91483155dade6fbb627cc953a723260"
 
 [[projects]]
   branch = "master"
-  digest = "1:f7859b24c4f7a2c384c3d6ef5cdd15641e26a22b3649a52b0ac08d35e518a0de"
+  digest = "1:f4c29b1d94803bdad51d739f9337b0b7578f58911aeb7cc1774aead8d564684b"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "3e7259c5e7c2076bb2728047a3df75adb1bad8e5"
+  revision = "f068ffe820e46336f56dfca7777430582d6e507b"
 
 [[projects]]
   digest = "1:740b51a55815493a8d0f2b1e0d0ae48fe48953bf7eaf3fcc4198823bf67768c0"
@@ -650,12 +650,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:ab9547706f32a7535bb4f25d6b58ad00436630593cd3e3ed4602f1613ed84783"
+  digest = "1:5a53f6ef09fb1ac261a97f8a72e8837ff53cbaa969022a6679da210e4cbe9b0f"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = ""
-  revision = "f221b8435cfb71e54062f6c6e99e9ade30b124d5"
-  version = "v2.2.4"
+  revision = "1f64d6156d11335c3f22d9330b0ad14fc1e789ce"
+  version = "v2.2.7"
 
 [[projects]]
   digest = "1:a007311f74ec15ad1c56672245793e98e67566e78a0bee8b575f9856a8d5299a"
