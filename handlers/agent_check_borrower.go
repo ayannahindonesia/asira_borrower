@@ -19,7 +19,6 @@ func AgentCheckBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	type Filter struct {
-		AgentID      int64  `json:"agent_id" `
 		IDCardNumber string `json:"idcard_number" condition:"LIKE"`
 		TaxIDNumber  string `json:"taxid_number" condition:"LIKE"`
 		Phone        string `json:"phone" condition:"LIKE"`
@@ -60,7 +59,6 @@ func AgentCheckBorrower(c echo.Context) error {
 	//check is agent's borrower exist or not
 	var agentBorrower models.AgentBorrower
 	err = agentBorrower.FilterSearchSingleWhereOr(&Filter{
-		AgentID:      agentID,
 		IDCardNumber: payloadFilter.IDCardNumber,
 		TaxIDNumber:  payloadFilter.TaxIDNumber,
 		Phone:        payloadFilter.Phone,
