@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"asira_borrower/models"
+	"fmt"
 	"net/http"
+	"reflect"
 	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
@@ -11,26 +13,27 @@ import (
 )
 
 type Response struct {
-	IDAgentBorrower int64 `json:"id_agent_borrower"`
-	Status          bool  `json:"status"`
+	Status          bool     `json:"status"`
+	IDAgentBorrower int64    `json:"id_agent_borrower"`
+	Fields          []string `json:"fields"`
+}
+
+type Filter struct {
+	IDCardNumber string `json:"idcard_number" condition:"LIKE,optional"`
+	TaxIDNumber  string `json:"taxid_number" condition:"LIKE"`
+	Phone        string `json:"phone" condition:"LIKE"`
+	Email        string `json:"email" condition:"LIKE,optional"`
+}
+
+type Payload struct {
+	IDCardNumber string `json:"idcard_number"`
+	TaxIDNumber  string `json:"taxid_number"`
+	Phone        string `json:"phone"`
+	Email        string `json:"email"`
 }
 
 func AgentCheckBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
-
-	type Filter struct {
-		IDCardNumber string `json:"idcard_number" condition:"LIKE"`
-		TaxIDNumber  string `json:"taxid_number" condition:"LIKE"`
-		Phone        string `json:"phone" condition:"LIKE"`
-		Email        string `json:"email" condition:"LIKE"`
-	}
-
-	type Payload struct {
-		IDCardNumber string `json:"idcard_number"`
-		TaxIDNumber  string `json:"taxid_number"`
-		Phone        string `json:"phone"`
-		Email        string `json:"email"`
-	}
 
 	//validate agent
 	user := c.Get("user")
@@ -64,16 +67,56 @@ func AgentCheckBorrower(c echo.Context) error {
 		Phone:        payloadFilter.Phone,
 		Email:        payloadFilter.Email,
 	})
-	//if exist
+
+	//if not exist yet
 	if err != nil {
 		return c.JSON(http.StatusOK, &Response{
 			IDAgentBorrower: 0,
 			Status:          false,
+			Fields:          nil,
 		})
 	}
-	//if not exist yet
+	//if exist
+	existed := existingFields(agentBorrower, payloadFilter)
 	return c.JSON(http.StatusOK, &Response{
 		IDAgentBorrower: int64(agentBorrower.ID),
 		Status:          true,
+		Fields:          existed,
 	})
+}
+
+func existingFields(agentBorrower models.AgentBorrower, payload Payload) []string {
+	var exists []string
+	valPayload := reflect.ValueOf(payload)
+	valAgentBorrower := reflect.ValueOf(agentBorrower)
+
+	//loop per field agent borrower
+	for i := 0; i < valAgentBorrower.NumField(); i++ {
+		field := valAgentBorrower.Type().Field(i).Name
+		//fmt.Printf("%+v\n", valAgentBorrower.Field(i).Interface())
+		//cek availability
+		check := compareReflectFieldValue(field, valPayload, valAgentBorrower)
+		if check == true {
+			exists = append(exists, field)
+			fmt.Printf("%+v\n", exists)
+		}
+		fmt.Printf("%+v\n", check)
+	}
+	return exists
+}
+
+func compareReflectFieldValue(is string, isReflect reflect.Value, inReflect reflect.Value) bool {
+	//ambil data
+	isValue := reflect.Indirect(isReflect).FieldByName(is)
+	inValue := reflect.Indirect(inReflect).FieldByName(is)
+
+	// if reflect.Zero(isValue).Int() == 0 || reflect.Zero(inValue).Int() == 0 {
+	// 	return false
+	// }
+	fmt.Printf("reflect.DeepEqual(%+v, %+v) == %+v\n", isValue, inValue, reflect.DeepEqual(isValue, inValue))
+	//cek equality
+	if isValue.String() == inValue.String() {
+		return true
+	}
+	return false
 }

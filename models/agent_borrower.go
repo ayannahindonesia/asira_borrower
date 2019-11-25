@@ -86,7 +86,7 @@ func (b *AgentBorrower) FilterSearchSingle(filter interface{}) error {
 
 // FilterSearchSingle search using filter and return last
 func (b *AgentBorrower) FilterSearchSingleWhereOr(filter interface{}) error {
-	err := basemodel.SingleFindFilterWhereOr(&b, filter, true)
+	err := basemodel.SingleFindFilter(&b, filter)
 	return err
 }
 

@@ -395,12 +395,12 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:6713ce21b0a4e38c3d27d27243e849a7ee47072b918d18779e9b0164a750bee9"
+  digest = "1:5583780a89860b819b21c79d18fcc0a8f332dcfe6d430f990523e6dfdca65a87"
   name = "github.com/thedevsaddam/govalidator"
   packages = ["."]
   pruneopts = ""
-  revision = "01bf6ba67ac42ba976ff56c550a95ad8010cfa3e"
-  version = "v1.9.8"
+  revision = "9aa754d584410c79e165fe6897bae5643dea6b90"
+  version = "v1.9.9"
 
 [[projects]]
   digest = "1:857a9ecd5cb13379ecc8f798f6e6b6b574c98b9355657d91e068275f1120aaf7"
@@ -490,12 +490,12 @@
   revision = "ecda9a501e8220fae3b4b600c3db4b0ba22cfc68"
 
 [[projects]]
-  branch = "master"
-  digest = "1:6720988f0ce117b620e238bfb9bfc4559a9dff332a0c15948c4a1099a0976bb6"
+  branch = "paged-ors"
+  digest = "1:694fa0d1b8bb3f5dfc04af62b816d3d8dcc5796c554999c237584db5dc9342b8"
   name = "gitlab.com/asira-ayannah/basemodel"
   packages = ["."]
   pruneopts = ""
-  revision = "cfd54dc8942d15885e7642bb2cfd898ae56ccec7"
+  revision = "3db8b71c6cada6e3227626340fe942b246c53746"
   source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@gitlab.com/asira-ayannah/basemodel.git"
 
 [[projects]]
@@ -528,11 +528,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:f4c29b1d94803bdad51d739f9337b0b7578f58911aeb7cc1774aead8d564684b"
+  digest = "1:11845cae7402f689cdea0c89f6979f1e9ec2e15e413a4ebf6ce3d5eaee33aa87"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "f068ffe820e46336f56dfca7777430582d6e507b"
+  revision = "bd437916bb0eb726b873ee8e9b2dcf212d32e2fd"
 
 [[projects]]
   digest = "1:740b51a55815493a8d0f2b1e0d0ae48fe48953bf7eaf3fcc4198823bf67768c0"
