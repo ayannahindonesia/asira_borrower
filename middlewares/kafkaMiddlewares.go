@@ -2,7 +2,9 @@ package middlewares
 
 import (
 	"asira_borrower/asira"
+	"asira_borrower/handlers"
 	"asira_borrower/models"
+
 	"encoding/json"
 	"fmt"
 	"log"
@@ -315,10 +317,23 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	//set recipient ID
 	recipientID := fmt.Sprintf("borrower-%d", borrower.ID)
 
+	//set title for notif and email
+	title := "Status Pinjaman Anda"
+
 	//send notif
-	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", formatedMsg, mapData, borrower.FCMToken, recipientID)
+	err = asira.App.Messaging.SendNotificationByToken(title, formatedMsg, mapData, borrower.FCMToken, recipientID)
 	if err != nil {
 		return err
+	}
+
+	to := borrower.Email
+	subject := "[NO REPLY] - " + title
+	link := "" //FUTURE: link open apps detail
+	message := formatedMsg + link
+
+	err = handlers.SendMail(to, subject, message)
+	if err != nil {
+		log.Println(err.Error())
 	}
 
 	return err
