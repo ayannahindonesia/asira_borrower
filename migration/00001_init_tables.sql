@@ -203,7 +203,7 @@ CREATE TABLE "agent_borrowers" (
     "bank" bigserial,
     "bank_accountnumber" varchar(255),
     "agent_id" bigserial,
-    "status"    boolean DEFAULT FALSE,
+    "status" varchar(255) DEFAULT 'active',
     FOREIGN KEY ("idcard_image") REFERENCES images(id),
     FOREIGN KEY ("taxid_image") REFERENCES images(id),
     FOREIGN KEY ("bank") REFERENCES banks(id),
