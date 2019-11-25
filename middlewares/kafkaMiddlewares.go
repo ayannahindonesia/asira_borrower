@@ -320,12 +320,6 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	//set title for notif and email
 	title := "Status Pinjaman Anda"
 
-	//send notif
-	err = asira.App.Messaging.SendNotificationByToken(title, formatedMsg, mapData, borrower.FCMToken, recipientID)
-	if err != nil {
-		return err
-	}
-
 	to := borrower.Email
 	subject := "[NO REPLY] - " + title
 	link := "" //FUTURE: link open apps detail
@@ -335,6 +329,9 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	if err != nil {
 		log.Println(err.Error())
 	}
+
+	//send notif
+	err = asira.App.Messaging.SendNotificationByToken(title, formatedMsg, mapData, borrower.FCMToken, recipientID)
 
 	return err
 }
