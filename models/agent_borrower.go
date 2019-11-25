@@ -59,6 +59,8 @@ type (
 		Bank                 sql.NullInt64 `json:"bank" gorm:"column:bank" sql:"DEFAULT:NULL"`
 		BankAccountNumber    string        `json:"bank_accountnumber" gorm:"column:bank_accountnumber"`
 		AgentID              sql.NullInt64 `json:"agent_id" gorm:"column:agent_id"`
+		Status               string        `json:"status" gorm:"column:status;default:'active'"`
+		NthLoans             int           `json:"nth_loans" gorm:"-"`
 	}
 )
 
