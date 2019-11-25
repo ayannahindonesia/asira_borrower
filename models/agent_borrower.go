@@ -60,7 +60,7 @@ type (
 		BankAccountNumber    string        `json:"bank_accountnumber" gorm:"column:bank_accountnumber"`
 		AgentID              sql.NullInt64 `json:"agent_id" gorm:"column:agent_id"`
 		Status               bool          `json:"status" gorm:"column:status"`
-		NthLoans             int           `json:"nth_loans" gorm:"column:nth_loans"`
+		NthLoans             int           `json:"nth_loans" gorm:"-"`
 	}
 )
 
