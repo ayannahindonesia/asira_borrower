@@ -20,8 +20,8 @@ type Response struct {
 
 type Filter struct {
 	IDCardNumber string `json:"idcard_number" condition:"LIKE,optional"`
-	TaxIDNumber  string `json:"taxid_number" condition:"LIKE"`
-	Phone        string `json:"phone" condition:"LIKE"`
+	TaxIDNumber  string `json:"taxid_number" condition:"LIKE,optional"`
+	Phone        string `json:"phone" condition:"LIKE,optional"`
 	Email        string `json:"email" condition:"LIKE,optional"`
 }
 
