@@ -24,24 +24,37 @@ func TestAgentBankServicesGet(t *testing.T) {
 		req.WithHeader("Authorization", "Basic "+clientBasicToken)
 	})
 
-	borrowertoken := getAgentLoginToken(e, auth, "1")
+	borrowertoken := getAgentLoginToken(e, auth, "2")
 
 	auth = e.Builder(func(req *httpexpect.Request) {
 		req.WithHeader("Authorization", "Bearer "+borrowertoken)
 	})
 
-	obj := auth.GET("/agent/bank_services/1").
+	// valid response of bank_services for bankID = 1
+	obj := auth.GET("/agent/bank_services").
+		WithQuery("bank_id", 1).
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 	obj.ContainsKey("total_data").ValueEqual("total_data", 2)
 
-	// // valid response of loan details
-	// obj = auth.GET("/agent/bank_services/1").
-	// 	Expect().
-	// 	Status(http.StatusOK).JSON().Object()
-	// obj.ContainsKey("id").ValueEqual("id", 1)
-	// // loan id not found
-	// obj = auth.GET("/agent/bank_services/99").
-	// 	Expect().
-	// 	Status(http.StatusForbidden).JSON().Object()
+	// valid response of bank_services for bank_id = 1 dan service_id = 1
+	obj = auth.GET("/agent/bank_services").
+		WithQuery("bank_id", 1).
+		WithQuery("service_id", 1).
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+	obj.ContainsKey("total_data").ValueEqual("total_data", 1)
+
+	// banks not in agent banks
+	obj = auth.GET("/agent/bank_services").
+		WithQuery("bank_id", 99).
+		Expect().
+		Status(http.StatusForbidden).JSON().Object()
+
+	// test not found
+	obj = auth.GET("/agent/bank_services").
+		WithQuery("bank_id", 1).
+		WithQuery("service_id", 99).
+		Expect().
+		Status(http.StatusNotFound).JSON().Object()
 }
