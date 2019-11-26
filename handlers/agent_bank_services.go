@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -13,6 +12,7 @@ import (
 )
 
 func AgentBankService(c echo.Context) error {
+	defer c.Request().Body.Close()
 
 	type Filter struct {
 		Banks pq.Int64Array `json:"banks"`
@@ -34,44 +34,36 @@ func AgentBankService(c echo.Context) error {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun agen tidak ditemukan")
 	}
 
-	//check service by bank_id
-	bankID, _ := strconv.ParseInt(c.Param("bank_id"), 10, 64)
+	//get from QueryParam
+	bankID, _ := strconv.ParseInt(c.QueryParam("bank_id"), 10, 64)
+	serviceID, _ := strconv.Atoi(c.QueryParam("service_id"))
 
 	//check bank exist in Agent.Banks; manual looping for performance
-	exist := false
-	for _, val := range agentModel.Banks {
-		if val == bankID {
-			exist = true
-			break
-		}
+	if isInArrayInt64(bankID, []int64(agentModel.Banks)) == false {
+		return returnInvalidResponse(http.StatusForbidden, err, "Bank ID tidak terdaftar untuk agen")
 	}
-	if exist == false {
-		returnInvalidResponse(http.StatusForbidden, err, "Bank ID tidak terdaftar untuk agen")
-	}
-	fmt.Println("bankID=", bankID, "; agentID=", agentID)
-	//query result
+
+	//query result serviceID
 	db := asira.App.DB
 	var results []models.Service
 	var count int
-	err = db.Table("services").
-		Select("*").
-		Where("id IN (SELECT UNNEST(services) FROM banks WHERE id = ?)", bankID).Find(&results).Count(&count).Error
 
-	if err != nil {
-		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")
+	//build query
+	objDB := db.Table("services s").
+		Select("*").
+		Where("s.id IN (SELECT UNNEST(services) FROM banks b WHERE b.id = ?)", bankID)
+
+	//bila serviceID di set berarti mengarah ke detail ID
+	if serviceID > 0 {
+		// bankServices := models.Service{}
+		objDB = objDB.Where("s.id = ?", serviceID)
+	}
+
+	err = objDB.Find(&results).Count(&count).Error
+
+	if err != nil || count == 0 {
+		return returnInvalidResponse(http.StatusNotFound, err, "Service Product Tidak Ditemukan")
 	}
 
 	return c.JSON(http.StatusOK, &Result{TotalData: count, Data: results})
-}
-
-func AgentBankServiceDetails(c echo.Context) error {
-	defer c.Request().Body.Close()
-	bServices := models.Service{}
-
-	serviceID, _ := strconv.Atoi(c.Param("service_id"))
-	err := bServices.FindbyID(serviceID)
-	if err != nil {
-		return returnInvalidResponse(http.StatusForbidden, err, "Service Tidak Ditemukan")
-	}
-	return c.JSON(http.StatusOK, bServices)
 }

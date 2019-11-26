@@ -83,3 +83,14 @@ func createJwtToken(id string, role string) (string, error) {
 
 	return token, nil
 }
+
+func isInArrayInt64(id int64, banks []int64) bool {
+	exist := false
+	for _, val := range banks {
+		if val == id {
+			exist = true
+			break
+		}
+	}
+	return exist
+}
