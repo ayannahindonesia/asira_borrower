@@ -4,6 +4,7 @@ import (
 	"asira_borrower/asira"
 	"asira_borrower/handlers"
 	"asira_borrower/models"
+	"errors"
 
 	"encoding/json"
 	"fmt"
@@ -264,6 +265,13 @@ func processMessage(kafkaMessage []byte) (err error) {
 }
 
 func loanUpdate(kafkaMessage []byte) (err error) {
+	type Filter struct {
+		ID                  int       `json:"id"`
+		Status              string    `json:"status"`
+		DisburseDate        time.Time `json:"disburse_date"`
+		DisburseStatus      string    `json:"disburse_status"`
+		DisburseDateChanged bool      `json:"disburse_date_changed"`
+	}
 	var loanData Loan
 	loan := models.Loan{}
 	borrower := models.Borrower{}
@@ -273,11 +281,23 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		return err
 	}
 
+	err = loan.FilterSearchSingle(&Filter{
+		ID:                  loanData.ID,
+		Status:              loanData.Status,
+		DisburseDate:        loanData.DisburseDate,
+		DisburseStatus:      loanData.DisburseStatus,
+		DisburseDateChanged: loanData.DisburseDateChanged,
+	})
+	//data ada di kafka sebelumnya
+	if err == nil {
+		return errors.New("loan already in db")
+	}
+
+	//get by ID saja
 	err = loan.FindbyID(loanData.ID)
 	if err != nil {
 		return err
 	}
-
 	loan.Status = loanData.Status
 	loan.DisburseDate = loanData.DisburseDate
 	loan.DisburseStatus = loanData.DisburseStatus
