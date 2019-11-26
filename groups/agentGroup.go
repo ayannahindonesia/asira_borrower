@@ -17,11 +17,12 @@ func AgentGroup(e *echo.Echo) {
 	// agent's profile endpoints
 	g.POST("/register_borrower", handlers.AgentRegisterBorrower)
 
-	// agent's bank Endpoint
-	g.GET("/bank_services", handlers.AgentBankService)
-	g.GET("/bank_services/:service_id", handlers.AgentBankServiceDetails)
 	//banks owned by current agent (jti)
 	g.GET("/banks", handlers.AgentAllBank)
+
+	// agent's bank Endpoint
+	g.GET("/bank_services/:bank_id", handlers.AgentBankService)
+	g.GET("/bank_services/:bank_id/:service_id", handlers.AgentBankServiceDetails)
 
 	//borrowers owned by current agent (jti) and bank_id
 	g.GET("/borrowers/:bank_id", handlers.AgentAllBorrower)
