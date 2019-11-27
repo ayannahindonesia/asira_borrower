@@ -20,6 +20,9 @@ func AgentGroup(e *echo.Echo) {
 	//banks owned by current agent (jti)
 	g.GET("/banks", handlers.AgentAllBank)
 
+	// agent's bank Endpoint
+	g.GET("/bank_product", handlers.AgentBankProduct)
+
 	//borrowers owned by current agent (jti) and bank_id
 	g.GET("/borrowers/:bank_id", handlers.AgentAllBorrower)
 
