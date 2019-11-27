@@ -19,15 +19,15 @@ type Response struct {
 }
 
 type Filter struct {
-	IDCardNumber string `json:"idcard_number" condition:"LIKE,optional"`
-	TaxIDNumber  string `json:"taxid_number" condition:"LIKE,optional"`
+	IdCardNumber string `json:"idcard_number" condition:"LIKE,optional"`
+	TaxIDnumber  string `json:"taxid_number" condition:"LIKE,optional"`
 	Phone        string `json:"phone" condition:"LIKE,optional"`
 	Email        string `json:"email" condition:"LIKE,optional"`
 }
 
 type Payload struct {
-	IDCardNumber string `json:"idcard_number"`
-	TaxIDNumber  string `json:"taxid_number"`
+	IdCardNumber string `json:"idcard_number"`
+	TaxIDnumber  string `json:"taxid_number"`
 	Phone        string `json:"phone"`
 	Email        string `json:"email"`
 }
@@ -62,8 +62,8 @@ func AgentCheckBorrower(c echo.Context) error {
 	//check is agent's borrower exist or not
 	var agentBorrower models.AgentBorrower
 	err = agentBorrower.FilterSearchSingleWhereOr(&Filter{
-		IDCardNumber: payloadFilter.IDCardNumber,
-		TaxIDNumber:  payloadFilter.TaxIDNumber,
+		IdCardNumber: payloadFilter.IdCardNumber,
+		TaxIDnumber:  payloadFilter.TaxIDnumber,
 		Phone:        payloadFilter.Phone,
 		Email:        payloadFilter.Email,
 	})
