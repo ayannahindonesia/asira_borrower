@@ -115,6 +115,7 @@ func compareReflectFieldValue(is string, isReflect reflect.Value, inReflect refl
 	// }
 	fmt.Printf("reflect.DeepEqual(%+v, %+v) == %+v\n", isValue, inValue, reflect.DeepEqual(isValue, inValue))
 	//cek equality
+	// if reflect.DeepEqual(isValue, inValue) {
 	if isValue.String() == inValue.String() {
 		return true
 	}
