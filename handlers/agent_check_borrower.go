@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
-	"strconv"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/thedevsaddam/govalidator"
 )
@@ -34,17 +32,6 @@ type Payload struct {
 
 func AgentCheckBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
-
-	//validate agent
-	user := c.Get("user")
-	token := user.(*jwt.Token)
-	claims := token.Claims.(jwt.MapClaims)
-	agentID, err := strconv.ParseInt(claims["jti"].(string), 10, 64)
-	var agent models.Agent
-	err = agent.FindbyID(int(agentID))
-	if err != nil {
-		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
-	}
 
 	//validate post
 	payloadFilter := Payload{}
@@ -93,7 +80,6 @@ func existingFields(agentBorrower models.AgentBorrower, payload Payload) []strin
 	//loop per field agent borrower
 	for i := 0; i < valAgentBorrower.NumField(); i++ {
 		field := valAgentBorrower.Type().Field(i).Name
-		//fmt.Printf("%+v\n", valAgentBorrower.Field(i).Interface())
 		//cek availability
 		check := compareReflectFieldValue(field, valPayload, valAgentBorrower)
 		if check == true {
@@ -110,9 +96,6 @@ func compareReflectFieldValue(is string, isReflect reflect.Value, inReflect refl
 	isValue := reflect.Indirect(isReflect).FieldByName(is)
 	inValue := reflect.Indirect(inReflect).FieldByName(is)
 
-	// if reflect.Zero(isValue).Int() == 0 || reflect.Zero(inValue).Int() == 0 {
-	// 	return false
-	// }
 	fmt.Printf("reflect.DeepEqual(%+v, %+v) == %+v\n", isValue, inValue, reflect.DeepEqual(isValue, inValue))
 	//cek equality
 	// if reflect.DeepEqual(isValue, inValue) {
