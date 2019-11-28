@@ -84,12 +84,6 @@ func (b *AgentBorrower) FilterSearchSingle(filter interface{}) error {
 	return err
 }
 
-// FilterSearchSingle search using filter and return last
-func (b *AgentBorrower) FilterSearchSingleWhereOr(filter interface{}) error {
-	err := basemodel.SingleFindFilter(&b, filter)
-	return err
-}
-
 func (b *AgentBorrower) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result basemodel.PagedFindResult, err error) {
 	borrowers := []AgentBorrower{}
 	var orders []string

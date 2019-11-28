@@ -48,7 +48,7 @@ func AgentCheckBorrower(c echo.Context) error {
 
 	//check is agent's borrower exist or not
 	var agentBorrower models.AgentBorrower
-	err = agentBorrower.FilterSearchSingleWhereOr(&Filter{
+	err = agentBorrower.FilterSearchSingle(&Filter{
 		IdCardNumber: payloadFilter.IdCardNumber,
 		TaxIDnumber:  payloadFilter.TaxIDnumber,
 		Phone:        payloadFilter.Phone,
@@ -96,7 +96,6 @@ func compareReflectFieldValue(is string, isReflect reflect.Value, inReflect refl
 	isValue := reflect.Indirect(isReflect).FieldByName(is)
 	inValue := reflect.Indirect(inReflect).FieldByName(is)
 
-	fmt.Printf("reflect.DeepEqual(%+v, %+v) == %+v\n", isValue, inValue, reflect.DeepEqual(isValue, inValue))
 	//cek equality
 	// if reflect.DeepEqual(isValue, inValue) {
 	if isValue.String() == inValue.String() {
