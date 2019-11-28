@@ -395,12 +395,12 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:6713ce21b0a4e38c3d27d27243e849a7ee47072b918d18779e9b0164a750bee9"
+  digest = "1:5583780a89860b819b21c79d18fcc0a8f332dcfe6d430f990523e6dfdca65a87"
   name = "github.com/thedevsaddam/govalidator"
   packages = ["."]
   pruneopts = ""
-  revision = "01bf6ba67ac42ba976ff56c550a95ad8010cfa3e"
-  version = "v1.9.8"
+  revision = "9aa754d584410c79e165fe6897bae5643dea6b90"
+  version = "v1.9.9"
 
 [[projects]]
   digest = "1:857a9ecd5cb13379ecc8f798f6e6b6b574c98b9355657d91e068275f1120aaf7"
@@ -491,16 +491,16 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6720988f0ce117b620e238bfb9bfc4559a9dff332a0c15948c4a1099a0976bb6"
+  digest = "1:d9307affab378b1e21489c92b2aea39ff5c8d954ea59080fdf62dc056b21968a"
   name = "gitlab.com/asira-ayannah/basemodel"
   packages = ["."]
   pruneopts = ""
-  revision = "cfd54dc8942d15885e7642bb2cfd898ae56ccec7"
+  revision = "35f9d88ff955c1d2094ec7ca337fbe8b565c0fa1"
   source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@gitlab.com/asira-ayannah/basemodel.git"
 
 [[projects]]
   branch = "master"
-  digest = "1:0296ee1ea79f78060b44458a816950f9b388b1cee78b870527cdb122d5010e29"
+  digest = "1:c57e5a436bda4c346e7bacb57fb0cf95613bb9b74df09202c1c0b4d6c07b7972"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
@@ -511,11 +511,11 @@
     "pbkdf2",
   ]
   pruneopts = ""
-  revision = "4f8c1d86b1ba699e7a66cd649947ed270a74e0bb"
+  revision = "ac88ee75c92c889b97e05591e9a39b6480c538b3"
 
 [[projects]]
   branch = "master"
-  digest = "1:1de58c5f172054bd703e3abfc245557214c2c4a798d338eeeaadbe15a34db483"
+  digest = "1:b61fcec495a334d36135a43a5fd3eda2d8d61b764033c2434e26761398b7da00"
   name = "golang.org/x/net"
   packages = [
     "idna",
@@ -524,15 +524,15 @@
     "publicsuffix",
   ]
   pruneopts = ""
-  revision = "fc4aabc6c91483155dade6fbb627cc953a723260"
+  revision = "ffdde105785063a81acd95bdf89ea53f6e0aac2d"
 
 [[projects]]
   branch = "master"
-  digest = "1:f4c29b1d94803bdad51d739f9337b0b7578f58911aeb7cc1774aead8d564684b"
+  digest = "1:1b2a936fb2a0054fdd36d33bb3059fdfd3014663911684f5e3fa8f64ae79d7fc"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "f068ffe820e46336f56dfca7777430582d6e507b"
+  revision = "8a8471f7e56d296bf6a05aa09520b111beb1937a"
 
 [[projects]]
   digest = "1:740b51a55815493a8d0f2b1e0d0ae48fe48953bf7eaf3fcc4198823bf67768c0"
