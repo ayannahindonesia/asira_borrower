@@ -325,7 +325,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 }
 
 type Filter struct {
-	ID int64 `json:"id"`
+	Username string `json:"username"`
 }
 
 func syncAgent(dataAgent []byte) (err error) {
@@ -353,7 +353,7 @@ func syncAgent(dataAgent []byte) (err error) {
 		var agentQuery models.Agent
 		err = json.Unmarshal(dataAgent, &agent)
 		err = agentQuery.FilterSearchSingle(&Filter{
-			ID: int64(agent.ID),
+			Username: agent.Username,
 		})
 		if err != nil {
 			err = agent.Save()
