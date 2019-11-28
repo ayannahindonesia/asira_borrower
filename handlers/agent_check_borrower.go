@@ -17,10 +17,10 @@ type Response struct {
 }
 
 type Filter struct {
-	IdCardNumber string `json:"idcard_number" condition:"LIKE,optional"`
-	TaxIDnumber  string `json:"taxid_number" condition:"LIKE,optional"`
-	Phone        string `json:"phone" condition:"LIKE,optional"`
-	Email        string `json:"email" condition:"LIKE,optional"`
+	IdCardNumber string `json:"idcard_number" condition:"optional"`
+	TaxIDnumber  string `json:"taxid_number" condition:"optional"`
+	Phone        string `json:"phone" condition:"optional"`
+	Email        string `json:"email" condition:"optional"`
 }
 
 type Payload struct {
