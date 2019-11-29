@@ -257,7 +257,7 @@ func Seed() {
 		notifications := []models.Notification{
 			models.Notification{
 				ClientID:      2,
-				RecipientID:   1,
+				RecipientID:   "borrower-1",
 				Title:         "Status Peminjaman Anda",
 				MessageBody:   "Loan id 1 diterima oleh Bank A 2019-11-06",
 				FirebaseToken: "dtRiFA0U7tE:APA91bGURmGuJLLD0Y_PdhHvFj3haiq8jj8haAfaw94yH0j-Jj6TiGM4wzRHmoLUhihlXKLUF7iFAsAalXzrUVLEVbbtK57_wVYCu2jhameVoG13rc1HgIM6xanEMlApnuwSmURdcdz1",
@@ -267,7 +267,7 @@ func Seed() {
 			},
 			models.Notification{
 				ClientID:      2,
-				RecipientID:   2,
+				RecipientID:   "borrower-2",
 				Title:         "Status Peminjaman Anda",
 				MessageBody:   "Loan id 2 diterima oleh Bank B 2019-11-06",
 				FirebaseToken: "dtRiFA0U7tE:APA91bGURmGuJLLD0Y_PdhHvFj3haiq8jj8haAfaw94yH0j-Jj6TiGM4wzRHmoLUhihlXKLUF7iFAsAalXzrUVLEVbbtK57_wVYCu2jhameVoG13rc1HgIM6xanEMlApnuwSmURdcdz1",
@@ -277,7 +277,7 @@ func Seed() {
 			},
 			models.Notification{
 				ClientID:      2,
-				RecipientID:   3,
+				RecipientID:   "agent-1",
 				Title:         "Promosi",
 				MessageBody:   "Promosi Produk A...",
 				FirebaseToken: "dtRiFA0U7tE:APA91bGURmGuJLLD0Y_PdhHvFj3haiq8jj8haAfaw94yH0j-Jj6TiGM4wzRHmoLUhihlXKLUF7iFAsAalXzrUVLEVbbtK57_wVYCu2jhameVoG13rc1HgIM6xanEMlApnuwSmURdcdz1",
@@ -286,8 +286,8 @@ func Seed() {
 				Response:      "projects/asira-app-33ed7/messages/0:1573131084523969%2056f65bf9fd7ecd",
 			},
 			models.Notification{
-				ClientID:      1,
-				RecipientID:   4,
+				ClientID:      2,
+				RecipientID:   "agent-2",
 				Title:         "Info",
 				MessageBody:   "Info, informasi...",
 				FirebaseToken: "dtRiFA0U7tE:APA91bGURmGuJLLD0Y_PdhHvFj3haiq8jj8haAfaw94yH0j-Jj6TiGM4wzRHmoLUhihlXKLUF7iFAsAalXzrUVLEVbbtK57_wVYCu2jhameVoG13rc1HgIM6xanEMlApnuwSmURdcdz1",
@@ -803,7 +803,7 @@ func TestSeed() {
 		notifications := []models.Notification{
 			models.Notification{
 				ClientID:      2,
-				RecipientID:   1,
+				RecipientID:   "borrower-1",
 				Title:         "Status Peminjaman Anda",
 				MessageBody:   "Loan id 1 diterima oleh Bank A 2019-11-06",
 				FirebaseToken: "dtRiFA0U7tE:APA91bGURmGuJLLD0Y_PdhHvFj3haiq8jj8haAfaw94yH0j-Jj6TiGM4wzRHmoLUhihlXKLUF7iFAsAalXzrUVLEVbbtK57_wVYCu2jhameVoG13rc1HgIM6xanEMlApnuwSmURdcdz1",
@@ -813,7 +813,7 @@ func TestSeed() {
 			},
 			models.Notification{
 				ClientID:      2,
-				RecipientID:   2,
+				RecipientID:   "borrower-2",
 				Title:         "Status Peminjaman Anda",
 				MessageBody:   "Loan id 2 diterima oleh Bank B 2019-11-06",
 				FirebaseToken: "dtRiFA0U7tE:APA91bGURmGuJLLD0Y_PdhHvFj3haiq8jj8haAfaw94yH0j-Jj6TiGM4wzRHmoLUhihlXKLUF7iFAsAalXzrUVLEVbbtK57_wVYCu2jhameVoG13rc1HgIM6xanEMlApnuwSmURdcdz1",
@@ -823,7 +823,7 @@ func TestSeed() {
 			},
 			models.Notification{
 				ClientID:      2,
-				RecipientID:   3,
+				RecipientID:   "agent-1",
 				Title:         "Promosi",
 				MessageBody:   "Promosi Produk A...",
 				FirebaseToken: "dtRiFA0U7tE:APA91bGURmGuJLLD0Y_PdhHvFj3haiq8jj8haAfaw94yH0j-Jj6TiGM4wzRHmoLUhihlXKLUF7iFAsAalXzrUVLEVbbtK57_wVYCu2jhameVoG13rc1HgIM6xanEMlApnuwSmURdcdz1",
@@ -832,8 +832,8 @@ func TestSeed() {
 				Response:      "projects/asira-app-33ed7/messages/0:1573131084523969%2056f65bf9fd7ecd",
 			},
 			models.Notification{
-				ClientID:      1,
-				RecipientID:   4,
+				ClientID:      2,
+				RecipientID:   "agent-2",
 				Title:         "Info",
 				MessageBody:   "Info, informasi...",
 				FirebaseToken: "dtRiFA0U7tE:APA91bGURmGuJLLD0Y_PdhHvFj3haiq8jj8haAfaw94yH0j-Jj6TiGM4wzRHmoLUhihlXKLUF7iFAsAalXzrUVLEVbbtK57_wVYCu2jhameVoG13rc1HgIM6xanEMlApnuwSmURdcdz1",

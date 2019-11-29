@@ -287,7 +287,7 @@ CREATE TABLE "internal_roles" (
 CREATE TABLE "notifications" (
     "id" bigserial,
     "client_id" bigserial,
-    "borrower_id" bigserial,
+    "recipient_id" varchar(255),
     "title" varchar(255) NOT NULL,
     "message_body" text,
     "firebase_token" varchar(255),

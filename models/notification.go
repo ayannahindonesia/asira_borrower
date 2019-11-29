@@ -11,7 +11,7 @@ type (
 	Notification struct {
 		basemodel.BaseModel
 		ClientID    uint64 `json:"client_id" gorm:"column:client_id"`
-		RecipientID uint64 `json:"recipient_id" gorm:"recipient_id"`
+		RecipientID string `json:"recipient_id" gorm:"recipient_id"`
 		Title       string `json:"title" gorm:"column:title"`
 		MessageBody string `json:"message_body" gorm:"column:message_body"`
 		//TODO: to get from client device

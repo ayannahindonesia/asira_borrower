@@ -120,14 +120,15 @@ func (model *Messaging) SendSMS(number string, message string) (err error) {
 	return nil
 }
 
-func (model *Messaging) SendNotificationByToken(title string, message_body string, map_data map[string]string, firebase_token string, recipient_id string) (err error) {
+//SendNotificationByToken sending firebase message by token
+func (model *Messaging) SendNotificationByToken(title string, message_body string, map_data map[string]string, firebase_token string, recipient_id string) (responseBody []byte, err error) {
 
 	//bug cycling call dependency
 	//topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.messaging.push_notification", asira.App.ENV))
 
 	err = model.RefreshToken()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if firebase_token == "" {
 		firebase_token = model.Endpoints.PushNotification
@@ -146,20 +147,23 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer response.Body.Close()
+
 	log.Println("PUSH NOTIF : ", response)
-	if response.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(response.Body)
-		log.Printf("Failed sending notification : %s", string(body))
+	//cek response
+	responseBody, err = ioutil.ReadAll(response.Body)
+	if response.StatusCode != http.StatusOK || err != nil {
 
-		return fmt.Errorf("Failed sending notification")
+		log.Printf("Failed sending notification : %s", string(responseBody))
+
+		return responseBody, fmt.Errorf("Failed sending notification")
 	}
-
-	return nil
+	return responseBody, nil
 }
 
+//GetNotificationByRecipientID get notification list by recipient ID (i.e. : borrower or agent)
 //TODO: GetNotificationBySenderId
 //NOTE: get data from Messaging microservice
 func (model *Messaging) GetNotificationByRecipientID(recipient_id string, c echo.Context) (string, error) {

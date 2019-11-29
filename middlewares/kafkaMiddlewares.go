@@ -351,7 +351,18 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	}
 
 	//send notif
-	err = asira.App.Messaging.SendNotificationByToken(title, formatedMsg, mapData, borrower.FCMToken, recipientID)
+	responseBody, err := asira.App.Messaging.SendNotificationByToken(title, formatedMsg, mapData, borrower.FCMToken, recipientID)
+	log.Println("Response Body : ", string(responseBody))
+	//logging notification
+	var notif models.Notification
+	err = json.Unmarshal(responseBody, &notif)
+	if err != nil {
+		msg := fmt.Sprintf("%s : %s", "Failed storing notification", err.Error())
+		log.Printf(msg)
+		return fmt.Errorf(msg)
+	} else {
+		notif.Save()
+	}
 
 	return err
 }

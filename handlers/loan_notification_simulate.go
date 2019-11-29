@@ -5,6 +5,7 @@ import (
 	"asira_borrower/models"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -15,6 +16,7 @@ import (
 	"github.com/thedevsaddam/govalidator"
 )
 
+//LoanNotificationSimulate simulate loan request
 func LoanNotificationSimulate(c echo.Context) error {
 	defer c.Request().Body.Close()
 	var err error
@@ -66,6 +68,7 @@ func LoanNotificationSimulate(c echo.Context) error {
 	return c.JSON(http.StatusCreated, loan)
 }
 
+//LoanSimulateApproveReject simulate loan request approved or rejected
 func LoanSimulateApproveReject(loan *models.Loan, status string, token string) error {
 
 	loan.Status = status
@@ -78,10 +81,11 @@ func LoanSimulateApproveReject(loan *models.Loan, status string, token string) e
 	}
 	jsonReq, _ := json.Marshal(loan)
 	//MAYBEDO: general type (string, int, float) to map[string]string
-	err := asira.App.Messaging.SendNotificationByToken("testing", string(jsonReq), nil, token, "borrower-simulate")
+	responseBody, err := asira.App.Messaging.SendNotificationByToken("testing", string(jsonReq), nil, token, "borrower-simulate")
 	if err != nil {
 		return err //returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending notification")
 	}
+	fmt.Println(responseBody)
 	//err = models.KafkaSubmitModelLoopback(loan, "loan")
 	return nil
 }
