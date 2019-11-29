@@ -284,6 +284,21 @@ CREATE TABLE "internal_roles" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+CREATE TABLE "notifications" (
+    "id" bigserial,
+    "client_id" bigserial,
+    "borrower_id" bigserial,
+    "title" varchar(255) NOT NULL,
+    "message_body" text,
+    "firebase_token" varchar(255),
+    "topic" varchar(125),
+    "response" varchar(255),
+    "send_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 
@@ -300,3 +315,4 @@ DROP TABLE IF EXISTS "client_configs" CASCADE;
 DROP TABLE IF EXISTS "internal_roles" CASCADE;
 DROP TABLE IF EXISTS "agent_borrowers" CASCADE;
 DROP TABLE IF EXISTS "agents" CASCADE;
+DROP TABLE IF EXISTS "notifications" CASCADE;
