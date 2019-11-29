@@ -22,20 +22,10 @@ type (
 	}
 )
 
-//BeforeCreate gorm callback hook
-func (u *Notification) BeforeCreate() (err error) {
-	return nil
-}
-
 //Create new Notification data
 func (u *Notification) Create() error {
 	err := basemodel.Create(&u)
 	return err
-}
-
-//BeforeSave gorm callback hook
-func (u *Notification) BeforeSave() (err error) {
-	return nil
 }
 
 //Save / update data notification
