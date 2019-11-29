@@ -7,6 +7,7 @@ import (
 )
 
 type (
+	//Notification datatype
 	Notification struct {
 		basemodel.BaseModel
 		ClientID    uint64 `json:"client_id" gorm:"column:client_id"`
@@ -26,31 +27,36 @@ func (u *Notification) BeforeCreate() (err error) {
 	return nil
 }
 
+//Create new Notification data
 func (u *Notification) Create() error {
 	err := basemodel.Create(&u)
 	return err
 }
 
-// gorm callback hook
+//BeforeSave gorm callback hook
 func (u *Notification) BeforeSave() (err error) {
 	return nil
 }
 
+//Save / update data notification
 func (u *Notification) Save() error {
 	err := basemodel.Save(&u)
 	return err
 }
 
+//FindbyID to search 1 row by ID
 func (u *Notification) FindbyID(id int) error {
 	err := basemodel.FindbyID(&u, id)
 	return err
 }
 
+//FilterSearchSingle to search 1 row by filter (multiple fields)
 func (u *Notification) FilterSearchSingle(filter interface{}) error {
 	err := basemodel.SingleFindFilter(&u, filter)
 	return err
 }
 
+//PagedFilterSearch FilterSearchSingle to search 1 row by filter (multiple fields) and paged properties
 func (u *Notification) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result basemodel.PagedFindResult, err error) {
 	notif := []Notification{}
 	order := []string{orderby}
