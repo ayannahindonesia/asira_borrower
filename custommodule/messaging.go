@@ -9,8 +9,6 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/labstack/echo"
 )
 
 type (
@@ -161,52 +159,4 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 		return responseBody, fmt.Errorf("Failed sending notification")
 	}
 	return responseBody, nil
-}
-
-//GetNotificationByRecipientID get notification list by recipient ID (i.e. : borrower or agent)
-//TODO: GetNotificationBySenderId
-//NOTE: get data from Messaging microservice
-func (model *Messaging) GetNotificationByRecipientID(recipient_id string, c echo.Context) (string, error) {
-
-	err := model.RefreshToken()
-	if err != nil {
-		return "", err
-	}
-
-	//+"?token="+token
-	request, _ := http.NewRequest("GET", model.URL+model.Endpoints.ListNotification, nil)
-	request.Header.Add("Content-Type", "application/json")
-	request.Header.Add("Authorization", fmt.Sprintf("Bearer %s", model.Token))
-
-	//create url query
-	q := request.URL.Query()
-
-	// pagination parameters
-	q.Add("rows", c.QueryParam("rows"))
-	q.Add("page", c.QueryParam("page"))
-	q.Add("orderby", c.QueryParam("orderby"))
-	q.Add("sort", c.QueryParam("sort"))
-	// filters
-	q.Add("id", c.QueryParam("id"))
-	q.Add("title", c.QueryParam("title"))
-	q.Add("topic", c.QueryParam("topic"))
-	q.Add("send_time", c.QueryParam("send_time"))
-	//NOTE: recipient_id tuk menandakan borrower tertentu, jd tidak ada masalah meskipun 1 recipient_id bisa memiliki banyak FCM token (case : FCM token terupdate dr device client)
-	q.Add("recipient_id", recipient_id)
-	request.URL.RawQuery = q.Encode()
-	response, err := http.DefaultClient.Do(request)
-	if err != nil {
-		return "", err
-	}
-	defer response.Body.Close()
-	body, _ := ioutil.ReadAll(response.Body)
-	log.Println("GET NOTIF : ", response)
-	if response.StatusCode != http.StatusOK {
-
-		log.Printf("Failed get notification : %s", string(body))
-
-		return string(body), fmt.Errorf("Failed get notification")
-	}
-
-	return string(body), nil
 }

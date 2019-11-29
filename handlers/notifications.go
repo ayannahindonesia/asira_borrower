@@ -1,15 +1,13 @@
 package handlers
 
 import (
-	"asira_borrower/asira"
-	"encoding/json"
+	"asira_borrower/models"
 	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
-	"gitlab.com/asira-ayannah/basemodel"
 )
 
 //FUTURE: NotificationsGetByTopic
@@ -17,22 +15,33 @@ import (
 func NotificationsGet(c echo.Context) error {
 	defer c.Request().Body.Close()
 
+	type Filter struct {
+		RecipientID string `json:"recipient_id"`
+	}
+
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	notification := models.Notification{}
 
+	// pagination parameters
+	rows, err := strconv.Atoi(c.QueryParam("rows"))
+	page, err := strconv.Atoi(c.QueryParam("page"))
+	orderby := c.QueryParam("orderby")
+	sort := c.QueryParam("sort")
+
+	// filters
 	//NOTE: borrower user default formater
 	recipient_id := fmt.Sprintf("borrower-%d", borrowerID)
 
-	//get notification list by recipient_id
-	response, err := asira.App.Messaging.GetNotificationByRecipientID(recipient_id, c)
+	//search
+	result, err := notification.PagedFilterSearch(page, rows, orderby, sort, &Filter{
+		RecipientID: recipient_id,
+	})
 	if err != nil {
-		return err //returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending notification")
+		return returnInvalidResponse(http.StatusNotFound, err, "Notifikasi tidak Ditemukan")
 	}
 
-	//parse result from microservice messaging
-	var parseResponse basemodel.PagedFindResult
-	json.Unmarshal([]byte(response), &parseResponse)
-	return c.JSON(http.StatusOK, parseResponse)
+	return c.JSON(http.StatusOK, result)
 }
