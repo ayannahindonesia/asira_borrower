@@ -152,7 +152,7 @@ func (model *Messaging) SendNotificationByToken(title string, message_body strin
 	log.Println("PUSH NOTIF : ", response)
 	//cek response
 	responseBody, err = ioutil.ReadAll(response.Body)
-	if response.StatusCode != http.StatusOK || err != nil {
+	if response.StatusCode != http.StatusOK {
 
 		log.Printf("Failed sending notification : %s", string(responseBody))
 
