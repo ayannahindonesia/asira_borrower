@@ -31,7 +31,7 @@ func LoanNotificationSimulate(c echo.Context) error {
 	payloadRules := govalidator.MapData{
 		"loan_amount":       []string{"required"},
 		"installment":       []string{"required"},
-		"loan_intention":    []string{"required", "loan_purposes"},
+		"loan_intention":    []string{"required"},
 		"intention_details": []string{"required"},
 		"product":           []string{"required"},
 	}

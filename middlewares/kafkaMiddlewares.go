@@ -2,7 +2,10 @@ package middlewares
 
 import (
 	"asira_borrower/asira"
+	"asira_borrower/handlers"
 	"asira_borrower/models"
+	"errors"
+
 	"encoding/json"
 	"fmt"
 	"log"
@@ -262,6 +265,13 @@ func processMessage(kafkaMessage []byte) (err error) {
 }
 
 func loanUpdate(kafkaMessage []byte) (err error) {
+	type Filter struct {
+		ID                  int       `json:"id"`
+		Status              string    `json:"status"`
+		DisburseDate        time.Time `json:"disburse_date"`
+		DisburseStatus      string    `json:"disburse_status"`
+		DisburseDateChanged bool      `json:"disburse_date_changed"`
+	}
 	var loanData Loan
 	loan := models.Loan{}
 	borrower := models.Borrower{}
@@ -271,11 +281,23 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		return err
 	}
 
+	err = loan.FilterSearchSingle(&Filter{
+		ID:                  loanData.ID,
+		Status:              loanData.Status,
+		DisburseDate:        loanData.DisburseDate,
+		DisburseStatus:      loanData.DisburseStatus,
+		DisburseDateChanged: loanData.DisburseDateChanged,
+	})
+	//data ada di kafka sebelumnya
+	if err == nil {
+		return errors.New("loan already in db")
+	}
+
+	//get by ID saja
 	err = loan.FindbyID(loanData.ID)
 	if err != nil {
 		return err
 	}
-
 	loan.Status = loanData.Status
 	loan.DisburseDate = loanData.DisburseDate
 	loan.DisburseStatus = loanData.DisburseStatus
@@ -315,19 +337,34 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	//set recipient ID
 	recipientID := fmt.Sprintf("borrower-%d", borrower.ID)
 
-	//send notif
-	err = asira.App.Messaging.SendNotificationByToken("Status Pinjaman Anda", formatedMsg, mapData, borrower.FCMToken, recipientID)
+	//set title for notif and email
+	title := "Status Pinjaman Anda"
+
+	to := borrower.Email
+	subject := "[NO REPLY] - " + title
+	link := "" //FUTURE: link open apps detail
+	message := formatedMsg + link
+
+	err = handlers.SendMail(to, subject, message)
 	if err != nil {
-		return err
+		log.Println(err.Error())
 	}
+
+	//send notif
+	err = asira.App.Messaging.SendNotificationByToken(title, formatedMsg, mapData, borrower.FCMToken, recipientID)
 
 	return err
 }
 
+type Filter struct {
+	Username string `json:"username"`
+}
+
 func syncAgent(dataAgent []byte) (err error) {
+
 	var agent models.Agent
 	var a map[string]interface{}
-
+	fmt.Println("dataAgent => ", dataAgent)
 	err = json.Unmarshal(dataAgent, &a)
 	if err != nil {
 		return err
@@ -345,11 +382,16 @@ func syncAgent(dataAgent []byte) (err error) {
 			return err
 		}
 	} else {
+		var agentQuery models.Agent
 		err = json.Unmarshal(dataAgent, &agent)
+		err = agentQuery.FilterSearchSingle(&Filter{
+			Username: agent.Username,
+		})
 		if err != nil {
-			return err
+			err = agent.Save()
+		} else {
+			err = agent.Create()
 		}
-		err = agent.Save()
 		return err
 	}
 	return nil

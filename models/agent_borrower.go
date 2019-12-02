@@ -58,23 +58,42 @@ type (
 		RelatedAddress       string        `json:"related_address" gorm:"column:related_address;type:text"`
 		Bank                 sql.NullInt64 `json:"bank" gorm:"column:bank" sql:"DEFAULT:NULL"`
 		BankAccountNumber    string        `json:"bank_accountnumber" gorm:"column:bank_accountnumber"`
-		AgentID              int64         `json:"agent_id" gorm:"column:agent_id"`
+		AgentID              sql.NullInt64 `json:"agent_id" gorm:"column:agent_id"`
+		Status               string        `json:"status" gorm:"column:status;default:'active'"`
+		NthLoans             int           `json:"nth_loans" gorm:"-"`
 	}
 )
 
 // gorm callback hook
 func (b *AgentBorrower) Create() error {
 	err := basemodel.Create(&b)
+	if err != nil {
+		return err
+	}
+
+	err = KafkaSubmitModel(b, "agent_borrower")
+
 	return err
 }
 
 func (b *AgentBorrower) Save() error {
 	err := basemodel.Save(&b)
+	if err != nil {
+		return err
+	}
+
+	err = KafkaSubmitModel(b, "agent_borrower")
 	return err
 }
 
 func (b *AgentBorrower) FindbyID(id int) error {
 	err := basemodel.FindbyID(&b, id)
+	return err
+}
+
+// FilterSearchSingle search using filter and return last
+func (b *AgentBorrower) FilterSearchSingle(filter interface{}) error {
+	err := basemodel.SingleFindFilter(&b, filter)
 	return err
 }
 
