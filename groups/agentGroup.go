@@ -20,6 +20,9 @@ func AgentGroup(e *echo.Echo) {
 	//banks owned by current agent (jti)
 	g.GET("/banks", handlers.AgentAllBank)
 
+	//borrowers owned by current agent (jti) and bank_id
+	g.GET("/borrowers/:bank_id", handlers.AgentAllBorrower)
+
 	//check borrower from agent is exist or not
 	g.POST("/checks_borrower", handlers.AgentCheckBorrower)
 
