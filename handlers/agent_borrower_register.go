@@ -76,12 +76,12 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"idcard_number":         []string{"required", "unique:agent_borrowers,idcard_number"},
 		"taxid_number":          []string{"unique:agent_borrowers,taxid_number"},
 		"nationality":           []string{},
-		"email":                 []string{"email"},
+		"email":                 []string{"email", "unique:agent_borrowers,email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
 		"last_education":        []string{"required"},
 		"mother_name":           []string{"required"},
-		"phone":                 []string{"id_phonenumber"},
+		"phone":                 []string{"id_phonenumber", "unique:agent_borrowers,phone"},
 		"marriage_status":       []string{"required"},
 		"spouse_name":           []string{},
 		"spouse_birthday":       []string{"date"},
@@ -161,7 +161,10 @@ func AgentRegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 	borrower := models.AgentBorrower{
-		AgentID: agentID,
+		AgentID: sql.NullInt64{
+			Int64: agentID,
+			Valid: true,
+		},
 		IdCardImage: sql.NullInt64{
 			Int64: int64(IdCardImage.ID),
 			Valid: true,
