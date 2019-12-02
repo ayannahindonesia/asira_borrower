@@ -7,7 +7,7 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-func sendMail(to string, subject, message string) error {
+func SendMail(to string, subject, message string) error {
 	Config := asira.App.Config.GetStringMap(fmt.Sprintf("%s.mailer", asira.App.ENV))
 	mailer := gomail.NewMessage()
 	mailer.SetHeader("From", Config["email"].(string))
