@@ -25,6 +25,7 @@ type (
 	}
 )
 
+//RegisterBorrower register borrower personal
 func RegisterBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
 	type (
@@ -163,16 +164,38 @@ func RegisterBorrower(c echo.Context) error {
 			Valid: true,
 		},
 	}
+
+	//marshalling data
 	r, err := json.Marshal(register)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
-	json.Unmarshal(r, &borrower)
 
-	err = borrower.Create()
+	//create 1 user for 1 borrower (nasabah personal)
+	user := models.User{}
+
+	//search already exist Borrower registered by agent
+	borrowerFound, err := isBorrowerRegisteredByAgent(register.IdCardNumber)
+	//borrower is new one, get from payload
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+		borrower = borrowerFound
+		json.Unmarshal(r, &borrower)
+		borrower.AgentReferral = sql.NullInt64{
+			Int64: 0,
+			Valid: true,
+		}
+		err = borrower.Create()
+		if err != nil {
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+		}
+	} else { //borrower already exist
+		borrower = borrowerFound
 	}
+
+	//save borrower_id to user entity and storing
+	user.BorrowerID = borrower.ID
+	user.Password = register.Password
+	user.Create()
 
 	return c.JSON(http.StatusCreated, borrower)
 }
@@ -249,4 +272,19 @@ func updateAccountOTPstatus(borrowerID int) {
 	_ = modelBorrower.FindbyID(borrowerID)
 	modelBorrower.OTPverified = true
 	modelBorrower.Save()
+}
+
+//isBorrowerRegisteredByAgent check is borrower already registered with agent register borrower
+func isBorrowerRegisteredByAgent(idcardNumber string) (models.Borrower, error) {
+	type Filter struct {
+		IdCardNumber string `json:"idcard_number"`
+	}
+	borrowerCheck := models.Borrower{}
+	err := borrowerCheck.FilterSearchSingle(&Filter{
+		IdCardNumber: idcardNumber,
+	})
+	if err != nil {
+		return borrowerCheck, err
+	}
+	return borrowerCheck, nil
 }
