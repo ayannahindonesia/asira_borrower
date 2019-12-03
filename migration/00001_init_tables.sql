@@ -142,11 +142,11 @@ CREATE TABLE "borrowers" (
     "bank" bigserial,
     "bank_accountnumber" varchar(255),
     "otp_verified" BOOLEAN,
-    "password" varchar(255) NOT NULL,
-    "fcm_token" varchar(255),
+    "agent_referral"  bigserial,
+    "status" varchar(255) DEFAULT 'active',
     FOREIGN KEY ("idcard_image") REFERENCES images(id),
     FOREIGN KEY ("taxid_image") REFERENCES images(id),
-    FOREIGN KEY ("bank") REFERENCES banks(id),
+    FOREIGN KEY ("bank") REFERENCES banks(id), 
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -284,6 +284,17 @@ CREATE TABLE "internal_roles" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+CREATE TABLE "users" (
+    "id" bigserial,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_time" timestamptz,
+    "borrower_id" varchar(255) NOT NULL,
+    "password" varchar(255) NOT NULL,
+    "fcm_token" varchar(255),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 
@@ -300,3 +311,4 @@ DROP TABLE IF EXISTS "client_configs" CASCADE;
 DROP TABLE IF EXISTS "internal_roles" CASCADE;
 DROP TABLE IF EXISTS "agent_borrowers" CASCADE;
 DROP TABLE IF EXISTS "agents" CASCADE;
+DROP TABLE IF EXISTS "users" CASCADE;
