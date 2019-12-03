@@ -10,7 +10,7 @@ import (
 type User struct {
 	basemodel.BaseModel
 	DeletedTime time.Time `json:"deleted_time" gorm:"column:deleted_time"`
-	BorrowerID  uint64    `json:"borrower_id" gorm:"column:borrower_id"`
+	BorrowerFK  uint64    `json:"borrower_fk" gorm:"column:borrower_fk"`
 	Password    string    `json:"password" gorm:"column:password"`
 	FCMToken    string    `json:"fcm_token" gorm:"column:fcm_token;type:varchar(255)"`
 }
@@ -29,9 +29,6 @@ func (model *User) BeforeCreate() (err error) {
 // Create new User
 func (model *User) Create() error {
 	err := basemodel.Create(&model)
-	if err != nil {
-		return err
-	}
 
 	return err
 }

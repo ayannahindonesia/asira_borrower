@@ -289,7 +289,7 @@ CREATE TABLE "users" (
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
-    "borrower_id" varchar(255) NOT NULL,
+    "borrower_fk" varchar(255) NOT NULL,
     "password" varchar(255) NOT NULL,
     "fcm_token" varchar(255),
     PRIMARY KEY ("id")
