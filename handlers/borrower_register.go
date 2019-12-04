@@ -86,15 +86,15 @@ func RegisterBorrower(c echo.Context) error {
 		"fullname":              []string{"required"},
 		"nickname":              []string{},
 		"gender":                []string{"required"},
-		"idcard_number":         []string{"required", "unique:borrowers,idcard_number"},
-		"taxid_number":          []string{"unique:borrowers,taxid_number"},
+		"idcard_number":         []string{"required"},
+		"taxid_number":          []string{},
 		"nationality":           []string{},
-		"email":                 []string{"email", "unique:borrowers,email"},
+		"email":                 []string{"email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
 		"last_education":        []string{"required"},
 		"mother_name":           []string{"required"},
-		"phone":                 []string{"required", "unique:borrowers,phone"},
+		"phone":                 []string{"required"},
 		"marriage_status":       []string{"required"},
 		"spouse_name":           []string{},
 		"spouse_birthday":       []string{"date"},
@@ -127,7 +127,7 @@ func RegisterBorrower(c echo.Context) error {
 		"related_phonenumber":   []string{"required"},
 		"related_homenumber":    []string{},
 		"bank":                  []string{},
-		"bank_accountnumber":    []string{"unique:borrowers,bank_accountnumber"},
+		"bank_accountnumber":    []string{},
 		"password":              []string{"required"},
 	}
 
@@ -175,30 +175,30 @@ func RegisterBorrower(c echo.Context) error {
 	user := models.User{}
 
 	//search already exist Borrower registered by agent
-	borrowerFound, err := isBorrowerRegisteredByAgent(register.IdCardNumber)
-	//borrower is new one, get from payload
+	err = isBorrowerAlreadyRegistered(register.IdCardNumber)
 	if err != nil {
-		borrower = borrowerFound
-		json.Unmarshal(r, &borrower)
-		borrower.AgentReferral = sql.NullInt64{
-			Int64: 0,
-			Valid: true,
-		}
-		err = borrower.Create()
-		if err != nil {
-			return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
-		}
-	} else { //borrower already exist
-		borrower = borrowerFound
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Borrower personal sudah terdaftar sebelumnya")
+	}
+
+	//create new personal borrower
+	json.Unmarshal(r, &borrower)
+	borrower.AgentReferral = sql.NullInt64{
+		Int64: 0,
+		Valid: true,
+	}
+	err = borrower.Create()
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 
 	//save borrower_id to user entity and storing
-	user.BorrowerID = borrower.ID
+	user.BorrowerFK = borrower.ID
 	user.Password = register.Password
 	user.Create()
 
 	return c.JSON(http.StatusCreated, borrower)
 }
+
 func RequestOTPverifyAccount(c echo.Context) error {
 	defer c.Request().Body.Close()
 
@@ -272,19 +272,4 @@ func updateAccountOTPstatus(borrowerID int) {
 	_ = modelBorrower.FindbyID(borrowerID)
 	modelBorrower.OTPverified = true
 	modelBorrower.Save()
-}
-
-//isBorrowerRegisteredByAgent check is borrower already registered with agent register borrower
-func isBorrowerRegisteredByAgent(idcardNumber string) (models.Borrower, error) {
-	type Filter struct {
-		IdCardNumber string `json:"idcard_number"`
-	}
-	borrowerCheck := models.Borrower{}
-	err := borrowerCheck.FilterSearchSingle(&Filter{
-		IdCardNumber: idcardNumber,
-	})
-	if err != nil {
-		return borrowerCheck, err
-	}
-	return borrowerCheck, nil
 }

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"errors"
 	"fmt"
 	"time"
 
@@ -93,4 +94,28 @@ func isInArrayInt64(id int64, banks []int64) bool {
 		}
 	}
 	return exist
+}
+
+//isBorrowerRegisteredByAgent check is borrower already registered with agent register borrower
+func isBorrowerAlreadyRegistered(idcardNumber string) error {
+	type Filter struct {
+		IdCardNumber string `json:"idcard_number"`
+	}
+
+	db := asira.App.DB
+	var count int
+
+	//get users based on borrower id
+	db = db.Table("borrowers b").
+		Select("u.*").
+		Joins("INNER JOIN users u ON b.id = u.borrower_fk").
+		Where("b.idcard_number = ?", idcardNumber)
+
+	err = db.Count(&count).Error
+	fmt.Println("check err & count ", err, count)
+	if err != nil || count > 0 {
+		return errors.New("Borrower already registered as personal")
+	}
+
+	return nil
 }
