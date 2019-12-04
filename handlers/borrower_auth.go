@@ -62,7 +62,7 @@ func BorrowerLogin(c echo.Context) error {
 	}
 	//check login data exist or not
 	user := models.User{}
-	err = user.FindbyID(int(borrower.ID))
+	err = user.FindbyBorrowerID(borrower.ID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusOK, err, "Borrower tidak memiliki akun personal")
 	}
@@ -77,7 +77,7 @@ func BorrowerLogin(c echo.Context) error {
 		if borrower.OTPverified {
 			tokenrole = "borrower"
 		}
-		token, err = createJwtToken(strconv.FormatUint(user.ID, 10), tokenrole)
+		token, err = createJwtToken(strconv.FormatUint(borrower.ID, 10), tokenrole)
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat token")
 		}

@@ -7,6 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+//User model for table users
 type User struct {
 	basemodel.BaseModel
 	DeletedTime time.Time `json:"deleted_time" gorm:"column:deleted_time"`
@@ -55,6 +56,17 @@ func (model *User) Delete() error {
 // FindbyID find User with id
 func (model *User) FindbyID(id int) error {
 	err := basemodel.FindbyID(&model, id)
+	return err
+}
+
+// FilterSearchSingle search using filter and return last
+func (model *User) FindbyBorrowerID(borrowerID uint64) error {
+	type Filter struct {
+		BorrowerFK uint64 `json:"borrower_fk"`
+	}
+	err := basemodel.SingleFindFilter(&model, &Filter{
+		BorrowerFK: borrowerID,
+	})
 	return err
 }
 
