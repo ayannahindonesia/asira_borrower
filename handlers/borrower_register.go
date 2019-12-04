@@ -207,7 +207,14 @@ func RequestOTPverifyAccount(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	userID, _ := strconv.Atoi(claims["jti"].(string))
+
+	//get user's borrower
+	users := models.User{}
+	err := users.FindbyID(userID)
+	borrower := models.Borrower{}
+	borrower.FindbyID(int(users.BorrowerFK))
+	borrowerID := int(borrower.ID)
 
 	payloadRules := govalidator.MapData{
 		"phone": []string{"regex:^[0-9]+$", "required"},
@@ -223,7 +230,7 @@ func RequestOTPverifyAccount(c echo.Context) error {
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
 
 	message := fmt.Sprintf("Code OTP Registrasi anda adalah %s", otpCode)
-	err := asira.App.Messaging.SendSMS(otpRequest.Phone, message)
+	err = asira.App.Messaging.SendSMS(otpRequest.Phone, message)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending otp")
 	}
@@ -239,7 +246,14 @@ func VerifyAccountOTP(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	userID, _ := strconv.Atoi(claims["jti"].(string))
+
+	//get user's borrower
+	users := models.User{}
+	users.FindbyID(userID)
+	borrower := models.Borrower{}
+	borrower.FindbyID(int(users.BorrowerFK))
+	borrowerID := int(borrower.ID)
 
 	payloadRules := govalidator.MapData{
 		"phone":    []string{"regex:^[0-9]+$", "required"},

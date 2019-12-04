@@ -60,9 +60,15 @@ func BorrowerLogin(c echo.Context) error {
 		validKey = asira.App.DB.Where("email = ?", credentials.Key).Find(&borrower).RecordNotFound()
 		break
 	}
+	//check login data exist or not
+	user := models.User{}
+	err = user.FindbyID(int(borrower.ID))
+	if err != nil {
+		return returnInvalidResponse(http.StatusOK, err, "Borrower tidak memiliki akun personal")
+	}
 
 	if !validKey { // check the password
-		err = bcrypt.CompareHashAndPassword([]byte(borrower.Password), []byte(credentials.Password))
+		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
 		if err != nil {
 			return returnInvalidResponse(http.StatusOK, err, "Password anda salah")
 		}
@@ -71,7 +77,7 @@ func BorrowerLogin(c echo.Context) error {
 		if borrower.OTPverified {
 			tokenrole = "borrower"
 		}
-		token, err = createJwtToken(strconv.FormatUint(borrower.ID, 10), tokenrole)
+		token, err = createJwtToken(strconv.FormatUint(user.ID, 10), tokenrole)
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat token")
 		}
