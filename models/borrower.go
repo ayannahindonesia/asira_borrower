@@ -68,11 +68,21 @@ type (
 //Create just create row
 func (b *Borrower) Create() error {
 	err := basemodel.Create(&b)
+	if err != nil {
+		return err
+	}
+
+	err = KafkaSubmitModel(b, "borrower")
 	return err
 }
 
 func (b *Borrower) Save() error {
 	err := basemodel.Save(&b)
+	if err != nil {
+		return err
+	}
+
+	err = KafkaSubmitModel(b, "borrower")
 	return err
 }
 
