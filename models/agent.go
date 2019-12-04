@@ -6,7 +6,6 @@ import (
 
 	"github.com/lib/pq"
 	"gitlab.com/asira-ayannah/basemodel"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type Agent struct {
@@ -22,17 +21,6 @@ type Agent struct {
 	Banks         pq.Int64Array `json:"banks" gorm:"column:banks"`
 	Status        string        `json:"status" gorm:"column:status"`
 	FCMToken      string        `json:"fcm_token" gorm:"column:fcm_token;type:varchar(255)"`
-}
-
-// BeforeCreate gorm callback
-func (model *Agent) BeforeCreate() (err error) {
-	passwordByte, err := bcrypt.GenerateFromPassword([]byte(model.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-
-	model.Password = string(passwordByte)
-	return nil
 }
 
 // Create new agent
