@@ -41,7 +41,7 @@ func AgentAllBorrower(c echo.Context) error {
 	bankID, _ := strconv.ParseInt(c.Param("bank_id"), 10, 64)
 
 	//query banks from agent's borrowers
-	var AgentBorrower models.AgentBorrower
+	var AgentBorrower models.Borrower
 	result, err := AgentBorrower.PagedFilterSearch(page, rows, order, sort, &Filter{
 		AgentID: sql.NullInt64{
 			Int64: agentID,

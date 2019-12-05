@@ -108,7 +108,7 @@ func isBorrowerAlreadyRegistered(idcardNumber string) error {
 	//get users based on borrower id
 	db = db.Table("borrowers b").
 		Select("u.*").
-		Joins("INNER JOIN users u ON b.id = u.borrower_fk").
+		Joins("INNER JOIN users u ON b.id = u.borrower").
 		Where("b.idcard_number = ?", idcardNumber)
 
 	err = db.Count(&count).Error

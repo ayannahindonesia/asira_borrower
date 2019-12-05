@@ -47,7 +47,7 @@ func AgentCheckBorrower(c echo.Context) error {
 	}
 
 	//check is agent's borrower exist or not
-	var agentBorrower models.AgentBorrower
+	var agentBorrower models.Borrower
 	err = agentBorrower.FilterSearchSingle(&Filter{
 		IdCardNumber: payloadFilter.IdCardNumber,
 		TaxIDnumber:  payloadFilter.TaxIDnumber,
@@ -72,7 +72,7 @@ func AgentCheckBorrower(c echo.Context) error {
 	})
 }
 
-func existingFields(agentBorrower models.AgentBorrower, payload Payload) []string {
+func existingFields(agentBorrower models.Borrower, payload Payload) []string {
 	var exists []string
 	valPayload := reflect.ValueOf(payload)
 	valAgentBorrower := reflect.ValueOf(agentBorrower)

@@ -62,7 +62,7 @@ func (model *User) FindbyID(id int) error {
 // FilterSearchSingle search using filter and return last
 func (model *User) FindbyBorrowerID(borrowerID uint64) error {
 	type Filter struct {
-		Borrower uint64 `json:"borrower_fk"`
+		Borrower uint64 `json:"borrower"`
 	}
 	err := basemodel.SingleFindFilter(&model, &Filter{
 		Borrower: borrowerID,
