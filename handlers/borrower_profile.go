@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo"
 )
 
+//BorrowerProfile get borrower personal profile
 func BorrowerProfile(c echo.Context) error {
 	defer c.Request().Body.Close()
 
@@ -30,6 +31,7 @@ func BorrowerProfile(c echo.Context) error {
 	return c.JSON(http.StatusOK, borrowerModel)
 }
 
+//BorrowerProfileEdit patch data borrower personal
 func BorrowerProfileEdit(c echo.Context) error {
 	defer c.Request().Body.Close()
 
@@ -44,7 +46,6 @@ func BorrowerProfileEdit(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
-	password := borrowerModel.Password
 
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{},
@@ -97,8 +98,6 @@ func BorrowerProfileEdit(c echo.Context) error {
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
-
-	borrowerModel.Password = password
 	err = borrowerModel.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal Membuat Akun")
@@ -107,37 +106,38 @@ func BorrowerProfileEdit(c echo.Context) error {
 	return c.JSON(http.StatusOK, borrowerModel)
 }
 
+//BorrowerChangePassword update borrower personal password
 func BorrowerChangePassword(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
+	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
-	borrowerModel := models.Borrower{}
-
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
-	err := borrowerModel.FindbyID(borrowerID)
+	//get password from users entity/table
+	userBorrower := models.User{}
+	err = userBorrower.FindbyBorrowerID(borrowerID)
 	if err != nil {
-		return returnInvalidResponse(http.StatusForbidden, err, "Akun Tidak ditemukan")
+		return returnInvalidResponse(http.StatusForbidden, err, "Akun bukan borrower personal")
 	}
 
 	payloadRules := govalidator.MapData{
 		"password": []string{},
 	}
 
-	validate := validateRequestPayload(c, payloadRules, &borrowerModel)
+	validate := validateRequestPayload(c, payloadRules, &userBorrower)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	passwordByte, err := bcrypt.GenerateFromPassword([]byte(borrowerModel.Password), bcrypt.DefaultCost)
+	passwordByte, err := bcrypt.GenerateFromPassword([]byte(userBorrower.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
-
-	borrowerModel.Password = string(passwordByte)
-	err = borrowerModel.Save()
+	//update to new password
+	userBorrower.Password = string(passwordByte)
+	err = userBorrower.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Ubah Password Gagal")
 	}

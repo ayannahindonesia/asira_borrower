@@ -105,7 +105,6 @@ func Seed() {
 				RelatedPhoneNumber:   "08987654321",
 				OTPverified:          true,
 				BankAccountNumber:    "520384716",
-				Password:             "password",
 				Bank: sql.NullInt64{
 					Int64: 1,
 					Valid: true,
@@ -150,7 +149,6 @@ func Seed() {
 				RelatedPhoneNumber:   "08987654321",
 				RelatedAddress:       "big sis address",
 				OTPverified:          false,
-				Password:             "password",
 				Bank: sql.NullInt64{
 					Int64: 1,
 					Valid: true,
@@ -159,6 +157,20 @@ func Seed() {
 		}
 		for _, borrower := range borrowers {
 			borrower.Create()
+		}
+
+		users := []models.User{
+			models.User{
+				BorrowerFK: 1,
+				Password:   "password",
+			},
+			models.User{
+				BorrowerFK: 2,
+				Password:   "password",
+			},
+		}
+		for _, user := range users {
+			user.Create()
 		}
 
 		// seed loans
@@ -454,7 +466,6 @@ func TestSeed() {
 				RelatedPhoneNumber:   "08987654321",
 				OTPverified:          true,
 				BankAccountNumber:    "520384716",
-				Password:             "password",
 				Bank: sql.NullInt64{
 					Int64: 1,
 					Valid: true,
@@ -501,7 +512,6 @@ func TestSeed() {
 				RelatedPhoneNumber:   "08987654321",
 				RelatedAddress:       "big sis address",
 				OTPverified:          false,
-				Password:             "password",
 				Bank: sql.NullInt64{
 					Int64: 1,
 					Valid: true,

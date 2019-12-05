@@ -351,7 +351,12 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	}
 
 	//send notif
-	err = asira.App.Messaging.SendNotificationByToken(title, formatedMsg, mapData, borrower.FCMToken, recipientID)
+	userBorrower := models.User{}
+	err = userBorrower.FindbyBorrowerID(borrower.ID)
+	if err != nil {
+		return err
+	}
+	err = asira.App.Messaging.SendNotificationByToken(title, formatedMsg, mapData, userBorrower.FCMToken, recipientID)
 
 	return err
 }

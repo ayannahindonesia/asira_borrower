@@ -14,14 +14,16 @@ import (
 func FCMTokenUpdate(c echo.Context) error {
 	defer c.Request().Body.Close()
 
+	var payload models.User
+
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 
-	borrower := models.Borrower{}
+	userBorrower := models.User{}
 
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
-	err := borrower.FindbyID(borrowerID)
+	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
+	err := userBorrower.FindbyBorrowerID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "unauthorized")
 	}
@@ -30,16 +32,18 @@ func FCMTokenUpdate(c echo.Context) error {
 		"fcm_token": []string{},
 	}
 
-	validate := validateRequestPayload(c, payloadRules, &borrower)
+	validate := validateRequestPayload(c, payloadRules, &payload)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	borrower.FCMToken = borrower.FCMToken
-	err = borrower.Save()
+	//update FCMToken
+	userBorrower.FCMToken = payload.FCMToken
+	err = userBorrower.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error saving Password")
 	}
+
 	responseBody := map[string]interface{}{
 		"status":  true,
 		"message": "FCM Token Updated",
