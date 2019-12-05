@@ -192,7 +192,7 @@ func RegisterBorrower(c echo.Context) error {
 	}
 
 	//save borrower_id to user entity and storing
-	user.BorrowerFK = borrower.ID
+	user.Borrower = borrower.ID
 	user.Password = register.Password
 	user.Create()
 

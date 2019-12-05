@@ -11,7 +11,7 @@ import (
 type User struct {
 	basemodel.BaseModel
 	DeletedTime time.Time `json:"deleted_time" gorm:"column:deleted_time"`
-	BorrowerFK  uint64    `json:"borrower_fk" gorm:"column:borrower_fk"`
+	Borrower    uint64    `json:"borrower" gorm:"column:borrower"`
 	Password    string    `json:"password" gorm:"column:password"`
 	FCMToken    string    `json:"fcm_token" gorm:"column:fcm_token;type:varchar(255)"`
 }
@@ -62,10 +62,10 @@ func (model *User) FindbyID(id int) error {
 // FilterSearchSingle search using filter and return last
 func (model *User) FindbyBorrowerID(borrowerID uint64) error {
 	type Filter struct {
-		BorrowerFK uint64 `json:"borrower_fk"`
+		Borrower uint64 `json:"borrower_fk"`
 	}
 	err := basemodel.SingleFindFilter(&model, &Filter{
-		BorrowerFK: borrowerID,
+		Borrower: borrowerID,
 	})
 	return err
 }

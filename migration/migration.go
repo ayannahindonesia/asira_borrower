@@ -161,12 +161,12 @@ func Seed() {
 
 		users := []models.User{
 			models.User{
-				BorrowerFK: 1,
-				Password:   "password",
+				Borrower: 1,
+				Password: "password",
 			},
 			models.User{
-				BorrowerFK: 2,
-				Password:   "password",
+				Borrower: 2,
+				Password: "password",
 			},
 		}
 		for _, user := range users {
@@ -766,12 +766,12 @@ func TestSeed() {
 
 		users := []models.User{
 			models.User{
-				BorrowerFK: 1,
-				Password:   "password",
+				Borrower: 1,
+				Password: "password",
 			},
 			models.User{
-				BorrowerFK: 2,
-				Password:   "password",
+				Borrower: 2,
+				Password: "password",
 			},
 		}
 		for _, user := range users {
