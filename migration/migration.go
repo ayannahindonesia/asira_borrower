@@ -754,6 +754,19 @@ func TestSeed() {
 			clients.Create()
 		}
 
+		users := []models.User{
+			models.User{
+				BorrowerFK: 1,
+				Password:   "password",
+			},
+			models.User{
+				BorrowerFK: 2,
+				Password:   "password",
+			},
+		}
+		for _, user := range users {
+			user.Create()
+		}
 	}
 }
 
@@ -775,6 +788,7 @@ func Truncate(tableList []string) (err error) {
 				"internal_roles",
 				"agent_borrowers",
 				"agents",
+				"users",
 			}
 		}
 

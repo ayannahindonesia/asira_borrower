@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"flag"
 	"time"
 
 	"github.com/lib/pq"
@@ -26,12 +27,18 @@ type Agent struct {
 
 // BeforeCreate gorm callback
 func (model *Agent) BeforeCreate() (err error) {
-	passwordByte, err := bcrypt.GenerateFromPassword([]byte(model.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
+	// make encrypted password when in unit testing mode, coz in migration just plain text
+	if flag.Lookup("test.v") != nil {
 
-	model.Password = string(passwordByte)
+		passwordByte, err := bcrypt.GenerateFromPassword([]byte(model.Password), bcrypt.DefaultCost)
+		if err != nil {
+			return err
+		}
+
+		//store before create
+		model.Password = string(passwordByte)
+		return nil
+	}
 	return nil
 }
 
