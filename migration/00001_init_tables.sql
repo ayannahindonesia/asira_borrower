@@ -57,7 +57,7 @@ CREATE TABLE "agents" (
     "name" varchar(255),
     "username" varchar(255),
     "password" text,
-    "image_id" bigserial,
+    "image_id" bigint,
     "email" varchar(255),
     "phone" varchar(255),
     "category" varchar(255),
