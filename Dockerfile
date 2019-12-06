@@ -16,7 +16,7 @@ RUN apk --no-cache add curl
 RUN go get -u github.com/golang/dep/cmd/dep
 
 RUN cd $GOPATH/src/"${APPNAME}"
-RUN cp deploy/conf.yaml config.yaml
+RUN openssl aes-256-cbc -d -in deploy/conf.enc -out config.yaml -pbkdf2 -pass file:./public.pem
 RUN dep ensure -v
 RUN go build -v -o "${APPNAME}-res"
 
@@ -57,7 +57,7 @@ EXPOSE 8000
 # RUN go get -u github.com/golang/dep/cmd/dep
 
 # CMD if [ "${APPENV}" = "staging" ] || [ "${APPENV}" = "production" ] ; then \
-#         cp deploy/conf.yaml config.yaml ; \
+#         openssl aes-256-cbc -d -in deploy/conf.enc -out config.yaml -pbkdf2 -pass file:./public.pem ; \
 #     elif [ "${APPENV}" = "dev" ] ; then \
 #         cp deploy/dev-config.yaml config.yaml ; \
 #     fi \
