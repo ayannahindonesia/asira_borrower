@@ -86,7 +86,7 @@ func existingFields(agentBorrower models.Borrower, payload Payload) []string {
 			exists = append(exists, field)
 			fmt.Printf("%+v\n", exists)
 		}
-		fmt.Printf("%+v\n", check)
+		//fmt.Printf("%+v\n", check)
 	}
 	return exists
 }
@@ -97,8 +97,9 @@ func compareReflectFieldValue(is string, isReflect reflect.Value, inReflect refl
 	inValue := reflect.Indirect(inReflect).FieldByName(is)
 
 	//cek equality
-	// if reflect.DeepEqual(isValue, inValue) {
-	if isValue.String() == inValue.String() {
+	// if reflect.DeepEqual(isValue, inValue)
+	isVal := isValue.String()
+	if len(isVal) > 0 && isVal == inValue.String() {
 		return true
 	}
 	return false

@@ -15,6 +15,10 @@ import (
 	"github.com/lib/pq"
 )
 
+var (
+	AgentPassword string = "$2y$12$lpU2qJ5S.q0tcK.bJaUYAedNM1U63bpMRIr0KT4YIaOrwNqXqo9tq"
+)
+
 func Seed() {
 	seeder := asira.App.DB.Begin()
 	defer seeder.Commit()
@@ -215,37 +219,6 @@ func Seed() {
 		}
 		for _, loan := range loans {
 			loan.Create()
-		}
-
-		//agent migration
-		agents := []models.Agent{
-			models.Agent{
-				Name:     "Agent K",
-				Username: "agentK",
-				Password: "password",
-				Email:    "agentk@mib.com",
-				Phone:    "081234567890",
-				Category: "agent",
-				AgentProvider: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
-				Banks:  pq.Int64Array{1, 2},
-				Status: "active",
-			},
-			models.Agent{
-				Name:     "Agent J",
-				Username: "agentJ",
-				Password: "password",
-				Email:    "agentj@mib.com",
-				Phone:    "081234567891",
-				Category: "account_executive",
-				Banks:    pq.Int64Array{1},
-				Status:   "active",
-			},
-		}
-		for _, agent := range agents {
-			agent.Create()
 		}
 
 		//seed uuid
@@ -470,6 +443,10 @@ func TestSeed() {
 					Int64: 1,
 					Valid: true,
 				},
+				AgentReferral: sql.NullInt64{
+					Int64: 0,
+					Valid: true,
+				},
 			},
 			models.Borrower{
 				Fullname:             "Full Name B",
@@ -514,6 +491,10 @@ func TestSeed() {
 				OTPverified:          false,
 				Bank: sql.NullInt64{
 					Int64: 1,
+					Valid: true,
+				},
+				AgentReferral: sql.NullInt64{
+					Int64: 0,
 					Valid: true,
 				},
 			},
@@ -601,7 +582,7 @@ func TestSeed() {
 			models.Agent{
 				Name:     "Agent K",
 				Username: "agentK",
-				Password: "password",
+				Password: AgentPassword,
 				Email:    "agentk@mib.com",
 				Phone:    "081234567890",
 				Category: "agent",
@@ -615,7 +596,7 @@ func TestSeed() {
 			models.Agent{
 				Name:     "Agent J",
 				Username: "agentJ",
-				Password: "password",
+				Password: AgentPassword,
 				Email:    "agentj@mib.com",
 				Phone:    "081234567891",
 				Category: "account_executive",
@@ -627,6 +608,102 @@ func TestSeed() {
 			agent.Create()
 		}
 
+		// seed agent's borrowers
+		agentBorrowers := []models.Borrower{
+			models.Borrower{
+				Fullname:             "Full Name AB",
+				Gender:               "M",
+				IdCardNumber:         "9876123451234566689",
+				TaxIDnumber:          "0987654321234566690",
+				Birthday:             time.Now(),
+				Birthplace:           "a birthplace",
+				LastEducation:        "a last edu",
+				MotherName:           "a mom",
+				MarriedStatus:        "single",
+				SpouseName:           "a spouse",
+				SpouseBirthday:       time.Now(),
+				SpouseLastEducation:  "master",
+				Dependants:           0,
+				Address:              "a street address",
+				Province:             "a province",
+				City:                 "a city",
+				NeighbourAssociation: "a rt",
+				Hamlets:              "a rw",
+				HomePhoneNumber:      "021837163",
+				Subdistrict:          "a camat",
+				UrbanVillage:         "a lurah",
+				HomeOwnership:        "privately owned",
+				LivedFor:             5,
+				Occupation:           "accupation",
+				EmployerName:         "amployer",
+				EmployerAddress:      "amployer address",
+				Department:           "a department",
+				BeenWorkingFor:       2,
+				DirectSuperior:       "a boss",
+				EmployerNumber:       "02188776655",
+				MonthlyIncome:        5000000,
+				OtherIncome:          2000000,
+				RelatedPersonName:    "a big sis",
+				RelatedPhoneNumber:   "08987654321",
+				BankAccountNumber:    "520384666",
+				Bank: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
+				AgentReferral: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
+			},
+			models.Borrower{
+				Fullname:             "Full Name BB",
+				Gender:               "M",
+				IdCardNumber:         "9666123451234566689",
+				TaxIDnumber:          "0966654321234566690",
+				Birthday:             time.Now(),
+				Birthplace:           "a birthplace",
+				LastEducation:        "a last edu",
+				MotherName:           "a mom",
+				MarriedStatus:        "single",
+				SpouseName:           "a spouse",
+				SpouseBirthday:       time.Now(),
+				SpouseLastEducation:  "master",
+				Dependants:           0,
+				Address:              "a street address",
+				Province:             "a province",
+				City:                 "a city",
+				NeighbourAssociation: "a rt",
+				Hamlets:              "a rw",
+				HomePhoneNumber:      "021837163",
+				Subdistrict:          "a camat",
+				UrbanVillage:         "a lurah",
+				HomeOwnership:        "privately owned",
+				LivedFor:             5,
+				Occupation:           "accupation",
+				EmployerName:         "amployer",
+				EmployerAddress:      "amployer address",
+				Department:           "a department",
+				BeenWorkingFor:       2,
+				DirectSuperior:       "a boss",
+				EmployerNumber:       "02188776655",
+				MonthlyIncome:        5000000,
+				OtherIncome:          2000000,
+				RelatedPersonName:    "a big sis",
+				RelatedPhoneNumber:   "08987654321",
+				BankAccountNumber:    "520384666777",
+				Bank: sql.NullInt64{
+					Int64: 1,
+					Valid: true,
+				},
+				AgentReferral: sql.NullInt64{
+					Int64: 2,
+					Valid: true,
+				},
+			},
+		}
+		for _, agentBorrower := range agentBorrowers {
+			agentBorrower.Create()
+		}
 		//seed uuid
 		uuid := models.Uuid_Reset_Password{
 			UUID: "f4f71eae-2cc9-4289-94e4-2421df67d4d7",

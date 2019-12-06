@@ -17,8 +17,8 @@ func AgentAllBorrower(c echo.Context) error {
 		page int
 	)
 	type Filter struct {
-		AgentID sql.NullInt64 `json:"agent_id"`
-		Bank    sql.NullInt64 `json:"bank"`
+		AgentReferral sql.NullInt64 `json:"agent_referral"`
+		Bank          sql.NullInt64 `json:"bank"`
 	}
 
 	user := c.Get("user")
@@ -43,7 +43,7 @@ func AgentAllBorrower(c echo.Context) error {
 	//query banks from agent's borrowers
 	var AgentBorrower models.Borrower
 	result, err := AgentBorrower.PagedFilterSearch(page, rows, order, sort, &Filter{
-		AgentID: sql.NullInt64{
+		AgentReferral: sql.NullInt64{
 			Int64: agentID,
 			Valid: true,
 		},
