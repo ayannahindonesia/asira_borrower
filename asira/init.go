@@ -110,7 +110,7 @@ func (x *Application) LoadConfigs() error {
 	conf.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	conf.AutomaticEnv()
 	conf.SetConfigName("config")
-	conf.AddConfigPath("$GOPATH/src/asira_borrower")
+	conf.AddConfigPath(os.Getenv("CONFIGPATH"))
 	conf.SetConfigType("yaml")
 	if err := conf.ReadInConfig(); err != nil {
 		return err
