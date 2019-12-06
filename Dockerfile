@@ -16,7 +16,7 @@ RUN apk --no-cache add curl
 RUN go get -u github.com/golang/dep/cmd/dep
 
 RUN cd $GOPATH/src/"${APPNAME}"
-RUN openssl aes-256-cbc -d -in deploy/conf.enc -out config.yaml -pbkdf2 -pass file:./public.pem
+RUN openssl aes-256-cbc -d -in deploy/conf.enc -out config.yaml -pbkdf2 -pass file:/app/public.pem
 RUN dep ensure -v
 RUN go build -v -o "${APPNAME}-res"
 
