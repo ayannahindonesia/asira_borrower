@@ -113,6 +113,10 @@ func Seed() {
 					Int64: 1,
 					Valid: true,
 				},
+				AgentReferral: sql.NullInt64{
+					Int64: 0,
+					Valid: true,
+				},
 			},
 			models.Borrower{
 				Fullname:             "Full Name B",
@@ -155,6 +159,10 @@ func Seed() {
 				OTPverified:          false,
 				Bank: sql.NullInt64{
 					Int64: 1,
+					Valid: true,
+				},
+				AgentReferral: sql.NullInt64{
+					Int64: 0,
 					Valid: true,
 				},
 			},
@@ -611,7 +619,7 @@ func TestSeed() {
 		// seed agent's borrowers
 		agentBorrowers := []models.Borrower{
 			models.Borrower{
-				Fullname:             "Full Name AB",
+				Fullname:             "Full Name AA",
 				Gender:               "M",
 				IdCardNumber:         "9876123451234566689",
 				TaxIDnumber:          "0987654321234566690",
@@ -656,7 +664,7 @@ func TestSeed() {
 				},
 			},
 			models.Borrower{
-				Fullname:             "Full Name BB",
+				Fullname:             "Full Name AB",
 				Gender:               "M",
 				IdCardNumber:         "9666123451234566689",
 				TaxIDnumber:          "0966654321234566690",
@@ -777,7 +785,6 @@ func Truncate(tableList []string) (err error) {
 				"uuid_reset_passwords",
 				"client_configs",
 				"internal_roles",
-				"agent_borrowers",
 				"agents",
 				"users",
 			}
