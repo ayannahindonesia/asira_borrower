@@ -26,7 +26,7 @@ func LoanNotificationSimulate(c echo.Context) error {
 	claims := token.Claims.(jwt.MapClaims)
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 
-	loan.Owner = sql.NullInt64{Int64: int64(borrowerID), Valid: true}
+	loan.Borrower = sql.NullInt64{Int64: int64(borrowerID), Valid: true}
 
 	payloadRules := govalidator.MapData{
 		"loan_amount":       []string{"required"},

@@ -188,7 +188,7 @@ func Seed() {
 		// seed loans
 		loans := []models.Loan{
 			models.Loan{
-				Owner: sql.NullInt64{
+				Borrower: sql.NullInt64{
 					Int64: 1,
 					Valid: true,
 				},
@@ -199,7 +199,7 @@ func Seed() {
 				Product:          1,
 			},
 			models.Loan{
-				Owner: sql.NullInt64{
+				Borrower: sql.NullInt64{
 					Int64: 1,
 					Valid: true,
 				},
@@ -212,7 +212,7 @@ func Seed() {
 				OTPverified:      true,
 			},
 			models.Loan{
-				Owner: sql.NullInt64{
+				Borrower: sql.NullInt64{
 					Int64: 1,
 					Valid: true,
 				},
@@ -544,7 +544,7 @@ func TestSeed() {
 		// seed loans
 		loans := []models.Loan{
 			models.Loan{
-				Owner: sql.NullInt64{
+				Borrower: sql.NullInt64{
 					Int64: 1,
 					Valid: true,
 				},
@@ -555,7 +555,7 @@ func TestSeed() {
 				Product:          1,
 			},
 			models.Loan{
-				Owner: sql.NullInt64{
+				Borrower: sql.NullInt64{
 					Int64: 1,
 					Valid: true,
 				},
@@ -568,7 +568,7 @@ func TestSeed() {
 				OTPverified:      true,
 			},
 			models.Loan{
-				Owner: sql.NullInt64{
+				Borrower: sql.NullInt64{
 					Int64: 1,
 					Valid: true,
 				},

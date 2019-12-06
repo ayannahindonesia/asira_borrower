@@ -27,7 +27,7 @@ func BorrowerLoanApply(c echo.Context) error {
 	claims := token.Claims.(jwt.MapClaims)
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 
-	loan.Owner = sql.NullInt64{Int64: int64(borrowerID), Valid: true}
+	loan.Borrower = sql.NullInt64{Int64: int64(borrowerID), Valid: true}
 
 	payloadRules := govalidator.MapData{
 		"loan_amount":       []string{"required"},
@@ -94,7 +94,7 @@ func BorrowerLoanGet(c echo.Context) error {
 		Select("*, bp.name as product_name, bs.name as service_name").
 		Joins("INNER JOIN products bp ON bp.id = l.product").
 		Joins("INNER JOIN services bs ON bs.id = bp.service_id").
-		Where("l.owner = ?", borrowerID)
+		Where("l.borrower = ?", borrowerID)
 
 	if status := c.QueryParam("status"); len(status) > 0 {
 		db = db.Where("l.status = ?", status)
@@ -139,12 +139,12 @@ func BorrowerLoanGetDetails(c echo.Context) error {
 	}
 
 	type Filter struct {
-		ID    int           `json:"id"`
-		Owner sql.NullInt64 `json:"owner"`
+		ID       int           `json:"id"`
+		Borrower sql.NullInt64 `json:"borrower"`
 	}
 	err = loan.FilterSearchSingle(&Filter{
 		ID: loan_id,
-		Owner: sql.NullInt64{
+		Borrower: sql.NullInt64{
 			Int64: int64(borrowerID),
 			Valid: true,
 		},
@@ -173,12 +173,12 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 	}
 
 	type Filter struct {
-		ID    int           `json:"id"`
-		Owner sql.NullInt64 `json:"owner"`
+		ID       int           `json:"id"`
+		Borrower sql.NullInt64 `json:"borrower"`
 	}
 	err = loan.FilterSearchSingle(&Filter{
 		ID: loan_id,
-		Owner: sql.NullInt64{
+		Borrower: sql.NullInt64{
 			Int64: int64(borrowerID),
 			Valid: true,
 		},
@@ -231,12 +231,12 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 	}
 
 	type Filter struct {
-		ID    int           `json:"id"`
-		Owner sql.NullInt64 `json:"owner"`
+		ID       int           `json:"id"`
+		Borrower sql.NullInt64 `json:"borrower"`
 	}
 	err = loan.FilterSearchSingle(&Filter{
 		ID: loan_id,
-		Owner: sql.NullInt64{
+		Borrower: sql.NullInt64{
 			Int64: int64(borrowerID),
 			Valid: true,
 		},
@@ -280,7 +280,7 @@ func validateLoansProduct(l models.Loan) (err error) {
 		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
 		Joins("INNER JOIN products p ON p.service_id = s.id").
 		Where("p.id = ?", l.Product).
-		Where("bo.id = ?", l.Owner.Int64).Count(&count).Error
+		Where("bo.id = ?", l.Borrower.Int64).Count(&count).Error
 
 	if count < 1 {
 		err = fmt.Errorf("invalid product")

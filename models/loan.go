@@ -17,7 +17,7 @@ type (
 	Loan struct {
 		basemodel.BaseModel
 		DeletedTime         time.Time      `json:"deleted_time" gorm:"column:deleted_time"`
-		Owner               sql.NullInt64  `json:"owner" gorm:"column:owner;foreignkey"`
+		Borrower            sql.NullInt64  `json:"borrower" gorm:"column:borrower;foreignkey"`
 		Status              string         `json:"status" gorm:"column:status;type:varchar(255)" sql:"DEFAULT:'processing'"`
 		LoanAmount          float64        `json:"loan_amount" gorm:"column:loan_amount;type:int;not null"`
 		Installment         int            `json:"installment" gorm:"column:installment;type:int;not null"` // plan of how long loan to be paid
@@ -48,7 +48,7 @@ type (
 // gorm callback hook
 func (l *Loan) BeforeCreate() (err error) {
 	borrower := Borrower{}
-	err = borrower.FindbyID(int(l.Owner.Int64))
+	err = borrower.FindbyID(int(l.Borrower.Int64))
 	if err != nil {
 		return err
 	}
@@ -92,14 +92,14 @@ func (l *Loan) Calculate() (err error) {
 		fee            float64
 		convenienceFee float64
 		fees           LoanFees
-		owner          Borrower
+		borrower       Borrower
 		bank           Bank
 		product        Product
 		parsedFees     LoanFees
 	)
 
-	owner.FindbyID(int(l.Owner.Int64))
-	bank.FindbyID(int(owner.Bank.Int64))
+	borrower.FindbyID(int(l.Borrower.Int64))
+	bank.FindbyID(int(borrower.Bank.Int64))
 	product.FindbyID(int(l.Product))
 
 	json.Unmarshal(l.Fees.RawMessage, &fees)
