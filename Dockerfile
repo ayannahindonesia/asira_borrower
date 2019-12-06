@@ -10,10 +10,12 @@ ARG CONFIGPATH="/go/src"
 ADD . $GOPATH/src/"${APPNAME}"
 WORKDIR $GOPATH/src/"${APPNAME}"
 
-RUN apk add --update git gcc libc-dev;
+RUN apk add --update git gcc libc-dev tzdata;
 RUN apk --no-cache add curl
-#  tzdata wget gcc libc-dev make openssl py-pip;
+#  wget gcc libc-dev make openssl py-pip;
 RUN go get -u github.com/golang/dep/cmd/dep
+
+ENV TZ=Asia/Jakarta
 
 RUN cd $GOPATH/src/"${APPNAME}"
 RUN openssl aes-256-cbc -d -in deploy/conf.enc -out config.yaml -pbkdf2 -pass file:/app/public.pem
