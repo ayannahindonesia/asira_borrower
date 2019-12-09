@@ -35,6 +35,7 @@ COPY --from=build-env /go/src/asira_borrower/deploy/conf.enc /go/src/conf.enc
 COPY --from=build-env /go/src/asira_borrower/migration/ /go/src/migration/
 RUN chmod -R 775 migration
 RUN apk add --update openssl
+RUN ls -lrth
 
 RUN pwd
 #ENTRYPOINT /app/asira_borrower-res
