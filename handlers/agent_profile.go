@@ -46,17 +46,27 @@ func AgentProfileEdit(c echo.Context) error {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 
-	validate := validateRequestPayload(c, payloadRules, &borrowerModel)
-	if validate != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
-	}
-
-	agentModel.Password := password
+	//securing old password
+	password := agentModel.Password
 
 	payloadRules := govalidator.MapData{
 		"name":  []string{},
 		"email": []string{"unique_edit:agents,email"},
 		"phone": []string{"phone", "unique:agents,taxid_number"},
 	}
+
+	//validate request data
+	validate := validateRequestPayload(c, payloadRules, &agentModel)
+	if validate != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
+	}
+
+	//restoring old password and update data
+	agentModel.Password = password
+	err = agentModel.Save()
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal mengubah data akun agen")
+	}
+
 	return c.JSON(http.StatusOK, agentModel)
 }

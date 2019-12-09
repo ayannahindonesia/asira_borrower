@@ -68,17 +68,17 @@ func TestAgentPatchProfile(t *testing.T) {
 
 	// valid response
 	data := map[string]interface{}{
-		"name": "agent Z",
+		"name":  "agent Z",
 		"phone": "081234567899",
-		"email": "agentZ@mail.com"
+		"email": "agentZ@mail.com",
 	}
 	obj := auth.PATCH("/agent/profile").WithJSON(data).
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 
-	obj.Value("monthly_income").Equal(500)
+	obj.Value("name").Equal("agent Z")
 
-	obj := auth.GET("/agent/profile").
+	obj = auth.GET("/agent/profile").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 	obj.ContainsKey("username").ValueEqual("username", "agentJ")
