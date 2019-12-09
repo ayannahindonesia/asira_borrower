@@ -31,7 +31,7 @@ FROM alpine
 
 WORKDIR /go/src/
 COPY --from=build-env /go/src/asira_borrower/asira_borrower-res /go/src/asira_borrower
-COPY --from=build-env /go/src/asira_borrower/permissions.yaml /go/src/permissions.yaml
+COPY --from=build-env /go/src/asira_borrower/deploy/conf.enc /go/src/conf.enc
 COPY --from=build-env /go/src/asira_borrower/migration/ /go/src/migration/
 RUN chmod -R 775 migration
 RUN apk add --update openssl
