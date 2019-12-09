@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
-	"database/sql"
 	"fmt"
 	"log"
 	"math"
@@ -142,15 +141,12 @@ func BorrowerLoanGetDetails(c echo.Context) error {
 	}
 
 	type Filter struct {
-		ID       int           `json:"id"`
-		Borrower sql.NullInt64 `json:"borrower"`
+		ID       int    `json:"id"`
+		Borrower uint64 `json:"borrower"`
 	}
 	err = loan.FilterSearchSingle(&Filter{
-		ID: loanID,
-		Borrower: sql.NullInt64{
-			Int64: int64(borrowerID),
-			Valid: true,
-		},
+		ID:       loanID,
+		Borrower: uint64(borrowerID),
 	})
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
@@ -177,15 +173,12 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 	}
 
 	type Filter struct {
-		ID       int           `json:"id"`
-		Borrower sql.NullInt64 `json:"borrower"`
+		ID       int    `json:"id"`
+		Borrower uint64 `json:"borrower"`
 	}
 	err = loan.FilterSearchSingle(&Filter{
-		ID: loanID,
-		Borrower: sql.NullInt64{
-			Int64: int64(borrowerID),
-			Valid: true,
-		},
+		ID:       loanID,
+		Borrower: uint64(borrowerID),
 	})
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "query result error")
@@ -236,15 +229,12 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 	}
 
 	type Filter struct {
-		ID       int           `json:"id"`
-		Borrower sql.NullInt64 `json:"borrower"`
+		ID       int    `json:"id"`
+		Borrower uint64 `json:"borrower"`
 	}
 	err = loan.FilterSearchSingle(&Filter{
-		ID: loanID,
-		Borrower: sql.NullInt64{
-			Int64: int64(borrowerID),
-			Valid: true,
-		},
+		ID:       loanID,
+		Borrower: uint64(borrowerID),
 	})
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "ID tidak ditemukan")
