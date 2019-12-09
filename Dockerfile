@@ -18,7 +18,7 @@ RUN go get -u github.com/golang/dep/cmd/dep
 ENV TZ=Asia/Jakarta
 
 RUN cd $GOPATH/src/"${APPNAME}"
-RUN openssl aes-256-cbc -d -in deploy/conf.enc -out config.yaml -pbkdf2 -pass file:/app/public.pem
+
 RUN dep ensure -v
 RUN go build -v -o "${APPNAME}-res"
 
@@ -31,10 +31,10 @@ FROM alpine
 
 WORKDIR /go/src/
 COPY --from=build-env /go/src/asira_borrower/asira_borrower-res /go/src/asira_borrower
-COPY --from=build-env /go/src/asira_borrower/deploy/conf.yaml /go/src/config.yaml
 COPY --from=build-env /go/src/asira_borrower/permissions.yaml /go/src/permissions.yaml
 COPY --from=build-env /go/src/asira_borrower/migration/ /go/src/migration/
 RUN chmod -R 775 migration
+RUN apk add --update openssl
 
 RUN pwd
 #ENTRYPOINT /app/asira_borrower-res
