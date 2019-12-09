@@ -2,7 +2,7 @@
 FROM golang:alpine  AS build-env
 
 ARG APPNAME="asira_borrower"
-ARG CONFIGPATH="/go/src"
+ARG CONFIGPATH="/go/src/deploy"
 
 #RUN adduser -D -g '' golang
 #USER root
