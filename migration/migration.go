@@ -188,10 +188,7 @@ func Seed() {
 		// seed loans
 		loans := []models.Loan{
 			models.Loan{
-				Borrower: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
+				Borrower:         1,
 				LoanAmount:       1000000,
 				Installment:      6,
 				LoanIntention:    "Pendidikan",
@@ -199,10 +196,7 @@ func Seed() {
 				Product:          1,
 			},
 			models.Loan{
-				Borrower: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
+				Borrower:         1,
 				Status:           "approved",
 				LoanAmount:       500000,
 				Installment:      2,
@@ -212,10 +206,7 @@ func Seed() {
 				OTPverified:      true,
 			},
 			models.Loan{
-				Borrower: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
+				Borrower:         1,
 				Status:           "rejected",
 				LoanAmount:       2000000,
 				Installment:      8,
@@ -544,10 +535,7 @@ func TestSeed() {
 		// seed loans
 		loans := []models.Loan{
 			models.Loan{
-				Borrower: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
+				Borrower:         1,
 				LoanAmount:       1000000,
 				Installment:      6,
 				LoanIntention:    "Pendidikan",
@@ -555,10 +543,7 @@ func TestSeed() {
 				Product:          1,
 			},
 			models.Loan{
-				Borrower: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
+				Borrower:         1,
 				Status:           "approved",
 				LoanAmount:       500000,
 				Installment:      2,
@@ -568,10 +553,7 @@ func TestSeed() {
 				OTPverified:      true,
 			},
 			models.Loan{
-				Borrower: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
+				Borrower:         1,
 				Status:           "rejected",
 				LoanAmount:       2000000,
 				Installment:      8,
@@ -766,6 +748,7 @@ func TestSeed() {
 		for _, user := range users {
 			user.Create()
 		}
+
 	}
 }
 

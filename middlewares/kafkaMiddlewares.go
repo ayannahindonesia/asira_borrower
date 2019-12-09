@@ -305,7 +305,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	loan.RejectReason = loanData.RejectReason
 	err = loan.SaveNoKafka()
 
-	err = borrower.FindbyID(int(loan.Borrower.Int64))
+	err = borrower.FindbyID(int(loan.Borrower))
 	if err != nil {
 		return err
 	}
@@ -416,7 +416,7 @@ func FormatingMessage(msgType string, object interface{}) string {
 	Loan := object.(models.Loan)
 
 	//get bank
-	borrower.FindbyID(int(Loan.Borrower.Int64))
+	borrower.FindbyID(int(Loan.Borrower))
 	bank.FindbyID(int(borrower.Bank.Int64))
 
 	//NOTE format pesan (PRD 7)
