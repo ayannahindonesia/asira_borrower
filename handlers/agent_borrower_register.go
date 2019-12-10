@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
 	"database/sql"
 	"encoding/json"
@@ -74,14 +75,14 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"nickname":              []string{},
 		"gender":                []string{"required"},
 		"idcard_number":         []string{"required"},
-		"taxid_number":          []string{"unique:borrowers,bank_accountnumber"},
+		"taxid_number":          []string{},
 		"nationality":           []string{},
-		"email":                 []string{"email", "unique:borrowers,bank_accountnumber"},
+		"email":                 []string{"email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
 		"last_education":        []string{"required"},
 		"mother_name":           []string{"required"},
-		"phone":                 []string{"id_phonenumber", "unique:borrowers,phone"},
+		"phone":                 []string{"id_phonenumber"},
 		"marriage_status":       []string{"required"},
 		"spouse_name":           []string{},
 		"spouse_birthday":       []string{"date"},
@@ -114,7 +115,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"related_phonenumber":   []string{"required"},
 		"related_homenumber":    []string{},
 		"bank":                  []string{"required"},
-		"bank_accountnumber":    []string{"unique:borrowers,bank_accountnumber"},
+		"bank_accountnumber":    []string{},
 	}
 
 	user := c.Get("user")
@@ -179,11 +180,27 @@ func AgentRegisterBorrower(c echo.Context) error {
 		},
 	}
 
-	//search already exist Borrower registered by agent
-	//NOTE: agent's borrower cannot registered if personal borrower already exist
-	err = isBorrowerAlreadyRegistered(register.IdCardNumber)
+	//check manual fields if not unique
+	var fields = map[string]string{
+		"phone":              register.Phone,
+		"email":              register.Email,
+		"taxid_number":       register.TaxIDnumber,
+		"bank_accountnumber": register.BankAccountNumber,
+	}
+	err = checkUniqueFields(register.IdCardNumber, fields)
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Borrower personal sudah terdaftar sebelumnya")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya")
+	}
+
+	//max borrower duplicate just == 2
+	db := asira.App.DB
+	var count int
+	db = db.Table("borrowers").
+		Select("*").
+		Where("idcard_number = ?", register.IdCardNumber)
+	err = db.Count(&count).Error
+	if count >= 2 {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar sebagai personal dan nasabah agent")
 	}
 
 	r, err := json.Marshal(register)
