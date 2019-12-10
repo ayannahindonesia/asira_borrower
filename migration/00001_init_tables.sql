@@ -233,7 +233,8 @@ CREATE TABLE "users" (
     "borrower" bigserial NOT NULL,
     "password" varchar(255) NOT NULL,
     "fcm_token" varchar(255),
-    PRIMARY KEY ("id")
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("borrower") REFERENCES borrowers(id)
 ) WITH (OIDS = FALSE);
 
 -- +goose Down

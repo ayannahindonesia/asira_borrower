@@ -60,7 +60,7 @@ type (
 		Bank                 sql.NullInt64 `json:"bank" gorm:"column:bank" sql:"DEFAULT:NULL"`
 		BankAccountNumber    string        `json:"bank_accountnumber" gorm:"column:bank_accountnumber"`
 		OTPverified          bool          `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
-		AgentReferral        sql.NullInt64 `json:"agent_referral" gorm:"column:agent_referral" sql:"DEFAULT:0"`
+		AgentReferral        sql.NullInt64 `json:"agent_referral" gorm:"column:agent_referral"`
 		Status               string        `json:"status" gorm:"column:status;default:'active'"`
 		NthLoans             int           `json:"nth_loans" gorm:"-"`
 	}
