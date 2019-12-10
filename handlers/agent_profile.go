@@ -50,9 +50,8 @@ func AgentProfileEdit(c echo.Context) error {
 	password := agentModel.Password
 
 	payloadRules := govalidator.MapData{
-		"name":  []string{},
-		"email": []string{"unique_edit:agents,email"},
-		"phone": []string{"phone", "unique:agents,taxid_number"},
+		"email": []string{"email", "unique_edit:agents,email"},
+		"phone": []string{"id_phonenumber", "unique_edit:agents,phone"},
 	}
 
 	//validate request data
