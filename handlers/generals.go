@@ -4,6 +4,7 @@ import (
 	"asira_borrower/asira"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -98,10 +99,6 @@ func isInArrayInt64(id int64, banks []int64) bool {
 
 //isBorrowerRegisteredByAgent check is borrower already registered with agent register borrower
 func isBorrowerAlreadyRegistered(idcardNumber string) error {
-	type Filter struct {
-		IdCardNumber string `json:"idcard_number"`
-	}
-
 	db := asira.App.DB
 	var count int
 
@@ -117,5 +114,39 @@ func isBorrowerAlreadyRegistered(idcardNumber string) error {
 		return errors.New("Borrower already registered as personal")
 	}
 
+	return nil
+}
+
+func checkUniqueFields(idcardNumber string, uniques map[string]string) error {
+	db := asira.App.DB
+	var (
+		count    int
+		iterator int = 0
+	)
+
+	//init query
+	db = db.Table("borrowers").Select("*")
+	//get users other than idcardNumber...
+	customQuery := "idcard_number <> ? AND ("
+
+	//...check unique
+	for key, val := range uniques {
+		//TODO: security string
+		customQuery += fmt.Sprintf("LOWER(%s) = '%s'", key, strings.ToLower(val))
+		if iterator != len(uniques)-1 {
+			customQuery += " OR "
+		}
+		iterator++
+	}
+	customQuery += ")"
+	db = db.Where(customQuery, idcardNumber)
+	fmt.Println(" customQuery = ", customQuery)
+
+	//query count
+	err = db.Count(&count).Error
+	fmt.Println("check err & count ", err, count)
+	if err != nil || count > 0 {
+		return errors.New("Borrower already registered as personal")
+	}
 	return nil
 }

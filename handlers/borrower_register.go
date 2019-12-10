@@ -180,6 +180,18 @@ func RegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Borrower personal sudah terdaftar sebelumnya")
 	}
 
+	//check manual fields if not unique
+	var fields = map[string]string{
+		"phone":              register.Phone,
+		"email":              register.Email,
+		"taxid_number":       register.TaxIDnumber,
+		"bank_accountnumber": register.BankAccountNumber,
+	}
+	err = checkUniqueFields(register.IdCardNumber, fields)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya")
+	}
+
 	//create new personal borrower
 	json.Unmarshal(r, &borrower)
 	borrower.AgentReferral = sql.NullInt64{
