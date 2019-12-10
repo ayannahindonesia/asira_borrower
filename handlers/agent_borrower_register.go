@@ -74,14 +74,14 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"nickname":              []string{},
 		"gender":                []string{"required"},
 		"idcard_number":         []string{"required"},
-		"taxid_number":          []string{},
+		"taxid_number":          []string{"unique:borrowers,bank_accountnumber"},
 		"nationality":           []string{},
-		"email":                 []string{"email"},
+		"email":                 []string{"email", "unique:borrowers,bank_accountnumber"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
 		"last_education":        []string{"required"},
 		"mother_name":           []string{"required"},
-		"phone":                 []string{"id_phonenumber"},
+		"phone":                 []string{"id_phonenumber", "unique:borrowers,phone"},
 		"marriage_status":       []string{"required"},
 		"spouse_name":           []string{},
 		"spouse_birthday":       []string{"date"},
@@ -114,7 +114,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"related_phonenumber":   []string{"required"},
 		"related_homenumber":    []string{},
 		"bank":                  []string{"required"},
-		"bank_accountnumber":    []string{},
+		"bank_accountnumber":    []string{"unique:borrowers,bank_accountnumber"},
 	}
 
 	user := c.Get("user")
