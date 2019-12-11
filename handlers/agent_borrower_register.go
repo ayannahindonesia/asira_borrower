@@ -197,10 +197,10 @@ func AgentRegisterBorrower(c echo.Context) error {
 	var count int
 	db = db.Table("borrowers").
 		Select("*").
-		Where("idcard_number = ?", register.IdCardNumber)
+		Where("idcard_number = ? AND agent_referral <> 0", register.IdCardNumber)
 	err = db.Count(&count).Error
-	if count >= 2 {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar sebagai personal dan nasabah agent")
+	if count >= 1 {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
 	}
 
 	r, err := json.Marshal(register)

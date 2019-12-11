@@ -84,8 +84,7 @@ func TestAgentBorrower(t *testing.T) {
 		Status(http.StatusUnprocessableEntity).JSON().Object()
 
 	// test unique by registering same data
-	// TODO: special case data
-	// obj = auth.POST("/agent/register_borrower").WithJSON(payload).
-	// 	Expect().
-	// 	Status(http.StatusUnprocessableEntity).JSON().Object()
+	obj = auth.POST("/agent/register_borrower").WithJSON(payload).
+		Expect().
+		Status(http.StatusInternalServerError).JSON().Object()
 }

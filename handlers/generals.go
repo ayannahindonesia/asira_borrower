@@ -122,26 +122,28 @@ func checkUniqueFields(idcardNumber string, uniques map[string]string) error {
 	var (
 		count    int
 		iterator int = 0
+		notEmpty int = 0
 	)
 
 	//init query
 	db = db.Table("borrowers").Select("*")
+
 	//get users other than idcardNumber...
-	customQuery := "idcard_number <> ? AND ("
+	db = db.Not("idcard_number", idcardNumber)
 
 	//...check unique
 	for key, val := range uniques {
-		//TODO: security string
-		customQuery += fmt.Sprintf("LOWER(%s) = '%s'", key, strings.ToLower(val))
-		if iterator != len(uniques)-1 {
-			customQuery += " OR "
+		//DONE: security string from gorm
+		if iterator > 0 && (len(val) > 0 || val != "") {
+			if notEmpty > 0 {
+				db = db.Or(fmt.Sprintf("LOWER(%s) = ?", key), strings.ToLower(val))
+			} else {
+				db = db.Where(fmt.Sprintf("LOWER(%s) = ?", key), strings.ToLower(val))
+			}
+			notEmpty++
 		}
 		iterator++
 	}
-	customQuery += ")"
-	db = db.Where(customQuery, idcardNumber)
-	fmt.Println(" customQuery = ", customQuery)
-
 	//query count
 	err = db.Count(&count).Error
 	fmt.Println("check err & count ", err, count)
