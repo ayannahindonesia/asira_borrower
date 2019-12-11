@@ -71,3 +71,17 @@ func (model *Agent) PagedFilterSearch(page int, rows int, order []string, sort [
 
 	return result, err
 }
+
+// checkBorrowerID search using filter and return last
+func (model *Agent) CheckBorrowerOwnedByAgent(borrowerID uint64) bool {
+	borrowerModel := Borrower{}
+	err := borrowerModel.FindbyID(int(borrowerID))
+	if err != nil {
+		return false
+	}
+	//cek agent id is correct
+	if model.ID != uint64(borrowerModel.AgentReferral.Int64) {
+		return false
+	}
+	return true
+}

@@ -20,16 +20,15 @@ func AgentLoanApply(c echo.Context) error {
 	defer c.Request().Body.Close()
 	var err error
 
-	loan := models.Loan{}
-
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
-	loan.Borrower = uint64(borrowerID)
+	loan := models.Loan{}
 
 	payloadRules := govalidator.MapData{
+		"borrower":          []string{"required"},
 		"loan_amount":       []string{"required"},
 		"installment":       []string{"required"},
 		"loan_intention":    []string{"required"},
@@ -42,9 +41,22 @@ func AgentLoanApply(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	err = validateLoansProduct(loan)
+	//is valid agent
+	agent := models.Agent{}
+	err = agent.FindbyID(int(agentID))
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error")
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error : not valid agent's borrower")
+	}
+
+	//validate is borrower registered by agent
+	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
+	if !check {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error : not valid agent's borrower")
+	}
+
+	err = validateAgentLoansProduct(loan)
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error : not valid product")
 	}
 
 	err = loan.Create()
@@ -265,18 +277,18 @@ func AgentLoanOTPverify(c echo.Context) error {
 }
 
 //validateLoansProduct validate product before apply loan
-func validateLoansProduct(l models.Loan) (err error) {
+func validateAgentLoansProduct(l models.Loan) (err error) {
 	var count int
 
 	db := asira.App.DB
 
 	err = db.Table("banks b").
 		Select("p.id").
-		Joins("INNER JOIN borrowers bo ON bo.bank = b.id").
+		Joins("INNER JOIN agents ag ON b.id IN (SELECT UNNEST(ag.banks))").
 		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
 		Joins("INNER JOIN products p ON p.service_id = s.id").
 		Where("p.id = ?", l.Product).
-		Where("bo.id = ?", l.Borrower).Count(&count).Error
+		Where("ag.id = ?", l.Borrower).Count(&count).Error
 
 	if count < 1 {
 		err = fmt.Errorf("invalid product")
