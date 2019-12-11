@@ -54,10 +54,10 @@ func BorrowerLogin(c echo.Context) error {
 	// check if theres record
 	switch loginType {
 	default: // default login is using phone number
-		validKey = asira.App.DB.Where("phone = ?", credentials.Key).Find(&borrower).RecordNotFound()
+		validKey = asira.App.DB.Where("phone = ? AND agent_referral = 0", credentials.Key).Find(&borrower).RecordNotFound()
 		break
 	case "email":
-		validKey = asira.App.DB.Where("email = ?", credentials.Key).Find(&borrower).RecordNotFound()
+		validKey = asira.App.DB.Where("email = ? AND agent_referral = 0", credentials.Key).Find(&borrower).RecordNotFound()
 		break
 	}
 	//check login data exist or not

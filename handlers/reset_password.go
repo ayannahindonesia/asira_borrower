@@ -27,7 +27,7 @@ func ClientResetPassword(c echo.Context) error {
 	}
 	validate := validateRequestPayload(c, payloadRules, &borrower)
 	if validate != nil {
-		asira.App.DB.Where("email = ?", borrower.Email).Find(&borrower)
+		asira.App.DB.Where("email = ? AND agent_referral = 0", borrower.Email).Find(&borrower)
 		id := guuid.New()
 
 		uuid := models.Uuid_Reset_Password{
