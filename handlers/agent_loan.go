@@ -15,8 +15,8 @@ import (
 	"gitlab.com/asira-ayannah/basemodel"
 )
 
-//BorrowerLoanApply borrower apply new Loan
-func BorrowerLoanApply(c echo.Context) error {
+//AgentLoanApply Agent apply new Loan
+func AgentLoanApply(c echo.Context) error {
 	defer c.Request().Body.Close()
 	var err error
 
@@ -56,8 +56,8 @@ func BorrowerLoanApply(c echo.Context) error {
 	return c.JSON(http.StatusCreated, loan)
 }
 
-//BorrowerLoanGet borrower get his loans
-func BorrowerLoanGet(c echo.Context) error {
+//AgentLoanGet Agent get his loans
+func AgentLoanGet(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	db := asira.App.DB
@@ -124,8 +124,8 @@ func BorrowerLoanGet(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-//BorrowerLoanGetDetails borrower get detail loan
-func BorrowerLoanGetDetails(c echo.Context) error {
+//AgentLoanGetDetails Agent get detail loan
+func AgentLoanGetDetails(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	loan := models.Loan{}
@@ -155,8 +155,8 @@ func BorrowerLoanGetDetails(c echo.Context) error {
 	return c.JSON(http.StatusOK, loan)
 }
 
-//BorrowerLoanOTPrequest request for one time password
-func BorrowerLoanOTPrequest(c echo.Context) error {
+//AgentLoanOTPrequest request for one time password
+func AgentLoanOTPrequest(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	loan := models.Loan{}
@@ -199,8 +199,8 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Terkirim"})
 }
 
-//BorrowerLoanOTPverify verify for one time password has sent
-func BorrowerLoanOTPverify(c echo.Context) error {
+//AgentLoanOTPverify verify for one time password has sent
+func AgentLoanOTPverify(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	var LoanOTPverify struct {

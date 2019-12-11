@@ -33,9 +33,9 @@ func AgentGroup(e *echo.Echo) {
 	g.POST("/checks_borrower", handlers.AgentCheckBorrower)
 
 	// Loan endpoints
+	g.POST("/loan", handlers.AgentLoanApply)
 	g.GET("/loan", handlers.AgentLoanGet)
 	g.GET("/loan/:loan_id/details", handlers.AgentLoanGetDetails)
-	g.POST("/loan", handlers.AgentLoanApply)
 	g.GET("/loan/:loan_id/otp", handlers.AgentLoanOTPrequest)
 	g.POST("/loan/:loan_id/verify", handlers.AgentLoanOTPverify)
 
