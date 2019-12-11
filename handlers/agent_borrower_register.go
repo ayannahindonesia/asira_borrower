@@ -187,12 +187,12 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"taxid_number":       register.TaxIDnumber,
 		"bank_accountnumber": register.BankAccountNumber,
 	}
-	err = checkUniqueFields(register.IdCardNumber, fields)
+	foundFields, err := checkUniqueFields(register.IdCardNumber, fields)
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+foundFields)
 	}
 
-	//max borrower duplicate just == 2
+	//max borrower duplicate just == 1
 	db := asira.App.DB
 	var count int
 	db = db.Table("borrowers").

@@ -187,9 +187,9 @@ func RegisterBorrower(c echo.Context) error {
 		"taxid_number":       register.TaxIDnumber,
 		"bank_accountnumber": register.BankAccountNumber,
 	}
-	err = checkUniqueFields(register.IdCardNumber, fields)
+	fieldsFound, err := checkUniqueFields(register.IdCardNumber, fields)
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+fieldsFound)
 	}
 
 	//create new personal borrower

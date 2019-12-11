@@ -117,38 +117,35 @@ func isBorrowerAlreadyRegistered(idcardNumber string) error {
 	return nil
 }
 
-func checkUniqueFields(idcardNumber string, uniques map[string]string) error {
-	db := asira.App.DB
-	var (
-		count    int
-		iterator int = 0
-		notEmpty int = 0
-	)
-
-	//init query
-	db = db.Table("borrowers").Select("*")
-
-	//get users other than idcardNumber...
-	db = db.Not("idcard_number", idcardNumber)
+func checkUniqueFields(idcardNumber string, uniques map[string]string) (string, error) {
+	var count int
+	fieldsFound := ""
 
 	//...check unique
 	for key, val := range uniques {
-		//DONE: security string from gorm
-		if iterator > 0 && (len(val) > 0 || val != "") {
-			if notEmpty > 0 {
-				db = db.Or(fmt.Sprintf("LOWER(%s) = ?", key), strings.ToLower(val))
-			} else {
-				db = db.Where(fmt.Sprintf("LOWER(%s) = ?", key), strings.ToLower(val))
-			}
-			notEmpty++
+		//init query
+		db := asira.App.DB
+		db = db.Table("borrowers").Select("*")
+
+		//get users other than idcardNumber...
+		db = db.Not("idcard_number", idcardNumber)
+
+		//if field not empty
+		if len(val) > 0 || val != "" {
+			db = db.Where(fmt.Sprintf("LOWER(%s) = ?", key), strings.ToLower(val))
+		} else {
+			//skip checking
+			continue
 		}
-		iterator++
+		//query count
+		err = db.Count(&count).Error
+		fmt.Println("check err & count ", err, count)
+		if err != nil || count > 0 {
+			fieldsFound += key + ", "
+		}
 	}
-	//query count
-	err = db.Count(&count).Error
-	fmt.Println("check err & count ", err, count)
-	if err != nil || count > 0 {
-		return errors.New("Borrower already registered as personal")
+	if fieldsFound != "" {
+		return fieldsFound, errors.New("data unique already exist")
 	}
-	return nil
+	return fieldsFound, nil
 }
