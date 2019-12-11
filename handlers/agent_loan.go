@@ -140,28 +140,30 @@ func AgentLoanGet(c echo.Context) error {
 func AgentLoanGetDetails(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	loan := models.Loan{}
-
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
+	//cek loan
+	loan := models.Loan{}
 	loanID, err := strconv.Atoi(c.Param("loan_id"))
+	err = loan.FindbyID(loanID)
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Loan Id tidak ditemukan")
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
 	}
 
-	type Filter struct {
-		ID       int    `json:"id"`
-		Borrower uint64 `json:"borrower"`
-	}
-	err = loan.FilterSearchSingle(&Filter{
-		ID:       loanID,
-		Borrower: uint64(borrowerID),
-	})
+	//is valid agent
+	agent := models.Agent{}
+	err = agent.FindbyID(int(agentID))
 	if err != nil {
-		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error : not valid agent's borrower")
+	}
+
+	//validate is borrower registered by agent
+	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
+	if !check {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, check, "validation error : not valid agent's borrower")
 	}
 
 	return c.JSON(http.StatusOK, loan)

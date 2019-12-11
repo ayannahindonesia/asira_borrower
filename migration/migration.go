@@ -562,6 +562,34 @@ func TestSeed() {
 				Product:          1,
 				OTPverified:      true,
 			},
+			models.Loan{
+				Borrower:         3,
+				LoanAmount:       1000000,
+				Installment:      6,
+				LoanIntention:    "Pendidikan",
+				IntentionDetails: "a loan 1 intention details",
+				Product:          1,
+			},
+			models.Loan{
+				Borrower:         3,
+				Status:           "approved",
+				LoanAmount:       500000,
+				Installment:      2,
+				LoanIntention:    "Rumah Tangga",
+				IntentionDetails: "a loan 2 intention details",
+				Product:          1,
+				OTPverified:      true,
+			},
+			models.Loan{
+				Borrower:         3,
+				Status:           "rejected",
+				LoanAmount:       2000000,
+				Installment:      8,
+				LoanIntention:    "Kesehatan",
+				IntentionDetails: "a loan 3 intention details",
+				Product:          1,
+				OTPverified:      true,
+			},
 		}
 		for _, loan := range loans {
 			loan.Create()
