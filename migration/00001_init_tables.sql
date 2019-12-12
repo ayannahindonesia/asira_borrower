@@ -44,7 +44,7 @@ CREATE TABLE "services" (
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
     "name" varchar(255),
-    "image_id" bigserial,
+    "image" text,
     "status" varchar(255),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
