@@ -45,13 +45,13 @@ func AgentLoanApply(c echo.Context) error {
 	agent := models.Agent{}
 	err = agent.FindbyID(int(agentID))
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error : not valid agent's borrower")
+		return returnInvalidResponse(http.StatusUnauthorized, validate, "validation error : not valid agent")
 	}
 
 	//validate is borrower registered by agent
 	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
 	if !check {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error : not valid agent's borrower")
+		return returnInvalidResponse(http.StatusUnauthorized, validate, "validation error : not valid agent's borrower")
 	}
 
 	err = validateAgentLoansProduct(loan, agentID)
@@ -157,13 +157,13 @@ func AgentLoanGetDetails(c echo.Context) error {
 	agent := models.Agent{}
 	err = agent.FindbyID(int(agentID))
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error : not valid agent's borrower")
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
 	}
 
 	//validate is borrower registered by agent
 	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
 	if !check {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, check, "validation error : not valid agent's borrower")
+		return returnInvalidResponse(http.StatusUnauthorized, check, "validation error : not valid agent's borrower")
 	}
 
 	return c.JSON(http.StatusOK, loan)
@@ -190,13 +190,13 @@ func AgentLoanOTPrequest(c echo.Context) error {
 	agent := models.Agent{}
 	err = agent.FindbyID(int(agentID))
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error : not valid agent's borrower")
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
 	}
 
 	//validate is borrower registered by agent
 	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
 	if !check {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, check, "validation error : not valid agent's borrower")
+		return returnInvalidResponse(http.StatusUnauthorized, check, "validation error : not valid agent's borrower")
 	}
 
 	//get borrower (phone)
@@ -210,7 +210,7 @@ func AgentLoanOTPrequest(c echo.Context) error {
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
 
 	message := fmt.Sprintf("Code OTP Pengajuan Pinjaman anda adalah %s", otpCode)
-	err = asira.App.Messaging.SendSMS(borrower.Phone, message)
+	err = asira.App.Messaging.SendSMS(agent.Phone, message)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending otp")
 	}
@@ -252,13 +252,13 @@ func AgentLoanOTPverify(c echo.Context) error {
 	agent := models.Agent{}
 	err = agent.FindbyID(int(agentID))
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error : not valid agent's borrower")
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
 	}
 
 	//validate is borrower registered by agent
 	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
 	if !check {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, check, "validation error : not valid agent's borrower")
+		return returnInvalidResponse(http.StatusUnauthorized, check, "validation error : not valid agent's borrower")
 	}
 
 	if loan.OTPverified {

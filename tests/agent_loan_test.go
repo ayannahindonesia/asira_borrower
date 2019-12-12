@@ -89,49 +89,48 @@ func TestAgentLoanApply(t *testing.T) {
 	obj.ContainsKey("loan_intention").ValueEqual("loan_intention", "Pendidikan")
 
 	// test validation
-	// payload = map[string]interface{}{
-	// 	"installment": "6",
-	// 	"loan_amount": "5000000",
-	// }
-	// auth.POST("/borrower/loan").WithJSON(payload).
-	// 	Expect().
-	// 	Status(http.StatusUnprocessableEntity).JSON().Object()
-	// payload = map[string]interface{}{
-	// 	"installment":       "6",
-	// 	"loan_amount":       "5000000",
-	// 	"loan_intention":    "not valid",
-	// 	"intention_details": "the details",
-	// 	"product":           1,
-	// }
-	// auth.POST("/borrower/loan").WithJSON(payload).
-	// 	Expect().
-	// 	Status(http.StatusUnprocessableEntity).JSON().Object()
+	payload = map[string]interface{}{
+		"installment": "6",
+		"loan_amount": "5000000",
+	}
+	auth.POST("/agent/loan").WithJSON(payload).
+		Expect().
+		Status(http.StatusUnprocessableEntity).JSON().Object()
+	payload = map[string]interface{}{
+		"installment":       "6",
+		"loan_amount":       "5000000",
+		"loan_intention":    "not valid",
+		"intention_details": "the details",
+		"product":           1,
+	}
+	auth.POST("/agent/loan").WithJSON(payload).
+		Expect().
+		Status(http.StatusUnprocessableEntity).JSON().Object()
 
-	// payload = map[string]interface{}{
-	// 	"installment":       6,
-	// 	"loan_amount":       5000000,
-	// 	"loan_intention":    "Pendidikan",
-	// 	"intention_details": "the details",
-	// 	"product":           99,
-	// }
-	// auth.POST("/borrower/loan").WithJSON(payload).
-	// 	Expect().
-	// 	Status(http.StatusUnprocessableEntity).JSON().Object()
+	payload = map[string]interface{}{
+		"installment":       6,
+		"loan_amount":       5000000,
+		"loan_intention":    "Pendidikan",
+		"intention_details": "the details",
+		"product":           99,
+	}
+	auth.POST("/agent/loan").WithJSON(payload).
+		Expect().
+		Status(http.StatusUnprocessableEntity).JSON().Object()
 
 	// test otp
-	// auth.GET("/borrower/loan/4/otp").
-	// 	Expect().
-	// 	Status(http.StatusOK).JSON().Object()
-
-	// // test otp verify
-	// payload = map[string]interface{}{
-	// 	"otp_code": "888999",
-	// }
-	// auth.POST("/borrower/loan/4/verify").WithJSON(payload).
-	// 	Expect().
-	// 	Status(http.StatusOK).JSON().Object()
-	// // second time should be invalid because loan is already verified
-	// auth.POST("/borrower/loan/4/verify").WithJSON(payload).
-	// 	Expect().
-	// 	Status(http.StatusBadRequest).JSON().Object()
+	auth.GET("/agent/loan/4/otp").
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+	// test otp verify
+	payload = map[string]interface{}{
+		"otp_code": "888999",
+	}
+	auth.POST("/agent/loan/4/verify").WithJSON(payload).
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+	// second time should be invalid because loan is already verified
+	auth.POST("/agent/loan/4/verify").WithJSON(payload).
+		Expect().
+		Status(http.StatusBadRequest).JSON().Object()
 }
