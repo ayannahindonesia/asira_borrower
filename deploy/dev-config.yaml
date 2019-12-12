@@ -44,6 +44,14 @@ development:
     sms: /client/message_sms_send
     push_notification: /client/message_notification_send
     list_notification: /client/message_notification
+  s3:
+    debug_mode: 1
+    region: id-tbs
+    access_key: J2BYZXZ43VPZ27V4TCP3
+    secret_key: s0yHeS/eBvjmyshVckbNqVWnTKwhnaP6kYBpFBHk
+    host: https://bucket.cloud.lintasarta.co.id:8082
+    bucket_name: bucket-ayannah
+    
 staging:
 
 production:
