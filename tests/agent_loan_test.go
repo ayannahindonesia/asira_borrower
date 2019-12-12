@@ -9,43 +9,49 @@ import (
 	"github.com/gavv/httpexpect"
 )
 
-// func TestBorrowerLoanGet(t *testing.T) {
-// 	RebuildData()
+func TestAgentLoanGet(t *testing.T) {
+	RebuildData()
 
-// 	api := router.NewRouter()
+	api := router.NewRouter()
 
-// 	server := httptest.NewServer(api)
+	server := httptest.NewServer(api)
 
-// 	defer server.Close()
+	defer server.Close()
 
-// 	e := httpexpect.New(t, server.URL)
+	e := httpexpect.New(t, server.URL)
 
-// 	auth := e.Builder(func(req *httpexpect.Request) {
-// 		req.WithHeader("Authorization", "Basic "+clientBasicToken)
-// 	})
+	auth := e.Builder(func(req *httpexpect.Request) {
+		req.WithHeader("Authorization", "Basic "+clientBasicToken)
+	})
 
-// 	agenttoken := getAgentLoginToken(e, auth, "1")
+	agenttoken := getAgentLoginToken(e, auth, "1")
 
-// 	auth = e.Builder(func(req *httpexpect.Request) {
-// 		req.WithHeader("Authorization", "Bearer "+agenttoken)
-// 	})
+	auth = e.Builder(func(req *httpexpect.Request) {
+		req.WithHeader("Authorization", "Bearer "+agenttoken)
+	})
 
-// 	// valid response of paged loan history
-// 	obj := auth.GET("/borrower/loan").
-// 		Expect().
-// 		Status(http.StatusOK).JSON().Object()
-// 	obj.ContainsKey("total_data").ValueEqual("total_data", 3)
+	// valid response of paged loan history
+	obj := auth.GET("/agent/loan").
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+	obj.ContainsKey("total_data").ValueEqual("total_data", 3)
 
-// 	// valid response of loan details
-// 	obj = auth.GET("/borrower/loan/1/details").
-// 		Expect().
-// 		Status(http.StatusOK).JSON().Object()
-// 	obj.ContainsKey("id").ValueEqual("id", 1)
-// 	// loan id not found
-// 	obj = auth.GET("/borrower/loan/99/details").
-// 		Expect().
-// 		Status(http.StatusNotFound).JSON().Object()
-// }
+	obj = auth.GET("/agent/loan").
+		WithQuery("status", "approved").
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+	obj.ContainsKey("total_data").ValueEqual("total_data", 1)
+
+	// valid response of loan details
+	obj = auth.GET("/agent/loan/5/details").
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+	obj.ContainsKey("status").ValueEqual("status", "approved")
+	// loan id not found
+	obj = auth.GET("/agent/loan/99/details").
+		Expect().
+		Status(http.StatusNotFound).JSON().Object()
+}
 
 func TestAgentLoanApply(t *testing.T) {
 	RebuildData()
@@ -83,7 +89,7 @@ func TestAgentLoanApply(t *testing.T) {
 		Status(http.StatusCreated).JSON().Object()
 	obj.ContainsKey("loan_intention").ValueEqual("loan_intention", "Pendidikan")
 
-	obj = auth.GET("/agent/loan/4/details").
+	obj = auth.GET("/agent/loan/7/details").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 	obj.ContainsKey("loan_intention").ValueEqual("loan_intention", "Pendidikan")
@@ -119,18 +125,18 @@ func TestAgentLoanApply(t *testing.T) {
 		Status(http.StatusUnprocessableEntity).JSON().Object()
 
 	// test otp
-	auth.GET("/agent/loan/4/otp").
+	auth.GET("/agent/loan/7/otp").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 	// test otp verify
 	payload = map[string]interface{}{
 		"otp_code": "888999",
 	}
-	auth.POST("/agent/loan/4/verify").WithJSON(payload).
+	auth.POST("/agent/loan/7/verify").WithJSON(payload).
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 	// second time should be invalid because loan is already verified
-	auth.POST("/agent/loan/4/verify").WithJSON(payload).
+	auth.POST("/agent/loan/7/verify").WithJSON(payload).
 		Expect().
 		Status(http.StatusBadRequest).JSON().Object()
 }

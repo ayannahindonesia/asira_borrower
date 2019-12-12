@@ -77,7 +77,7 @@ func AgentLoanGet(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.Atoi(claims["jti"].(string))
 
 	type Loans struct {
 		models.Loan
@@ -107,7 +107,9 @@ func AgentLoanGet(c echo.Context) error {
 		Select("*, bp.name as product_name, bs.name as service_name").
 		Joins("INNER JOIN products bp ON bp.id = l.product").
 		Joins("INNER JOIN services bs ON bs.id = bp.service_id").
-		Where("l.borrower = ?", borrowerID)
+		Joins("INNER JOIN borrowers br ON br.id = l.borrower").
+		Joins("INNER JOIN agents ag ON ag.id = br.agent_referral").
+		Where("ag.id = ?", agentID)
 
 	if status := c.QueryParam("status"); len(status) > 0 {
 		db = db.Where("l.status = ?", status)
@@ -150,7 +152,7 @@ func AgentLoanGetDetails(c echo.Context) error {
 	loanID, err := strconv.Atoi(c.Param("loan_id"))
 	err = loan.FindbyID(loanID)
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
+		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
 	}
 
 	//is valid agent

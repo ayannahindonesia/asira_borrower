@@ -113,7 +113,7 @@ func TestBorrowerLoanApply(t *testing.T) {
 		Status(http.StatusUnprocessableEntity).JSON().Object()
 
 	// test otp
-	auth.GET("/borrower/loan/4/otp").
+	auth.GET("/borrower/loan/7/otp").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 
@@ -121,11 +121,11 @@ func TestBorrowerLoanApply(t *testing.T) {
 	payload = map[string]interface{}{
 		"otp_code": "888999",
 	}
-	auth.POST("/borrower/loan/4/verify").WithJSON(payload).
+	auth.POST("/borrower/loan/7/verify").WithJSON(payload).
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 	// second time should be invalid because loan is already verified
-	auth.POST("/borrower/loan/4/verify").WithJSON(payload).
+	auth.POST("/borrower/loan/7/verify").WithJSON(payload).
 		Expect().
 		Status(http.StatusBadRequest).JSON().Object()
 }
