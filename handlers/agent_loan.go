@@ -235,35 +235,37 @@ func AgentLoanOTPverify(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	loan := models.Loan{}
-
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.Atoi(claims["jti"].(string))
 
+	//cek loan ID
+	loan := models.Loan{}
 	loanID, err := strconv.Atoi(c.Param("loan_id"))
+	err = loan.FindbyID(loanID)
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error parsing loan id to integer")
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "loan id not valid")
 	}
 
-	type Filter struct {
-		ID       int    `json:"id"`
-		Borrower uint64 `json:"borrower"`
-	}
-	err = loan.FilterSearchSingle(&Filter{
-		ID:       loanID,
-		Borrower: uint64(borrowerID),
-	})
+	//is valid agent
+	agent := models.Agent{}
+	err = agent.FindbyID(int(agentID))
 	if err != nil {
-		return returnInvalidResponse(http.StatusNotFound, err, "ID tidak ditemukan")
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error : not valid agent's borrower")
+	}
+
+	//validate is borrower registered by agent
+	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
+	if !check {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, check, "validation error : not valid agent's borrower")
 	}
 
 	if loan.OTPverified {
 		return returnInvalidResponse(http.StatusBadRequest, "", fmt.Sprintf("loan %v sudah di verifikasi", loanID))
 	}
 
-	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
+	catenate := strconv.Itoa(int(loan.Borrower)) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
 	counter, _ := strconv.Atoi(catenate)
 	if asira.App.OTP.HOTP.Verify(LoanOTPverify.OTPcode, counter) {
 		loan.OTPverified = true
