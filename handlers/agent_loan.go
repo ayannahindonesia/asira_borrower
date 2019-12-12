@@ -108,8 +108,16 @@ func AgentLoanGet(c echo.Context) error {
 		Joins("INNER JOIN products bp ON bp.id = l.product").
 		Joins("INNER JOIN services bs ON bs.id = bp.service_id").
 		Joins("INNER JOIN borrowers br ON br.id = l.borrower").
-		Joins("INNER JOIN agents ag ON ag.id = br.agent_referral").
-		Where("ag.id = ?", agentID)
+		Joins("INNER JOIN agents ag ON ag.id = br.agent_referral")
+
+	//do join for banks
+	bankID, _ := strconv.Atoi(c.QueryParam("bank"))
+	if bankID > 0 {
+		db = db.Joins("INNER JOIN banks bnk ON bnk.id = br.bank").
+			Where("bnk.id = ?", bankID)
+	}
+
+	db = db.Where("ag.id = ?", agentID)
 
 	if status := c.QueryParam("status"); len(status) > 0 {
 		db = db.Where("l.status = ?", status)
