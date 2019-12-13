@@ -372,7 +372,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		notif.ClientID = 2
 		notif.RecipientID = recipientID
 		notif.Response = errorResponse.Message
-		notif.Save()
+		err = notif.Create()
 		return err
 	}
 
