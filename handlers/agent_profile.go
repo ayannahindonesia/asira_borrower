@@ -75,7 +75,8 @@ func AgentProfileEdit(c echo.Context) error {
 		agentModel.Phone = agentPayload.Phone
 	}
 
-	if len(agentPayload.Banks) > 0 {
+	//if payload not 0 and category must "agent" not "account_executive"
+	if len(agentPayload.Banks) > 0 && agentModel.Category != "account_executive" {
 		agentModel.Banks = pq.Int64Array(agentPayload.Banks)
 	}
 
