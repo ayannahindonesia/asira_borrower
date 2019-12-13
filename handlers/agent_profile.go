@@ -12,6 +12,12 @@ import (
 	"github.com/labstack/echo"
 )
 
+type AgentPayload struct {
+	Email string  `json:"email"`
+	Phone string  `json:"phone"`
+	Banks []int64 `json:"banks"`
+}
+
 //AgentProfile get current agent's profile
 func AgentProfile(c echo.Context) error {
 	defer c.Request().Body.Close()
@@ -34,7 +40,7 @@ func AgentProfile(c echo.Context) error {
 //AgentProfileEdit update current agent's profile
 func AgentProfileEdit(c echo.Context) error {
 	defer c.Request().Body.Close()
-	var agentPayload models.Agent
+	var agentPayload AgentPayload
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
