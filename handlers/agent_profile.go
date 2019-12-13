@@ -58,8 +58,8 @@ func AgentProfileEdit(c echo.Context) error {
 	password := agentModel.Password
 
 	payloadRules := govalidator.MapData{
-		"email": []string{"email", "unique_edit:agents,email"},
-		"phone": []string{"id_phonenumber", "unique_edit:agents,phone"},
+		"email": []string{"email"},
+		"phone": []string{"id_phonenumber"},
 		"banks": []string{"valid_id:banks"},
 		"image": []string{},
 	}
@@ -68,6 +68,16 @@ func AgentProfileEdit(c echo.Context) error {
 	validate := validateRequestPayload(c, payloadRules, &agentPayload)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
+	}
+
+	//cek unique for patching
+	uniques := map[string]string{
+		"email": agentPayload.Email,
+		"phone": agentPayload.Phone,
+	}
+	foundFields, err := checkPatchFields("agents", "id", agentModel.ID, uniques)
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error : "+foundFields)
 	}
 
 	if len(agentPayload.Email) > 0 {
