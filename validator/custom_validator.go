@@ -56,7 +56,7 @@ func (a *AsiraValidator) CustomValidatorRules() {
 		)
 
 		query := `SELECT COUNT(*) as total FROM %s WHERE %s = ?`
-		params := strings.Split(strings.TrimPrefix(rule, fmt.Sprintf("%s:", "unique")), ",")
+		params := strings.Split(strings.TrimPrefix(rule, fmt.Sprintf("%s:", "unique_edit")), ",")
 
 		if len(params) == 2 {
 			query = fmt.Sprintf(query, params[0], params[1])
