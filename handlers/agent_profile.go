@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"asira_borrower/models"
+	"database/sql"
 	"net/http"
 	"strconv"
 
@@ -16,6 +17,7 @@ type AgentPayload struct {
 	Email string  `json:"email"`
 	Phone string  `json:"phone"`
 	Banks []int64 `json:"banks"`
+	Image string  `json:"image"`
 }
 
 //AgentProfile get current agent's profile
@@ -59,6 +61,7 @@ func AgentProfileEdit(c echo.Context) error {
 		"email": []string{"email", "unique_edit:agents,email"},
 		"phone": []string{"id_phonenumber", "unique_edit:agents,phone"},
 		"banks": []string{"valid_id:banks"},
+		"image": []string{},
 	}
 
 	//validate request data
@@ -80,16 +83,30 @@ func AgentProfileEdit(c echo.Context) error {
 		agentModel.Banks = pq.Int64Array(agentPayload.Banks)
 	}
 
-	// TaxIdImage := models.Image{}
-	// TaxIdImage.FindbyID(agentModel)
-	// Image := models.Image{
-	// 	Image_string: register.TaxIDImage,
-	// }
-	// err = TaxIdImage.Save()
-	// if err != nil {
-	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
-	// }
+	if len(agentPayload.Image) > 0 {
+		Image := models.Image{}
+		//search if exist
+		err = Image.FindbyID(int(agentModel.ImageID.Int64))
+		Image.Image_string = agentPayload.Image
 
+		if err != nil {
+			err = Image.Create()
+			if err != nil {
+				return returnInvalidResponse(http.StatusInternalServerError, err, "Failed storing image")
+			}
+		} else {
+			err = Image.Save()
+			if err != nil {
+				return returnInvalidResponse(http.StatusInternalServerError, err, "Failed storing image")
+			}
+		}
+
+		//update id image
+		agentModel.ImageID = sql.NullInt64{
+			Int64: int64(Image.ID),
+			Valid: true,
+		}
+	}
 	//restoring old password and update data
 	agentModel.Password = password
 	err = agentModel.Save()

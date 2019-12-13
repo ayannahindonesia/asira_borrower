@@ -70,6 +70,7 @@ func TestAgentPatchProfile(t *testing.T) {
 	data := map[string]interface{}{
 		"phone": "081234567899",
 		"email": "agentZ@mail.com",
+		"image": "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII=",
 	}
 	obj := auth.PATCH("/agent/profile").WithJSON(data).
 		Expect().
