@@ -2,9 +2,7 @@ package handlers
 
 import (
 	"asira_borrower/asira"
-	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -95,36 +93,4 @@ func isInArrayInt64(id int64, banks []int64) bool {
 		}
 	}
 	return exist
-}
-
-func checkPatchFields(tableName string, fieldID string, id uint64, uniques map[string]string) (string, error) {
-	var count int
-	fieldsFound := ""
-
-	//...check unique
-	for key, val := range uniques {
-		//init query
-		db := asira.App.DB
-		db = db.Table(tableName).Select(fieldID)
-
-		//get users other than idcardNumber...
-		db = db.Not(fieldID, id)
-
-		//if field not empty
-		if len(val) > 0 || val != "" {
-			db = db.Where(fmt.Sprintf("LOWER(%s) = ?", key), strings.ToLower(val))
-		} else {
-			//skip checking
-			continue
-		}
-		//query count
-		err = db.Count(&count).Error
-		if err != nil || count > 0 {
-			fieldsFound += key + ", "
-		}
-	}
-	if fieldsFound != "" {
-		return fieldsFound, errors.New("data unique already exist")
-	}
-	return fieldsFound, nil
 }
