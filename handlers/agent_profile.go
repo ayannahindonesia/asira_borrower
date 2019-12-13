@@ -75,9 +75,19 @@ func AgentProfileEdit(c echo.Context) error {
 		agentModel.Phone = agentPayload.Phone
 	}
 
-	if len(agentModel.Banks) > 0 {
+	if len(agentPayload.Banks) > 0 {
 		agentModel.Banks = pq.Int64Array(agentPayload.Banks)
 	}
+
+	// TaxIdImage := models.Image{}
+	// TaxIdImage.FindbyID(agentModel)
+	// Image := models.Image{
+	// 	Image_string: register.TaxIDImage,
+	// }
+	// err = TaxIdImage.Save()
+	// if err != nil {
+	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+	// }
 
 	//restoring old password and update data
 	agentModel.Password = password
