@@ -11,8 +11,9 @@ services:
     hostname: localhost
     environment:
       - APPNAME=asira_borrower
-      - ENV=dev
+      - APPENV=dev
       - APPPORT=8000
+      - CONFIGPATH=$$GOPATH/src/asira_borrower
     container_name: asira_borrower
     
   # zookeeper:
