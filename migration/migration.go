@@ -337,29 +337,29 @@ func TestSeed() {
 		// seed bank services
 		services := []models.Service{
 			models.Service{
-				Name:    "Pinjaman PNS",
-				ImageID: 1,
-				Status:  "active",
+				Name:   "Pinjaman PNS",
+				Image:  "https://images.unsplash.com/photo-1576039716094-066beef36943?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80",
+				Status: "active",
 			},
 			models.Service{
-				Name:    "Pinjaman Pensiun",
-				ImageID: 1,
-				Status:  "active",
+				Name:   "Pinjaman Pensiun",
+				Image:  "https://images.unsplash.com/photo-1576039716094-066beef36943?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80",
+				Status: "active",
 			},
 			models.Service{
-				Name:    "Pinjaman UMKN",
-				ImageID: 1,
-				Status:  "active",
+				Name:   "Pinjaman UMKN",
+				Image:  "https://images.unsplash.com/photo-1576039716094-066beef36943?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80",
+				Status: "active",
 			},
 			models.Service{
-				Name:    "Pinjaman Mikro",
-				ImageID: 1,
-				Status:  "inactive",
+				Name:   "Pinjaman Mikro",
+				Image:  "https://images.unsplash.com/photo-1576039716094-066beef36943?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80",
+				Status: "inactive",
 			},
 			models.Service{
-				Name:    "Pinjaman Lainnya",
-				ImageID: 1,
-				Status:  "inactive",
+				Name:   "Pinjaman Lainnya",
+				Image:  "https://images.unsplash.com/photo-1576039716094-066beef36943?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80",
+				Status: "inactive",
 			},
 		}
 		for _, service := range services {
