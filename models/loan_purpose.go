@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"gitlab.com/asira-ayannah/basemodel"
+	"github.com/ayannahindonesia/basemodel"
 )
 
 type LoanPurpose struct {

@@ -4,8 +4,8 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/ayannahindonesia/basemodel"
 	"github.com/lib/pq"
-	"gitlab.com/asira-ayannah/basemodel"
 )
 
 type Agent struct {

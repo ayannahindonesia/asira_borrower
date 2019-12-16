@@ -3,9 +3,9 @@ package models
 import (
 	"time"
 
+	"github.com/ayannahindonesia/basemodel"
 	"github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/lib/pq"
-	"gitlab.com/asira-ayannah/basemodel"
 )
 
 type (

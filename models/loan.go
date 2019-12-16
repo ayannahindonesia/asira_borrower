@@ -8,8 +8,8 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/ayannahindonesia/basemodel"
 	"github.com/jinzhu/gorm/dialects/postgres"
-	"gitlab.com/asira-ayannah/basemodel"
 )
 
 type (
