@@ -22,15 +22,13 @@ func ClientBankServices(c echo.Context) error {
 
 	// filters
 	type Filter struct {
-		Name    string `json:"name"`
-		ImageID string `json:"image_id"`
-		Status  string `json:"status"`
+		Name   string `json:"name"`
+		Status string `json:"status"`
 	}
 
 	result, err := bankService.PagedFindFilter(page, rows, orderby, sort, &Filter{
-		Name:    c.QueryParam("name"),
-		ImageID: c.QueryParam("image_id"),
-		Status:  c.QueryParam("status"),
+		Name:   c.QueryParam("name"),
+		Status: c.QueryParam("status"),
 	})
 
 	if err != nil {

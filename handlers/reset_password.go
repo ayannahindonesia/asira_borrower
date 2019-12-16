@@ -27,7 +27,7 @@ func ClientResetPassword(c echo.Context) error {
 	}
 	validate := validateRequestPayload(c, payloadRules, &borrower)
 	if validate != nil {
-		asira.App.DB.Where("email = ?", borrower.Email).Find(&borrower)
+		asira.App.DB.Where("email = ? AND agent_referral = 0", borrower.Email).Find(&borrower)
 		id := guuid.New()
 
 		uuid := models.Uuid_Reset_Password{
@@ -114,8 +114,14 @@ func ChangePassword(c echo.Context) error {
 		return err
 	}
 
-	borrowerModel.Password = string(passwordByte)
-	err = borrowerModel.Save()
+	//get password from users entity/table
+	userBorrower := models.User{}
+	err = userBorrower.FindbyBorrowerID(uint64(uuid_reset_password.Borrower.Int64))
+	if err != nil {
+		return returnInvalidResponse(http.StatusForbidden, err, "Akun bukan borrower personal")
+	}
+	userBorrower.Password = string(passwordByte)
+	err = userBorrower.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Ubah Password Gagal")
 	}

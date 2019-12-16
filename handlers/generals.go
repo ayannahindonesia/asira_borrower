@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -93,4 +95,57 @@ func isInArrayInt64(id int64, banks []int64) bool {
 		}
 	}
 	return exist
+}
+
+//isBorrowerRegisteredByAgent check is borrower already registered with agent register borrower
+func isBorrowerAlreadyRegistered(idcardNumber string) error {
+	db := asira.App.DB
+	var count int
+
+	//get users based on borrower id
+	db = db.Table("borrowers b").
+		Select("u.*").
+		Joins("INNER JOIN users u ON b.id = u.borrower").
+		Where("b.idcard_number = ?", idcardNumber)
+
+	err = db.Count(&count).Error
+	fmt.Println("check err & count ", err, count)
+	if err != nil || count > 0 {
+		return errors.New("Borrower already registered as personal")
+	}
+
+	return nil
+}
+
+func checkUniqueFields(idcardNumber string, uniques map[string]string) (string, error) {
+	var count int
+	fieldsFound := ""
+
+	//...check unique
+	for key, val := range uniques {
+		//init query
+		db := asira.App.DB
+		db = db.Table("borrowers").Select("*")
+
+		//get users other than idcardNumber...
+		db = db.Not("idcard_number", idcardNumber)
+
+		//if field not empty
+		if len(val) > 0 || val != "" {
+			db = db.Where(fmt.Sprintf("LOWER(%s) = ?", key), strings.ToLower(val))
+		} else {
+			//skip checking
+			continue
+		}
+		//query count
+		err = db.Count(&count).Error
+		fmt.Println("check err & count ", err, count)
+		if err != nil || count > 0 {
+			fieldsFound += key + ", "
+		}
+	}
+	if fieldsFound != "" {
+		return fieldsFound, errors.New("data unique already exist")
+	}
+	return fieldsFound, nil
 }

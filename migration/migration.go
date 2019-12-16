@@ -15,6 +15,10 @@ import (
 	"github.com/lib/pq"
 )
 
+var (
+	AgentPassword string = "$2y$12$lpU2qJ5S.q0tcK.bJaUYAedNM1U63bpMRIr0KT4YIaOrwNqXqo9tq"
+)
+
 func Seed() {
 	seeder := asira.App.DB.Begin()
 	defer seeder.Commit()
@@ -105,9 +109,12 @@ func Seed() {
 				RelatedPhoneNumber:   "08987654321",
 				OTPverified:          true,
 				BankAccountNumber:    "520384716",
-				Password:             "password",
 				Bank: sql.NullInt64{
 					Int64: 1,
+					Valid: true,
+				},
+				AgentReferral: sql.NullInt64{
+					Int64: 0,
 					Valid: true,
 				},
 			},
@@ -150,9 +157,12 @@ func Seed() {
 				RelatedPhoneNumber:   "08987654321",
 				RelatedAddress:       "big sis address",
 				OTPverified:          false,
-				Password:             "password",
 				Bank: sql.NullInt64{
 					Int64: 1,
+					Valid: true,
+				},
+				AgentReferral: sql.NullInt64{
+					Int64: 0,
 					Valid: true,
 				},
 			},
@@ -161,13 +171,24 @@ func Seed() {
 			borrower.Create()
 		}
 
+		users := []models.User{
+			models.User{
+				Borrower: 1,
+				Password: "password",
+			},
+			models.User{
+				Borrower: 2,
+				Password: "password",
+			},
+		}
+		for _, user := range users {
+			user.Create()
+		}
+
 		// seed loans
 		loans := []models.Loan{
 			models.Loan{
-				Owner: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
+				Borrower:         1,
 				LoanAmount:       1000000,
 				Installment:      6,
 				LoanIntention:    "Pendidikan",
@@ -175,10 +196,7 @@ func Seed() {
 				Product:          1,
 			},
 			models.Loan{
-				Owner: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
+				Borrower:         1,
 				Status:           "approved",
 				LoanAmount:       500000,
 				Installment:      2,
@@ -188,10 +206,7 @@ func Seed() {
 				OTPverified:      true,
 			},
 			models.Loan{
-				Owner: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
+				Borrower:         1,
 				Status:           "rejected",
 				LoanAmount:       2000000,
 				Installment:      8,
@@ -203,37 +218,6 @@ func Seed() {
 		}
 		for _, loan := range loans {
 			loan.Create()
-		}
-
-		//agent migration
-		agents := []models.Agent{
-			models.Agent{
-				Name:     "Agent K",
-				Username: "agentK",
-				Password: "password",
-				Email:    "agentk@mib.com",
-				Phone:    "081234567890",
-				Category: "agent",
-				AgentProvider: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
-				Banks:  pq.Int64Array{1, 2},
-				Status: "active",
-			},
-			models.Agent{
-				Name:     "Agent J",
-				Username: "agentJ",
-				Password: "password",
-				Email:    "agentj@mib.com",
-				Phone:    "081234567891",
-				Category: "account_executive",
-				Banks:    pq.Int64Array{1},
-				Status:   "active",
-			},
-		}
-		for _, agent := range agents {
-			agent.Create()
 		}
 
 		//seed uuid
@@ -337,29 +321,29 @@ func TestSeed() {
 		// seed bank services
 		services := []models.Service{
 			models.Service{
-				Name:    "Pinjaman PNS",
-				ImageID: 1,
-				Status:  "active",
+				Name:   "Pinjaman PNS",
+				Image:  "https://images.unsplash.com/photo-1576039716094-066beef36943?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80",
+				Status: "active",
 			},
 			models.Service{
-				Name:    "Pinjaman Pensiun",
-				ImageID: 1,
-				Status:  "active",
+				Name:   "Pinjaman Pensiun",
+				Image:  "https://images.unsplash.com/photo-1576039716094-066beef36943?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80",
+				Status: "active",
 			},
 			models.Service{
-				Name:    "Pinjaman UMKN",
-				ImageID: 1,
-				Status:  "active",
+				Name:   "Pinjaman UMKN",
+				Image:  "https://images.unsplash.com/photo-1576039716094-066beef36943?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80",
+				Status: "active",
 			},
 			models.Service{
-				Name:    "Pinjaman Mikro",
-				ImageID: 1,
-				Status:  "inactive",
+				Name:   "Pinjaman Mikro",
+				Image:  "https://images.unsplash.com/photo-1576039716094-066beef36943?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80",
+				Status: "inactive",
 			},
 			models.Service{
-				Name:    "Pinjaman Lainnya",
-				ImageID: 1,
-				Status:  "inactive",
+				Name:   "Pinjaman Lainnya",
+				Image:  "https://images.unsplash.com/photo-1576039716094-066beef36943?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80",
+				Status: "inactive",
 			},
 		}
 		for _, service := range services {
@@ -454,9 +438,12 @@ func TestSeed() {
 				RelatedPhoneNumber:   "08987654321",
 				OTPverified:          true,
 				BankAccountNumber:    "520384716",
-				Password:             "password",
 				Bank: sql.NullInt64{
 					Int64: 1,
+					Valid: true,
+				},
+				AgentReferral: sql.NullInt64{
+					Int64: 0,
 					Valid: true,
 				},
 			},
@@ -501,9 +488,12 @@ func TestSeed() {
 				RelatedPhoneNumber:   "08987654321",
 				RelatedAddress:       "big sis address",
 				OTPverified:          false,
-				Password:             "password",
 				Bank: sql.NullInt64{
 					Int64: 1,
+					Valid: true,
+				},
+				AgentReferral: sql.NullInt64{
+					Int64: 0,
 					Valid: true,
 				},
 			},
@@ -545,10 +535,7 @@ func TestSeed() {
 		// seed loans
 		loans := []models.Loan{
 			models.Loan{
-				Owner: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
+				Borrower:         1,
 				LoanAmount:       1000000,
 				Installment:      6,
 				LoanIntention:    "Pendidikan",
@@ -556,10 +543,7 @@ func TestSeed() {
 				Product:          1,
 			},
 			models.Loan{
-				Owner: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
+				Borrower:         1,
 				Status:           "approved",
 				LoanAmount:       500000,
 				Installment:      2,
@@ -569,10 +553,7 @@ func TestSeed() {
 				OTPverified:      true,
 			},
 			models.Loan{
-				Owner: sql.NullInt64{
-					Int64: 1,
-					Valid: true,
-				},
+				Borrower:         1,
 				Status:           "rejected",
 				LoanAmount:       2000000,
 				Installment:      8,
@@ -591,7 +572,7 @@ func TestSeed() {
 			models.Agent{
 				Name:     "Agent K",
 				Username: "agentK",
-				Password: "password",
+				Password: AgentPassword,
 				Email:    "agentk@mib.com",
 				Phone:    "081234567890",
 				Category: "agent",
@@ -605,7 +586,7 @@ func TestSeed() {
 			models.Agent{
 				Name:     "Agent J",
 				Username: "agentJ",
-				Password: "password",
+				Password: AgentPassword,
 				Email:    "agentj@mib.com",
 				Phone:    "081234567891",
 				Category: "account_executive",
@@ -618,9 +599,9 @@ func TestSeed() {
 		}
 
 		// seed agent's borrowers
-		agentBorrowers := []models.AgentBorrower{
-			models.AgentBorrower{
-				Fullname:             "Full Name AB",
+		agentBorrowers := []models.Borrower{
+			models.Borrower{
+				Fullname:             "Full Name AA",
 				Gender:               "M",
 				IdCardNumber:         "9876123451234566689",
 				TaxIDnumber:          "0987654321234566690",
@@ -659,13 +640,13 @@ func TestSeed() {
 					Int64: 1,
 					Valid: true,
 				},
-				AgentID: sql.NullInt64{
+				AgentReferral: sql.NullInt64{
 					Int64: 1,
 					Valid: true,
 				},
 			},
-			models.AgentBorrower{
-				Fullname:             "Full Name BB",
+			models.Borrower{
+				Fullname:             "Full Name AB",
 				Gender:               "M",
 				IdCardNumber:         "9666123451234566689",
 				TaxIDnumber:          "0966654321234566690",
@@ -704,7 +685,7 @@ func TestSeed() {
 					Int64: 1,
 					Valid: true,
 				},
-				AgentID: sql.NullInt64{
+				AgentReferral: sql.NullInt64{
 					Int64: 2,
 					Valid: true,
 				},
@@ -713,6 +694,42 @@ func TestSeed() {
 		for _, agentBorrower := range agentBorrowers {
 			agentBorrower.Create()
 		}
+
+		// seed loans for agent's borrowers (Borrower : 4 owned by Agent : 2 )
+		loans = []models.Loan{
+			models.Loan{
+				Borrower:         4,
+				LoanAmount:       1000000,
+				Installment:      6,
+				LoanIntention:    "Pendidikan",
+				IntentionDetails: "a loan 1 intention details",
+				Product:          1,
+			},
+			models.Loan{
+				Borrower:         4,
+				Status:           "approved",
+				LoanAmount:       500000,
+				Installment:      2,
+				LoanIntention:    "Rumah Tangga",
+				IntentionDetails: "a loan 2 intention details",
+				Product:          1,
+				OTPverified:      true,
+			},
+			models.Loan{
+				Borrower:         4,
+				Status:           "rejected",
+				LoanAmount:       2000000,
+				Installment:      8,
+				LoanIntention:    "Kesehatan",
+				IntentionDetails: "a loan 3 intention details",
+				Product:          1,
+				OTPverified:      true,
+			},
+		}
+		for _, loan := range loans {
+			loan.Create()
+		}
+
 		//seed uuid
 		uuid := models.Uuid_Reset_Password{
 			UUID: "f4f71eae-2cc9-4289-94e4-2421df67d4d7",
@@ -754,6 +771,20 @@ func TestSeed() {
 			clients.Create()
 		}
 
+		users := []models.User{
+			models.User{
+				Borrower: 1,
+				Password: "password",
+			},
+			models.User{
+				Borrower: 2,
+				Password: "password",
+			},
+		}
+		for _, user := range users {
+			user.Create()
+		}
+
 	}
 }
 
@@ -773,8 +804,8 @@ func Truncate(tableList []string) (err error) {
 				"uuid_reset_passwords",
 				"client_configs",
 				"internal_roles",
-				"agent_borrowers",
 				"agents",
+				"users",
 			}
 		}
 

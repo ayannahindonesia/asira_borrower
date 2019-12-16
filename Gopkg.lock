@@ -18,6 +18,63 @@
   version = "v1.5.1"
 
 [[projects]]
+  digest = "1:9a473f05637a8b730326f21902866f3c1d50dee7cdcbd7e7c434f8d363d9a5c0"
+  name = "github.com/aws/aws-sdk-go"
+  packages = [
+    "aws",
+    "aws/arn",
+    "aws/awserr",
+    "aws/awsutil",
+    "aws/client",
+    "aws/client/metadata",
+    "aws/corehandlers",
+    "aws/credentials",
+    "aws/credentials/ec2rolecreds",
+    "aws/credentials/endpointcreds",
+    "aws/credentials/processcreds",
+    "aws/credentials/stscreds",
+    "aws/csm",
+    "aws/defaults",
+    "aws/ec2metadata",
+    "aws/endpoints",
+    "aws/request",
+    "aws/session",
+    "aws/signer/v4",
+    "internal/ini",
+    "internal/s3err",
+    "internal/sdkio",
+    "internal/sdkmath",
+    "internal/sdkrand",
+    "internal/sdkuri",
+    "internal/shareddefaults",
+    "private/protocol",
+    "private/protocol/eventstream",
+    "private/protocol/eventstream/eventstreamapi",
+    "private/protocol/json/jsonutil",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/restxml",
+    "private/protocol/xml/xmlutil",
+    "service/s3",
+    "service/s3/internal/arn",
+    "service/sts",
+    "service/sts/stsiface",
+  ]
+  pruneopts = ""
+  revision = "b4f52c45248fcab90c27f5509504b840ca2fcf10"
+  version = "v1.26.2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:d9307affab378b1e21489c92b2aea39ff5c8d954ea59080fdf62dc056b21968a"
+  name = "github.com/ayannahindonesia/basemodel"
+  packages = ["."]
+  pruneopts = ""
+  revision = "35f9d88ff955c1d2094ec7ca337fbe8b565c0fa1"
+  source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@github.com/ayannahindonesia/basemodel.git"
+
+[[projects]]
   digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
@@ -188,7 +245,14 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:4ceab6231efd01210f2b8b6ab360d480d49c0f44df63841ca0465920a387495d"
+  digest = "1:13fe471d0ed891e8544eddfeeb0471fd3c9f2015609a1c000aefdedf52a19d40"
+  name = "github.com/jmespath/go-jmespath"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c2b33e84"
+
+[[projects]]
+  digest = "1:ab8acd94521ee4663cc29d8940640d4b6c30265623fbd0999a2794692e4fda82"
   name = "github.com/klauspost/compress"
   packages = [
     "flate",
@@ -201,8 +265,8 @@
     "zstd/internal/xxhash",
   ]
   pruneopts = ""
-  revision = "4e96aec082898e4dad17d8aca1a7e2d01362ff6c"
-  version = "v1.9.2"
+  revision = "438db640fd672278e44bb9bec0b979358e7e9c76"
+  version = "v1.9.4"
 
 [[projects]]
   digest = "1:4beb546223497fdc767dd15f2f48e271598817cecda2beaf2ad7bf43282d5bf7"
@@ -258,12 +322,12 @@
   version = "v0.1.4"
 
 [[projects]]
-  digest = "1:5794dadc5456af270fc564d98efbfa1f3627cd6c733ca772d14409793772064f"
+  digest = "1:f438921468fbc770ac4c97628f188913a099d4f004226e4aeb6e0f62f5b14fd1"
   name = "github.com/mattn/go-isatty"
   packages = ["."]
   pruneopts = ""
-  revision = "88ba11cfdc67c7588b30042edf244b2875f892b6"
-  version = "v0.0.10"
+  revision = "31745d66dd679ac0ac4f8d3ecff168fce6170c6a"
+  version = "v0.0.11"
 
 [[projects]]
   digest = "1:bcc46a0fbd9e933087bef394871256b5c60269575bb661935874729c65bbbf60"
@@ -368,12 +432,12 @@
   version = "v1.0.5"
 
 [[projects]]
-  digest = "1:6dc33597c06f8d16061307141bd5e9a0feb66cc3196ef8b1177624092a977439"
+  digest = "1:ede5f300103cb012aafde77c692dc853c4b590bb412d3c7965a11748a5c37635"
   name = "github.com/spf13/viper"
   packages = ["."]
   pruneopts = ""
-  revision = "72b022eb357a56469725dcd03918449e2278d02e"
-  version = "v1.5.0"
+  revision = "eabbc68a3ecd5cf8c11a2f84dbda5e7a38493b2f"
+  version = "v1.6.1"
 
 [[projects]]
   digest = "1:f7b541897bcde05a04a044c342ddc7425aab7e331f37b47fbb486cd16324b48e"
@@ -491,16 +555,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d9307affab378b1e21489c92b2aea39ff5c8d954ea59080fdf62dc056b21968a"
-  name = "gitlab.com/asira-ayannah/basemodel"
-  packages = ["."]
-  pruneopts = ""
-  revision = "35f9d88ff955c1d2094ec7ca337fbe8b565c0fa1"
-  source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@gitlab.com/asira-ayannah/basemodel.git"
-
-[[projects]]
-  branch = "master"
-  digest = "1:c57e5a436bda4c346e7bacb57fb0cf95613bb9b74df09202c1c0b4d6c07b7972"
+  digest = "1:0c8c3d0b028d56a91683bae1bd8a18cc672bb00eaf5797ee129916a61505128f"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
@@ -511,11 +566,11 @@
     "pbkdf2",
   ]
   pruneopts = ""
-  revision = "ac88ee75c92c889b97e05591e9a39b6480c538b3"
+  revision = "e9b2fee46413994441b28dfca259d911d963dfed"
 
 [[projects]]
   branch = "master"
-  digest = "1:b61fcec495a334d36135a43a5fd3eda2d8d61b764033c2434e26761398b7da00"
+  digest = "1:cab37ea831bb9be343b41a7673e64b6bb8399bc0f051180c04ce561573ed2c89"
   name = "golang.org/x/net"
   packages = [
     "idna",
@@ -524,15 +579,15 @@
     "publicsuffix",
   ]
   pruneopts = ""
-  revision = "ffdde105785063a81acd95bdf89ea53f6e0aac2d"
+  revision = "c0dbc17a35534bf2e581d7a942408dc936316da4"
 
 [[projects]]
   branch = "master"
-  digest = "1:1b2a936fb2a0054fdd36d33bb3059fdfd3014663911684f5e3fa8f64ae79d7fc"
+  digest = "1:e41b436f0e1f102888fb00cbfc148526db803468f17cc72b28a8c11337dd86d8"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "8a8471f7e56d296bf6a05aa09520b111beb1937a"
+  revision = "ac6580df4449443a05718fd7858c1f91ad5f8d20"
 
 [[projects]]
   digest = "1:740b51a55815493a8d0f2b1e0d0ae48fe48953bf7eaf3fcc4198823bf67768c0"
@@ -582,6 +637,14 @@
   pruneopts = ""
   revision = "41f3572897373c5538c50a2402db15db079fa4fd"
   version = "2.0.0"
+
+[[projects]]
+  digest = "1:b97a9fe409926ddb2f6a7a1f2b65476ba885e737a220a086554e00ecd7b530d8"
+  name = "gopkg.in/ini.v1"
+  packages = ["."]
+  pruneopts = ""
+  revision = "87e589f4917038ae250cff2446db7573f47e97ca"
+  version = "v1.51.0"
 
 [[projects]]
   digest = "1:4777ba481cc12866b89aafb0a67529e7ac48b9aea06a25f3737b2cf5a3ffda12"
@@ -670,6 +733,11 @@
   analyzer-version = 1
   input-imports = [
     "github.com/Shopify/sarama",
+    "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/credentials",
+    "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/s3",
+    "github.com/ayannahindonesia/basemodel",
     "github.com/dgrijalva/jwt-go",
     "github.com/fsnotify/fsnotify",
     "github.com/gavv/httpexpect",
@@ -683,7 +751,6 @@
     "github.com/spf13/viper",
     "github.com/thedevsaddam/govalidator",
     "github.com/xlzd/gotp",
-    "gitlab.com/asira-ayannah/basemodel",
     "golang.org/x/crypto/bcrypt",
     "gopkg.in/gomail.v2",
   ]

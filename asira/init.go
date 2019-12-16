@@ -9,12 +9,12 @@ import (
 	"strings"
 
 	"github.com/Shopify/sarama"
+	"github.com/ayannahindonesia/basemodel"
 	"github.com/fsnotify/fsnotify"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/spf13/viper"
 	"github.com/xlzd/gotp"
-	"gitlab.com/asira-ayannah/basemodel"
 )
 
 var (
@@ -32,6 +32,7 @@ type (
 		OTP       OTP           `json:"otp"`
 		Kafka     KafkaInstance `json:"kafka"`
 		Messaging custommodule.Messaging
+		S3        custommodule.S3 `json:"s3"`
 	}
 
 	OTP struct {
@@ -62,6 +63,7 @@ func init() {
 
 	App.KafkaInit()
 	App.MessagingInit()
+	App.S3init()
 
 	otpSecret := gotp.RandomSecret(16)
 	App.OTP = OTP{
@@ -110,7 +112,7 @@ func (x *Application) LoadConfigs() error {
 	conf.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	conf.AutomaticEnv()
 	conf.SetConfigName("config")
-	conf.AddConfigPath("$GOPATH/src/asira_borrower")
+	conf.AddConfigPath(os.Getenv("CONFIGPATH"))
 	conf.SetConfigType("yaml")
 	if err := conf.ReadInConfig(); err != nil {
 		return err
@@ -180,4 +182,13 @@ func (x *Application) MessagingInit() {
 	}
 
 	x.Messaging.SetConfig(messagingConfig["key"].(string), messagingConfig["secret"].(string), messagingConfig["url"].(string), endpoints)
+}
+
+// S3init load config for s3
+func (x *Application) S3init() (err error) {
+	s3conf := x.Config.GetStringMap(fmt.Sprintf("%s.s3", x.ENV))
+
+	x.S3, err = custommodule.NewS3(s3conf["access_key"].(string), s3conf["secret_key"].(string), s3conf["host"].(string), s3conf["bucket_name"].(string), s3conf["region"].(string))
+
+	return err
 }

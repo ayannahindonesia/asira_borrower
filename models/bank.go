@@ -3,8 +3,8 @@ package models
 import (
 	"time"
 
+	"github.com/ayannahindonesia/basemodel"
 	"github.com/lib/pq"
-	"gitlab.com/asira-ayannah/basemodel"
 )
 
 type (

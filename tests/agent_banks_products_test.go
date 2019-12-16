@@ -30,8 +30,14 @@ func TestAgentBankProductsGet(t *testing.T) {
 		req.WithHeader("Authorization", "Bearer "+borrowertoken)
 	})
 
-	// valid response of bank_services for bankID = 1
+	///all products owned by agent's banks
 	obj := auth.GET("/agent/bank_products").
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+	obj.ContainsKey("total_data").ValueEqual("total_data", 2)
+
+	// valid response of bank_services for bankID = 1
+	obj = auth.GET("/agent/bank_products").
 		WithQuery("service_id", 1).
 		Expect().
 		Status(http.StatusOK).JSON().Object()

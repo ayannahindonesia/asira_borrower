@@ -15,21 +15,20 @@ import (
 	"github.com/thedevsaddam/govalidator"
 )
 
-//BorrowerLoanApply borrower apply new Loan
-func BorrowerLoanApply(c echo.Context) error {
+//AgentLoanApply Agent apply new Loan
+func AgentLoanApply(c echo.Context) error {
 	defer c.Request().Body.Close()
 	var err error
-
-	loan := models.Loan{}
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
-	loan.Borrower = uint64(borrowerID)
+	loan := models.Loan{}
 
 	payloadRules := govalidator.MapData{
+		"borrower":          []string{"required"},
 		"loan_amount":       []string{"required"},
 		"installment":       []string{"required"},
 		"loan_intention":    []string{"required"},
@@ -42,9 +41,22 @@ func BorrowerLoanApply(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	err = validateLoansProduct(loan)
+	//is valid agent
+	agent := models.Agent{}
+	err = agent.FindbyID(int(agentID))
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error")
+		return returnInvalidResponse(http.StatusUnauthorized, validate, "validation error : not valid agent")
+	}
+
+	//validate is borrower registered by agent
+	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
+	if !check {
+		return returnInvalidResponse(http.StatusUnauthorized, validate, "validation error : not valid agent's borrower")
+	}
+
+	err = validateAgentLoansProduct(loan, agentID)
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error : not valid product")
 	}
 
 	err = loan.Create()
@@ -56,8 +68,8 @@ func BorrowerLoanApply(c echo.Context) error {
 	return c.JSON(http.StatusCreated, loan)
 }
 
-//BorrowerLoanGet borrower get his loans
-func BorrowerLoanGet(c echo.Context) error {
+//AgentLoanGet Agent get his loans
+func AgentLoanGet(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	db := asira.App.DB
@@ -65,7 +77,7 @@ func BorrowerLoanGet(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.Atoi(claims["jti"].(string))
 
 	type Loans struct {
 		models.Loan
@@ -95,7 +107,17 @@ func BorrowerLoanGet(c echo.Context) error {
 		Select("*, bp.name as product_name, bs.name as service_name").
 		Joins("INNER JOIN products bp ON bp.id = l.product").
 		Joins("INNER JOIN services bs ON bs.id = bp.service_id").
-		Where("l.borrower = ?", borrowerID)
+		Joins("INNER JOIN borrowers br ON br.id = l.borrower").
+		Joins("INNER JOIN agents ag ON ag.id = br.agent_referral")
+
+	//do join for banks
+	bankID, _ := strconv.Atoi(c.QueryParam("bank"))
+	if bankID > 0 {
+		db = db.Joins("INNER JOIN banks bnk ON bs.id IN (SELECT UNNEST(bnk.services))").
+			Where("bnk.id = ?", bankID)
+	}
+
+	db = db.Where("ag.id = ?", agentID)
 
 	if status := c.QueryParam("status"); len(status) > 0 {
 		db = db.Where("l.status = ?", status)
@@ -124,74 +146,81 @@ func BorrowerLoanGet(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-//BorrowerLoanGetDetails borrower get detail loan
-func BorrowerLoanGetDetails(c echo.Context) error {
+//AgentLoanGetDetails Agent get detail loan
+func AgentLoanGetDetails(c echo.Context) error {
 	defer c.Request().Body.Close()
-
-	loan := models.Loan{}
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
+	//cek loan
+	loan := models.Loan{}
 	loanID, err := strconv.Atoi(c.Param("loan_id"))
-	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Loan Id tidak ditemukan")
-	}
-
-	type Filter struct {
-		ID       int    `json:"id"`
-		Borrower uint64 `json:"borrower"`
-	}
-	err = loan.FilterSearchSingle(&Filter{
-		ID:       loanID,
-		Borrower: uint64(borrowerID),
-	})
+	err = loan.FindbyID(loanID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
+	}
+
+	//is valid agent
+	agent := models.Agent{}
+	err = agent.FindbyID(int(agentID))
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
+	}
+
+	//validate is borrower registered by agent
+	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
+	if !check {
+		return returnInvalidResponse(http.StatusUnauthorized, check, "validation error : not valid agent's borrower")
 	}
 
 	return c.JSON(http.StatusOK, loan)
 }
 
-//BorrowerLoanOTPrequest request for one time password
-func BorrowerLoanOTPrequest(c echo.Context) error {
+//AgentLoanOTPrequest request for one time password
+func AgentLoanOTPrequest(c echo.Context) error {
 	defer c.Request().Body.Close()
-
-	loan := models.Loan{}
-	borrower := models.Borrower{}
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
+	//cek loan
+	loan := models.Loan{}
 	loanID, err := strconv.Atoi(c.Param("loan_id"))
+	err = loan.FindbyID(loanID)
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error parsing loan id to integer")
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
 	}
 
-	type Filter struct {
-		ID       int    `json:"id"`
-		Borrower uint64 `json:"borrower"`
-	}
-	err = loan.FilterSearchSingle(&Filter{
-		ID:       loanID,
-		Borrower: uint64(borrowerID),
-	})
+	//is valid agent
+	agent := models.Agent{}
+	err = agent.FindbyID(int(agentID))
 	if err != nil {
-		return returnInvalidResponse(http.StatusNotFound, err, "query result error")
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
 	}
 
-	borrower.FindbyID(borrowerID)
+	//validate is borrower registered by agent
+	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
+	if !check {
+		return returnInvalidResponse(http.StatusUnauthorized, check, "validation error : not valid agent's borrower")
+	}
 
-	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
+	//get borrower (phone)
+	borrower := models.Borrower{}
+	err = borrower.FindbyID(int(loan.Borrower))
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error : not valid borrower")
+	}
+	catenate := strconv.Itoa(int(loan.Borrower)) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
 	counter, _ := strconv.Atoi(catenate)
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
 
 	message := fmt.Sprintf("Code OTP Pengajuan Pinjaman anda adalah %s", otpCode)
-	err = asira.App.Messaging.SendSMS(borrower.Phone, message)
+	err = asira.App.Messaging.SendSMS(agent.Phone, message)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending otp")
 	}
@@ -199,8 +228,8 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Terkirim"})
 }
 
-//BorrowerLoanOTPverify verify for one time password has sent
-func BorrowerLoanOTPverify(c echo.Context) error {
+//AgentLoanOTPverify verify for one time password has sent
+func AgentLoanOTPverify(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	var LoanOTPverify struct {
@@ -216,35 +245,37 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	loan := models.Loan{}
-
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.Atoi(claims["jti"].(string))
 
+	//cek loan ID
+	loan := models.Loan{}
 	loanID, err := strconv.Atoi(c.Param("loan_id"))
+	err = loan.FindbyID(loanID)
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error parsing loan id to integer")
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "loan id not valid")
 	}
 
-	type Filter struct {
-		ID       int    `json:"id"`
-		Borrower uint64 `json:"borrower"`
-	}
-	err = loan.FilterSearchSingle(&Filter{
-		ID:       loanID,
-		Borrower: uint64(borrowerID),
-	})
+	//is valid agent
+	agent := models.Agent{}
+	err = agent.FindbyID(int(agentID))
 	if err != nil {
-		return returnInvalidResponse(http.StatusNotFound, err, "ID tidak ditemukan")
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
+	}
+
+	//validate is borrower registered by agent
+	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
+	if !check {
+		return returnInvalidResponse(http.StatusUnauthorized, check, "validation error : not valid agent's borrower")
 	}
 
 	if loan.OTPverified {
 		return returnInvalidResponse(http.StatusBadRequest, "", fmt.Sprintf("loan %v sudah di verifikasi", loanID))
 	}
 
-	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
+	catenate := strconv.Itoa(int(loan.Borrower)) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
 	counter, _ := strconv.Atoi(catenate)
 	if asira.App.OTP.HOTP.Verify(LoanOTPverify.OTPcode, counter) {
 		loan.OTPverified = true
@@ -265,18 +296,18 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 }
 
 //validateLoansProduct validate product before apply loan
-func validateLoansProduct(l models.Loan) (err error) {
+func validateAgentLoansProduct(l models.Loan, agentID uint64) (err error) {
 	var count int
 
 	db := asira.App.DB
 
 	err = db.Table("banks b").
 		Select("p.id").
-		Joins("INNER JOIN borrowers bo ON bo.bank = b.id").
+		Joins("INNER JOIN agents ag ON b.id IN (SELECT UNNEST(ag.banks))").
 		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
 		Joins("INNER JOIN products p ON p.service_id = s.id").
 		Where("p.id = ?", l.Product).
-		Where("bo.id = ?", l.Borrower).Count(&count).Error
+		Where("ag.id = ?", agentID).Count(&count).Error
 
 	if count < 1 {
 		err = fmt.Errorf("invalid product")

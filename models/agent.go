@@ -4,9 +4,8 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/ayannahindonesia/basemodel"
 	"github.com/lib/pq"
-	"gitlab.com/asira-ayannah/basemodel"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type Agent struct {
@@ -19,20 +18,10 @@ type Agent struct {
 	Phone         string        `json:"phone" gorm:"column:phone"`
 	Category      string        `json:"category" gorm:"column:category"`
 	AgentProvider sql.NullInt64 `json:"agent_provider" gorm:"column:agent_provider"`
+	ImageID       sql.NullInt64 `json:"image_id" gorm:"column:image_id"`
 	Banks         pq.Int64Array `json:"banks" gorm:"column:banks"`
 	Status        string        `json:"status" gorm:"column:status"`
 	FCMToken      string        `json:"fcm_token" gorm:"column:fcm_token;type:varchar(255)"`
-}
-
-// BeforeCreate gorm callback
-func (model *Agent) BeforeCreate() (err error) {
-	passwordByte, err := bcrypt.GenerateFromPassword([]byte(model.Password), bcrypt.DefaultCost)
-	if err != nil {
-		return err
-	}
-
-	model.Password = string(passwordByte)
-	return nil
 }
 
 // Create new agent
@@ -42,6 +31,7 @@ func (model *Agent) Create() error {
 		return err
 	}
 
+	err = KafkaSubmitModel(model, "agent")
 	return err
 }
 
@@ -52,6 +42,7 @@ func (model *Agent) Save() error {
 		return err
 	}
 
+	err = KafkaSubmitModel(model, "agent")
 	return err
 }
 
@@ -82,4 +73,18 @@ func (model *Agent) PagedFilterSearch(page int, rows int, order []string, sort [
 	result, err = basemodel.PagedFindFilter(&agents, page, rows, order, sort, filter)
 
 	return result, err
+}
+
+// checkBorrowerID search using filter and return last
+func (model *Agent) CheckBorrowerOwnedByAgent(borrowerID uint64) bool {
+	borrowerModel := Borrower{}
+	err := borrowerModel.FindbyID(int(borrowerID))
+	if err != nil {
+		return false
+	}
+	//cek agent id is correct
+	if model.ID != uint64(borrowerModel.AgentReferral.Int64) {
+		return false
+	}
+	return true
 }

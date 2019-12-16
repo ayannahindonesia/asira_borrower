@@ -21,6 +21,6 @@
 #  version = "2.4.0"
 
 [[constraint]]
-    name= "gitlab.com/asira-ayannah/basemodel"
+    name= "github.com/ayannahindonesia/basemodel"
     branch = "master"
-    source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@gitlab.com/asira-ayannah/basemodel.git"
+    source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@github.com/ayannahindonesia/basemodel.git"

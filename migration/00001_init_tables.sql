@@ -44,7 +44,7 @@ CREATE TABLE "services" (
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
     "name" varchar(255),
-    "image_id" bigserial,
+    "image" text,
     "status" varchar(255),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
@@ -57,6 +57,7 @@ CREATE TABLE "agents" (
     "name" varchar(255),
     "username" varchar(255),
     "password" text,
+    "image_id" bigint,
     "email" varchar(255),
     "phone" varchar(255),
     "category" varchar(255),
@@ -96,17 +97,17 @@ CREATE TABLE "borrowers" (
     "fullname" varchar(255) NOT NULL,
     "nickname" varchar(255),
     "gender" varchar(1) NOT NULL,
-    "idcard_number" varchar(255) NOT NULL UNIQUE,
+    "idcard_number" varchar(255) NOT NULL,
     "idcard_image" bigserial,
     "taxid_number" varchar(255),
     "taxid_image" bigserial,
     "nationality" varchar(255),
-    "email" varchar(255) NOT NULL UNIQUE,
+    "email" varchar(255)  ,
     "birthday" DATE NOT NULL,
     "birthplace" varchar(255) NOT NULL,
     "last_education" varchar(255) NOT NULL,
     "mother_name" varchar(255) NOT NULL,
-    "phone" varchar(255) NOT NULL UNIQUE,
+    "phone" varchar(255) ,
     "marriage_status" varchar(255) NOT NULL,
     "spouse_name" varchar(255),
     "spouse_birthday" DATE,
@@ -142,74 +143,15 @@ CREATE TABLE "borrowers" (
     "bank" bigserial,
     "bank_accountnumber" varchar(255),
     "otp_verified" BOOLEAN,
-    "password" varchar(255) NOT NULL,
-    "fcm_token" varchar(255),
-    FOREIGN KEY ("idcard_image") REFERENCES images(id),
-    FOREIGN KEY ("taxid_image") REFERENCES images(id),
-    FOREIGN KEY ("bank") REFERENCES banks(id),
-    PRIMARY KEY ("id")
-) WITH (OIDS = FALSE);
-
-CREATE TABLE "agent_borrowers" (
-    "id" bigserial,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "fullname" varchar(255) NOT NULL,
-    "nickname" varchar(255),
-    "gender" varchar(1) NOT NULL,
-    "idcard_number" varchar(255) NOT NULL UNIQUE,
-    "idcard_image" bigserial,
-    "taxid_number" varchar(255),
-    "taxid_image" bigserial,
-    "nationality" varchar(255),
-    "email" varchar(255),
-    "birthday" DATE NOT NULL,
-    "birthplace" varchar(255) NOT NULL,
-    "last_education" varchar(255) NOT NULL,
-    "mother_name" varchar(255) NOT NULL,
-    "phone" varchar(255),
-    "marriage_status" varchar(255) NOT NULL,
-    "spouse_name" varchar(255),
-    "spouse_birthday" DATE,
-    "spouse_lasteducation" varchar(255),
-    "dependants" int DEFAULT (0),
-    "address" text NOT NULL,
-    "province" varchar(255) NOT NULL,
-    "city" varchar(255) NOT NULL,
-    "neighbour_association" varchar(255) NOT NULL,
-    "hamlets" varchar(255) NOT NULL,
-    "home_phonenumber" varchar(255) ,
-    "subdistrict" varchar(255) NOT NULL,
-    "urban_village" varchar(255) NOT NULL,
-    "home_ownership" varchar(255) NOT NULL,
-    "lived_for" int NOT NULL,
-    "occupation" varchar(255) NOT NULL,
-    "employee_id" varchar(255),
-    "employer_name" varchar(255) NOT NULL,
-    "employer_address" text NOT NULL,
-    "department" varchar(255) NOT NULL,
-    "been_workingfor" int NOT NULL,
-    "direct_superiorname" varchar(255),
-    "employer_number" varchar(255) NOT NULL,
-    "monthly_income" int NOT NULL,
-    "other_income" int,
-    "other_incomesource" varchar(255),
-    "field_of_work" varchar(255) NOT NULL,
-    "related_personname" varchar(255) NOT NULL,
-    "related_relation" varchar(255) NOT NULL,
-    "related_phonenumber" varchar(255) NOT NULL,
-    "related_homenumber" varchar(255),
-    "related_address" text,
-    "bank" bigserial,
-    "bank_accountnumber" varchar(255),
-    "agent_id" bigserial,
+    "agent_referral"  bigserial,
     "status" varchar(255) DEFAULT 'active',
     FOREIGN KEY ("idcard_image") REFERENCES images(id),
     FOREIGN KEY ("taxid_image") REFERENCES images(id),
-    FOREIGN KEY ("bank") REFERENCES banks(id),
-    FOREIGN KEY ("agent_id") REFERENCES agents(id),
+    FOREIGN KEY ("bank") REFERENCES banks(id), 
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
+
+
 
 CREATE TABLE "loan_purposes" (
     "id" bigserial,
@@ -226,7 +168,7 @@ CREATE TABLE "loans" (
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_time" timestamptz,
-    "owner" bigserial,
+    "borrower" bigserial,
     "product" bigserial,
     "status" varchar(255) DEFAULT  ('processing'),
     "loan_amount" FLOAT NOT NULL,
@@ -245,7 +187,7 @@ CREATE TABLE "loans" (
     "disburse_date_changed" BOOLEAN,
     "disburse_status" varchar(255) DEFAULT ('processing'),
     "reject_reason" text,
-    FOREIGN KEY ("owner") REFERENCES borrowers(id),
+    FOREIGN KEY ("borrower") REFERENCES borrowers(id),
     FOREIGN KEY ("product") REFERENCES products(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
@@ -284,6 +226,18 @@ CREATE TABLE "internal_roles" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+CREATE TABLE "users" (
+    "id" bigserial,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_time" timestamptz,
+    "borrower" bigserial NOT NULL,
+    "password" varchar(255) NOT NULL,
+    "fcm_token" varchar(255),
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("borrower") REFERENCES borrowers(id)
+) WITH (OIDS = FALSE);
+
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 
@@ -298,5 +252,5 @@ DROP TABLE IF EXISTS "loans" CASCADE;
 DROP TABLE IF EXISTS "uuid_reset_passwords" CASCADE;
 DROP TABLE IF EXISTS "client_configs" CASCADE;
 DROP TABLE IF EXISTS "internal_roles" CASCADE;
-DROP TABLE IF EXISTS "agent_borrowers" CASCADE;
 DROP TABLE IF EXISTS "agents" CASCADE;
+DROP TABLE IF EXISTS "users" CASCADE;
