@@ -9,7 +9,7 @@ import (
 	"github.com/gavv/httpexpect"
 )
 
-func TestBorrowerLoanGet(t *testing.T) {
+func TestAgentLoanGet(t *testing.T) {
 	RebuildData()
 
 	api := router.NewRouter()
@@ -24,30 +24,36 @@ func TestBorrowerLoanGet(t *testing.T) {
 		req.WithHeader("Authorization", "Basic "+clientBasicToken)
 	})
 
-	borrowertoken := getBorrowerLoginToken(e, auth, "1")
+	agenttoken := getAgentLoginToken(e, auth, "1")
 
 	auth = e.Builder(func(req *httpexpect.Request) {
-		req.WithHeader("Authorization", "Bearer "+borrowertoken)
+		req.WithHeader("Authorization", "Bearer "+agenttoken)
 	})
 
 	// valid response of paged loan history
-	obj := auth.GET("/borrower/loan").
+	obj := auth.GET("/agent/loan").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 	obj.ContainsKey("total_data").ValueEqual("total_data", 3)
 
-	// valid response of loan details
-	obj = auth.GET("/borrower/loan/1/details").
+	obj = auth.GET("/agent/loan").
+		WithQuery("status", "approved").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
-	obj.ContainsKey("id").ValueEqual("id", 1)
+	obj.ContainsKey("total_data").ValueEqual("total_data", 1)
+
+	// valid response of loan details
+	obj = auth.GET("/agent/loan/5/details").
+		Expect().
+		Status(http.StatusOK).JSON().Object()
+	obj.ContainsKey("status").ValueEqual("status", "approved")
 	// loan id not found
-	obj = auth.GET("/borrower/loan/99/details").
+	obj = auth.GET("/agent/loan/99/details").
 		Expect().
 		Status(http.StatusNotFound).JSON().Object()
 }
 
-func TestBorrowerLoanApply(t *testing.T) {
+func TestAgentLoanApply(t *testing.T) {
 	RebuildData()
 
 	api := router.NewRouter()
@@ -62,24 +68,30 @@ func TestBorrowerLoanApply(t *testing.T) {
 		req.WithHeader("Authorization", "Basic "+clientBasicToken)
 	})
 
-	borrowertoken := getBorrowerLoginToken(e, auth, "1")
+	agenttoken := getAgentLoginToken(e, auth, "1")
 
 	auth = e.Builder(func(req *httpexpect.Request) {
-		req.WithHeader("Authorization", "Bearer "+borrowertoken)
+		req.WithHeader("Authorization", "Bearer "+agenttoken)
 	})
 
 	payload := map[string]interface{}{
+		"borrower":          4,
 		"installment":       6,
-		"loan_amount":       5000000,
+		"loan_amount":       6000000,
 		"loan_intention":    "Pendidikan",
 		"intention_details": "the details",
 		"product":           1,
 	}
 
 	// valid response
-	obj := auth.POST("/borrower/loan").WithJSON(payload).
+	obj := auth.POST("/agent/loan").WithJSON(payload).
 		Expect().
 		Status(http.StatusCreated).JSON().Object()
+	obj.ContainsKey("loan_intention").ValueEqual("loan_intention", "Pendidikan")
+
+	obj = auth.GET("/agent/loan/7/details").
+		Expect().
+		Status(http.StatusOK).JSON().Object()
 	obj.ContainsKey("loan_intention").ValueEqual("loan_intention", "Pendidikan")
 
 	// test validation
@@ -87,7 +99,7 @@ func TestBorrowerLoanApply(t *testing.T) {
 		"installment": "6",
 		"loan_amount": "5000000",
 	}
-	auth.POST("/borrower/loan").WithJSON(payload).
+	auth.POST("/agent/loan").WithJSON(payload).
 		Expect().
 		Status(http.StatusUnprocessableEntity).JSON().Object()
 	payload = map[string]interface{}{
@@ -97,7 +109,7 @@ func TestBorrowerLoanApply(t *testing.T) {
 		"intention_details": "the details",
 		"product":           1,
 	}
-	auth.POST("/borrower/loan").WithJSON(payload).
+	auth.POST("/agent/loan").WithJSON(payload).
 		Expect().
 		Status(http.StatusUnprocessableEntity).JSON().Object()
 
@@ -108,24 +120,23 @@ func TestBorrowerLoanApply(t *testing.T) {
 		"intention_details": "the details",
 		"product":           99,
 	}
-	auth.POST("/borrower/loan").WithJSON(payload).
+	auth.POST("/agent/loan").WithJSON(payload).
 		Expect().
 		Status(http.StatusUnprocessableEntity).JSON().Object()
 
 	// test otp
-	auth.GET("/borrower/loan/7/otp").
+	auth.GET("/agent/loan/7/otp").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
-
 	// test otp verify
 	payload = map[string]interface{}{
 		"otp_code": "888999",
 	}
-	auth.POST("/borrower/loan/7/verify").WithJSON(payload).
+	auth.POST("/agent/loan/7/verify").WithJSON(payload).
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 	// second time should be invalid because loan is already verified
-	auth.POST("/borrower/loan/7/verify").WithJSON(payload).
+	auth.POST("/agent/loan/7/verify").WithJSON(payload).
 		Expect().
 		Status(http.StatusBadRequest).JSON().Object()
 }

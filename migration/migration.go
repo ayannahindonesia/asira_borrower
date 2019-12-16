@@ -694,6 +694,42 @@ func TestSeed() {
 		for _, agentBorrower := range agentBorrowers {
 			agentBorrower.Create()
 		}
+
+		// seed loans for agent's borrowers (Borrower : 4 owned by Agent : 2 )
+		loans = []models.Loan{
+			models.Loan{
+				Borrower:         4,
+				LoanAmount:       1000000,
+				Installment:      6,
+				LoanIntention:    "Pendidikan",
+				IntentionDetails: "a loan 1 intention details",
+				Product:          1,
+			},
+			models.Loan{
+				Borrower:         4,
+				Status:           "approved",
+				LoanAmount:       500000,
+				Installment:      2,
+				LoanIntention:    "Rumah Tangga",
+				IntentionDetails: "a loan 2 intention details",
+				Product:          1,
+				OTPverified:      true,
+			},
+			models.Loan{
+				Borrower:         4,
+				Status:           "rejected",
+				LoanAmount:       2000000,
+				Installment:      8,
+				LoanIntention:    "Kesehatan",
+				IntentionDetails: "a loan 3 intention details",
+				Product:          1,
+				OTPverified:      true,
+			},
+		}
+		for _, loan := range loans {
+			loan.Create()
+		}
+
 		//seed uuid
 		uuid := models.Uuid_Reset_Password{
 			UUID: "f4f71eae-2cc9-4289-94e4-2421df67d4d7",
