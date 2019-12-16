@@ -118,7 +118,7 @@ func (l *Loan) Calculate() (err error) {
 		// parse fees
 		parsedFees = append(parsedFees, LoanFee{
 			Description: v.Description,
-			Amount:      fmt.Sprint(fee),
+			Amount:      fmt.Sprintf("%f", fee),
 		})
 
 		if strings.ToLower(v.Description) == "convenience fee" {
