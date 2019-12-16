@@ -24,16 +24,16 @@ func CheckData(c echo.Context) error {
 	)
 	var values []string
 
-	if email := c.QueryParam("email"); email != "" && !asira.App.DB.Where("email = ?", email).Find(&borrower).RecordNotFound() {
+	if email := c.QueryParam("email"); email != "" && !asira.App.DB.Where("email = ? AND agent_referral = 0", email).Find(&borrower).RecordNotFound() {
 		values = append(values, "Email")
 	}
-	if phone := c.QueryParam("phone"); phone != "" && !asira.App.DB.Where("phone = ?", phone).Find(&borrower).RecordNotFound() {
+	if phone := c.QueryParam("phone"); phone != "" && !asira.App.DB.Where("phone = ? AND agent_referral = 0", phone).Find(&borrower).RecordNotFound() {
 		values = append(values, "Phone")
 	}
-	if idcard_number := c.QueryParam("idcard_number"); idcard_number != "" && !asira.App.DB.Where("idcard_number = ?", idcard_number).Find(&borrower).RecordNotFound() {
+	if idcard_number := c.QueryParam("idcard_number"); idcard_number != "" && !asira.App.DB.Where("idcard_number = ? AND agent_referral = 0", idcard_number).Find(&borrower).RecordNotFound() {
 		values = append(values, "Id Card Number")
 	}
-	if taxid_number := c.QueryParam("taxid_number"); taxid_number != "" && !asira.App.DB.Where("taxid_number = ?", taxid_number).Find(&borrower).RecordNotFound() {
+	if taxid_number := c.QueryParam("taxid_number"); taxid_number != "" && !asira.App.DB.Where("taxid_number = ? AND agent_referral = 0", taxid_number).Find(&borrower).RecordNotFound() {
 		values = append(values, "Tax Id Number")
 	}
 	if len(values) < 1 {

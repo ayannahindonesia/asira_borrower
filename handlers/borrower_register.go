@@ -25,6 +25,7 @@ type (
 	}
 )
 
+//RegisterBorrower register borrower personal
 func RegisterBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
 	type (
@@ -85,15 +86,15 @@ func RegisterBorrower(c echo.Context) error {
 		"fullname":              []string{"required"},
 		"nickname":              []string{},
 		"gender":                []string{"required"},
-		"idcard_number":         []string{"required", "unique:borrowers,idcard_number"},
-		"taxid_number":          []string{"unique:borrowers,taxid_number"},
+		"idcard_number":         []string{"required"},
+		"taxid_number":          []string{},
 		"nationality":           []string{},
-		"email":                 []string{"email", "unique:borrowers,email"},
+		"email":                 []string{"required", "email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
 		"last_education":        []string{"required"},
 		"mother_name":           []string{"required"},
-		"phone":                 []string{"required", "unique:borrowers,phone"},
+		"phone":                 []string{"required", "id_phonenumber"},
 		"marriage_status":       []string{"required"},
 		"spouse_name":           []string{},
 		"spouse_birthday":       []string{"date"},
@@ -126,7 +127,7 @@ func RegisterBorrower(c echo.Context) error {
 		"related_phonenumber":   []string{"required"},
 		"related_homenumber":    []string{},
 		"bank":                  []string{},
-		"bank_accountnumber":    []string{"unique:borrowers,bank_accountnumber"},
+		"bank_accountnumber":    []string{},
 		"password":              []string{"required"},
 	}
 
@@ -163,19 +164,53 @@ func RegisterBorrower(c echo.Context) error {
 			Valid: true,
 		},
 	}
+
+	//marshalling data
 	r, err := json.Marshal(register)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
-	json.Unmarshal(r, &borrower)
 
+	//create 1 user for 1 borrower (nasabah personal)
+	user := models.User{}
+
+	//search already exist Borrower registered by agent
+	err = isBorrowerAlreadyRegistered(register.IdCardNumber)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Borrower personal sudah terdaftar sebelumnya")
+	}
+
+	//check manual fields if not unique
+	var fields = map[string]string{
+		"phone":              register.Phone,
+		"email":              register.Email,
+		"taxid_number":       register.TaxIDnumber,
+		"bank_accountnumber": register.BankAccountNumber,
+	}
+	fieldsFound, err := checkUniqueFields(register.IdCardNumber, fields)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+fieldsFound)
+	}
+
+	//create new personal borrower
+	json.Unmarshal(r, &borrower)
+	borrower.AgentReferral = sql.NullInt64{
+		Int64: 0,
+		Valid: true,
+	}
 	err = borrower.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 
+	//save borrower_id to user entity and storing
+	user.Borrower = borrower.ID
+	user.Password = register.Password
+	user.Create()
+
 	return c.JSON(http.StatusCreated, borrower)
 }
+
 func RequestOTPverifyAccount(c echo.Context) error {
 	defer c.Request().Body.Close()
 

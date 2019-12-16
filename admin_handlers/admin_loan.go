@@ -23,12 +23,12 @@ func LoanGetAll(c echo.Context) error {
 	fullname := c.QueryParam("fullname")
 
 	type Filter struct {
-		Owner        string `json:"owner"`
+		Borrower     string `json:"owner"`
 		ID           string `json:"id"`
 		BorrowerInfo string `json:"borrower_info::text" condition:"LIKE"`
 	}
 	result, err := loan.PagedFilterSearch(page, rows, orderby, sort, &Filter{
-		Owner:        owner,
+		Borrower:     owner,
 		ID:           id,
 		BorrowerInfo: fullname,
 	})

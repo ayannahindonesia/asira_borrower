@@ -54,15 +54,21 @@ func BorrowerLogin(c echo.Context) error {
 	// check if theres record
 	switch loginType {
 	default: // default login is using phone number
-		validKey = asira.App.DB.Where("phone = ?", credentials.Key).Find(&borrower).RecordNotFound()
+		validKey = asira.App.DB.Where("phone = ? AND agent_referral = 0", credentials.Key).Find(&borrower).RecordNotFound()
 		break
 	case "email":
-		validKey = asira.App.DB.Where("email = ?", credentials.Key).Find(&borrower).RecordNotFound()
+		validKey = asira.App.DB.Where("email = ? AND agent_referral = 0", credentials.Key).Find(&borrower).RecordNotFound()
 		break
+	}
+	//check login data exist or not
+	user := models.User{}
+	err = user.FindbyBorrowerID(borrower.ID)
+	if err != nil {
+		return returnInvalidResponse(http.StatusOK, err, "Borrower tidak memiliki akun personal")
 	}
 
 	if !validKey { // check the password
-		err = bcrypt.CompareHashAndPassword([]byte(borrower.Password), []byte(credentials.Password))
+		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
 		if err != nil {
 			return returnInvalidResponse(http.StatusOK, err, "Password anda salah")
 		}

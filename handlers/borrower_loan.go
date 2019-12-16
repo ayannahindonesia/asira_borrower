@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
-	"database/sql"
 	"fmt"
 	"log"
 	"math"
@@ -16,6 +15,7 @@ import (
 	"gitlab.com/asira-ayannah/basemodel"
 )
 
+//BorrowerLoanApply borrower apply new Loan
 func BorrowerLoanApply(c echo.Context) error {
 	defer c.Request().Body.Close()
 	var err error
@@ -27,7 +27,7 @@ func BorrowerLoanApply(c echo.Context) error {
 	claims := token.Claims.(jwt.MapClaims)
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 
-	loan.Owner = sql.NullInt64{Int64: int64(borrowerID), Valid: true}
+	loan.Borrower = uint64(borrowerID)
 
 	payloadRules := govalidator.MapData{
 		"loan_amount":       []string{"required"},
@@ -56,6 +56,7 @@ func BorrowerLoanApply(c echo.Context) error {
 	return c.JSON(http.StatusCreated, loan)
 }
 
+//BorrowerLoanGet borrower get his loans
 func BorrowerLoanGet(c echo.Context) error {
 	defer c.Request().Body.Close()
 
@@ -94,7 +95,7 @@ func BorrowerLoanGet(c echo.Context) error {
 		Select("*, bp.name as product_name, bs.name as service_name").
 		Joins("INNER JOIN products bp ON bp.id = l.product").
 		Joins("INNER JOIN services bs ON bs.id = bp.service_id").
-		Where("l.owner = ?", borrowerID)
+		Where("l.borrower = ?", borrowerID)
 
 	if status := c.QueryParam("status"); len(status) > 0 {
 		db = db.Where("l.status = ?", status)
@@ -123,6 +124,7 @@ func BorrowerLoanGet(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+//BorrowerLoanGetDetails borrower get detail loan
 func BorrowerLoanGetDetails(c echo.Context) error {
 	defer c.Request().Body.Close()
 
@@ -133,29 +135,27 @@ func BorrowerLoanGetDetails(c echo.Context) error {
 	claims := token.Claims.(jwt.MapClaims)
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 
-	loan_id, err := strconv.Atoi(c.Param("loan_id"))
+	loanID, err := strconv.Atoi(c.Param("loan_id"))
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Loan Id tidak ditemukan")
 	}
 
 	type Filter struct {
-		ID    int           `json:"id"`
-		Owner sql.NullInt64 `json:"owner"`
+		ID       int    `json:"id"`
+		Borrower uint64 `json:"borrower"`
 	}
 	err = loan.FilterSearchSingle(&Filter{
-		ID: loan_id,
-		Owner: sql.NullInt64{
-			Int64: int64(borrowerID),
-			Valid: true,
-		},
+		ID:       loanID,
+		Borrower: uint64(borrowerID),
 	})
 	if err != nil {
-		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v tidak ditemukan", loan_id))
+		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
 	}
 
 	return c.JSON(http.StatusOK, loan)
 }
 
+//BorrowerLoanOTPrequest request for one time password
 func BorrowerLoanOTPrequest(c echo.Context) error {
 	defer c.Request().Body.Close()
 
@@ -167,21 +167,18 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 	claims := token.Claims.(jwt.MapClaims)
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 
-	loan_id, err := strconv.Atoi(c.Param("loan_id"))
+	loanID, err := strconv.Atoi(c.Param("loan_id"))
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error parsing loan id to integer")
 	}
 
 	type Filter struct {
-		ID    int           `json:"id"`
-		Owner sql.NullInt64 `json:"owner"`
+		ID       int    `json:"id"`
+		Borrower uint64 `json:"borrower"`
 	}
 	err = loan.FilterSearchSingle(&Filter{
-		ID: loan_id,
-		Owner: sql.NullInt64{
-			Int64: int64(borrowerID),
-			Valid: true,
-		},
+		ID:       loanID,
+		Borrower: uint64(borrowerID),
 	})
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "query result error")
@@ -202,6 +199,7 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Terkirim"})
 }
 
+//BorrowerLoanOTPverify verify for one time password has sent
 func BorrowerLoanOTPverify(c echo.Context) error {
 	defer c.Request().Body.Close()
 
@@ -225,28 +223,25 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 	claims := token.Claims.(jwt.MapClaims)
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 
-	loan_id, err := strconv.Atoi(c.Param("loan_id"))
+	loanID, err := strconv.Atoi(c.Param("loan_id"))
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error parsing loan id to integer")
 	}
 
 	type Filter struct {
-		ID    int           `json:"id"`
-		Owner sql.NullInt64 `json:"owner"`
+		ID       int    `json:"id"`
+		Borrower uint64 `json:"borrower"`
 	}
 	err = loan.FilterSearchSingle(&Filter{
-		ID: loan_id,
-		Owner: sql.NullInt64{
-			Int64: int64(borrowerID),
-			Valid: true,
-		},
+		ID:       loanID,
+		Borrower: uint64(borrowerID),
 	})
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "ID tidak ditemukan")
 	}
 
 	if loan.OTPverified {
-		return returnInvalidResponse(http.StatusBadRequest, "", fmt.Sprintf("loan %v sudah di verifikasi", loan_id))
+		return returnInvalidResponse(http.StatusBadRequest, "", fmt.Sprintf("loan %v sudah di verifikasi", loanID))
 	}
 
 	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
@@ -269,6 +264,7 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP yang anda masukan salah")
 }
 
+//validateLoansProduct validate product before apply loan
 func validateLoansProduct(l models.Loan) (err error) {
 	var count int
 
@@ -280,7 +276,7 @@ func validateLoansProduct(l models.Loan) (err error) {
 		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
 		Joins("INNER JOIN products p ON p.service_id = s.id").
 		Where("p.id = ?", l.Product).
-		Where("bo.id = ?", l.Owner.Int64).Count(&count).Error
+		Where("bo.id = ?", l.Borrower).Count(&count).Error
 
 	if count < 1 {
 		err = fmt.Errorf("invalid product")
