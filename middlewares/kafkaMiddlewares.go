@@ -387,16 +387,12 @@ func syncAgent(dataAgent []byte) (err error) {
 			return err
 		}
 	} else {
-		var agentQuery models.Agent
 		err = json.Unmarshal(dataAgent, &agent)
-		err = agentQuery.FilterSearchSingle(&Filter{
-			Username: agent.Username,
-		})
 		if err != nil {
-			err = agent.Save()
-		} else {
-			err = agent.Create()
+			return err
 		}
+		err = agent.Save()
+
 		return err
 	}
 	return nil
