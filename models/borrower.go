@@ -73,7 +73,7 @@ func (b *Borrower) Create() error {
 		return err
 	}
 
-	if b.OTPverified = true {
+	if b.OTPverified == true {
 		err = KafkaSubmitModel(b, "borrower")
 	}
 	return err
@@ -85,7 +85,7 @@ func (b *Borrower) Save() error {
 		return err
 	}
 
-	if b.OTPverified = true {
+	if b.OTPverified == true {
 		err = KafkaSubmitModel(b, "borrower")
 	}
 	return err

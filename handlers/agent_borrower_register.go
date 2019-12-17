@@ -225,12 +225,34 @@ func AgentRegisterBorrower(c echo.Context) error {
 func AgentRequestOTP(c echo.Context) error {
 	defer c.Request().Body.Close()
 
+	type FilterAgentRef struct {
+		ID            uint64 `json:"id"`
+		AgentReferral int64  `json:"agent_referral"`
+	}
+
+	type FilterAgentPhone struct {
+		ID    uint64 `json:"id"`
+		Phone string `json:"phone"`
+	}
+
 	otpRequest := VerifyAccountOTPrequest{}
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	AgentID, _ := strconv.ParseInt(claims["jti"].(string), 10, 64)
+	borrowerID, _ := strconv.ParseUint(c.Param("borrower_id"), 10, 64)
+
+	//cek borrower owned by agent
+	borrower := models.Borrower{}
+	err := borrower.FilterSearchSingle(&FilterAgentRef{
+		ID:            borrowerID,
+		AgentReferral: AgentID,
+	})
+
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's borrower")
+	}
 
 	payloadRules := govalidator.MapData{
 		"phone": []string{"regex:^[0-9]+$", "required"},
@@ -241,12 +263,24 @@ func AgentRequestOTP(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	catenate := strconv.Itoa(borrowerID) + otpRequest.Phone[len(otpRequest.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
+	//cek agent's phone
+	agent := models.Agent{}
+	err = agent.FilterSearchSingle(&FilterAgentPhone{
+		ID:    uint64(AgentID),
+		Phone: otpRequest.Phone,
+	})
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's phone")
+	}
+
+	//generate OTP
+	catenate := strconv.Itoa(int(borrowerID)) + agent.Phone[len(otpRequest.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
 	counter, _ := strconv.Atoi(catenate)
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
 
+	//Send OTP sms
 	message := fmt.Sprintf("Code OTP Registrasi anda adalah %s", otpCode)
-	err := asira.App.Messaging.SendSMS(otpRequest.Phone, message)
+	err = asira.App.Messaging.SendSMS(agent.Phone, message)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending otp")
 	}

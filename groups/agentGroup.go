@@ -19,8 +19,8 @@ func AgentGroup(e *echo.Echo) {
 	g.POST("/register_borrower", handlers.AgentRegisterBorrower)
 
 	// OTP after register
-	g.POST("/otp_request", handlers.AgentRequestOTP)
-	g.POST("/otp_verify", handlers.AgentVerifyOTP)
+	g.POST("/otp_request/:borrower_id", handlers.AgentRequestOTP)
+	g.POST("/otp_verify/:borrower_id", handlers.AgentVerifyOTP)
 
 	//banks owned by current agent (jti)
 	g.GET("/banks", handlers.AgentAllBank)
