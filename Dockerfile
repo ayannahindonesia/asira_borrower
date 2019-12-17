@@ -47,7 +47,7 @@
 FROM golang:alpine
 
 ARG APPNAME="asira_borrower"
-ARG CONFIGPATH="$$GOPATH/src/asira_borrower"
+ARG CONFIGPATH="$GOPATH/src/asira_borrower/"
 
 ADD . $GOPATH/src/"${APPNAME}"
 WORKDIR $GOPATH/src/"${APPNAME}"
