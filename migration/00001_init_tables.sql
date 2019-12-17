@@ -128,7 +128,7 @@ CREATE TABLE "borrowers" (
     "employer_name" varchar(255) NOT NULL,
     "employer_address" text NOT NULL,
     "department" varchar(255) NOT NULL,
-    "been_workingfor" int NOT NULL,
+    "been_workingfor" int,
     "direct_superiorname" varchar(255),
     "employer_number" varchar(255) NOT NULL,
     "monthly_income" int NOT NULL,
