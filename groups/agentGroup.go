@@ -18,6 +18,10 @@ func AgentGroup(e *echo.Echo) {
 	// agent's profile endpoints
 	g.POST("/register_borrower", handlers.AgentRegisterBorrower)
 
+	// OTP after register
+	g.POST("/otp_request", handlers.AgentRequestOTP)
+	g.POST("/otp_verify", handlers.AgentVerifyOTP)
+
 	//banks owned by current agent (jti)
 	g.GET("/banks", handlers.AgentAllBank)
 
