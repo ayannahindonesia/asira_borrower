@@ -4,27 +4,39 @@ import (
 	"asira_borrower/asira"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/Shopify/sarama"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 )
 
-var err error
-
-func Ping(c echo.Context) error {
-	defer c.Request().Body.Close()
-
-	if err = healthcheckKafka(); err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, nil, "Server is not ready")
-	}
-	if err = healthcheckDB(); err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, nil, "Server is not ready")
-	}
-
-	return c.JSON(http.StatusOK, map[string]interface{}{"message": "Server ready"})
+// Info main type
+type Info struct {
+	Time   string `json:"time"`
+	Stacks bool   `json:"stacks"`
 }
 
+var (
+	err  error
+	info Info
+)
+
+// ServiceInfo check service info
+func ServiceInfo(c echo.Context) error {
+	defer c.Request().Body.Close()
+
+	info.Time = fmt.Sprintf("%v", time.Now().Format("2006-01-02T15:04:05"))
+	info.Stacks = true
+	if err = healthcheckKafka(); err != nil {
+		info.Stacks = false
+	}
+	if err = healthcheckDB(); err != nil {
+		info.Stacks = false
+	}
+
+	return c.JSON(http.StatusOK, info)
+}
 func healthcheckKafka() (err error) {
 	producer, err := sarama.NewAsyncProducer([]string{asira.App.Kafka.Host}, asira.App.Kafka.Config)
 	if err != nil {
