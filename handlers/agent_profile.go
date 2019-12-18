@@ -31,7 +31,7 @@ type (
 
 	AgentResponse struct {
 		models.Agent
-		BanksName []string `json:"banks_name"`
+		BankNames pq.StringArray `json:"bank_names"`
 	}
 )
 
@@ -43,34 +43,30 @@ func AgentProfile(c echo.Context) error {
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 
-	agentModel := models.Agent{}
+	// agentModel := models.Agent{}
 
 	agentID, _ := strconv.Atoi(claims["jti"].(string))
-	err := agentModel.FindbyID(agentID)
-	if err != nil {
-		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
-	}
 
 	//set banks name
-	banksName := []BanksResponse{}
-	db := asira.App.DB.Table("banks b").
-		Select("b.name").
-		Joins("INNER JOIN agents ag ON b.id IN (SELECT UNNEST(ag.banks))").
+	agentBank := AgentResponse{}
+	db := asira.App.DB.Table("agents ag").
+		Select("ag.*, (SELECT ARRAY_AGG(name) FROM banks WHERE id IN (SELECT UNNEST(ag.banks))) as bank_names").
 		Where("ag.id = ?", agentID)
-	err = db.Find(&banksName).Error
+
+	err = db.Find(&agentBank).Error
 	if err != nil {
-		fmt.Println(err)
+		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak valid")
 	}
 
-	//copy to array string
-	banks := []string{}
-	for _, data := range banksName {
-		banks = append(banks, data.Name)
-	}
+	//co py to array string
+	// banks := []string{}
+	// for _, data := range banksName {
+	// 	banks = append(banks, data.Name)
+	// }
 
 	//set response
-	response := AgentResponse{agentModel, banks}
-	return c.JSON(http.StatusOK, response)
+	// response := AgentResponse{agentModel, banks}
+	return c.JSON(http.StatusOK, agentBank)
 }
 
 //AgentProfileEdit update current agent's profile
