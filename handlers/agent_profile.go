@@ -17,12 +17,23 @@ import (
 	"github.com/labstack/echo"
 )
 
-type AgentPayload struct {
-	Email string  `json:"email"`
-	Phone string  `json:"phone"`
-	Banks []int64 `json:"banks"`
-	Image string  `json:"image"`
-}
+type (
+	AgentPayload struct {
+		Email string  `json:"email"`
+		Phone string  `json:"phone"`
+		Banks []int64 `json:"banks"`
+		Image string  `json:"image"`
+	}
+
+	BanksResponse struct {
+		Name string `json:"name"`
+	}
+
+	AgentResponse struct {
+		models.Agent
+		BanksName []string `json:"banks_name"`
+	}
+)
 
 //AgentProfile get current agent's profile
 func AgentProfile(c echo.Context) error {
@@ -40,7 +51,26 @@ func AgentProfile(c echo.Context) error {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 
-	return c.JSON(http.StatusOK, agentModel)
+	//set banks name
+	banksName := []BanksResponse{}
+	db := asira.App.DB.Table("banks b").
+		Select("b.name").
+		Joins("INNER JOIN agents ag ON b.id IN (SELECT UNNEST(ag.banks))").
+		Where("ag.id = ?", agentID)
+	err = db.Find(&banksName).Error
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	//copy to array string
+	banks := []string{}
+	for _, data := range banksName {
+		banks = append(banks, data.Name)
+	}
+
+	//set response
+	response := AgentResponse{agentModel, banks}
+	return c.JSON(http.StatusOK, response)
 }
 
 //AgentProfileEdit update current agent's profile
