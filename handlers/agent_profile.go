@@ -94,6 +94,15 @@ func AgentProfileEdit(c echo.Context) error {
 
 	//if payload not 0 and category must "agent" not "account_executive"
 	if len(agentPayload.Banks) > 0 && agentModel.Category != "account_executive" {
+		//asumsi
+		var counter int
+		db := asira.App.DB.Table("banks").
+			Select("id").
+			Where("id NOT IN (?)", agentPayload.Banks)
+		err = db.Count(&counter).Error
+		if (counter == 0) {
+			return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error : invalid banks id")
+		}
 		agentModel.Banks = pq.Int64Array(agentPayload.Banks)
 	}
 
