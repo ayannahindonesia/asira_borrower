@@ -33,4 +33,7 @@ func ClientGroup(e *echo.Echo) {
 	// loan purposes
 	g.GET("/loan_purposes", admin_handlers.LoanPurposeList)
 	g.GET("/loan_purposes/:loan_purpose_id", admin_handlers.LoanPurposeDetail)
+
+	//server time & service info
+	g.GET("/serviceinfo", handlers.ServiceInfo)
 }

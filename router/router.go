@@ -20,7 +20,6 @@ func NewRouter() *echo.Echo {
 
 	// e.GET("/test", handlers.Test)
 	e.GET("/clientauth", handlers.ClientLogin)
-	e.GET("/ping", handlers.Ping)
 
 	// files url
 	gopath, _ := os.Getwd()
