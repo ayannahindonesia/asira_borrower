@@ -19,15 +19,17 @@ func AgentBorrowerProfile(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
+	agentID, _ := strconv.ParseInt(claims["jti"].(string), 10, 64)
 	borrowerID, _ := strconv.ParseUint(c.Param("borrower_id"), 10, 64)
 
+	//cek borrower
 	borrowerModel := models.Borrower{}
 	err := borrowerModel.FindbyID(int(borrowerID))
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "validation error : Akun borrower agent tidak ditemukan")
 	}
 
+	//cek borrower valid, owned by agent
 	if borrowerModel.AgentReferral.Int64 != agentID {
 		return returnInvalidResponse(http.StatusForbidden, err, "validation error : bukan borrower agent yang valid")
 	}
@@ -42,21 +44,26 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
+	agentID, _ := strconv.ParseInt(claims["jti"].(string), 10, 64)
+	borrowerID, _ := strconv.ParseUint(c.Param("borrower_id"), 10, 64)
 
 	borrowerModel := models.Borrower{}
-
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
-	err := borrowerModel.FindbyID(borrowerID)
+	err := borrowerModel.FindbyID(int(borrowerID))
 	if err != nil {
-		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
+		return returnInvalidResponse(http.StatusNotFound, err, "validation error : Akun borrower agent tidak ditemukan")
+	}
+
+	//cek borrower valid, owned by agent
+	if borrowerModel.AgentReferral.Int64 != agentID {
+		return returnInvalidResponse(http.StatusForbidden, err, "validation error : bukan borrower agent yang valid")
 	}
 
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{},
 		"gender":                []string{},
-		"idcard_number":         []string{"unique_edit:borrowers,idcard_number"},
-		"taxid_number":          []string{"unique_edit:borrowers,taxid_number"},
-		"email":                 []string{"email", "unique:borrowers,taxid_number"},
+		"idcard_number":         []string{},
+		"taxid_number":          []string{},
+		"email":                 []string{"email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{},
 		"last_education":        []string{},
@@ -98,10 +105,26 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 		"bank_accountnumber":    []string{},
 	}
 
+	//parse payload
 	validate := validateRequestPayload(c, payloadRules, &borrowerModel)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
+
+	//cek unique for patching
+	uniques := map[string]string{
+		"idcard_number":      borrowerModel.IdCardNumber,
+		"taxid_number":       borrowerModel.TaxIDnumber,
+		"email":              borrowerModel.Email,
+		"phone":              borrowerModel.Phone,
+		"bank_accountnumber": borrowerModel.BankAccountNumber,
+	}
+	foundFields, err := checkPatchFields("borrowers", "id", borrowerModel.ID, uniques)
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error : "+foundFields)
+	}
+
+	//saving
 	err = borrowerModel.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal Membuat Akun")
