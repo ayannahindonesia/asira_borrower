@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -107,7 +108,16 @@ func AgentProfileEdit(c echo.Context) error {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal memperbaharui agent")
 		}
 
-		//TODO: delete old image
+		//DONE: delete old image
+		if len(agentModel.Image) > 0 {
+			i := strings.Split(agentModel.Image, "/")
+			delImage := i[len(i)-1]
+			err = asira.App.S3.DeleteObject(delImage)
+			if err != nil {
+				log.Printf("failed to delete image %v from s3 bucket", delImage)
+			}
+		}
+
 		agentModel.Image = url
 	}
 	//restoring old password and update data
