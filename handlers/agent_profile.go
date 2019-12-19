@@ -3,12 +3,13 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
-	"database/sql"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/lib/pq"
@@ -98,28 +99,16 @@ func AgentProfileEdit(c echo.Context) error {
 	}
 
 	if len(agentPayload.Image) > 0 {
-		Image := models.Image{}
-		//search if exist
-		err = Image.FindbyID(int(agentModel.ImageID.Int64))
-		Image.Image_string = agentPayload.Image
 
+		unbased, _ := base64.StdEncoding.DecodeString(agentPayload.Image)
+		filename := "agt" + strconv.FormatInt(time.Now().Unix(), 10)
+		url, err := asira.App.S3.UploadJPEG(unbased, filename)
 		if err != nil {
-			err = Image.Create()
-			if err != nil {
-				return returnInvalidResponse(http.StatusInternalServerError, err, "Failed storing image")
-			}
-		} else {
-			err = Image.Save()
-			if err != nil {
-				return returnInvalidResponse(http.StatusInternalServerError, err, "Failed storing image")
-			}
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal memperbaharui agent")
 		}
 
-		//update id image
-		agentModel.ImageID = sql.NullInt64{
-			Int64: int64(Image.ID),
-			Valid: true,
-		}
+		//TODO: delete old image
+		agentModel.Image = url
 	}
 	//restoring old password and update data
 	agentModel.Password = password
