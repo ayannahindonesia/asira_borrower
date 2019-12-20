@@ -135,40 +135,24 @@ func RegisterBorrower(c echo.Context) error {
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
-	IdCardImage := models.Image{
-		Image_string: register.IdCardImage,
-	}
-	err := IdCardImage.Create()
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
-	}
 
-	TaxIdImage := models.Image{
-		Image_string: register.TaxIDImage,
-	}
-	err = TaxIdImage.Create()
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
-	}
-	borrower := models.Borrower{
-		IdCardImage: sql.NullInt64{
-			Int64: int64(IdCardImage.ID),
-			Valid: true,
-		},
-		TaxIDImage: sql.NullInt64{
-			Int64: int64(TaxIdImage.ID),
-			Valid: true,
-		},
-		Bank: sql.NullInt64{
-			Int64: int64(register.Bank),
-			Valid: true,
-		},
-	}
-
+	borrower := models.Borrower{}
 	//marshalling data
 	r, err := json.Marshal(register)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+	}
+
+	//upload image id card
+	IdCardImage, err := imageUploadFormatted(register.IdCardImage)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : IDCardImage failed to upload")
+	}
+
+	//upload image tax card
+	TaxIdImage, err := imageUploadFormatted(register.TaxIDImage)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : TaxIDImage failed to upload")
 	}
 
 	//create 1 user for 1 borrower (nasabah personal)
@@ -194,6 +178,12 @@ func RegisterBorrower(c echo.Context) error {
 
 	//create new personal borrower
 	json.Unmarshal(r, &borrower)
+	borrower.IdCardImage = IdCardImage
+	borrower.TaxIDImage = TaxIdImage
+	borrower.Bank = sql.NullInt64{
+		Int64: int64(register.Bank),
+		Valid: true,
+	}
 	borrower.AgentReferral = sql.NullInt64{
 		Int64: 0,
 		Valid: true,
