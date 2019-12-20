@@ -178,8 +178,6 @@ func AgentRegisterBorrower(c echo.Context) error {
 	}
 
 	//set vars
-	borrower.IdCardImage = IdCardImage
-	borrower.TaxIDImage = TaxIDImage
 	borrower.AgentReferral = sql.NullInt64{
 		Int64: agentID,
 		Valid: true,
