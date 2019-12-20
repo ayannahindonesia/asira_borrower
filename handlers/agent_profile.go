@@ -3,14 +3,11 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
-	"encoding/base64"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/lib/pq"
@@ -101,20 +98,17 @@ func AgentProfileEdit(c echo.Context) error {
 
 	if len(agentPayload.Image) > 0 {
 
-		unbased, _ := base64.StdEncoding.DecodeString(agentPayload.Image)
-		filename := "agt" + strconv.FormatInt(time.Now().Unix(), 10)
-		url, err := asira.App.S3.UploadJPEG(unbased, filename)
+		//upload image id card
+		url, err := uploadImageS3(agentPayload.Image)
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal upload foto agent")
 		}
 
 		//DONE: delete old image
 		if len(agentModel.Image) > 0 {
-			i := strings.Split(agentModel.Image, "/")
-			delImage := i[len(i)-1]
-			err = asira.App.S3.DeleteObject(delImage)
+			err = deleteImageS3(agentModel.Image)
 			if err != nil {
-				log.Printf("failed to delete image %v from s3 bucket", delImage)
+				return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal menghapus foto lama agent")
 			}
 		}
 

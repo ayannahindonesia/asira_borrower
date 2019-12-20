@@ -154,13 +154,13 @@ func AgentRegisterBorrower(c echo.Context) error {
 	json.Unmarshal(r, &borrower)
 
 	//upload image id card
-	IdCardImage, err := imageUploadFormatted(register.IdCardImage)
+	IdCardImage, err := uploadImageS3(register.IdCardImage)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : IDCardImage failed to upload")
 	}
 
 	//upload image tax card
-	TaxIdImage, err := imageUploadFormatted(register.TaxIDImage)
+	TaxIdImage, err := uploadImageS3(register.TaxIDImage)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : TaxIDImage failed to upload")
 	}
