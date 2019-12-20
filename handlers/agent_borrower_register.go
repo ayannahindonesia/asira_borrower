@@ -5,6 +5,7 @@ import (
 	"asira_borrower/models"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -160,17 +161,29 @@ func AgentRegisterBorrower(c echo.Context) error {
 	}
 
 	//upload image tax card
-	TaxIdImage, err := uploadImageS3Formatted("tax", register.TaxIDImage)
+	TaxIDImage, err := uploadImageS3Formatted("tax", register.TaxIDImage)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : TaxIDImage failed to upload")
 	}
 
+	//encrypted
+	encryptPassphrase := asira.App.Config.GetString(fmt.Sprintf("%s.passphrase", asira.App.ENV))
+	borrower.IdCardImage, err = encrypt(IdCardImage, encryptPassphrase)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi Id card gagal")
+	}
+	borrower.TaxIDImage, err = encrypt(TaxIDImage, encryptPassphrase)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
+	}
+
+	//set vars
+	borrower.IdCardImage = IdCardImage
+	borrower.TaxIDImage = TaxIDImage
 	borrower.AgentReferral = sql.NullInt64{
 		Int64: agentID,
 		Valid: true,
 	}
-	borrower.IdCardImage = IdCardImage
-	borrower.TaxIDImage = TaxIdImage
 	borrower.Bank = sql.NullInt64{
 		Int64: int64(register.Bank),
 		Valid: true,
