@@ -22,6 +22,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 			Fullname             string    `json:"fullname"`
 			Nickname             string    `json:"nickname"`
 			Gender               string    `json:"gender" `
+			Image                string    `json:"image"`
 			IdCardNumber         string    `json:"idcard_number" `
 			IdCardImage          string    `json:"idcard_image"`
 			TaxIDImage           string    `json:"taxid_image"`
@@ -75,6 +76,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"fullname":              []string{"required"},
 		"nickname":              []string{},
 		"gender":                []string{"required"},
+		"image":                 []string{},
 		"idcard_number":         []string{"required"},
 		"taxid_number":          []string{},
 		"nationality":           []string{},
@@ -154,6 +156,15 @@ func AgentRegisterBorrower(c echo.Context) error {
 	borrower := models.Borrower{}
 	json.Unmarshal(r, &borrower)
 
+	//upload image profile borrower
+	ImageProfil := ""
+	if register.Image != "" || len(register.Image) == 0 {
+		ImageProfil, err = uploadImageS3Formatted("boragn", register.Image)
+		if err != nil {
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : Image profil failed to upload")
+		}
+	}
+
 	//upload image id card
 	IdCardImage, err := uploadImageS3Formatted("ktp", register.IdCardImage)
 	if err != nil {
@@ -178,6 +189,10 @@ func AgentRegisterBorrower(c echo.Context) error {
 	}
 
 	//set vars
+	if ImageProfil != "" {
+		borrower.Image = ImageProfil
+	}
+
 	borrower.AgentReferral = sql.NullInt64{
 		Int64: agentID,
 		Valid: true,
