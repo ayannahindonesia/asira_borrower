@@ -77,3 +77,23 @@ func (x *S3) UploadJPEG(b []byte, filename string) (string, error) {
 
 	return *x.Config.Endpoint + "/" + x.Bucket + "/" + filename + ".jpeg", err
 }
+
+// DeleteObject delete object from s3
+func (x *S3) DeleteObject(objectName string) error {
+	var err error
+	if flag.Lookup("test.v") == nil {
+		session, _ := session.NewSession(x.Config)
+
+		s3Client := s3.New(session)
+		s3Client.CreateBucket(&s3.CreateBucketInput{
+			Bucket: aws.String(x.Bucket),
+		})
+
+		_, err = s3Client.DeleteObject(&s3.DeleteObjectInput{
+			Bucket: aws.String(x.Bucket),
+			Key:    aws.String(objectName),
+		})
+	}
+
+	return err
+}
