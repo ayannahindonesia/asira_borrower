@@ -146,38 +146,34 @@ func AgentRegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Bank tidak terdaftar untuk agent")
 	}
 
-	IdCardImage := models.Image{
-		Image_string: register.IdCardImage,
-	}
-	err = IdCardImage.Create()
+	r, err := json.Marshal(register)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+	}
+	borrower := models.Borrower{}
+	json.Unmarshal(r, &borrower)
+
+	//upload image id card
+	IdCardImage, err := imageUploadFormatted(register.IdCardImage)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : IDCardImage failed to upload")
 	}
 
-	TaxIdImage := models.Image{
-		Image_string: register.TaxIDImage,
-	}
-	err = TaxIdImage.Create()
+	//upload image tax card
+	TaxIdImage, err := imageUploadFormatted(register.TaxIDImage)
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : TaxIDImage failed to upload")
 	}
-	borrower := models.Borrower{
-		AgentReferral: sql.NullInt64{
-			Int64: agentID,
-			Valid: true,
-		},
-		IdCardImage: sql.NullInt64{
-			Int64: int64(IdCardImage.ID),
-			Valid: true,
-		},
-		TaxIDImage: sql.NullInt64{
-			Int64: int64(TaxIdImage.ID),
-			Valid: true,
-		},
-		Bank: sql.NullInt64{
-			Int64: int64(register.Bank),
-			Valid: true,
-		},
+
+	borrower.AgentReferral = sql.NullInt64{
+		Int64: agentID,
+		Valid: true,
+	}
+	borrower.IdCardImage = IdCardImage
+	borrower.TaxIDImage = TaxIdImage
+	borrower.Bank = sql.NullInt64{
+		Int64: int64(register.Bank),
+		Valid: true,
 	}
 
 	//check manual fields if not unique
@@ -202,12 +198,6 @@ func AgentRegisterBorrower(c echo.Context) error {
 	if count >= 1 {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
 	}
-
-	r, err := json.Marshal(register)
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
-	}
-	json.Unmarshal(r, &borrower)
 
 	err = borrower.Create()
 	if err != nil {

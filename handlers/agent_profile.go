@@ -105,7 +105,7 @@ func AgentProfileEdit(c echo.Context) error {
 		filename := "agt" + strconv.FormatInt(time.Now().Unix(), 10)
 		url, err := asira.App.S3.UploadJPEG(unbased, filename)
 		if err != nil {
-			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal memperbaharui agent")
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal upload foto agent")
 		}
 
 		//DONE: delete old image

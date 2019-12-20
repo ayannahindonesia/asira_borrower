@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -13,6 +15,7 @@ import (
 )
 
 type (
+	//JWTclaims hold custom data
 	JWTclaims struct {
 		Username string `json:"username"`
 		Role     string `json:"role"`
@@ -148,4 +151,17 @@ func checkUniqueFields(idcardNumber string, uniques map[string]string) (string, 
 		return fieldsFound, errors.New("data unique already exist")
 	}
 	return fieldsFound, nil
+}
+
+//imageUpload upload to S3 protocol
+func imageUploadFormatted(base64Image string) (string, error) {
+
+	unbased, _ := base64.StdEncoding.DecodeString(base64Image)
+	filename := "agt" + strconv.FormatInt(time.Now().Unix(), 10)
+	url, err := asira.App.S3.UploadJPEG(unbased, filename)
+	if err != nil {
+		return "", err
+	}
+
+	return url, nil
 }
