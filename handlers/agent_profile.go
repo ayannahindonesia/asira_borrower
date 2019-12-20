@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
-	"database/sql"
 	"net/http"
 	"strconv"
 
@@ -121,28 +120,22 @@ func AgentProfileEdit(c echo.Context) error {
 	}
 
 	if len(agentPayload.Image) > 0 {
-		Image := models.Image{}
-		//search if exist
-		err = Image.FindbyID(int(agentModel.ImageID.Int64))
-		Image.Image_string = agentPayload.Image
 
+		//upload image id card
+		url, err := uploadImageS3Formatted("agt", agentPayload.Image)
 		if err != nil {
-			err = Image.Create()
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal upload foto agent")
+		}
+
+		//DONE: delete old image
+		if len(agentModel.Image) > 0 {
+			err = deleteImageS3(agentModel.Image)
 			if err != nil {
-				return returnInvalidResponse(http.StatusInternalServerError, err, "Failed storing image")
-			}
-		} else {
-			err = Image.Save()
-			if err != nil {
-				return returnInvalidResponse(http.StatusInternalServerError, err, "Failed storing image")
+				return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal menghapus foto lama agent")
 			}
 		}
 
-		//update id image
-		agentModel.ImageID = sql.NullInt64{
-			Int64: int64(Image.ID),
-			Valid: true,
-		}
+		agentModel.Image = url
 	}
 	//restoring old password and update data
 	agentModel.Password = password

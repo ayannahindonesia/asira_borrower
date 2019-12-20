@@ -8,6 +8,7 @@ import (
 	"github.com/lib/pq"
 )
 
+// Agent main type
 type Agent struct {
 	basemodel.BaseModel
 	DeletedTime   time.Time     `json:"deleted_time" gorm:"column:deleted_time"`
@@ -18,7 +19,7 @@ type Agent struct {
 	Phone         string        `json:"phone" gorm:"column:phone"`
 	Category      string        `json:"category" gorm:"column:category"`
 	AgentProvider sql.NullInt64 `json:"agent_provider" gorm:"column:agent_provider"`
-	ImageID       sql.NullInt64 `json:"image_id" gorm:"column:image_id"`
+	Image         string        `json:"image" gorm:"column:image"`
 	Banks         pq.Int64Array `json:"banks" gorm:"column:banks"`
 	Status        string        `json:"status" gorm:"column:status"`
 	FCMToken      string        `json:"fcm_token" gorm:"column:fcm_token;type:varchar(255)"`

@@ -17,8 +17,6 @@ func AdminGroup(e *echo.Echo) {
 
 	//Create Client Config
 	g.POST("/client_config", admin_handlers.CreateClientConfig)
-	// Images
-	g.GET("/image/:image_id", admin_handlers.GetImageB64String)
 
 	//Borrowers
 	g.GET("/borrower", admin_handlers.BorrowerGetAll)

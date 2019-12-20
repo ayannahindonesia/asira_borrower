@@ -160,38 +160,44 @@ func AgentRegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Bank tidak terdaftar untuk agent")
 	}
 
-	IdCardImage := models.Image{
-		Image_string: register.IdCardImage,
-	}
-	err = IdCardImage.Create()
+	r, err := json.Marshal(register)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+	}
+	borrower := models.Borrower{}
+	json.Unmarshal(r, &borrower)
+
+	//upload image id card
+	IdCardImage, err := uploadImageS3Formatted("ktp", register.IdCardImage)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : IDCardImage failed to upload")
 	}
 
-	TaxIdImage := models.Image{
-		Image_string: register.TaxIDImage,
-	}
-	err = TaxIdImage.Create()
+	//upload image tax card
+	TaxIDImage, err := uploadImageS3Formatted("tax", register.TaxIDImage)
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : TaxIDImage failed to upload")
 	}
-	borrower := models.Borrower{
-		AgentReferral: sql.NullInt64{
-			Int64: agentID,
-			Valid: true,
-		},
-		IdCardImage: sql.NullInt64{
-			Int64: int64(IdCardImage.ID),
-			Valid: true,
-		},
-		TaxIDImage: sql.NullInt64{
-			Int64: int64(TaxIdImage.ID),
-			Valid: true,
-		},
-		Bank: sql.NullInt64{
-			Int64: int64(register.Bank),
-			Valid: true,
-		},
+
+	//encrypted
+	encryptPassphrase := asira.App.Config.GetString(fmt.Sprintf("%s.passphrase", asira.App.ENV))
+	borrower.IdCardImage, err = encrypt(IdCardImage, encryptPassphrase)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi Id card gagal")
+	}
+	borrower.TaxIDImage, err = encrypt(TaxIDImage, encryptPassphrase)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
+	}
+
+	//set vars
+	borrower.AgentReferral = sql.NullInt64{
+		Int64: agentID,
+		Valid: true,
+	}
+	borrower.Bank = sql.NullInt64{
+		Int64: int64(register.Bank),
+		Valid: true,
 	}
 
 	//check manual fields if not unique
@@ -216,12 +222,6 @@ func AgentRegisterBorrower(c echo.Context) error {
 	if count >= 1 {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
 	}
-
-	r, err := json.Marshal(register)
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
-	}
-	json.Unmarshal(r, &borrower)
 
 	//set need to OTP verify and create new borrower
 	borrower.OTPverified = false
