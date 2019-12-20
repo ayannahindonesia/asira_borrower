@@ -99,7 +99,7 @@ func AgentProfileEdit(c echo.Context) error {
 	if len(agentPayload.Image) > 0 {
 
 		//upload image id card
-		url, err := uploadImageS3(agentPayload.Image)
+		url, err := uploadImageS3Formatted("agt", agentPayload.Image)
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal upload foto agent")
 		}

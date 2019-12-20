@@ -144,13 +144,13 @@ func RegisterBorrower(c echo.Context) error {
 	}
 
 	//upload image id card
-	IdCardImage, err := uploadImageS3(register.IdCardImage)
+	IdCardImage, err := uploadImageS3Formatted("ktp", register.IdCardImage)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : IDCardImage failed to upload")
 	}
 
 	//upload image tax card
-	TaxIdImage, err := uploadImageS3(register.TaxIDImage)
+	TaxIDImage, err := uploadImageS3Formatted("tax", register.TaxIDImage)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : TaxIDImage failed to upload")
 	}
@@ -178,8 +178,16 @@ func RegisterBorrower(c echo.Context) error {
 
 	//create new personal borrower
 	json.Unmarshal(r, &borrower)
-	borrower.IdCardImage = IdCardImage
-	borrower.TaxIDImage = TaxIdImage
+	encryptPassphrase := asira.App.Config.GetString(fmt.Sprintf("%s.passphrase", asira.App.ENV))
+	borrower.IdCardImage, err = encrypt(IdCardImage, encryptPassphrase)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi Id card gagal")
+	}
+	borrower.TaxIDImage, err = encrypt(TaxIDImage, encryptPassphrase)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
+	}
+
 	borrower.Bank = sql.NullInt64{
 		Int64: int64(register.Bank),
 		Valid: true,
