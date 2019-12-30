@@ -171,7 +171,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 
 	//upload image profile borrower
 	ImageProfil := ""
-	if register.Image != "" || len(register.Image) == 0 {
+	if register.Image != "" || len(register.Image) != 0 {
 		ImageProfil, err = uploadImageS3Formatted("boragn", register.Image)
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : Image profil failed to upload")
