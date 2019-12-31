@@ -74,8 +74,14 @@ func AgentProfileEdit(c echo.Context) error {
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	agentID, _ := strconv.Atoi(claims["jti"].(string))
-	agentModel := models.Agent{}
-	err := agentModel.FindbyID(agentID)
+
+	//cek agent with custom field (name of banks)
+	agentModel := AgentResponse{}
+	db := asira.App.DB.Table("agents ag").
+		Select("ag.*, (SELECT ARRAY_AGG(name) FROM banks WHERE id IN (SELECT UNNEST(ag.banks))) as bank_names").
+		Where("ag.id = ?", agentID)
+
+	err = db.Find(&agentModel).Error
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
