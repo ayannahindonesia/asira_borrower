@@ -94,19 +94,35 @@ func AgentProfileEdit(c echo.Context) error {
 
 	//if payload not 0 and category must "agent" not "account_executive"
 	if len(agentPayload.Banks) > 0 && agentModel.Category != "account_executive" {
-		//query for checking not exist bank id (not valid bank id)
+
 		type Result struct {
 			Counter int
 		}
 		var counter Result
-		db := asira.App.DB.Raw(`
-		SELECT COUNT(t.id) AS counter
-		FROM (
-		  VALUES (1),(2),(6) 
-		) AS t(id)
-		  LEFT JOIN banks b on b.id = t.id
-		where b.id is null
-		`).Scan(&counter)
+		var i int
+
+		//generate values emtity
+		values := ""
+		for _, val := range agentPayload.Banks {
+			//auto convert to int
+			if i != 0 {
+				values += fmt.Sprintf(", (%d)", val)
+			} else {
+				values += fmt.Sprintf("(%d)", val)
+			}
+			i++
+		}
+
+		//query for checking not exist bank id (not valid bank id)
+		db := asira.App.DB.Raw(
+			fmt.Sprintf(`
+			SELECT COUNT(t.id) AS counter
+			FROM (
+			VALUES %s 
+			) AS t(id)
+			LEFT JOIN banks b on b.id = t.id
+			where b.id is null
+			`, values)).Scan(&counter)
 		err = db.Error
 		fmt.Println("counter : ", counter.Counter)
 		if counter.Counter != 0 {
