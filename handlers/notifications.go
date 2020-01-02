@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ayannahindonesia/basemodel"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )

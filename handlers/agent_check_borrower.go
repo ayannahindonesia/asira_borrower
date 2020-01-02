@@ -47,7 +47,7 @@ func AgentCheckBorrower(c echo.Context) error {
 	}
 
 	//check is agent's borrower exist or not
-	var agentBorrower models.AgentBorrower
+	var agentBorrower models.Borrower
 	err = agentBorrower.FilterSearchSingle(&Filter{
 		IdCardNumber: payloadFilter.IdCardNumber,
 		TaxIDnumber:  payloadFilter.TaxIDnumber,
@@ -72,7 +72,7 @@ func AgentCheckBorrower(c echo.Context) error {
 	})
 }
 
-func existingFields(agentBorrower models.AgentBorrower, payload Payload) []string {
+func existingFields(agentBorrower models.Borrower, payload Payload) []string {
 	var exists []string
 	valPayload := reflect.ValueOf(payload)
 	valAgentBorrower := reflect.ValueOf(agentBorrower)
@@ -86,7 +86,7 @@ func existingFields(agentBorrower models.AgentBorrower, payload Payload) []strin
 			exists = append(exists, field)
 			fmt.Printf("%+v\n", exists)
 		}
-		fmt.Printf("%+v\n", check)
+		//fmt.Printf("%+v\n", check)
 	}
 	return exists
 }
@@ -97,8 +97,9 @@ func compareReflectFieldValue(is string, isReflect reflect.Value, inReflect refl
 	inValue := reflect.Indirect(inReflect).FieldByName(is)
 
 	//cek equality
-	// if reflect.DeepEqual(isValue, inValue) {
-	if isValue.String() == inValue.String() {
+	// if reflect.DeepEqual(isValue, inValue)
+	isVal := isValue.String()
+	if len(isVal) > 0 && isVal == inValue.String() {
 		return true
 	}
 	return false

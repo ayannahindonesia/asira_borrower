@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -16,7 +15,7 @@ import (
 	"github.com/thedevsaddam/govalidator"
 )
 
-//LoanNotificationSimulate simulate loan request
+//LoanNotificationSimulate simulate loan's notification
 func LoanNotificationSimulate(c echo.Context) error {
 	defer c.Request().Body.Close()
 	var err error
@@ -28,7 +27,7 @@ func LoanNotificationSimulate(c echo.Context) error {
 	claims := token.Claims.(jwt.MapClaims)
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
 
-	loan.Owner = sql.NullInt64{Int64: int64(borrowerID), Valid: true}
+	loan.Borrower = uint64(borrowerID)
 
 	payloadRules := govalidator.MapData{
 		"loan_amount":       []string{"required"},
@@ -68,7 +67,7 @@ func LoanNotificationSimulate(c echo.Context) error {
 	return c.JSON(http.StatusCreated, loan)
 }
 
-//LoanSimulateApproveReject simulate loan request approved or rejected
+//LoanSimulateApproveReject simulate rejected or approved loan
 func LoanSimulateApproveReject(loan *models.Loan, status string, token string) error {
 
 	loan.Status = status

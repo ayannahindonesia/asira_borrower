@@ -39,7 +39,7 @@ func (model *Messaging) SetConfig(key string, secret string, URL string, Endpoin
 // ClientAuth func
 func (model *Messaging) ClientAuth() (err error) {
 
-	fmt.Println("model.Key ==> ", model.Key, model.Secret)
+	//fmt.Println("model.Key ==> ", model.Key, model.Secret)
 	basicToken := base64.StdEncoding.EncodeToString([]byte(model.Key + ":" + model.Secret))
 	request, _ := http.NewRequest("GET", model.URL+model.Endpoints.ClientAuth, nil)
 	request.Header.Add("Content-Type", "application/json")

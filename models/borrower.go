@@ -4,8 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"gitlab.com/asira-ayannah/basemodel"
-	"golang.org/x/crypto/bcrypt"
+	"github.com/ayannahindonesia/basemodel"
 )
 
 type (
@@ -61,34 +60,30 @@ type (
 		Bank                 sql.NullInt64 `json:"bank" gorm:"column:bank" sql:"DEFAULT:NULL"`
 		BankAccountNumber    string        `json:"bank_accountnumber" gorm:"column:bank_accountnumber"`
 		OTPverified          bool          `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
-		Password             string        `json:"password" gorm:"column:password;type:text;not null"`
-		FCMToken             string        `json:"fcm_token" gorm:"column:fcm_token;type:varchar(255)"`
+		AgentReferral        sql.NullInt64 `json:"agent_referral" gorm:"column:agent_referral"`
+		Status               string        `json:"status" gorm:"column:status;default:'active'"`
+		NthLoans             int           `json:"nth_loans" gorm:"-"`
 	}
 )
 
-// gorm callback hook
-func (b *Borrower) BeforeCreate() (err error) {
-	passwordByte, err := bcrypt.GenerateFromPassword([]byte(b.Password), bcrypt.DefaultCost)
+//Create just create row
+func (b *Borrower) Create() error {
+	err := basemodel.Create(&b)
 	if err != nil {
 		return err
 	}
 
-	b.Password = string(passwordByte)
-	return nil
-}
-
-func (b *Borrower) Create() error {
-	err := basemodel.Create(&b)
+	err = KafkaSubmitModel(b, "borrower")
 	return err
-}
-
-// gorm callback hook
-func (b *Borrower) BeforeSave() (err error) {
-	return nil
 }
 
 func (b *Borrower) Save() error {
 	err := basemodel.Save(&b)
+	if err != nil {
+		return err
+	}
+
+	err = KafkaSubmitModel(b, "borrower")
 	return err
 }
 
@@ -108,6 +103,11 @@ func (b *Borrower) Unsuspend() error {
 
 func (b *Borrower) FindbyID(id int) error {
 	err := basemodel.FindbyID(&b, id)
+	return err
+}
+
+func (model *Borrower) FilterSearchSingle(filter interface{}) (err error) {
+	err = basemodel.SingleFindFilter(&model, filter)
 	return err
 }
 

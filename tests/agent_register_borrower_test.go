@@ -24,7 +24,7 @@ func TestAgentBorrower(t *testing.T) {
 		req.WithHeader("Authorization", "Basic "+clientBasicToken)
 	})
 
-	agentToken := getAgentLoginToken(e, auth, "1")
+	agentToken := getAgentLoginToken(e, auth, "2")
 
 	auth = e.Builder(func(req *httpexpect.Request) {
 		req.WithHeader("Authorization", "Bearer "+agentToken)
@@ -86,5 +86,5 @@ func TestAgentBorrower(t *testing.T) {
 	// test unique by registering same data
 	obj = auth.POST("/agent/register_borrower").WithJSON(payload).
 		Expect().
-		Status(http.StatusUnprocessableEntity).JSON().Object()
+		Status(http.StatusInternalServerError).JSON().Object()
 }

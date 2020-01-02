@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
 	"database/sql"
 	"encoding/json"
@@ -73,15 +74,15 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"fullname":              []string{"required"},
 		"nickname":              []string{},
 		"gender":                []string{"required"},
-		"idcard_number":         []string{"required", "unique:agent_borrowers,idcard_number"},
-		"taxid_number":          []string{"unique:agent_borrowers,taxid_number"},
+		"idcard_number":         []string{"required"},
+		"taxid_number":          []string{},
 		"nationality":           []string{},
-		"email":                 []string{"email", "unique:agent_borrowers,email"},
+		"email":                 []string{"email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{"required"},
 		"last_education":        []string{"required"},
 		"mother_name":           []string{"required"},
-		"phone":                 []string{"id_phonenumber", "unique:agent_borrowers,phone"},
+		"phone":                 []string{"id_phonenumber"},
 		"marriage_status":       []string{"required"},
 		"spouse_name":           []string{},
 		"spouse_birthday":       []string{"date"},
@@ -114,7 +115,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"related_phonenumber":   []string{"required"},
 		"related_homenumber":    []string{},
 		"bank":                  []string{"required"},
-		"bank_accountnumber":    []string{"unique:agent_borrowers,bank_accountnumber"},
+		"bank_accountnumber":    []string{},
 	}
 
 	user := c.Get("user")
@@ -160,8 +161,8 @@ func AgentRegisterBorrower(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
-	borrower := models.AgentBorrower{
-		AgentID: sql.NullInt64{
+	borrower := models.Borrower{
+		AgentReferral: sql.NullInt64{
 			Int64: agentID,
 			Valid: true,
 		},
@@ -178,6 +179,30 @@ func AgentRegisterBorrower(c echo.Context) error {
 			Valid: true,
 		},
 	}
+
+	//check manual fields if not unique
+	var fields = map[string]string{
+		"phone":              register.Phone,
+		"email":              register.Email,
+		"taxid_number":       register.TaxIDnumber,
+		"bank_accountnumber": register.BankAccountNumber,
+	}
+	foundFields, err := checkUniqueFields(register.IdCardNumber, fields)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+foundFields)
+	}
+
+	//max borrower duplicate just == 1
+	db := asira.App.DB
+	var count int
+	db = db.Table("borrowers").
+		Select("*").
+		Where("idcard_number = ? AND agent_referral <> 0", register.IdCardNumber)
+	err = db.Count(&count).Error
+	if count >= 1 {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
+	}
+
 	r, err := json.Marshal(register)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
