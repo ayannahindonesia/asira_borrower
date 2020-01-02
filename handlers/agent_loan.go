@@ -113,7 +113,7 @@ func AgentLoanGet(c echo.Context) error {
 	//do join for banks
 	bankID, _ := strconv.Atoi(c.QueryParam("bank"))
 	if bankID > 0 {
-		db = db.Joins("INNER JOIN banks bnk ON bs.id IN (SELECT UNNEST(bnk.services))").
+		db = db.Joins("INNER JOIN banks bnk ON bs.id IN (SELECT UNNEST(bnk.services))  AND br.bank = bnk.id").
 			Where("bnk.id = ?", bankID)
 	}
 
