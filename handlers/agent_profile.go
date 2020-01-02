@@ -3,6 +3,7 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -51,14 +52,9 @@ func AgentProfile(c echo.Context) error {
 
 	err = db.Find(&agentBank).Error
 	if err != nil {
+		fmt.Println(err.Error())
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak valid")
 	}
-
-	//co py to array string
-	// banks := []string{}
-	// for _, data := range banksName {
-	// 	banks = append(banks, data.Name)
-	// }
 
 	//set response
 	// response := AgentResponse{agentModel, banks}
