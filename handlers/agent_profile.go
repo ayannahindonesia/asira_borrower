@@ -70,6 +70,8 @@ func AgentProfileEdit(c echo.Context) error {
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	agentID, _ := strconv.Atoi(claims["jti"].(string))
+
+	//cek agent with custom field (name of banks)
 	agentModel := models.Agent{}
 	err := agentModel.FindbyID(agentID)
 	if err != nil {
@@ -112,6 +114,40 @@ func AgentProfileEdit(c echo.Context) error {
 
 	//if payload not 0 and category must "agent" not "account_executive"
 	if len(agentPayload.Banks) > 0 && agentModel.Category != "account_executive" {
+
+		type Result struct {
+			Counter int
+		}
+		var counter Result
+		var i int
+
+		//generate values emtity
+		values := ""
+		for _, val := range agentPayload.Banks {
+			//auto convert to int
+			if i != 0 {
+				values += fmt.Sprintf(", (%d)", val)
+			} else {
+				values += fmt.Sprintf("(%d)", val)
+			}
+			i++
+		}
+
+		//query for checking not exist bank id (not valid bank id)
+		db := asira.App.DB.Raw(
+			fmt.Sprintf(`
+			SELECT COUNT(t.id) AS counter
+			FROM (
+			VALUES %s 
+			) AS t(id)
+			LEFT JOIN banks b on b.id = t.id
+			where b.id is null
+			`, values)).Scan(&counter)
+		err = db.Error
+		fmt.Println("counter : ", counter.Counter)
+		if counter.Counter != 0 {
+			return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error : invalid banks id")
+		}
 		agentModel.Banks = pq.Int64Array(agentPayload.Banks)
 	}
 
@@ -140,5 +176,15 @@ func AgentProfileEdit(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal mengubah data akun agen")
 	}
 
-	return c.JSON(http.StatusOK, agentModel)
+	//Refetching after update
+	var response AgentResponse
+	db := asira.App.DB.Table("agents ag").
+		Select("ag.*, (SELECT ARRAY_AGG(name) FROM banks WHERE id IN (SELECT UNNEST(ag.banks))) as bank_names").
+		Where("ag.id = ?", agentID)
+	err = db.Find(&response).Error
+	if err != nil {
+		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
+	}
+
+	return c.JSON(http.StatusOK, response)
 }
