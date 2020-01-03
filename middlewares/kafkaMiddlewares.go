@@ -350,8 +350,12 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		log.Println(err.Error())
 	}
 
+	//get user login n fcm data from borrower
+	user := models.User{}
+	user.FindbyID(int(borrower.ID))
+
 	//send notif
-	responseBody, err := asira.App.Messaging.SendNotificationByToken(title, formatedMsg, mapData, borrower.FCMToken, recipientID)
+	responseBody, err := asira.App.Messaging.SendNotificationByToken(title, formatedMsg, mapData, user.FCMToken, recipientID)
 	if err != nil {
 		type ErrorResponse struct {
 			Details string `json:"details"`
