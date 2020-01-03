@@ -226,6 +226,21 @@ CREATE TABLE "internal_roles" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+CREATE TABLE "notifications" (
+    "id" bigserial,
+    "client_id" bigserial,
+    "recipient_id" varchar(255),
+    "title" varchar(255) NOT NULL,
+    "message_body" text,
+    "firebase_token" varchar(255),
+    "topic" varchar(125),
+    "response" varchar(255),
+    "send_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
 CREATE TABLE "users" (
     "id" bigserial,
     "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
@@ -253,4 +268,5 @@ DROP TABLE IF EXISTS "uuid_reset_passwords" CASCADE;
 DROP TABLE IF EXISTS "client_configs" CASCADE;
 DROP TABLE IF EXISTS "internal_roles" CASCADE;
 DROP TABLE IF EXISTS "agents" CASCADE;
+DROP TABLE IF EXISTS "notifications" CASCADE;
 DROP TABLE IF EXISTS "users" CASCADE;
