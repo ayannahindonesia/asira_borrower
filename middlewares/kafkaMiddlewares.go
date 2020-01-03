@@ -352,9 +352,13 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 
 	//get user login n fcm data from borrower
 	user := models.User{}
-	user.FindbyID(int(borrower.ID))
+	err = user.FindbyBorrowerID(borrower.ID)
+	if err != nil {
+		log.Println(err.Error())
+	}
 
 	//send notif
+	fmt.Println("FCMToken : ", user.FCMToken)
 	responseBody, err := asira.App.Messaging.SendNotificationByToken(title, formatedMsg, mapData, user.FCMToken, recipientID)
 	if err != nil {
 		type ErrorResponse struct {
@@ -389,7 +393,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		log.Printf(msg)
 		return fmt.Errorf(msg)
 	} else {
-		notif.Save()
+		notif.Create()
 	}
 
 	return err
