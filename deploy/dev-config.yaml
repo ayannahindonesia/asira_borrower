@@ -1,5 +1,6 @@
 development:
   react_cors: true
+  passphrase: BpLnfgDsc3WD9F3qap394rjd239smsdk
   database:
     table: asira_db
     username: asirauser

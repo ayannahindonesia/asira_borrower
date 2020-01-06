@@ -16,13 +16,14 @@ import (
 )
 
 type (
+	//BorrowerLoginCreds for payload
 	BorrowerLoginCreds struct {
 		Key      string `json:"key"`
 		Password string `json:"password"`
 	}
 )
 
-// borrower login, borrower can choose either login with email / phone
+//BorrowerLogin borrower login, borrower can choose either login with email / phone
 func BorrowerLogin(c echo.Context) error {
 	defer c.Request().Body.Close()
 

@@ -5,6 +5,7 @@ import (
 	"asira_borrower/models"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -14,6 +15,19 @@ import (
 	"github.com/thedevsaddam/govalidator"
 )
 
+type (
+	FilterAgentRef struct {
+		ID            uint64 `json:"id"`
+		AgentReferral int64  `json:"agent_referral"`
+	}
+
+	FilterAgentPhone struct {
+		ID    uint64 `json:"id"`
+		Phone string `json:"phone"`
+	}
+)
+
+//AgentRegisterBorrower agent register new borrower
 func AgentRegisterBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
 	type (
@@ -21,6 +35,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 			Fullname             string    `json:"fullname"`
 			Nickname             string    `json:"nickname"`
 			Gender               string    `json:"gender" `
+			Image                string    `json:"image"`
 			IdCardNumber         string    `json:"idcard_number" `
 			IdCardImage          string    `json:"idcard_image"`
 			TaxIDImage           string    `json:"taxid_image"`
@@ -74,6 +89,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"fullname":              []string{"required"},
 		"nickname":              []string{},
 		"gender":                []string{"required"},
+		"image":                 []string{},
 		"idcard_number":         []string{"required"},
 		"taxid_number":          []string{},
 		"nationality":           []string{},
@@ -103,7 +119,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"employer_name":         []string{"required"},
 		"employer_address":      []string{"required"},
 		"department":            []string{"required"},
-		"been_workingfor":       []string{"required"},
+		"been_workingfor":       []string{},
 		"direct_superiorname":   []string{},
 		"employer_number":       []string{"required"},
 		"monthly_income":        []string{"required"},
@@ -146,38 +162,57 @@ func AgentRegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Bank tidak terdaftar untuk agent")
 	}
 
-	IdCardImage := models.Image{
-		Image_string: register.IdCardImage,
-	}
-	err = IdCardImage.Create()
+	r, err := json.Marshal(register)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+	}
+	borrower := models.Borrower{}
+	json.Unmarshal(r, &borrower)
+
+	//upload image profile borrower
+	ImageProfil := ""
+	if register.Image != "" || len(register.Image) != 0 {
+		ImageProfil, err = uploadImageS3Formatted("boragn", register.Image)
+		if err != nil {
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : Image profil failed to upload")
+		}
 	}
 
-	TaxIdImage := models.Image{
-		Image_string: register.TaxIDImage,
-	}
-	err = TaxIdImage.Create()
+	//upload image id card
+	IdCardImage, err := uploadImageS3Formatted("ktp", register.IdCardImage)
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : IDCardImage failed to upload")
 	}
-	borrower := models.Borrower{
-		AgentReferral: sql.NullInt64{
-			Int64: agentID,
-			Valid: true,
-		},
-		IdCardImage: sql.NullInt64{
-			Int64: int64(IdCardImage.ID),
-			Valid: true,
-		},
-		TaxIDImage: sql.NullInt64{
-			Int64: int64(TaxIdImage.ID),
-			Valid: true,
-		},
-		Bank: sql.NullInt64{
-			Int64: int64(register.Bank),
-			Valid: true,
-		},
+
+	//upload image tax card
+	TaxIDImage, err := uploadImageS3Formatted("tax", register.TaxIDImage)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : TaxIDImage failed to upload")
+	}
+
+	//encrypted
+	encryptPassphrase := asira.App.Config.GetString(fmt.Sprintf("%s.passphrase", asira.App.ENV))
+	borrower.IdCardImage, err = encrypt(IdCardImage, encryptPassphrase)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi Id card gagal")
+	}
+	borrower.TaxIDImage, err = encrypt(TaxIDImage, encryptPassphrase)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
+	}
+
+	//set vars
+	if ImageProfil != "" {
+		borrower.Image = ImageProfil
+	}
+
+	borrower.AgentReferral = sql.NullInt64{
+		Int64: agentID,
+		Valid: true,
+	}
+	borrower.Bank = sql.NullInt64{
+		Int64: int64(register.Bank),
+		Valid: true,
 	}
 
 	//check manual fields if not unique
@@ -203,16 +238,140 @@ func AgentRegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
 	}
 
-	r, err := json.Marshal(register)
+	r, err = json.Marshal(register)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 	json.Unmarshal(r, &borrower)
 
+	//set need to OTP verify and create new borrower
+	borrower.OTPverified = false
 	err = borrower.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 
 	return c.JSON(http.StatusCreated, borrower)
+}
+
+//AgentRequestOTP request OTP for after registered new borrower
+func AgentRequestOTP(c echo.Context) error {
+	defer c.Request().Body.Close()
+
+	otpRequest := VerifyAccountOTPrequest{}
+
+	user := c.Get("user")
+	token := user.(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	AgentID, _ := strconv.ParseInt(claims["jti"].(string), 10, 64)
+	borrowerID, _ := strconv.ParseUint(c.Param("borrower_id"), 10, 64)
+
+	//cek borrower owned by agent
+	borrower := models.Borrower{}
+	err := borrower.FilterSearchSingle(&FilterAgentRef{
+		ID:            borrowerID,
+		AgentReferral: AgentID,
+	})
+
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's borrower")
+	}
+
+	payloadRules := govalidator.MapData{
+		"phone": []string{"regex:^[0-9]+$", "required"},
+	}
+
+	validate := validateRequestPayload(c, payloadRules, &otpRequest)
+	if validate != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
+	}
+
+	//cek agent's phone
+	agent := models.Agent{}
+	err = agent.FilterSearchSingle(&FilterAgentPhone{
+		ID:    uint64(AgentID),
+		Phone: otpRequest.Phone,
+	})
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's phone")
+	}
+
+	//generate OTP
+	catenate := strconv.Itoa(int(borrowerID)) + agent.Phone[len(agent.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
+	counter, _ := strconv.Atoi(catenate)
+	otpCode := asira.App.OTP.HOTP.At(int(counter))
+
+	//Send OTP sms
+	message := fmt.Sprintf("Code OTP Registrasi anda adalah %s", otpCode)
+	err = asira.App.Messaging.SendSMS(agent.Phone, message)
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending otp")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Terkirim"})
+}
+
+//AgentVerifyOTP verify OTP after call request OTP (AgentRequestOTP)
+func AgentVerifyOTP(c echo.Context) error {
+	defer c.Request().Body.Close()
+
+	otpVerify := VerifyAccountOTPverify{}
+
+	user := c.Get("user")
+	token := user.(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	AgentID, _ := strconv.ParseInt(claims["jti"].(string), 10, 64)
+	borrowerID, _ := strconv.ParseUint(c.Param("borrower_id"), 10, 64)
+
+	//cek borrower owned by agent
+	borrower := models.Borrower{}
+	err := borrower.FilterSearchSingle(&FilterAgentRef{
+		ID:            borrowerID,
+		AgentReferral: AgentID,
+	})
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's borrower")
+	}
+
+	payloadRules := govalidator.MapData{
+		"phone":    []string{"regex:^[0-9]+$", "required"},
+		"otp_code": []string{"required"},
+	}
+
+	validate := validateRequestPayload(c, payloadRules, &otpVerify)
+	if validate != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
+	}
+
+	//cek agent's phone
+	agent := models.Agent{}
+	err = agent.FilterSearchSingle(&FilterAgentPhone{
+		ID:    uint64(AgentID),
+		Phone: otpVerify.Phone,
+	})
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's phone")
+	}
+
+	catenate := strconv.Itoa(int(borrowerID)) + agent.Phone[len(agent.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
+	counter, _ := strconv.Atoi(catenate)
+	if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, counter) {
+		updateAgentBorrowerOTPStatus(int(borrowerID))
+		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
+	}
+
+	// bypass otp
+	if asira.App.ENV == "development" && otpVerify.OTPcode == "888999" {
+		updateAgentBorrowerOTPStatus(int(borrowerID))
+		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
+	}
+
+	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
+}
+
+func updateAgentBorrowerOTPStatus(borrowerID int) {
+	modelBorrower := models.Borrower{}
+	_ = modelBorrower.FindbyID(borrowerID)
+	modelBorrower.OTPverified = true
+	modelBorrower.Save()
 }

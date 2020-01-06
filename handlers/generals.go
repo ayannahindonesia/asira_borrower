@@ -2,8 +2,15 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"io"
+	"log"
+	"strconv"
 	"strings"
 	"time"
 
@@ -13,6 +20,7 @@ import (
 )
 
 type (
+	//JWTclaims hold custom data
 	JWTclaims struct {
 		Username string `json:"username"`
 		Role     string `json:"role"`
@@ -148,4 +156,109 @@ func checkUniqueFields(idcardNumber string, uniques map[string]string) (string, 
 		return fieldsFound, errors.New("data unique already exist")
 	}
 	return fieldsFound, nil
+}
+
+func checkPatchFields(tableName string, fieldID string, id uint64, uniques map[string]string) (string, error) {
+	var count int
+	fieldsFound := ""
+
+	//...check unique
+	for key, val := range uniques {
+		//init query
+		db := asira.App.DB
+		db = db.Table(tableName).Select(fieldID)
+
+		//get users other than idcardNumber...
+		db = db.Not(fieldID, id)
+
+		//if field not empty
+		if len(val) > 0 || val != "" {
+			db = db.Where(fmt.Sprintf("LOWER(%s) = ?", key), strings.ToLower(val))
+		} else {
+			//skip checking
+			continue
+		}
+		//query count
+		err = db.Count(&count).Error
+		if err != nil || count > 0 {
+			fieldsFound += key + ", "
+		}
+	}
+	if fieldsFound != "" {
+		return fieldsFound, errors.New("data unique already exist")
+	}
+	return fieldsFound, nil
+}
+
+//uploadImageS3 upload to S3 protocol
+func uploadImageS3Formatted(prefix string, base64Image string) (string, error) {
+
+	unbased, _ := base64.StdEncoding.DecodeString(base64Image)
+	filename := prefix + strconv.FormatInt(time.Now().Unix(), 10)
+	url, err := asira.App.S3.UploadJPEG(unbased, filename)
+	if err != nil {
+		return "", err
+	}
+
+	return url, nil
+}
+
+//deleteImageS3 delete old image
+func deleteImageS3(imageURL string) error {
+	i := strings.Split(imageURL, "/")
+	delImage := i[len(i)-1]
+	err = asira.App.S3.DeleteObject(delImage)
+	if err != nil {
+		log.Printf("failed to delete image %v from s3 bucket", delImage)
+		return err
+	}
+	return nil
+}
+
+func encrypt(text string, passphrase string) (string, error) {
+	// key := []byte(keyText)
+	plaintext := []byte(text)
+
+	block, err := aes.NewCipher([]byte(passphrase))
+	if err != nil {
+		return "", err
+	}
+
+	// The IV needs to be unique, but not secure. Therefore it's common to
+	// include it at the beginning of the ciphertext.
+	ciphertext := make([]byte, aes.BlockSize+len(plaintext))
+	iv := ciphertext[:aes.BlockSize]
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		return "", err
+	}
+
+	stream := cipher.NewCFBEncrypter(block, iv)
+	stream.XORKeyStream(ciphertext[aes.BlockSize:], plaintext)
+
+	// convert to base64
+	return base64.URLEncoding.EncodeToString(ciphertext), err
+}
+
+func decrypt(encryptedText string, passphrase string) (string, error) {
+	ciphertext, _ := base64.URLEncoding.DecodeString(encryptedText)
+
+	block, err := aes.NewCipher([]byte(passphrase))
+	if err != nil {
+		return "", err
+	}
+
+	// The IV needs to be unique, but not secure. Therefore it's common to
+	// include it at the beginning of the ciphertext.
+	if len(ciphertext) < aes.BlockSize {
+		return "", fmt.Errorf("cannot decrypt")
+	}
+	iv := ciphertext[:aes.BlockSize]
+	ciphertext = ciphertext[aes.BlockSize:]
+
+	stream := cipher.NewCFBDecrypter(block, iv)
+
+	// XORKeyStream can work in-place if the two arguments are the same.
+	stream.XORKeyStream(ciphertext, ciphertext)
+
+	return fmt.Sprintf("%s", ciphertext), nil
 }
