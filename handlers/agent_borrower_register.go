@@ -5,6 +5,7 @@ import (
 	"asira_borrower/models"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -14,6 +15,19 @@ import (
 	"github.com/thedevsaddam/govalidator"
 )
 
+type (
+	FilterAgentRef struct {
+		ID            uint64 `json:"id"`
+		AgentReferral int64  `json:"agent_referral"`
+	}
+
+	FilterAgentPhone struct {
+		ID    uint64 `json:"id"`
+		Phone string `json:"phone"`
+	}
+)
+
+//AgentRegisterBorrower agent register new borrower
 func AgentRegisterBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
 	type (
@@ -209,10 +223,134 @@ func AgentRegisterBorrower(c echo.Context) error {
 	}
 	json.Unmarshal(r, &borrower)
 
+	//set need to OTP verify and create new borrower
+	borrower.OTPverified = false
 	err = borrower.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 
 	return c.JSON(http.StatusCreated, borrower)
+}
+
+//AgentRequestOTP request OTP for after registered new borrower
+func AgentRequestOTP(c echo.Context) error {
+	defer c.Request().Body.Close()
+
+	otpRequest := VerifyAccountOTPrequest{}
+
+	user := c.Get("user")
+	token := user.(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	AgentID, _ := strconv.ParseInt(claims["jti"].(string), 10, 64)
+	borrowerID, _ := strconv.ParseUint(c.Param("borrower_id"), 10, 64)
+
+	//cek borrower owned by agent
+	borrower := models.Borrower{}
+	err := borrower.FilterSearchSingle(&FilterAgentRef{
+		ID:            borrowerID,
+		AgentReferral: AgentID,
+	})
+
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's borrower")
+	}
+
+	payloadRules := govalidator.MapData{
+		"phone": []string{"regex:^[0-9]+$", "required"},
+	}
+
+	validate := validateRequestPayload(c, payloadRules, &otpRequest)
+	if validate != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
+	}
+
+	//cek agent's phone
+	agent := models.Agent{}
+	err = agent.FilterSearchSingle(&FilterAgentPhone{
+		ID:    uint64(AgentID),
+		Phone: otpRequest.Phone,
+	})
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's phone")
+	}
+
+	//generate OTP
+	catenate := strconv.Itoa(int(borrowerID)) + agent.Phone[len(agent.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
+	counter, _ := strconv.Atoi(catenate)
+	otpCode := asira.App.OTP.HOTP.At(int(counter))
+
+	//Send OTP sms
+	message := fmt.Sprintf("Code OTP Registrasi anda adalah %s", otpCode)
+	err = asira.App.Messaging.SendSMS(agent.Phone, message)
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending otp")
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Terkirim"})
+}
+
+//AgentVerifyOTP verify OTP after call request OTP (AgentRequestOTP)
+func AgentVerifyOTP(c echo.Context) error {
+	defer c.Request().Body.Close()
+
+	otpVerify := VerifyAccountOTPverify{}
+
+	user := c.Get("user")
+	token := user.(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	AgentID, _ := strconv.ParseInt(claims["jti"].(string), 10, 64)
+	borrowerID, _ := strconv.ParseUint(c.Param("borrower_id"), 10, 64)
+
+	//cek borrower owned by agent
+	borrower := models.Borrower{}
+	err := borrower.FilterSearchSingle(&FilterAgentRef{
+		ID:            borrowerID,
+		AgentReferral: AgentID,
+	})
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's borrower")
+	}
+
+	payloadRules := govalidator.MapData{
+		"phone":    []string{"regex:^[0-9]+$", "required"},
+		"otp_code": []string{"required"},
+	}
+
+	validate := validateRequestPayload(c, payloadRules, &otpVerify)
+	if validate != nil {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
+	}
+
+	//cek agent's phone
+	agent := models.Agent{}
+	err = agent.FilterSearchSingle(&FilterAgentPhone{
+		ID:    uint64(AgentID),
+		Phone: otpVerify.Phone,
+	})
+	if err != nil {
+		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's phone")
+	}
+
+	catenate := strconv.Itoa(int(borrowerID)) + agent.Phone[len(agent.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
+	counter, _ := strconv.Atoi(catenate)
+	if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, counter) {
+		updateAgentBorrowerOTPStatus(int(borrowerID))
+		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
+	}
+
+	// bypass otp
+	if asira.App.ENV == "development" && otpVerify.OTPcode == "888999" {
+		updateAgentBorrowerOTPStatus(int(borrowerID))
+		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
+	}
+
+	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
+}
+
+func updateAgentBorrowerOTPStatus(borrowerID int) {
+	modelBorrower := models.Borrower{}
+	_ = modelBorrower.FindbyID(borrowerID)
+	modelBorrower.OTPverified = true
+	modelBorrower.Save()
 }
