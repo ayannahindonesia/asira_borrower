@@ -6,8 +6,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"os"
 	"strings"
 	"time"
 
@@ -41,31 +39,6 @@ func Seed() {
 		}
 		for _, clients := range client {
 			clients.Create()
-		}
-
-		// seed images
-		file, _ := os.Open("migration/image_dummy.txt")
-		defer file.Close()
-		b64image, _ := ioutil.ReadAll(file)
-		images := []models.Image{
-			models.Image{
-				Image_string: string(b64image),
-			},
-			models.Image{
-				Image_string: string(b64image),
-			},
-			models.Image{
-				Image_string: string(b64image),
-			},
-			models.Image{
-				Image_string: string(b64image),
-			},
-			models.Image{
-				Image_string: string(b64image),
-			},
-		}
-		for _, image := range images {
-			image.Create()
 		}
 
 		// seed borrowers
@@ -246,31 +219,6 @@ func TestSeed() {
 	defer seeder.Commit()
 
 	if asira.App.ENV == "development" {
-		// seed images
-		file, _ := os.Open("migration/image_dummy.txt")
-		defer file.Close()
-		b64image, _ := ioutil.ReadAll(file)
-		images := []models.Image{
-			models.Image{
-				Image_string: string(b64image),
-			},
-			models.Image{
-				Image_string: string(b64image),
-			},
-			models.Image{
-				Image_string: string(b64image),
-			},
-			models.Image{
-				Image_string: string(b64image),
-			},
-			models.Image{
-				Image_string: string(b64image),
-			},
-		}
-		for _, image := range images {
-			image.Create()
-		}
-
 		// seed bank types
 		bankTypes := []models.BankType{
 			models.BankType{

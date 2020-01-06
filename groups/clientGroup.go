@@ -17,8 +17,6 @@ func ClientGroup(e *echo.Echo) {
 
 	g.POST("/agent_login", handlers.AgentLogin)
 
-	g.GET("/imagefile/:file_id", handlers.ClientImageFile)
-
 	g.POST("/reset_password", handlers.ClientResetPassword)
 	g.POST("/change_password", handlers.ChangePassword)
 
