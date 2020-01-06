@@ -15,12 +15,23 @@ import (
 	"github.com/labstack/echo"
 )
 
-type AgentPayload struct {
-	Email string  `json:"email"`
-	Phone string  `json:"phone"`
-	Banks []int64 `json:"banks"`
-	Image string  `json:"image"`
-}
+type (
+	AgentPayload struct {
+		Email string  `json:"email"`
+		Phone string  `json:"phone"`
+		Banks []int64 `json:"banks"`
+		Image string  `json:"image"`
+	}
+
+	BanksResponse struct {
+		Name string `json:"name"`
+	}
+
+	AgentResponse struct {
+		models.Agent
+		BankNames pq.StringArray `json:"bank_names"`
+	}
+)
 
 //AgentProfile get current agent's profile
 func AgentProfile(c echo.Context) error {
@@ -30,15 +41,30 @@ func AgentProfile(c echo.Context) error {
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 
-	agentModel := models.Agent{}
+	// agentModel := models.Agent{}
 
 	agentID, _ := strconv.Atoi(claims["jti"].(string))
-	err := agentModel.FindbyID(agentID)
+
+	//set banks name
+	agentBank := AgentResponse{}
+	db := asira.App.DB.Table("agents ag").
+		Select("ag.*, (SELECT ARRAY_AGG(name) FROM banks WHERE id IN (SELECT UNNEST(ag.banks))) as bank_names").
+		Where("ag.id = ?", agentID)
+
+	err = db.Find(&agentBank).Error
 	if err != nil {
-		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
+		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak valid")
 	}
 
-	return c.JSON(http.StatusOK, agentModel)
+	//co py to array string
+	// banks := []string{}
+	// for _, data := range banksName {
+	// 	banks = append(banks, data.Name)
+	// }
+
+	//set response
+	// response := AgentResponse{agentModel, banks}
+	return c.JSON(http.StatusOK, agentBank)
 }
 
 //AgentProfileEdit update current agent's profile
