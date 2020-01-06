@@ -238,7 +238,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
 	}
 
-	r, err := json.Marshal(register)
+	r, err = json.Marshal(register)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}

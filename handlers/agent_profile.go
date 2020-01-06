@@ -1,9 +1,8 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
-	"database/sql"
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
