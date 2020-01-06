@@ -238,12 +238,6 @@ func AgentRegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
 	}
 
-	r, err = json.Marshal(register)
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
-	}
-	json.Unmarshal(r, &borrower)
-
 	//set need to OTP verify and create new borrower
 	borrower.OTPverified = false
 	err = borrower.Create()
