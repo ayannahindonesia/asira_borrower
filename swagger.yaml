@@ -416,16 +416,46 @@ paths:
             schema:
               $ref: '#/components/schemas/loanApplicationAgent'
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/loanListDetail'
         '401':
           description: Unauthorized
-          # content:
-          #   application/json:
-          #     schema:
-          #       type: object
-          #       allOf:
-          #         - $ref: '#/components/schemas/loanList'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Forbidden'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
   /agent/loan/[loan_id]/details:
     get:
       tags:
@@ -1596,6 +1626,18 @@ components:
         message:
           type: string
           example: "Not Found"
+    Unauthorized:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "invalid or expired jwt"
+    Forbidden:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "invalid role"
     PagedModel:
       properties:
         total_data:
@@ -2797,8 +2839,8 @@ components:
     loanListDetail:
       properties:
         id:
-          type: string
-          example: loan_01
+          type: number
+          example: 1
         created_time:
           type: string
           example: "2019-06-26T16:40:33.372829+07:00"
@@ -2808,7 +2850,7 @@ components:
         deleted_time:
           type: string
           example: "2019-06-26T16:40:33.372829+07:00"
-        owner:
+        borrower:
           type: object
           properties:
             Int64:
@@ -2820,7 +2862,7 @@ components:
               example: true
         status:
           type: string
-          example: processing
+          example: "processing"
         loan_amount:
           type: number
           example: 2000000
@@ -2838,7 +2880,10 @@ components:
           description: in percent
         total_loan:
           type: number
-          example: 2030000
+          example: 1
+        disburse_amount: 
+          type: number
+          example: 6000000
         due_date:
           type: string
           example: "2019-06-26T16:40:33.372829+07:00"
@@ -2846,23 +2891,43 @@ components:
         layaway_plan:
           type: number
           example: 50000
+        product:
+          type: number
+          example: 2
         loan_intention:
           type: string
-          example: its loan intention
+          example: "Pendidikan"
         intention_details:
           type: string
-          example: the details
+          example: "Pendidikan"
+        otp_verified: 
+          type: boolean
+          example: false
+        disburse_date:
+          type: string
+          example: "0001-01-01T00:00:00Z"
+        disburse_date_changed: 
+          type: boolean
+          example: false
+        disburse_status: 
+          type: string
+          example: "processing"
+        reject_reason:
+          type: string
+          example: ""
         borrower_info:
-          type: object
+          type: array
+          items:
+            $ref: '#/components/schemas/registerAgentRequest'
     loanListDetailFees:
       type: object
       properties:
         description:
           type: string
-          example: fee_01
+          example: "Convenience Fee"
         amount:
-          type: number
-          example: 100
+          type: string
+          example: "120000.000000"
     fcmtokenRequest:
       type: object
       properties:
