@@ -404,6 +404,25 @@ paths:
                             - $ref: '#/components/schemas/loanListDetail'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Forbidden'
+        '500':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
         - Agent
@@ -422,12 +441,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - properties:
-                      data:
-                        type: array
-                        items:
-                          allOf:
-                            - $ref: '#/components/schemas/loanListDetail'
+                  - $ref: '#/components/schemas/loanListDetail'
         '401':
           description: Unauthorized
           content:
