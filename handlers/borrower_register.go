@@ -115,7 +115,7 @@ func RegisterBorrower(c echo.Context) error {
 		"employer_name":         []string{"required"},
 		"employer_address":      []string{"required"},
 		"department":            []string{"required"},
-		"been_workingfor":       []string{"required"},
+		"been_workingfor":       []string{},
 		"direct_superiorname":   []string{},
 		"employer_number":       []string{"required"},
 		"monthly_income":        []string{"required"},
