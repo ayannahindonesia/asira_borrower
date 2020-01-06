@@ -1365,6 +1365,25 @@ paths:
                   - $ref: '#/components/schemas/loanList'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Forbidden'
+        '500':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
         - Borrower
@@ -1377,16 +1396,41 @@ paths:
             schema:
               $ref: '#/components/schemas/loanApplication'
       responses:
-        '200':
-          description: OK
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/loanListDetail'
         '401':
           description: Unauthorized
-          # content:
-          #   application/json:
-          #     schema:
-          #       type: object
-          #       allOf:
-          #         - $ref: '#/components/schemas/loanList'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Forbidden'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
   /borrower/loan/[loan_id]/details:
     get:
       tags:
