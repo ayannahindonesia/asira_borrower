@@ -30,6 +30,10 @@ func AgentGroup(e *echo.Echo) {
 	//borrowers owned by current agent (jti) and bank_id
 	g.GET("/borrowers/:bank_id", handlers.AgentAllBorrower)
 
+	//borrowers owned by current agent (jti) and agent's borrower_id
+	g.GET("/borrower/:borrower_id", handlers.AgentBorrowerProfile)
+	g.PATCH("/borrower/:borrower_id", handlers.AgentBorrowerProfileEdit)
+
 	//check borrower from agent is exist or not
 	g.POST("/checks_borrower", handlers.AgentCheckBorrower)
 
