@@ -36,7 +36,7 @@ func (model *Service) Delete() error {
 	return err
 }
 
-func (model *Service) FindbyID(id int) error {
+func (model *Service) FindbyID(id uint64) error {
 	err := basemodel.FindbyID(&model, id)
 	return err
 }

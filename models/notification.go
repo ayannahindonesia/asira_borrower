@@ -35,7 +35,7 @@ func (u *Notification) Save() error {
 }
 
 //FindbyID to search 1 row by ID
-func (u *Notification) FindbyID(id int) error {
+func (u *Notification) FindbyID(id uint64) error {
 	err := basemodel.FindbyID(&u, id)
 	return err
 }

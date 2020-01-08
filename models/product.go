@@ -47,7 +47,7 @@ func (model *Product) Delete() error {
 	return err
 }
 
-func (model *Product) FindbyID(id int) error {
+func (model *Product) FindbyID(id uint64) error {
 	err := basemodel.FindbyID(&model, id)
 	return err
 }

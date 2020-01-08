@@ -47,7 +47,7 @@ type (
 // gorm callback hook
 func (l *Loan) BeforeCreate() (err error) {
 	borrower := Borrower{}
-	err = borrower.FindbyID(int(l.Borrower))
+	err = borrower.FindbyID(l.Borrower)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (l *Loan) BeforeCreate() (err error) {
 
 func (l *Loan) SetProductLoanReferences() (err error) {
 	product := Product{}
-	err = product.FindbyID(int(l.Product))
+	err = product.FindbyID(l.Product)
 	if err != nil {
 		return err
 	}
@@ -97,9 +97,9 @@ func (l *Loan) Calculate() (err error) {
 		parsedFees     LoanFees
 	)
 
-	borrower.FindbyID(int(l.Borrower))
-	bank.FindbyID(int(borrower.Bank.Int64))
-	product.FindbyID(int(l.Product))
+	borrower.FindbyID(l.Borrower)
+	bank.FindbyID(uint64(borrower.Bank.Int64))
+	product.FindbyID(l.Product)
 
 	json.Unmarshal(l.Fees.RawMessage, &fees)
 
@@ -199,7 +199,7 @@ func (l *Loan) Delete() error {
 	return err
 }
 
-func (l *Loan) FindbyID(id int) error {
+func (l *Loan) FindbyID(id uint64) error {
 	err := basemodel.FindbyID(&l, id)
 	return err
 }

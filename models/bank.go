@@ -46,7 +46,7 @@ func (model *Bank) Delete() error {
 	return err
 }
 
-func (model *Bank) FindbyID(id int) error {
+func (model *Bank) FindbyID(id uint64) error {
 	err := basemodel.FindbyID(&model, id)
 	return err
 }

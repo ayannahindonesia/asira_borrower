@@ -35,7 +35,7 @@ func (b *BankType) Delete() error {
 	return err
 }
 
-func (b *BankType) FindbyID(id int) error {
+func (b *BankType) FindbyID(id uint64) error {
 	err := basemodel.FindbyID(&b, id)
 	return err
 }

@@ -30,7 +30,7 @@ func (l *LoanPurpose) Delete() (err error) {
 	return err
 }
 
-func (l *LoanPurpose) FindbyID(id int) (err error) {
+func (l *LoanPurpose) FindbyID(id uint64) (err error) {
 	err = basemodel.FindbyID(&l, id)
 	return err
 }
