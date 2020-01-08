@@ -103,11 +103,11 @@ func AgentLoanGet(c echo.Context) error {
 		offset = (page * rows) - rows
 	}
 
-	db = db.Table("loans l").
+	db = db.Table("loans").
 		Select("*, bp.name as product_name, bs.name as service_name").
-		Joins("INNER JOIN products bp ON bp.id = l.product").
+		Joins("INNER JOIN products bp ON bp.id = loans.product").
 		Joins("INNER JOIN services bs ON bs.id = bp.service_id").
-		Joins("INNER JOIN borrowers br ON br.id = l.borrower").
+		Joins("INNER JOIN borrowers br ON br.id = loans.borrower").
 		Joins("INNER JOIN agents ag ON ag.id = br.agent_referral")
 
 	//do join for banks
@@ -120,7 +120,7 @@ func AgentLoanGet(c echo.Context) error {
 	db = db.Where("ag.id = ?", agentID)
 
 	if status := c.QueryParam("status"); len(status) > 0 {
-		db = db.Where("l.status = ?", status)
+		db = db.Where("loans.status = ?", status)
 	}
 
 	if rows > 0 && offset > 0 {
@@ -301,10 +301,10 @@ func validateAgentLoansProduct(l models.Loan, agentID uint64) (err error) {
 
 	db := asira.App.DB
 
-	err = db.Table("banks b").
+	err = db.Table("banks").
 		Select("p.id").
-		Joins("INNER JOIN agents ag ON b.id IN (SELECT UNNEST(ag.banks))").
-		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
+		Joins("INNER JOIN agents ag ON banks.id IN (SELECT UNNEST(ag.banks))").
+		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(banks.services))").
 		Joins("INNER JOIN products p ON p.service_id = s.id").
 		Where("p.id = ?", l.Product).
 		Where("ag.id = ?", agentID).Count(&count).Error

@@ -91,14 +91,14 @@ func BorrowerLoanGet(c echo.Context) error {
 		offset = (page * rows) - rows
 	}
 
-	db = db.Table("loans l").
+	db = db.Table("loans").
 		Select("*, bp.name as product_name, bs.name as service_name").
-		Joins("INNER JOIN products bp ON bp.id = l.product").
+		Joins("INNER JOIN products bp ON bp.id = loans.product").
 		Joins("INNER JOIN services bs ON bs.id = bp.service_id").
-		Where("l.borrower = ?", borrowerID)
+		Where("loans.borrower = ?", borrowerID)
 
 	if status := c.QueryParam("status"); len(status) > 0 {
-		db = db.Where("l.status = ?", status)
+		db = db.Where("loans.status = ?", status)
 	}
 
 	if rows > 0 && offset > 0 {
@@ -270,10 +270,10 @@ func validateLoansProduct(l models.Loan) (err error) {
 
 	db := asira.App.DB
 
-	err = db.Table("banks b").
+	err = db.Table("banks").
 		Select("p.id").
-		Joins("INNER JOIN borrowers bo ON bo.bank = b.id").
-		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
+		Joins("INNER JOIN borrowers bo ON bo.bank = banks.id").
+		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(banks.services))").
 		Joins("INNER JOIN products p ON p.service_id = s.id").
 		Where("p.id = ?", l.Product).
 		Where("bo.id = ?", l.Borrower).Count(&count).Error
