@@ -138,8 +138,8 @@ func AgentRegisterBorrower(c echo.Context) error {
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	agentModel := models.Agent{}
-	agentID, _ := strconv.ParseInt(claims["jti"].(string), 10, 64)
-	err := agentModel.FindbyID(int(agentID))
+	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
+	err := agentModel.FindbyID(agentID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun Agen tidak ditemukan")
 	}
@@ -207,7 +207,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 	}
 
 	borrower.AgentReferral = sql.NullInt64{
-		Int64: agentID,
+		Int64: int64(agentID),
 		Valid: true,
 	}
 	borrower.Bank = sql.NullInt64{
@@ -350,20 +350,20 @@ func AgentVerifyOTP(c echo.Context) error {
 	catenate := strconv.Itoa(int(borrowerID)) + agent.Phone[len(agent.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
 	counter, _ := strconv.Atoi(catenate)
 	if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, counter) {
-		updateAgentBorrowerOTPStatus(int(borrowerID))
+		updateAgentBorrowerOTPStatus(borrowerID)
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
 	}
 
 	// bypass otp
 	if asira.App.ENV == "development" && otpVerify.OTPcode == "888999" {
-		updateAgentBorrowerOTPStatus(int(borrowerID))
+		updateAgentBorrowerOTPStatus(borrowerID)
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
 	}
 
 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
 }
 
-func updateAgentBorrowerOTPStatus(borrowerID int) {
+func updateAgentBorrowerOTPStatus(borrowerID uint64) {
 	modelBorrower := models.Borrower{}
 	_ = modelBorrower.FindbyID(borrowerID)
 	modelBorrower.OTPverified = true

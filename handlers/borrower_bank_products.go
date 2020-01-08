@@ -49,7 +49,7 @@ func BorrowerBankProductDetails(c echo.Context) error {
 	defer c.Request().Body.Close()
 	bankProduct := models.Product{}
 
-	productID, _ := strconv.Atoi(c.Param("product_id"))
+	productID, _ := strconv.ParseUint(c.Param("product_id"), 10, 64)
 	err := bankProduct.FindbyID(productID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")

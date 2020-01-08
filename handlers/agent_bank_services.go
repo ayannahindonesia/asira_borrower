@@ -28,7 +28,7 @@ func AgentBankService(c echo.Context) error {
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	agentModel := models.Agent{}
-	agentID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 	err := agentModel.FindbyID(agentID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun agen tidak ditemukan")

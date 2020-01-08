@@ -23,7 +23,7 @@ type (
 	}
 
 	Loan struct {
-		ID                  int       `json:"id"`
+		ID                  uint64    `json:"id"`
 		Status              string    `json:"status"`
 		DisburseDate        time.Time `json:"disburse_date"`
 		DisburseDateChanged bool      `json:"disburse_date_changed"`
@@ -99,7 +99,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 			}
 
 			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := int(a["id"].(float64))
+				ID := uint64(a["id"].(float64))
 				err = bankType.FindbyID(ID)
 				if err != nil {
 					return err
@@ -130,7 +130,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 			}
 
 			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := int(a["id"].(float64))
+				ID := uint64(a["id"].(float64))
 				err = bank.FindbyID(ID)
 				if err != nil {
 					return err
@@ -161,7 +161,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 			}
 
 			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := int(a["id"].(float64))
+				ID := uint64(a["id"].(float64))
 				err := service.FindbyID(ID)
 				if err != nil {
 					return err
@@ -192,7 +192,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 			}
 
 			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := int(a["id"].(float64))
+				ID := uint64(a["id"].(float64))
 				err := product.FindbyID(ID)
 				if err != nil {
 					return err
@@ -223,7 +223,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 			}
 
 			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := int(a["id"].(float64))
+				ID := uint64(a["id"].(float64))
 				err := loanPurpose.FindbyID(ID)
 				if err != nil {
 					return err
@@ -266,7 +266,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 
 func loanUpdate(kafkaMessage []byte) (err error) {
 	type Filter struct {
-		ID                  int       `json:"id"`
+		ID                  uint64    `json:"id"`
 		Status              string    `json:"status"`
 		DisburseDate        time.Time `json:"disburse_date"`
 		DisburseStatus      string    `json:"disburse_status"`
@@ -305,7 +305,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	loan.RejectReason = loanData.RejectReason
 	err = loan.SaveNoKafka()
 
-	err = borrower.FindbyID(int(loan.Borrower))
+	err = borrower.FindbyID(loan.Borrower)
 	if err != nil {
 		return err
 	}
@@ -414,7 +414,7 @@ func syncAgent(dataAgent []byte) (err error) {
 	}
 
 	if a["delete"] != nil && a["delete"].(bool) == true {
-		ID := int(a["id"].(float64))
+		ID := uint64(a["id"].(float64))
 		err := agent.FindbyID(ID)
 		if err != nil {
 			return err
@@ -450,8 +450,8 @@ func FormatingMessage(msgType string, object interface{}) string {
 	Loan := object.(models.Loan)
 
 	//get bank
-	borrower.FindbyID(int(Loan.Borrower))
-	bank.FindbyID(int(borrower.Bank.Int64))
+	borrower.FindbyID(Loan.Borrower)
+	bank.FindbyID(uint64(borrower.Bank.Int64))
 
 	//NOTE format pesan (PRD 7)
 	// format := "Loan id %d %s oleh %s. "

@@ -42,7 +42,7 @@ func ClientBankServicebyID(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	bankService := models.Service{}
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	err := bankService.FindbyID(id)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "bank tidak ditemukan")

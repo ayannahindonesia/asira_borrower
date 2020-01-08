@@ -69,7 +69,7 @@ func AgentProfileEdit(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	agentID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
 	//cek agent with custom field (name of banks)
 	agentModel := models.Agent{}

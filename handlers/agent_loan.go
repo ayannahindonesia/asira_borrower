@@ -43,7 +43,7 @@ func AgentLoanApply(c echo.Context) error {
 
 	//is valid agent
 	agent := models.Agent{}
-	err = agent.FindbyID(int(agentID))
+	err = agent.FindbyID(agentID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnauthorized, validate, "validation error : not valid agent")
 	}
@@ -157,7 +157,7 @@ func AgentLoanGetDetails(c echo.Context) error {
 
 	//cek loan
 	loan := models.Loan{}
-	loanID, err := strconv.Atoi(c.Param("loan_id"))
+	loanID, err := strconv.ParseUint(c.Param("loan_id"), 10, 64)
 	err = loan.FindbyID(loanID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
@@ -165,7 +165,7 @@ func AgentLoanGetDetails(c echo.Context) error {
 
 	//is valid agent
 	agent := models.Agent{}
-	err = agent.FindbyID(int(agentID))
+	err = agent.FindbyID(agentID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
 	}
@@ -190,7 +190,7 @@ func AgentLoanOTPrequest(c echo.Context) error {
 
 	//cek loan
 	loan := models.Loan{}
-	loanID, err := strconv.Atoi(c.Param("loan_id"))
+	loanID, err := strconv.ParseUint(c.Param("loan_id"), 10, 64)
 	err = loan.FindbyID(loanID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
@@ -198,7 +198,7 @@ func AgentLoanOTPrequest(c echo.Context) error {
 
 	//is valid agent
 	agent := models.Agent{}
-	err = agent.FindbyID(int(agentID))
+	err = agent.FindbyID(agentID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
 	}
@@ -211,7 +211,7 @@ func AgentLoanOTPrequest(c echo.Context) error {
 
 	//get borrower (phone)
 	borrower := models.Borrower{}
-	err = borrower.FindbyID(int(loan.Borrower))
+	err = borrower.FindbyID(loan.Borrower)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error : not valid borrower")
 	}
@@ -248,11 +248,11 @@ func AgentLoanOTPverify(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	agentID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
 	//cek loan ID
 	loan := models.Loan{}
-	loanID, err := strconv.Atoi(c.Param("loan_id"))
+	loanID, err := strconv.ParseUint(c.Param("loan_id"), 10, 64)
 	err = loan.FindbyID(loanID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "loan id not valid")
@@ -260,7 +260,7 @@ func AgentLoanOTPverify(c echo.Context) error {
 
 	//is valid agent
 	agent := models.Agent{}
-	err = agent.FindbyID(int(agentID))
+	err = agent.FindbyID(agentID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
 	}
