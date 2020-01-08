@@ -1729,13 +1729,13 @@ components:
         id:
           type: number
           example: 1
-        created_time:
+        created_at:
           type: string
           example: "1999-12-31T00:00:00.000Z"
-        updated_time:
+        updated_at:
           type: string
           example: "1999-12-31T00:00:00.000Z"
-        deleted_time:
+        deleted_at:
           type: string
           example: "1999-12-31T00:00:00.000Z"
         name:
@@ -1811,13 +1811,13 @@ components:
         id:
           type: number
           example: 1
-        created_time:
+        created_at:
           type: string
           example: "1999-12-31T00:00:00.000Z"
-        updated_time:
+        updated_at:
           type: string
           example: "1999-12-31T00:00:00.000Z"
-        deleted_time:
+        deleted_at:
           type: string
           example: "1999-12-31T00:00:00.000Z"
         name:
@@ -1832,10 +1832,10 @@ components:
         id:
           type: number
           example: 1
-        created_time:
+        created_at:
           type: string
           example: "2019-08-27T15:43:29.879218+07:00"
-        updated_time:
+        updated_at:
           type: string
           example: "2019-08-27T15:43:29.879218+07:00"
         image_string:
@@ -1847,13 +1847,13 @@ components:
         id:
           type: number
           example: 1
-        created_time:
+        created_at:
           type: string
           example: "2019-11-12T19:35:00.582163+07:00"
-        updated_time:
+        updated_at:
           type: string
           example: "2019-11-12T19:35:00.582163+07:00"
-        deleted_time:
+        deleted_at:
           type: string
           example: "2019-11-12T19:35:00.582163+07:00"
         name:
@@ -2681,13 +2681,13 @@ components:
         id:
           type: string
           example: 1
-        created_time:
+        created_at:
           type: string
           example: "2019-06-26T16:40:33.372829+07:00"
-        updated_time:
+        updated_at:
           type: string
           example: "2019-06-26T16:40:33.372829+07:00"
-        deleted_time:
+        deleted_at:
           type: string
           example: "2019-06-26T16:40:33.372829+07:00"
         name:
@@ -2867,7 +2867,7 @@ components:
         client_id:
           type: number
           example: 2
-        created_time:
+        created_at:
           type: string
           example: "2019-06-26T16:40:33.372829+07:00"
         firebase_token:
@@ -2888,7 +2888,7 @@ components:
         response:
           type: string
           example: "projects/asira-app-33ed7/messages/0:1573131084523969%2056f65bf9fd7ecd"
-        updated_time:
+        updated_at:
           type: string
           example: "2019-06-26T16:40:33.372829+07:00"
         send_time:
@@ -2899,13 +2899,3086 @@ components:
         id:
           type: number
           example: 1
-        created_time:
+        created_at:
           type: string
           example: "2019-06-26T16:40:33.372829+07:00"
-        updated_time:
+        updated_at:
           type: string
           example: "2019-06-26T16:40:33.372829+07:00"
-        deleted_time:
+        deleted_at:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+        borrower:
+          type: object
+          properties:
+            Int64:
+              type: number
+              example: 1
+              description: borrower id
+            Valid:
+              type: boolean
+              example: true
+        status:
+          type: string
+          example: "processing"
+        loan_amount:
+          type: number
+          example: 2000000
+        installment:
+          type: number
+          example: 12
+          description: in month
+        fees:
+          type: array
+          items:
+            $ref: '#/components/schemas/loanListDetailFees'
+        interest:
+          type: number
+          example: 1.5
+          description: in percent
+        total_loan:
+          type: number
+          example: 1
+        disburse_amount: 
+          type: number
+          example: 6000000
+        due_date:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+          description: date when loan must be paid in full.
+        layaway_plan:
+          type: number
+          example: 50000
+        product:
+          type: number
+          example: 2
+        loan_intention:
+          type: string
+          example: "Pendidikan"
+        intention_details:
+          type: string
+          example: "Pendidikan"
+        otp_verified: 
+          type: boolean
+          example: false
+        disburse_date:
+          type: string
+          example: "0001-01-01T00:00:00Z"
+        disburse_date_changed: 
+          type: boolean
+          example: false
+        disburse_status: 
+          type: string
+          example: "processing"
+        reject_reason:
+          type: string
+          example: ""
+        borrower_info:
+          type: array
+          items:
+            $ref: '#/components/schemas/registerAgentRequest'
+    loanListDetailFees:
+      type: object
+      properties:
+        description:
+          type: string
+          example: "Convenience Fee"
+        amount:
+          type: string
+          example: "120000.000000"
+    fcmtokenRequest:
+      type: object
+      properties:
+        fcm_token:
+          type: string
+          example: "d81fs3tuvVg:APA91bF-gvcqwhpmchDK1ERzKEof42k2dzlIcR-jOwXiD4uyZwbAA9wKBD9T8nDzJHiWPT5xsZ1Ugy2dAqhLUbCOxUpvzReM5O6UVCap1BF81rN_ZrT7oUmPRW4YlWSb4OxNGYxI0ItQ"
+    agentCheckBorrower:
+      type: object
+      properties:
+        idcard_number:
+          type: string
+          example: "543219876231"
+          description: required
+        taxid_number:
+          type: string
+          example: "1928374650"
+          description: not required
+        phone:
+          type: string
+          example: 081234567890
+          description: not required
+        email:
+          type: string
+          example: mail@domain.com
+          description: not required
+    loanApplication:
+      type: object
+      properties:
+        loan_amount:
+          type: number
+          example: 20000000
+        installment:
+          type: number
+          example: 12
+          description: loan installment in month
+        loan_intention:
+          type: string
+          example: the intention
+        intention_details:
+          type: string
+          example: intention details
+        product:
+          type: number
+          example: 1
+    loanApplicationAgent:
+      type: object
+      properties:
+        borrower:
+          type: number
+          example: 2
+        loan_amount:
+          type: number
+          example: 20000000
+        installment:
+          type: number
+          example: 12
+          description: loan installment in month
+        loan_intention:
+          type: string
+          example: the intention
+        intention_details:
+          type: string
+          example: intention details
+        product:
+          type: number
+          example: 1
+    
+    loanOTPverify:
+      type: object
+      properties:
+        otp_code:
+          type: string
+          example: "888999"
+    otpRequest:
+      properties:
+        phone:
+          type: string
+          example: "081234567890"
+    otpVerifyRequest:
+      properties:
+        phone:
+          type: string
+          example: "081234567890"
+        otp_code:
+          type: string
+          example: 123456openapi: 3.0.0
+info:
+  version: '1.0.0'
+  title: 'Asira Borrower'
+  description: ''
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/Ayannah/Asira_Borrower/1.0.0
+  - description: Indonesia Asira dev
+    url: http://asira.ayannah.com/api-borrower
+tags:
+  - name: Client
+    description: client only endpoints
+paths:
+  /clientauth:
+    get:
+      summary: initial client login using base64 encoded client key and secret
+      parameters:
+        - $ref: '#/components/parameters/clienttoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/jwtResponse'
+        '401':
+          description: Unauthorized
+        '422':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /serviceinfo:
+    get:
+      tags:
+        - Client
+      summary: to check if asira is ready for use. asira will check its own stacks if its ready or not
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/serverReadyResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  
+  /client/check_unique:
+    get:
+      tags:
+        - Client
+      summary: Check variable value if its already used
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+        - in: query
+          name: email
+          schema:
+            type: string
+            example: mail@domain.com
+        - in: query
+          name: phone
+          schema:
+            type: string
+            example: "081234567890"
+        - in: query
+          name: idcard_number
+          schema:
+            type: string
+            example: "601234256253674326536"
+        - in: query
+          name: taxid_number
+          schema:
+            type: string
+            example: "129847891274"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OK
+        '401':
+          description: Unauthorized
+        '422':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/borrower_login:
+    post:
+      tags:
+        - Client
+      summary: login for borrower role. can use phone or email for the key
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/borrowerLoginRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/jwtResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/agent_login:
+    post:
+      tags:
+        - Client
+      summary: login for agent role. can use phone or email for the key
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/borrowerLoginRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/jwtResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /agent/banks:
+    get:
+      tags:
+        - Agent
+      summary: get current banks linked to agent
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedModel'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/bankListDetails'
+  /agent/borrowers/[bank_id]:
+    get:
+      tags:
+        - Agent
+      summary: get borrowers by id banks
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedModel'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/agentBorrowerDetailResponse'
+  /agent/borrower/[borrower_id]:
+    get:
+      tags:
+        - Agent
+      summary: get borrowers by id borrower
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/agentBorrowerDetailResponse'
+    patch:
+      tags:
+        - Agent
+      summary: edit borrowers by id borrower
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/patchAgentBorrowerRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/agentBorrowerDetailResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/NotFoundResponse'
+        '422':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /agent/profile:
+    get:
+      tags:
+        - Agent
+      summary: get current agent profile data
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/getAgentProfileResponse'
+    patch:
+      tags:
+        - Agent
+      summary: update current agent profile data
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/patchProfileAgent'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/getAgentProfileResponse'
+        '401':
+          description: Unauthorized
+          # content:
+          #   application/json:
+          #     schema:
+          #       type: object
+          #       allOf:
+          #         - $ref: '#/components/schemas/loanList'
+  /agent/loan:
+    get:
+      tags:
+        - Agent
+      summary: get current agent's borrower history. default is ordered by recent.
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+        - in: query
+          name: rows
+          schema:
+            type: integer
+            example: 2
+          description: how many data shown in one page
+        - in: query
+          name: page
+          schema:
+            type: string
+            example: 1
+          description: current open page
+        - in: query
+          name: orderby
+          schema:
+            type: string
+          description: order by
+        - in: query
+          name: sort
+          schema:
+            type: string
+            example: "asc"
+          description: sort ascending or descending
+        - in: query
+          name: status
+          schema:
+            type: string
+            example: rejected
+          description: search by loan status
+        - in: query
+          name: bank
+          schema:
+            type: integer
+            example: 1
+          description: search by loan status
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedModel'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/loanListDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Forbidden'
+        '500':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Agent
+      summary: request loan application from agent
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loanApplicationAgent'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/loanListDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Forbidden'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /agent/loan/[loan_id]/details:
+    get:
+      tags:
+        - Agent
+      summary: get loan detail by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/loanListDetail'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /agent/loan/[loan_id]/otp:
+    get:
+      tags:
+        - Agent
+      summary: otp request to verify loan
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '422':
+          description: Unprocessable Entity
+        '500':
+          description: Internal Server Error
+  /agent/loan/[loan_id]/verify:
+    post:
+      tags:
+        - Agent
+      summary: verify loan with otp code
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loanOTPverify'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '422':
+          description: Unprocessable Entity
+        '500':
+          description: Internal Server Error
+  /client/register_borrower:
+    post:
+      tags:
+        - Client
+      summary: Register borrower account
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/registerRequest'
+      description: >-
+        <p>requesting to borrower register endpoint.</p>
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/patchProfileResponse'
+        '401':
+          description: Unauthorized
+        '422':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /agent/checks_borrower:
+    post:
+      tags:
+        - Agent
+      summary: check is agent's borrower exist or not
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/agentCheckBorrower'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id_agent_borrower:
+                    type: number
+                    example: 1
+                    description: id agent's borrower
+                  status:
+                    type: boolean
+                    example: true
+        '401':
+          description: Unauthorized
+  /agent/bank_services:
+    get:
+      tags:
+        - Agent
+      summary: get bank services info for current Agent (JWT)
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+        - in: query
+          name: bank_id
+          schema:
+            type: integer
+            example: 2
+          description: bank id for query
+        - in: query
+          name: service_id
+          schema:
+            type: integer
+            example: 2
+          description: bank id for query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankServiceList'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  
+  /agent/bank_products:
+    get:
+      tags:
+        - Agent
+      summary: get bank products info for current Agent (JWT) - based on banks that agent owned
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+        - in: query
+          name: service_id
+          schema:
+            type: integer
+            example: 1
+          description: bank id for query
+        - in: query
+          name: product_id
+          schema:
+            type: integer
+            example: 1
+          description: bank id for query
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankProductList'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /agent/otp_verify/[borrower_id]:
+    post:
+      tags:
+        - Agent
+      summary: verify sms OTP to agent phone number for verify registered agent's borrower 
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/otpVerifyRequest'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/NotFoundResponse'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/NotFoundResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /agent/otp_request/[borrower_id]:
+    post:
+      tags:
+        - Agent
+      summary: Send sms OTP to agent phone number for verify registered agent's borrower 
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/otpRequest'
+      responses:
+        '200':
+          description: OTP Sent
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/NotFoundResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/NotFoundResponse'
+        '422':
+          description:  Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /agent/register_borrower:
+    post:
+      tags:
+        - Agent
+      summary: Register borrower account from agent
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/registerAgentRequest'
+      description: >-
+        <p>requesting to agent's borrower register endpoint.</p>
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/patchProfileResponse'
+        '401':
+          description: Unauthorized
+        '422':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/reset_password:
+    post:
+      tags:
+        - Client
+      summary: Check variable value if its already used
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+        - required: true
+          in: header
+          name: email
+          schema:
+            type: string
+            example: mail@domain.com
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Link reset password telah dikirim ke email, silahkan cek email anda
+                  status:
+                    type: boolean
+                    example: true
+        '404':
+          description: Unauthorized
+        '422':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/imagefile/[file_id]:
+    get:
+      tags:
+        - Client
+      summary: retrieve stored image file by file id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ImageBase64'
+        '401':
+          description: Unauthorized
+  /client/change_password:
+    post:
+      tags:
+        - Client
+      summary: change password
+      
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type : object
+              properties:
+                password :
+                  type : string
+                  example : password
+                
+                uuid :
+                  type : string
+                  example : 1a50b5da-a3a4-4e49-ba87-4c34195748a9
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OK
+        '401':
+          description: Unauthorized
+        '422':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/banks:
+    get:
+      tags:
+        - Client
+      summary: get all Banks info
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedModel'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/bankListDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/banks/[bank_id]:
+    get:
+      tags:
+        - Client
+      summary: get bank detail info by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankListDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/loan_purposes:
+    get:
+      tags:
+        - Client
+      summary: get loan purpose list
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+        - in: query
+          name: rows
+          schema:
+            type: integer
+            example: 2
+          description: how many data shown in one page
+        - in: query
+          name: page
+          schema:
+            type: string
+            example: 1
+          description: current open page
+        - in: query
+          name: orderby
+          schema:
+            type: string
+            example: id
+          description: order by
+        - in: query
+          name: sort
+          schema:
+            type: string
+            example: "asc"
+          description: sort ascending or descending
+        - in: query
+          name: name
+          schema:
+            type: string
+            example: Pendidikan
+          description: search by loan purpose name
+        - in: query
+          name: status
+          schema:
+            type: string
+            example: active
+          description: search by loan purpose status
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/loanPurposes'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/loan_purposes/[loan_purpose_id]:
+    get:
+      tags:
+        - Client
+      summary: get a loan purpose list by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/loanPurposeDetails'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/bank_services:
+    get:
+      tags:
+        - Client
+      summary: get bank services info 
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankServiceList'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankServiceList'
+  /client/bank_services/[bank_service_id]:
+    get:
+      tags:
+        - Client
+      summary: get bank type detail info by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankServiceDetails'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/bank_products:
+    get:
+      tags:
+        - Client
+      summary: get service product detail info by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+        - in: query
+          name: service_id
+          schema:
+            type: string
+            example: 1
+          description: current open page
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankProductList'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/bank_products/[product_id]:
+    get:
+      tags:
+        - Client
+      summary: get service product detail info by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankProductDetails'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+                  
+  /borrower/profile:
+    get:
+      tags:
+        - Borrower
+      summary: get current borrower profile datas
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/patchProfileResponse'
+    patch:
+      tags:
+        - Borrower
+      summary: edit current profile datas
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/patchProfileRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/patchProfileResponse'
+        '401':
+          description: Unauthorized
+        '422':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /borrower/fcm_token_update:
+    patch:
+      tags:
+        - Borrower Notifications
+      summary: update FCM (Firebase) token 
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/fcmtokenRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/FCMUpdateResponse'
+        '401':
+          description: Unauthorized
+          # content:
+          #   application/json:
+          #     schema:
+          #       type: object
+          #       allOf:
+          #         - $ref: '#/components/schemas/loanList'
+  /borrower/notifications:
+    get:
+      tags:
+        - Borrower Notifications 
+      summary: get current borrower's notification.
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+        - in: query
+          name: rows
+          schema:
+            type: integer
+            example: 2
+          description: how many data shown in one page
+        - in: query
+          name: page
+          schema:
+            type: string
+            example: 1
+          description: current open page
+        - in: query
+          name: orderby
+          schema:
+            type: string
+          description: order by
+        - in: query
+          name: sort
+          schema:
+            type: string
+            example: "asc"
+          description: sort ascending or descending
+        - in: query
+          name: title
+          schema:
+            type: string
+            example: Status Peminjaman
+          description: search by title message
+        - in: query
+          name: topic
+          schema:
+            type: string
+            example: Promosi
+          description: search by topic message
+        - in: query
+          name: send_time
+          schema:
+            type: string
+            example: "2019-06-26"
+          description: search by send time
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/notificationList'
+        '401':
+          description: Unauthorized
+  /borrower/loan:
+    get:
+      tags:
+        - Borrower
+      summary: get current borrower history. default is ordered by recent.
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+        - in: query
+          name: rows
+          schema:
+            type: integer
+            example: 2
+          description: how many data shown in one page
+        - in: query
+          name: page
+          schema:
+            type: string
+            example: 1
+          description: current open page
+        - in: query
+          name: orderby
+          schema:
+            type: string
+          description: order by
+        - in: query
+          name: sort
+          schema:
+            type: string
+            example: "asc"
+          description: sort ascending or descending
+        - in: query
+          name: status
+          schema:
+            type: string
+            example: rejected
+          description: search by loan status
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/loanList'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Forbidden'
+        '500':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+        - Borrower
+      summary: request loan application
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loanApplication'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/loanListDetail'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Forbidden'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /borrower/loan/[loan_id]/details:
+    get:
+      tags:
+        - Borrower
+      summary: get loan detail by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/loanListDetail'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /borrower/loan/[loan_id]/otp:
+    get:
+      tags:
+        - Borrower
+      summary: otp request to verify loan
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '422':
+          description: Unprocessable Entity
+        '500':
+          description: Internal Server Error
+  /borrower/loan/[loan_id]/verify:
+    post:
+      tags:
+        - Borrower
+      summary: verify loan with otp code
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/loanOTPverify'
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Unauthorized
+        '404':
+          description: Not Found
+        '422':
+          description: Unprocessable Entity
+        '500':
+          description: Internal Server Error
+  /borrower/bank_services:
+    get:
+      tags:
+        - Borrower
+      summary: get bank services info 
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankServiceList'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankServiceList'
+  /borrower/bank_services/[bank_service_id]:
+    get:
+      tags:
+        - Borrower
+      summary: get bank type detail info by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankServiceDetails'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /borrower/bank_products:
+    get:
+      tags:
+        - Borrower
+      summary: get service product detail info by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankProductList'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /borrower/bank_products/[product_id]:
+    get:
+      tags:
+        - Borrower
+      summary: get service product detail info by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/bankProductDetails'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  
+  /unverified_borrower/otp_request:
+    post:
+      tags:
+        - Unverified Borrower
+      summary: verify borrower using otp
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/otpRequest'
+      responses:
+        '200':
+          description: OTP Sent
+        '401':
+          description: Unauthorized
+  /unverified_borrower/otp_verify:
+    post:
+      tags:
+        - Unverified Borrower
+      summary: verify borrower using otp
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/otpVerifyRequest'
+      responses:
+        '200':
+          description: OTP Verified
+
+components:
+  parameters:
+    clienttoken:
+      required: true
+      in: header
+      name: Authorization
+      schema:
+        type: string
+      description: JWT bearer token basic auth
+      example: >-
+        Basic Yf983jf9we8f9jf9832jf3=
+    authtoken:
+      required: true
+      in: header
+      name: Authorization
+      schema:
+        type: string
+      description: JWT bearer token basic auth
+      example: >-
+        Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+  schemas:
+    jwtResponse:
+      properties:
+        expires_in:
+          type: number
+          example: 1200
+        token:
+          type: string
+          example: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuZHJva2V5IiwiaXNfaWfaweiufh2198eu9128jd98wjhdQxNjgsImp0aSI6ImFuZHJva2V5In0.gCPTFIe-GnE9pduQaCfOV8hGo5ttXOalE9Egrsjb9f832hw9eijhdw98jhDVxWa1u6cWfSxMrCReviekgkqflZdA
+    serverReadyResponse:
+      properties:
+        time:
+          type: string
+          example: "2019-12-18T21:09:27"
+        stacks:
+          type: boolean
+          example: true
+          
+    ErrorResponse:
+      type: object
+      properties:
+        details:
+          type: object
+        message:
+          type: string
+          example: this is your error message
+    NotFoundResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Not Found"
+    Unauthorized:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "invalid or expired jwt"
+    Forbidden:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "invalid role"
+    PagedModel:
+      properties:
+        total_data:
+          type: number
+          example: 25
+        rows:
+          type: number
+          example: 5
+        current_page:
+          type: number
+          example: 1
+        last_page:
+          type: number
+          example: 5
+        from:
+          type: number
+          example: 1
+        to:
+          type: number
+          example: 5
+    borrowerLoginRequest:
+      properties:
+        key:
+          type: string
+          example: 08123456789
+        password:
+          type: string
+          example: password
+    bankListDetails:
+      properties:
+        id:
+          type: number
+          example: 1
+        created_at:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+        updated_at:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+        deleted_at:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+        name:
+          type: string
+          example: Bank Satu
+        type:
+          type: string
+          example: BJB
+        address:
+          type: string
+          example: Jalan Apel No.11
+        province:
+          type: string
+          example: Jawa Barat
+        city:
+          type: string
+          example: Kab. Garut
+        adminfee_setup:
+          type: string
+          example: potong_plafon
+          enum:
+            - potong_plafon
+            - beban_plafon
+        convfee_setup:
+          type: string
+          example: potong_plafon
+          enum:
+            - potong_plafon
+            - beban_plafon
+        pic:
+          type: string
+          example: Liana
+        phone:
+          type: string
+          example: "0218898776"
+        services:
+          type: array
+          items:
+            type: number
+          example: [1, 2]
+        products:
+          type: array
+          items:
+            type: number
+          example: [1, 2]
+    loanPurposes:
+      type: object
+      properties:
+        total_data:
+          type: number
+          example: 3
+        rows:
+          type: number
+          example: 5
+        current_page:
+         type: number
+         example: 1
+        last_page:
+         type: number
+         example: 1
+        from:
+         type: number
+         example: 1
+        to:
+         type: number
+         example: 3
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/loanPurposeDetails'
+    loanPurposeDetails:
+      properties:
+        id:
+          type: number
+          example: 1
+        created_at:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+        updated_at:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+        deleted_at:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+        name:
+          type: string
+          example: Pendidikan
+        status:
+          type: string
+          example: active
+    ImageBase64:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        created_at:
+          type: string
+          example: "2019-08-27T15:43:29.879218+07:00"
+        updated_at:
+          type: string
+          example: "2019-08-27T15:43:29.879218+07:00"
+        image_string:
+          type: string
+          example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
+    getAgentProfileResponse:
+      type: object
+      properties:
+        id:
+          type: number
+          example: 1
+        created_at:
+          type: string
+          example: "2019-11-12T19:35:00.582163+07:00"
+        updated_at:
+          type: string
+          example: "2019-11-12T19:35:00.582163+07:00"
+        deleted_at:
+          type: string
+          example: "2019-11-12T19:35:00.582163+07:00"
+        name:
+          type: string
+          example: Agent K
+        username:
+          type: string
+          example: agentK
+        password:
+          type: string
+          example: uRUOtH1QJfpBGhYdxVbHFeKmxtbk4oFC6
+        email:
+          type: string
+          example: agentk@mib.com
+        phone:
+          type: string
+          example: 081234567890
+        category:
+          type: string
+          example: "agent"
+        agent_provider:
+          type: object
+          properties:
+            Int64:
+              type: number
+              example: 1
+              description: agent provider id
+            Valid:
+              type: boolean
+              example: true
+        image:
+          type: string
+          example: "https://bucket.host.com:8082/image-code.jpeg"
+        banks:
+          type: array
+          items:
+            type: number
+            example: [1,2]
+        status:
+          type: string
+          example: active
+        fcm_token:
+          type: string
+          example: "dCearoiau398238934ru8isadiajfk"
+        bank_names:
+          type: array
+          items:
+            type: string
+          example: ["Bank A", "Bank B"]
+    agentBorrowerDetailResponse:
+      type: object
+      properties:
+        fullname:
+          type: string
+          example: Benedict Cucumbatch
+        nickname:
+          type: string
+          example: Becum
+        gender:
+          type: string
+          example: M
+          enum:
+            - M
+            - F
+        idcard_number:
+          type: string
+          example: "543219876231"
+        idcard_image:
+          type: string
+          example: 1
+        taxid_number:
+          type: string
+          example: "1928374650"
+        taxid_image:
+          type: integer
+          example: 2
+        nationality:
+          type: string
+          example: WNI
+        email:
+          type: string
+          example: ben@avenger.com
+        birthday:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+          description: format yyyy-mm-ddThh:mm:ssZ
+        birthplace:
+          type: string
+          example: Cambridge
+        last_education:
+          type: string
+          example: Master
+        mother_name:
+          type: string
+          example: Eve
+        phone:
+          type: string
+          example: "081234567890"
+        marriage_status:
+          type: string
+          example: married
+        spouse_name:
+          type: string
+          example: Benny
+          description: nama pasangan
+        spouse_birthday:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+          description: format yyyy-mm-ddThh:mm:ssZ
+        spouse_lasteducation:
+          type: string
+          example: Master
+        dependants:
+          type: number
+          example: 3
+          description: tanggunan
+        address:
+          type: string
+          example: sesame st.
+        province:
+          type: string
+          example: le province
+        city:
+          type: string
+          example: el city
+        neighbour_association:
+          type: string
+          example: "001"
+          description: rukun tetangga
+        hamlets:
+          type: string
+          example: "002"
+          description: rukun warga
+        home_phonenumber:
+          type: string
+          example: "021234567"
+        subdistrict:
+          type: string
+          example: setiabudi
+          description: kecamatan
+        urban_village:
+          type: string
+          example: sukadamai
+          description: kelurahan
+        home_ownership:
+          type: string
+          example: private owned
+          description: status kepemilikan rumah
+        lived_for:
+          type: number
+          example: 24
+          description: in month
+        occupation:
+          type: string
+          example: magician
+        employee_id:
+          type: string
+          example: "4132"
+        employer_name:
+          type: string
+          example: stark industries
+        employer_address:
+          type: string
+          example: street that never was
+        department:
+          type: string
+          example: magics
+        been_workingfor:
+          type: number
+          example: 16
+          description: in month
+        direct_superiorname:
+          type: string
+          example: Tony Stark
+        employer_number:
+          type: string
+          example: "021987653"
+          description: employer office phone number
+        monthly_income:
+          type: number
+          example: 1000000
+          description: monthly
+        other_income:
+          type: number
+          example: 2000000
+          description: monthly
+        other_incomesource:
+          type: string
+          example: magic performance
+        field_of_work:
+          type: string
+          example: magics
+          enum:
+            - IT
+            - Human Resource
+            - Building Industries
+        related_personname:
+          type: string
+          example: Bella
+          description: other related person that not living in the same roof
+        related_relation:
+          type: string
+          example: friend
+        related_phonenumber:
+          type: string
+          example: "082345678912"
+        related_homenumber:
+          type: string
+          example: "02123456789"
+        related_address:
+          type: string
+          example: ""
+        bank:
+          type: number
+          description: asira bank id
+          example: 1
+        bank_accountnumber:
+          type: string
+          example: "056374817362738"
+        status:
+          type: string
+          example: "active"
+        nth_loans:
+          type: number
+          example: 2
+    patchProfileResponse:
+      type: object
+      properties:
+        fullname:
+          type: string
+          example: Benedict Cucumbatch
+        nickname:
+          type: string
+          example: Becum
+        gender:
+          type: string
+          example: M
+          enum:
+            - M
+            - F
+        idcard_number:
+          type: string
+          example: "543219876231"
+        idcard_image:
+          type: string
+          example: 1
+        taxid_number:
+          type: string
+          example: "1928374650"
+        taxid_image:
+          type: integer
+          example: 2
+        nationality:
+          type: string
+          example: WNI
+        email:
+          type: string
+          example: ben@avenger.com
+        birthday:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+          description: format yyyy-mm-ddThh:mm:ssZ
+        birthplace:
+          type: string
+          example: Cambridge
+        last_education:
+          type: string
+          example: Master
+        mother_name:
+          type: string
+          example: Eve
+        phone:
+          type: string
+          example: "081234567890"
+        marriage_status:
+          type: string
+          example: married
+        spouse_name:
+          type: string
+          example: Benny
+          description: nama pasangan
+        spouse_birthday:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+          description: format yyyy-mm-ddThh:mm:ssZ
+        spouse_lasteducation:
+          type: string
+          example: Master
+        dependants:
+          type: number
+          example: 3
+          description: tanggunan
+        address:
+          type: string
+          example: sesame st.
+        province:
+          type: string
+          example: le province
+        city:
+          type: string
+          example: el city
+        neighbour_association:
+          type: string
+          example: "001"
+          description: rukun tetangga
+        hamlets:
+          type: string
+          example: "002"
+          description: rukun warga
+        home_phonenumber:
+          type: string
+          example: "021234567"
+        subdistrict:
+          type: string
+          example: setiabudi
+          description: kecamatan
+        urban_village:
+          type: string
+          example: sukadamai
+          description: kelurahan
+        home_ownership:
+          type: string
+          example: private owned
+          description: status kepemilikan rumah
+        lived_for:
+          type: number
+          example: 24
+          description: in month
+        occupation:
+          type: string
+          example: magician
+        employee_id:
+          type: string
+          example: "4132"
+        employer_name:
+          type: string
+          example: stark industries
+        employer_address:
+          type: string
+          example: street that never was
+        department:
+          type: string
+          example: magics
+        been_workingfor:
+          type: number
+          example: 16
+          description: in month
+        direct_superiorname:
+          type: string
+          example: Tony Stark
+        employer_number:
+          type: string
+          example: "021987653"
+          description: employer office phone number
+        monthly_income:
+          type: number
+          example: 1000000
+          description: monthly
+        other_income:
+          type: number
+          example: 2000000
+          description: monthly
+        other_incomesource:
+          type: string
+          example: magic performance
+        field_of_work:
+          type: string
+          example: magics
+          enum:
+            - IT
+            - Human Resource
+            - Building Industries
+        related_personname:
+          type: string
+          example: Bella
+          description: other related person that not living in the same roof
+        related_relation:
+          type: string
+          example: friend
+        related_phonenumber:
+          type: string
+          example: "082345678912"
+        related_homenumber:
+          type: string
+          example: "02123456789"
+        related_address:
+          type: string
+          example: ""
+        bank:
+          type: number
+          description: asira bank id
+          example: 1
+        bank_accountnumber:
+          type: string
+          example: "056374817362738"
+        password:
+          type: string
+          example: iamgroot
+    registerAgentRequest:
+      properties:
+        fullname:
+          type: string
+          example: Benedict Cucumbatch
+        nickname:
+          type: string
+          example: BeCu
+        gender:
+          type: string
+          example: M
+          enum:
+            - M
+            - F
+        image:
+          type: string
+          example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
+        idcard_number:
+          type: string
+          example: "543219876231"
+        idcard_image:
+          type: string
+          example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
+        taxid_number:
+          type: string
+          example: "1928374650"
+        taxid_image:
+          type: string
+          example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
+        nationality:
+          type: string
+          example: WNI
+        email:
+          type: string
+          example: ben@avenger.com
+        birthday:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+          description: format yyyy-mm-ddThh:mm:ssZ
+        birthplace:
+          type: string
+          example: Cambridge
+        last_education:
+          type: string
+          example: Master
+        mother_name:
+          type: string
+          example: Eve
+        phone:
+          type: string
+          example: "081234567890"
+        marriage_status:
+          type: string
+          example: married
+        spouse_name:
+          type: string
+          example: Benny
+          description: nama pasangan
+        spouse_birthday:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+          description: format yyyy-mm-ddThh:mm:ssZ
+        spouse_lasteducation:
+          type: string
+          example: Master
+        dependants:
+          type: number
+          example: 3
+          description: tanggunan
+        address:
+          type: string
+          example: sesame st.
+        province:
+          type: string
+          example: le province
+        city:
+          type: string
+          example: el city
+        neighbour_association:
+          type: string
+          example: "001"
+          description: rukun tetangga
+        hamlets:
+          type: string
+          example: "002"
+          description: rukun warga
+        home_phonenumber:
+          type: string
+          example: "021234567"
+        subdistrict:
+          type: string
+          example: setiabudi
+          description: kecamatan
+        urban_village:
+          type: string
+          example: sukadamai
+          description: kelurahan
+        home_ownership:
+          type: string
+          example: private owned
+          description: status kepemilikan rumah
+        lived_for:
+          type: number
+          example: 24
+          description: in month
+        occupation:
+          type: string
+          example: magician
+        employee_id:
+          type: string
+          example: "4132"
+        employer_name:
+          type: string
+          example: stark industries
+        employer_address:
+          type: string
+          example: street that never was
+        department:
+          type: string
+          example: magics
+        been_workingfor:
+          type: number
+          example: 16
+          description: in month
+        direct_superiorname:
+          type: string
+          example: Tony Stark
+        employer_number:
+          type: string
+          example: "021987653"
+          description: employer office phone number
+        monthly_income:
+          type: number
+          example: 8000000
+          description: monthly
+        other_income:
+          type: number
+          example: 2000000
+          description: monthly
+        other_incomesource:
+          type: string
+          example: magic performance
+        field_of_work:
+          type: string
+          example: magics
+          enum:
+            - IT
+            - Human Resource
+            - Building Industries
+        related_personname:
+          type: string
+          example: Bella
+          description: other related person that not living in the same roof
+        related_relation:
+          type: string
+          example: friend
+        related_phonenumber:
+          type: string
+          example: "082345678912"
+        related_homenumber:
+          type: string
+          example: "02123456789"
+        related_address:
+          type: string
+          example: bellas address
+        bank:
+          type: number
+          description: asira bank id
+          example: 1
+        bank_accountnumber:
+          type: string
+          example: "056374817362738"
+      required: 
+        - fullname
+        - gender
+        - idcard_number
+        - email
+        - birthday
+        - birthplace
+        - last_education
+        - mother_name
+        - phone
+        - marriage_status
+        - dependants
+        - address
+        - province
+        - city
+        - neighbour_association
+        - hamlets
+        - subdistrict
+        - urban_village
+        - home_ownership
+        - lived_for
+        - occupation
+        - employer_name
+        - employer_address
+        - department
+        - been_workingfor
+        - employer_number
+        - monthly_income
+        - field_of_work
+        - related_personname
+        - related_relation
+        - related_phonenumber
+        - password
+    registerRequest:
+      properties:
+        fullname:
+          type: string
+          example: Benedict Cucumbatch
+        nickname:
+          type: string
+          example: Becum
+        gender:
+          type: string
+          example: M
+          enum:
+            - M
+            - F
+        idcard_number:
+          type: string
+          example: "543219876231"
+        idcard_image:
+          type: string
+          example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
+        taxid_number:
+          type: string
+          example: "1928374650"
+        taxid_image:
+          type: string
+          example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
+        nationality:
+          type: string
+          example: WNI
+        email:
+          type: string
+          example: ben@avenger.com
+        birthday:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+          description: format yyyy-mm-ddThh:mm:ssZ
+        birthplace:
+          type: string
+          example: Cambridge
+        last_education:
+          type: string
+          example: Master
+        mother_name:
+          type: string
+          example: Eve
+        phone:
+          type: string
+          example: "081234567890"
+        marriage_status:
+          type: string
+          example: married
+        spouse_name:
+          type: string
+          example: Benny
+          description: nama pasangan
+        spouse_birthday:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+          description: format yyyy-mm-ddThh:mm:ssZ
+        spouse_lasteducation:
+          type: string
+          example: Master
+        dependants:
+          type: number
+          example: 3
+          description: tanggunan
+        address:
+          type: string
+          example: sesame st.
+        province:
+          type: string
+          example: le province
+        city:
+          type: string
+          example: el city
+        neighbour_association:
+          type: string
+          example: "001"
+          description: rukun tetangga
+        hamlets:
+          type: string
+          example: "002"
+          description: rukun warga
+        home_phonenumber:
+          type: string
+          example: "021234567"
+        subdistrict:
+          type: string
+          example: setiabudi
+          description: kecamatan
+        urban_village:
+          type: string
+          example: sukadamai
+          description: kelurahan
+        home_ownership:
+          type: string
+          example: private owned
+          description: status kepemilikan rumah
+        lived_for:
+          type: number
+          example: 24
+          description: in month
+        occupation:
+          type: string
+          example: magician
+        employee_id:
+          type: string
+          example: "4132"
+        employer_name:
+          type: string
+          example: stark industries
+        employer_address:
+          type: string
+          example: street that never was
+        department:
+          type: string
+          example: magics
+        been_workingfor:
+          type: number
+          example: 16
+          description: in month
+        direct_superiorname:
+          type: string
+          example: Tony Stark
+        employer_number:
+          type: string
+          example: "021987653"
+          description: employer office phone number
+        monthly_income:
+          type: number
+          example: 8000000
+          description: monthly
+        other_income:
+          type: number
+          example: 2000000
+          description: monthly
+        other_incomesource:
+          type: string
+          example: magic performance
+        field_of_work:
+          type: string
+          example: magics
+          enum:
+            - IT
+            - Human Resource
+            - Building Industries
+        related_personname:
+          type: string
+          example: Bella
+          description: other related person that not living in the same roof
+        related_relation:
+          type: string
+          example: friend
+        related_phonenumber:
+          type: string
+          example: "082345678912"
+        related_homenumber:
+          type: string
+          example: "02123456789"
+        related_address:
+          type: string
+          example: bellas address
+        bank:
+          type: number
+          description: asira bank id
+          example: 1
+        bank_accountnumber:
+          type: string
+          example: "056374817362738"
+        password:
+          type: string
+          example: iamgroot
+      required: 
+        - fullname
+        - gender
+        - idcard_number
+        - email
+        - birthday
+        - birthplace
+        - last_education
+        - mother_name
+        - phone
+        - marriage_status
+        - dependants
+        - address
+        - province
+        - city
+        - neighbour_association
+        - hamlets
+        - subdistrict
+        - urban_village
+        - home_ownership
+        - lived_for
+        - occupation
+        - employer_name
+        - employer_address
+        - department
+        - been_workingfor
+        - employer_number
+        - monthly_income
+        - field_of_work
+        - related_personname
+        - related_relation
+        - related_phonenumber
+        - password
+    bankServiceList:
+      type: object
+      properties:
+        total_data:
+          type: number
+          example: 3
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/bankServiceDetails'
+    bankServiceDetails:
+      required:
+        - name
+        - image
+        - status
+      properties:
+        id:
+          type: string
+          example: 1
+        created_at:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+        updated_at:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+        deleted_at:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+        name:
+          type: string
+          example: TSL
+        image_id:
+          type: number
+          example: 1
+        status:
+          type: string
+          example: active
+    bankProductList:
+      type: object
+      properties:
+        total_data:
+          type: number
+          example: 3
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/bankProductDetails'
+    bankProductDetails:
+      properties:
+        id:
+          type: number
+          example: 1
+        bank_service_id:
+          type: number
+          example: 1
+        name:
+          type: string
+          example: Product A
+        min_timespan:
+          type: number
+          example: 6
+          description: in month
+        max_timespan:
+          type: number
+          example: 12
+          description: in month
+        interest:
+          type: number
+          example: 7
+          description: in percent
+        min_loan:
+          type: number
+          example: 5000000
+        max_loan:
+          type: number
+          example: 50000000
+        fees:
+          type: array
+          example: [{
+            "description": "Admin Fee",
+            "amount": "2500"
+          }]
+          description: amount can be a fixed amount or percent
+        collaterals:
+          type: array
+          example:
+            - Sertifikat Tanah
+            - Sertifikat Rumah
+            - Kios/Lapak
+            - Deposito
+            - BPKB Kendaraan
+        financing_sector:
+          type: array
+          example:
+            - Pendidikan
+            - Konsumtif
+        assurance:
+          type: string
+          example: Jamkrindo
+        status:
+          type: string
+          example: active
+    patchProfileRequest:
+      type: object
+      properties:
+        monthly_income:
+          type: number
+          example: 1000000
+    patchAgentBorrowerRequest:
+      type: object
+      properties:
+        monthly_income:
+          type: number
+          example: 5000000
+        other_income:
+          type: number
+          example: 2000000
+        other_incomesource:
+          type: string
+          example: "Driver"
+    patchProfileAgent:
+      type: object
+      properties:
+        email:
+          type: string
+          example: "agentJ@mail.com"
+        phone:
+          type: string
+          example: "081234567890"
+        banks:
+          type: array
+          items:
+            type : integer
+            example : [1, 2]      
+        image:
+          type: string
+          example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
+        
+    FCMUpdateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: FCM Token updated
+        rows:
+          type: boolean
+          example: true
+    notificationList:
+      type: object
+      properties:
+        total_data:
+          type: number
+          example: 3
+        rows:
+          type: number
+          example: 5
+        current_page:
+         type: number
+         example: 1
+        last_page:
+         type: number
+         example: 1
+        from:
+         type: number
+         example: 1
+        to:
+         type: number
+         example: 3
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/notificationListDetail'
+    loanList:
+      type: object
+      properties:
+        total_data:
+          type: number
+          example: 3
+        rows:
+          type: number
+          example: 5
+        current_page:
+         type: number
+         example: 1
+        last_page:
+         type: number
+         example: 1
+        from:
+         type: number
+         example: 1
+        to:
+         type: number
+         example: 3
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/loanListDetail'
+    notificationListDetail:
+      properties:
+        id:
+          type: number
+          example: 1
+        client_id:
+          type: number
+          example: 2
+        created_at:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+        firebase_token:
+          type: string
+          example: "dtRiFA0U7tE:APA91bGURmGuJLLD0Y_PdhHvFj3haiq8jj8haAfaw94yH0j-Jj6TiGM4wzRHmoLUhihlXKLUF7iFAsAalXzrUVLEVbbtK57_wVYCu2jhameVoG13rc1HgIM6xanEMlApnuwSmURdcdz1"
+        title:
+          type: string
+          example: "Status Peminjaman Anda"
+        topic:
+          type: string
+          example: "promosi"
+        message_body:
+          type: string
+          example: "Loan id 1 diterima oleh Bank A 2019-11-06"
+        recipient_id:
+          type: string
+          example: "borrower-1"
+        response:
+          type: string
+          example: "projects/asira-app-33ed7/messages/0:1573131084523969%2056f65bf9fd7ecd"
+        updated_at:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+        send_time:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+    loanListDetail:
+      properties:
+        id:
+          type: number
+          example: 1
+        created_at:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+        updated_at:
+          type: string
+          example: "2019-06-26T16:40:33.372829+07:00"
+        deleted_at:
           type: string
           example: "2019-06-26T16:40:33.372829+07:00"
         borrower:
