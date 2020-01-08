@@ -1,16 +1,13 @@
 package models
 
 import (
-	"time"
-
 	"github.com/ayannahindonesia/basemodel"
 )
 
 type LoanPurpose struct {
 	basemodel.BaseModel
-	DeletedTime time.Time `json:"deleted_time" gorm:"column:deleted_time"`
-	Name        string    `json:"name" gorm:"column:name"`
-	Status      string    `json:"status" gorm:"column:status"`
+	Name   string `json:"name" gorm:"column:name"`
+	Status string `json:"status" gorm:"column:status"`
 }
 
 func (l *LoanPurpose) Create() (err error) {
@@ -24,9 +21,7 @@ func (l *LoanPurpose) Save() (err error) {
 }
 
 func (l *LoanPurpose) Delete() (err error) {
-	l.DeletedTime = time.Now()
-	err = basemodel.Save(&l)
-
+	err = basemodel.Delete(&l)
 	return err
 }
 

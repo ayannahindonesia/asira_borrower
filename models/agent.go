@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/ayannahindonesia/basemodel"
 	"github.com/lib/pq"
@@ -11,7 +10,6 @@ import (
 // Agent main type
 type Agent struct {
 	basemodel.BaseModel
-	DeletedTime   time.Time     `json:"deleted_time" gorm:"column:deleted_time"`
 	Name          string        `json:"name" gorm:"column:name"`
 	Username      string        `json:"username" gorm:"column:username"`
 	Password      string        `json:"password" gorm:"column:password"`

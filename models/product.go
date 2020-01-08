@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"github.com/ayannahindonesia/basemodel"
 	"github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/lib/pq"
@@ -11,7 +9,6 @@ import (
 type (
 	Product struct {
 		basemodel.BaseModel
-		DeletedTime     time.Time      `json:"deleted_time" gorm:"column:deleted_time"`
 		Name            string         `json:"name" gorm:"column:name;type:varchar(255)"`
 		ServiceID       uint64         `json:"service_id" gorm:"column:service_id`
 		MinTimeSpan     int            `json:"min_timespan" gorm:"column:min_timespan"`

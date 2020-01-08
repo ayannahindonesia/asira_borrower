@@ -1,18 +1,15 @@
 package models
 
 import (
-	"time"
-
 	"github.com/ayannahindonesia/basemodel"
 )
 
 type (
 	Service struct {
 		basemodel.BaseModel
-		DeletedTime time.Time `json:"deleted_time" gorm:"column:deleted_time"`
-		Name        string    `json:"name" gorm:"column:name;type:varchar(255)"`
-		Image       string    `json:"image" gorm:"column:image"`
-		Status      string    `json:"status" gorm:"column:status;type:varchar(255)"`
+		Name   string `json:"name" gorm:"column:name;type:varchar(255)"`
+		Image  string `json:"image" gorm:"column:image"`
+		Status string `json:"status" gorm:"column:status;type:varchar(255)"`
 	}
 )
 

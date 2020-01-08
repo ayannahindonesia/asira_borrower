@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"github.com/ayannahindonesia/basemodel"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -10,10 +8,9 @@ import (
 //User model for table users
 type User struct {
 	basemodel.BaseModel
-	DeletedTime time.Time `json:"deleted_time" gorm:"column:deleted_time"`
-	Borrower    uint64    `json:"borrower" gorm:"column:borrower"`
-	Password    string    `json:"password" gorm:"column:password"`
-	FCMToken    string    `json:"fcm_token" gorm:"column:fcm_token;type:varchar(255)"`
+	Borrower uint64 `json:"borrower" gorm:"column:borrower"`
+	Password string `json:"password" gorm:"column:password"`
+	FCMToken string `json:"fcm_token" gorm:"column:fcm_token;type:varchar(255)"`
 }
 
 // BeforeCreate gorm callback
