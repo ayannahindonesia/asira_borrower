@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"time"
 
 	"github.com/ayannahindonesia/basemodel"
 	"github.com/lib/pq"
@@ -11,7 +10,6 @@ import (
 // Agent main type
 type Agent struct {
 	basemodel.BaseModel
-	DeletedTime   time.Time     `json:"deleted_time" gorm:"column:deleted_time"`
 	Name          string        `json:"name" gorm:"column:name"`
 	Username      string        `json:"username" gorm:"column:username"`
 	Password      string        `json:"password" gorm:"column:password"`
@@ -57,7 +55,7 @@ func (model *Agent) Delete() error {
 }
 
 // FindbyID find agent with id
-func (model *Agent) FindbyID(id int) error {
+func (model *Agent) FindbyID(id uint64) error {
 	err := basemodel.FindbyID(&model, id)
 	return err
 }
@@ -79,7 +77,7 @@ func (model *Agent) PagedFilterSearch(page int, rows int, order []string, sort [
 // checkBorrowerID search using filter and return last
 func (model *Agent) CheckBorrowerOwnedByAgent(borrowerID uint64) bool {
 	borrowerModel := Borrower{}
-	err := borrowerModel.FindbyID(int(borrowerID))
+	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return false
 	}

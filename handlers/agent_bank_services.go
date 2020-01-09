@@ -28,7 +28,7 @@ func AgentBankService(c echo.Context) error {
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	agentModel := models.Agent{}
-	agentID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 	err := agentModel.FindbyID(agentID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun agen tidak ditemukan")
@@ -49,14 +49,14 @@ func AgentBankService(c echo.Context) error {
 	var count int
 
 	//build query
-	objDB := db.Table("services s").
+	objDB := db.Table("services").
 		Select("*").
-		Where("s.id IN (SELECT UNNEST(services) FROM banks b WHERE b.id = ?)", bankID)
+		Where("services.id IN (SELECT UNNEST(services) FROM banks b WHERE b.id = ?)", bankID)
 
 	//bila serviceID di set berarti mengarah ke detail ID
 	if serviceID > 0 {
 		// bankServices := models.Service{}
-		objDB = objDB.Where("s.id = ?", serviceID)
+		objDB = objDB.Where("services.id = ?", serviceID)
 	}
 
 	err = objDB.Find(&results).Count(&count).Error

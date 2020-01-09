@@ -18,7 +18,7 @@
   version = "v1.5.1"
 
 [[projects]]
-  digest = "1:9a473f05637a8b730326f21902866f3c1d50dee7cdcbd7e7c434f8d363d9a5c0"
+  digest = "1:4f0e337ef89ae8e0a3cd9d53ae5ba613d74047a6e09ddbbdeec5a9a2e23e2ca2"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -47,6 +47,7 @@
     "internal/sdkrand",
     "internal/sdkuri",
     "internal/shareddefaults",
+    "internal/strings",
     "private/protocol",
     "private/protocol/eventstream",
     "private/protocol/eventstream/eventstreamapi",
@@ -62,16 +63,16 @@
     "service/sts/stsiface",
   ]
   pruneopts = ""
-  revision = "b4f52c45248fcab90c27f5509504b840ca2fcf10"
-  version = "v1.26.2"
+  revision = "2fa828ed93ccc746b97509ba21309c4035f22009"
+  version = "v1.27.2"
 
 [[projects]]
-  branch = "master"
-  digest = "1:d9307affab378b1e21489c92b2aea39ff5c8d954ea59080fdf62dc056b21968a"
+  branch = "use-gorm-model"
+  digest = "1:d40a8ca5c131ecde6e4124e3a00f2df6fbe28a80049ff281119a9ff0a58d0d59"
   name = "github.com/ayannahindonesia/basemodel"
   packages = ["."]
   pruneopts = ""
-  revision = "35f9d88ff955c1d2094ec7ca337fbe8b565c0fa1"
+  revision = "ce2b4096181bbebb3ab703eeaef1f510c3528284"
   source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@github.com/ayannahindonesia/basemodel.git"
 
 [[projects]]
@@ -139,12 +140,12 @@
   version = "v2.0.2"
 
 [[projects]]
-  digest = "1:e692d16fdfbddb94e9e4886aaf6c08bdbae5cb4ac80651445de9181b371c6e46"
+  digest = "1:a67f9275b42e8bb95ba38f705062175ef65538bcdc107e0771763e6cde80c3c3"
   name = "github.com/go-sql-driver/mysql"
   packages = ["."]
   pruneopts = ""
-  revision = "72cd26f257d44c1114970e19afddcd812016007e"
-  version = "v1.4.1"
+  revision = "17ef3dd9d98b69acec3e85878995ada9533a9370"
+  version = "v1.5.0"
 
 [[projects]]
   digest = "1:6a6322a15aa8e99bd156fbba0aae4e5d67b4bb05251d860b348a45dfdcba9cce"
@@ -233,7 +234,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:9e6061d60fb018cec58795a2e645c6012312f8e7db1efaf7db25df5cbf3f7a2e"
+  digest = "1:282afc5172b5e118c47d7c61b054dfec00e69d137912f9f7b636a045cd4adb80"
   name = "github.com/jinzhu/gorm"
   packages = [
     ".",
@@ -241,8 +242,8 @@
     "dialects/postgres",
   ]
   pruneopts = ""
-  revision = "81c17a7e2529c59efc4e74c5b32c1fb71fb12fa2"
-  version = "v1.9.11"
+  revision = "79a77d771dee4e4b60e9c543e8663bbc80466670"
+  version = "v1.9.12"
 
 [[projects]]
   digest = "1:a7b97371fb9af808b6a4fcc6693276ef7869bb1f282c3c87038c6c7e74ef4ae6"
@@ -260,7 +261,7 @@
   revision = "c2b33e84"
 
 [[projects]]
-  digest = "1:ab8acd94521ee4663cc29d8940640d4b6c30265623fbd0999a2794692e4fda82"
+  digest = "1:d272cdad9f7f080d8d39fcd7521740b0b2cc2fb8f91ceeaee230b67b0e1efae1"
   name = "github.com/klauspost/compress"
   packages = [
     "flate",
@@ -273,8 +274,8 @@
     "zstd/internal/xxhash",
   ]
   pruneopts = ""
-  revision = "438db640fd672278e44bb9bec0b979358e7e9c76"
-  version = "v1.9.4"
+  revision = "f61bac3a179b270c811148ce2a1f819dfc82825f"
+  version = "v1.9.7"
 
 [[projects]]
   digest = "1:4beb546223497fdc767dd15f2f48e271598817cecda2beaf2ad7bf43282d5bf7"
@@ -301,7 +302,7 @@
   version = "v0.3.0"
 
 [[projects]]
-  digest = "1:f4216047c24ab66fb757045febd7dac4edc6f4ad9f6c0063d0755d654d04f25e"
+  digest = "1:b424ab60bdff8b8899fa0b27c9b35083f2607fbbaa7b6430617c53ca4501d286"
   name = "github.com/lib/pq"
   packages = [
     ".",
@@ -310,8 +311,8 @@
     "scram",
   ]
   pruneopts = ""
-  revision = "3427c32cb71afc948325f299f040e53c1dd78979"
-  version = "v1.2.0"
+  revision = "99274577be97ac9b1d95a2d61d566dc9b7cc6a54"
+  version = "v1.3.0"
 
 [[projects]]
   digest = "1:ae39921edb7f801f7ce1b6b5484f9715a1dd2b52cb645daef095cd10fd6ee774"
@@ -397,12 +398,12 @@
   revision = "cac0b30c2563378d434b5af411844adff8e32960"
 
 [[projects]]
-  digest = "1:3962f553b77bf6c03fc07cd687a22dd3b00fe11aa14d31194f5505f5bb65cdc8"
+  digest = "1:f6f53c0657325168d1ee4b3b2cc87ec071c1c6edcef45f14d44be43d299a326a"
   name = "github.com/sergi/go-diff"
   packages = ["diffmatchpatch"]
   pruneopts = ""
-  revision = "1744e2970ca51c86172c8190fadad617561ed6e7"
-  version = "v1.0.0"
+  revision = "58c5cb1602ee9676b5d3590d782bedde80706fcc"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:956f655c87b7255c6b1ae6c203ebb0af98cf2a13ef2507e34c9bf1c0332ac0f5"
@@ -416,12 +417,12 @@
   version = "v1.2.2"
 
 [[projects]]
-  digest = "1:ae3493c780092be9d576a1f746ab967293ec165e8473425631f06658b6212afc"
+  digest = "1:0a3d8f7dc17afdc30a5a5becb45fb91ff28aaa64645c69836ccd600d88e9ed9e"
   name = "github.com/spf13/cast"
   packages = ["."]
   pruneopts = ""
-  revision = "8c9545af88b134710ab1cd196795e7f2388358d7"
-  version = "v1.3.0"
+  revision = "1ffadf551085444af981432dd0f6d1160c11ec64"
+  version = "v1.3.1"
 
 [[projects]]
   digest = "1:cc15ae4fbdb02ce31f3392361a70ac041f4f02e0485de8ffac92bd8033e3d26e"
@@ -563,7 +564,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0c8c3d0b028d56a91683bae1bd8a18cc672bb00eaf5797ee129916a61505128f"
+  digest = "1:623570fddb99ef064b125c7bf3161f14aba21fdb787896b6c5070d34187c86f8"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
@@ -574,7 +575,7 @@
     "pbkdf2",
   ]
   pruneopts = ""
-  revision = "e9b2fee46413994441b28dfca259d911d963dfed"
+  revision = "53104e6ec876ad4e22ad27cce588b01392043c1b"
 
 [[projects]]
   branch = "master"
@@ -591,11 +592,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e41b436f0e1f102888fb00cbfc148526db803468f17cc72b28a8c11337dd86d8"
+  digest = "1:ca984d839d46cda7860ac472476ef53423d8be07f19822f59a7c575127f995be"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "ac6580df4449443a05718fd7858c1f91ad5f8d20"
+  revision = "548cf772de5052aa878ccb47cdeb7d262b75c8ec"
 
 [[projects]]
   digest = "1:740b51a55815493a8d0f2b1e0d0ae48fe48953bf7eaf3fcc4198823bf67768c0"
@@ -623,14 +624,6 @@
   version = "v0.3.2"
 
 [[projects]]
-  digest = "1:c4404231035fad619a12f82ae3f0f8f9edc1cc7f34e7edad7a28ccac5336cc96"
-  name = "google.golang.org/appengine"
-  packages = ["cloudsql"]
-  pruneopts = ""
-  revision = "971852bfffca25b069c31162ae8f247a3dba083b"
-  version = "v1.6.5"
-
-[[projects]]
   branch = "v3"
   digest = "1:fa33d1dde8ce5b0b37c38c767c250a7684ecd385f9dbabe594ea8543e4d55807"
   name = "gopkg.in/alexcesaro/quotedprintable.v3"
@@ -647,12 +640,12 @@
   version = "2.0.0"
 
 [[projects]]
-  digest = "1:b97a9fe409926ddb2f6a7a1f2b65476ba885e737a220a086554e00ecd7b530d8"
+  digest = "1:d68a26e5d4ba1d9213041aad76d2d6b6d68dba853ceb585235311bd86748e473"
   name = "gopkg.in/ini.v1"
   packages = ["."]
   pruneopts = ""
-  revision = "87e589f4917038ae250cff2446db7573f47e97ca"
-  version = "v1.51.0"
+  revision = "94291fffe2b14f4632ec0e67c1bfecfc1287a168"
+  version = "v1.51.1"
 
 [[projects]]
   digest = "1:4777ba481cc12866b89aafb0a67529e7ac48b9aea06a25f3737b2cf5a3ffda12"

@@ -17,7 +17,7 @@ func BorrowerBankService(c echo.Context) error {
 
 	borrowerModel := models.Borrower{}
 
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
@@ -47,7 +47,7 @@ func BorrowerBankServiceDetails(c echo.Context) error {
 	defer c.Request().Body.Close()
 	bServices := models.Service{}
 
-	serviceID, _ := strconv.Atoi(c.Param("service_id"))
+	serviceID, _ := strconv.ParseUint(c.Param("service_id"), 10, 64)
 	err := bServices.FindbyID(serviceID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Tidak Ditemukan")

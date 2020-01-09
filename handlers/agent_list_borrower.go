@@ -24,9 +24,9 @@ func AgentAllBorrower(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	agentID, err := strconv.ParseInt(claims["jti"].(string), 10, 64)
+	agentID, err := strconv.ParseUint(claims["jti"].(string), 10, 64)
 	var agent models.Agent
-	err = agent.FindbyID(int(agentID))
+	err = agent.FindbyID(agentID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
@@ -44,11 +44,11 @@ func AgentAllBorrower(c echo.Context) error {
 	var AgentBorrower models.Borrower
 	result, err := AgentBorrower.PagedFilterSearch(page, rows, order, sort, &Filter{
 		AgentReferral: sql.NullInt64{
-			Int64: agentID,
+			Int64: int64(agentID),
 			Valid: true,
 		},
 		Bank: sql.NullInt64{
-			Int64: bankID,
+			Int64: int64(bankID),
 			Valid: true,
 		},
 	})

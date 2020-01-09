@@ -43,7 +43,7 @@ func AgentLoanApply(c echo.Context) error {
 
 	//is valid agent
 	agent := models.Agent{}
-	err = agent.FindbyID(int(agentID))
+	err = agent.FindbyID(agentID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnauthorized, validate, "validation error : not valid agent")
 	}
@@ -103,11 +103,11 @@ func AgentLoanGet(c echo.Context) error {
 		offset = (page * rows) - rows
 	}
 
-	db = db.Table("loans l").
+	db = db.Table("loans").
 		Select("*, bp.name as product_name, bs.name as service_name").
-		Joins("INNER JOIN products bp ON bp.id = l.product").
+		Joins("INNER JOIN products bp ON bp.id = loans.product").
 		Joins("INNER JOIN services bs ON bs.id = bp.service_id").
-		Joins("INNER JOIN borrowers br ON br.id = l.borrower").
+		Joins("INNER JOIN borrowers br ON br.id = loans.borrower").
 		Joins("INNER JOIN agents ag ON ag.id = br.agent_referral")
 
 	//do join for banks
@@ -120,7 +120,7 @@ func AgentLoanGet(c echo.Context) error {
 	db = db.Where("ag.id = ?", agentID)
 
 	if status := c.QueryParam("status"); len(status) > 0 {
-		db = db.Where("l.status = ?", status)
+		db = db.Where("loans.status = ?", status)
 	}
 
 	if rows > 0 && offset > 0 {
@@ -157,7 +157,7 @@ func AgentLoanGetDetails(c echo.Context) error {
 
 	//cek loan
 	loan := models.Loan{}
-	loanID, err := strconv.Atoi(c.Param("loan_id"))
+	loanID, err := strconv.ParseUint(c.Param("loan_id"), 10, 64)
 	err = loan.FindbyID(loanID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
@@ -165,7 +165,7 @@ func AgentLoanGetDetails(c echo.Context) error {
 
 	//is valid agent
 	agent := models.Agent{}
-	err = agent.FindbyID(int(agentID))
+	err = agent.FindbyID(agentID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
 	}
@@ -190,7 +190,7 @@ func AgentLoanOTPrequest(c echo.Context) error {
 
 	//cek loan
 	loan := models.Loan{}
-	loanID, err := strconv.Atoi(c.Param("loan_id"))
+	loanID, err := strconv.ParseUint(c.Param("loan_id"), 10, 64)
 	err = loan.FindbyID(loanID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
@@ -198,7 +198,7 @@ func AgentLoanOTPrequest(c echo.Context) error {
 
 	//is valid agent
 	agent := models.Agent{}
-	err = agent.FindbyID(int(agentID))
+	err = agent.FindbyID(agentID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
 	}
@@ -211,7 +211,7 @@ func AgentLoanOTPrequest(c echo.Context) error {
 
 	//get borrower (phone)
 	borrower := models.Borrower{}
-	err = borrower.FindbyID(int(loan.Borrower))
+	err = borrower.FindbyID(loan.Borrower)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error : not valid borrower")
 	}
@@ -248,11 +248,11 @@ func AgentLoanOTPverify(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	agentID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
 	//cek loan ID
 	loan := models.Loan{}
-	loanID, err := strconv.Atoi(c.Param("loan_id"))
+	loanID, err := strconv.ParseUint(c.Param("loan_id"), 10, 64)
 	err = loan.FindbyID(loanID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "loan id not valid")
@@ -260,7 +260,7 @@ func AgentLoanOTPverify(c echo.Context) error {
 
 	//is valid agent
 	agent := models.Agent{}
-	err = agent.FindbyID(int(agentID))
+	err = agent.FindbyID(agentID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
 	}
@@ -301,10 +301,10 @@ func validateAgentLoansProduct(l models.Loan, agentID uint64) (err error) {
 
 	db := asira.App.DB
 
-	err = db.Table("banks b").
+	err = db.Table("banks").
 		Select("p.id").
-		Joins("INNER JOIN agents ag ON b.id IN (SELECT UNNEST(ag.banks))").
-		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
+		Joins("INNER JOIN agents ag ON banks.id IN (SELECT UNNEST(ag.banks))").
+		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(banks.services))").
 		Joins("INNER JOIN products p ON p.service_id = s.id").
 		Where("p.id = ?", l.Product).
 		Where("ag.id = ?", agentID).Count(&count).Error

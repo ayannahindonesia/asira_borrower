@@ -22,7 +22,7 @@ func BorrowerProfile(c echo.Context) error {
 
 	borrowerModel := models.Borrower{}
 
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
@@ -41,7 +41,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 
 	borrowerModel := models.Borrower{}
 
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")

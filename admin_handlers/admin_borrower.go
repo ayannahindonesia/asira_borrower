@@ -42,7 +42,7 @@ func BorrowerGetDetails(c echo.Context) error {
 
 	borrowerModel := models.Borrower{}
 
-	borrowerID, _ := strconv.Atoi(c.Param("borrower_id"))
+	borrowerID, _ := strconv.ParseUint(c.Param("borrower_id"), 10, 64)
 	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "Borrower ID tidak ditemukan")

@@ -46,9 +46,9 @@ func AgentProfile(c echo.Context) error {
 
 	//set banks name
 	agentBank := AgentResponse{}
-	db := asira.App.DB.Table("agents ag").
-		Select("ag.*, (SELECT ARRAY_AGG(name) FROM banks WHERE id IN (SELECT UNNEST(ag.banks))) as bank_names").
-		Where("ag.id = ?", agentID)
+	db := asira.App.DB.Table("agents").
+		Select("agents.*, (SELECT ARRAY_AGG(name) FROM banks WHERE id IN (SELECT UNNEST(agents.banks))) as bank_names").
+		Where("agents.id = ?", agentID)
 
 	err = db.Find(&agentBank).Error
 	if err != nil {
@@ -69,7 +69,7 @@ func AgentProfileEdit(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	agentID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
 	//cek agent with custom field (name of banks)
 	agentModel := models.Agent{}
@@ -178,9 +178,9 @@ func AgentProfileEdit(c echo.Context) error {
 
 	//Refetching after update
 	var response AgentResponse
-	db := asira.App.DB.Table("agents ag").
-		Select("ag.*, (SELECT ARRAY_AGG(name) FROM banks WHERE id IN (SELECT UNNEST(ag.banks))) as bank_names").
-		Where("ag.id = ?", agentID)
+	db := asira.App.DB.Table("agents").
+		Select("agents.*, (SELECT ARRAY_AGG(name) FROM banks WHERE id IN (SELECT UNNEST(agents.banks))) as bank_names").
+		Where("agents.id = ?", agentID)
 	err = db.Find(&response).Error
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")

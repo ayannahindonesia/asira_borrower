@@ -25,18 +25,17 @@ func AgentBankProduct(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-
-	agentID, _ := strconv.Atoi(claims["jti"].(string))
+	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 	agentModels := models.Agent{}
 	err := agentModels.FindbyID(agentID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "agent tidak valid")
 	}
 
-	db = db.Table("banks b").
+	db = db.Table("banks").
 		Select("p.*").
-		Joins("INNER JOIN agents ag ON b.id IN (SELECT UNNEST(ag.banks))").
-		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
+		Joins("INNER JOIN agents ag ON banks.id IN (SELECT UNNEST(ag.banks))").
+		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(banks.services))").
 		Joins("INNER JOIN products p ON p.service_id = s.id ").
 		Where("ag.id = ?", agentID)
 

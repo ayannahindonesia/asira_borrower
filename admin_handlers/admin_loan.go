@@ -44,7 +44,7 @@ func LoanGetDetails(c echo.Context) error {
 
 	loanModel := models.Loan{}
 
-	loanID, _ := strconv.Atoi(c.Param("loan_id"))
+	loanID, _ := strconv.ParseUint(c.Param("loan_id"), 10, 64)
 	err := loanModel.FindbyID(loanID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "Loan ID tidak ditemukan")
