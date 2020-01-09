@@ -140,8 +140,8 @@ func AgentProfileEdit(c echo.Context) error {
 			FROM (
 			VALUES %s 
 			) AS t(id)
-			LEFT JOIN banks b on b.id = t.id
-			where b.id is null
+			LEFT JOIN banks b ON b.id = t.id
+			WHERE b.id IS NULL OR b.deleted_at IS NOT NULL
 			`, values)).Scan(&counter)
 		err = db.Error
 		fmt.Println("counter : ", counter.Counter)

@@ -37,7 +37,8 @@ func AgentBankProduct(c echo.Context) error {
 		Joins("INNER JOIN agents ag ON banks.id IN (SELECT UNNEST(ag.banks))").
 		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(banks.services))").
 		Joins("INNER JOIN products p ON p.service_id = s.id ").
-		Where("ag.id = ?", agentID)
+		Where("ag.id = ?", agentID).
+		Where(generateDeleteCheck("p"))
 
 	//query tambahan jika parameter terdefinisi
 	if serviceID := c.QueryParam("service_id"); len(serviceID) > 0 {

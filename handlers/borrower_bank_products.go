@@ -26,7 +26,8 @@ func BorrowerBankProduct(c echo.Context) error {
 		Joins("INNER JOIN borrowers bo ON bo.bank = banks.id").
 		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(banks.services))").
 		Joins("INNER JOIN products p ON p.service_id = s.id AND p.id IN (SELECT UNNEST(banks.products))").
-		Where("bo.id = ?", borrowerID)
+		Where("bo.id = ?", borrowerID).
+		Where(generateDeleteCheck("p"))
 
 	if serviceID := c.QueryParam("service_id"); len(serviceID) > 0 {
 		db = db.Where("s.id = ?", serviceID)
