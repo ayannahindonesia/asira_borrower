@@ -21,13 +21,12 @@ func BorrowerBankProduct(c echo.Context) error {
 	var results []models.Product
 	var count int
 
-	db = db.Table("banks").
-		Select("p.*").
-		Joins("INNER JOIN borrowers bo ON bo.bank = banks.id").
-		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(banks.services))").
-		Joins("INNER JOIN products p ON p.service_id = s.id AND p.id IN (SELECT UNNEST(banks.products))").
-		Where("bo.id = ?", borrowerID).
-		Where(generateDeleteCheck("p"))
+	db = db.Table("products").
+		Select("products.*").
+		Joins("INNER JOIN services s ON s.id = products.service_id").
+		Joins("INNER JOIN banks bnk ON s.id IN (SELECT UNNEST(bnk.services)) AND products.id IN (SELECT UNNEST(bnk.products))").
+		Joins("INNER JOIN borrowers bo ON bo.bank = bnk.id").
+		Where("bo.id = ?", borrowerID)
 
 	if serviceID := c.QueryParam("service_id"); len(serviceID) > 0 {
 		db = db.Where("s.id = ?", serviceID)
