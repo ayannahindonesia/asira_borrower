@@ -1,16 +1,14 @@
 package models
 
 import (
-	"time"
-
 	"github.com/ayannahindonesia/basemodel"
 )
 
 type (
 	BankType struct {
 		basemodel.BaseModel
-		Name        string    `json:"name" gorm:"name"`
-		Description string    `json:"description" gorm:"description"`
+		Name        string `json:"name" gorm:"name"`
+		Description string `json:"description" gorm:"description"`
 	}
 )
 
