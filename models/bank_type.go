@@ -9,7 +9,6 @@ import (
 type (
 	BankType struct {
 		basemodel.BaseModel
-		DeletedTime time.Time `json:"deleted_time" gorm:"column:deleted_time" sql:"DEFAULT:current_timestamp"`
 		Name        string    `json:"name" gorm:"name"`
 		Description string    `json:"description" gorm:"description"`
 	}
