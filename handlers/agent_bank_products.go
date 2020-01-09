@@ -33,11 +33,11 @@ func AgentBankProduct(c echo.Context) error {
 		return returnInvalidResponse(http.StatusForbidden, err, "agent tidak valid")
 	}
 
-	db = db.Table("banks b").
-		Select("p.*").
+	db = db.Table("products").
+		Select("products.*").
+		Joins("INNER JOIN services s ON s.id = products.service_id").
+		Joins("INNER JOIN banks b ON s.id IN (SELECT UNNEST(b.services))").
 		Joins("INNER JOIN agents ag ON b.id IN (SELECT UNNEST(ag.banks))").
-		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
-		Joins("INNER JOIN products p ON p.service_id = s.id ").
 		Where("ag.id = ?", agentID)
 
 	//query tambahan jika parameter terdefinisi
@@ -45,11 +45,11 @@ func AgentBankProduct(c echo.Context) error {
 		db = db.Where("s.id = ?", serviceID)
 	}
 	if productID := c.QueryParam("product_id"); len(productID) > 0 {
-		db = db.Where("p.id = ?", productID)
+		db = db.Where("products.id = ?", productID)
 	}
 
 	//harus di group by krn dr ag.banks lebih dari 1
-	db = db.Group("p.id")
+	db = db.Group("products.id")
 
 	err = db.Find(&results).Count(&count).Error
 	if err != nil || count == 0 {
