@@ -232,7 +232,9 @@ func AgentRegisterBorrower(c echo.Context) error {
 	var count int
 	db = db.Table("borrowers").
 		Select("*").
-		Where("idcard_number = ? AND agent_referral <> 0", register.IdCardNumber)
+		Where("idcard_number = ? AND agent_referral <> 0", register.IdCardNumber).
+		Where(generateDeleteCheck("borrowers"))
+
 	err = db.Count(&count).Error
 	if count >= 1 {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
