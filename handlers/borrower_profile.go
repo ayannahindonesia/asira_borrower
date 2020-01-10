@@ -50,9 +50,9 @@ func BorrowerProfileEdit(c echo.Context) error {
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{},
 		"gender":                []string{},
-		"idcard_number":         []string{"unique_edit:borrowers,idcard_number"},
-		"taxid_number":          []string{"unique_edit:borrowers,taxid_number"},
-		"email":                 []string{"email", "unique:borrowers,taxid_number"},
+		"idcard_number":         []string{},
+		"taxid_number":          []string{},
+		"email":                 []string{"email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{},
 		"last_education":        []string{},
@@ -98,6 +98,19 @@ func BorrowerProfileEdit(c echo.Context) error {
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
+
+	//cek unique for patching
+	var fields = map[string]string{
+		"phone":              borrowerModel.Phone,
+		"email":              borrowerModel.Email,
+		"taxid_number":       borrowerModel.TaxIDnumber,
+		"bank_accountnumber": borrowerModel.BankAccountNumber,
+	}
+	fieldsFound, err := checkUniqueFields(borrowerModel.IdCardNumber, fields)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+fieldsFound)
+	}
+
 	err = borrowerModel.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal Membuat Akun")
