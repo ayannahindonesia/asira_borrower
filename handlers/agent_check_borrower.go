@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"asira_borrower/models"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -12,16 +13,16 @@ import (
 
 type Response struct {
 	Status          bool     `json:"status"`
-	IDAgentBorrower int64    `json:"id_agent_borrower"`
+	IDAgentBorrower uint64   `json:"id_agent_borrower"`
 	Fields          []string `json:"fields"`
 }
 
 type Filter struct {
-	IdCardNumber string `json:"idcard_number" condition:"optional"`
-	TaxIDnumber  string `json:"taxid_number" condition:"optional"`
-	Phone        string `json:"phone" condition:"optional"`
-	Email        string `json:"email" condition:"optional"`
-	AgentReferral        string `json:"agent_referral" condition:"optional"`
+	IdCardNumber  string        `json:"idcard_number" condition:"optional"`
+	TaxIDnumber   string        `json:"taxid_number" condition:"optional"`
+	Phone         string        `json:"phone" condition:"optional"`
+	Email         string        `json:"email" condition:"optional"`
+	AgentReferral sql.NullInt64 `json:"agent_referral" condition:"optional"`
 }
 
 type Payload struct {
@@ -57,7 +58,7 @@ func AgentCheckBorrower(c echo.Context) error {
 		AgentReferral: sql.NullInt64{
 			Int64: 0,
 			Valid: true,
-		}
+		},
 	})
 
 	//if not exist yet
@@ -70,9 +71,29 @@ func AgentCheckBorrower(c echo.Context) error {
 	}
 	//if exist
 	existed := existingFields(agentBorrower, payloadFilter)
+
+	//set
+	id := agentBorrower.ID
+	status := true
+
+	//if fields duplicate not found for agent's borrower (AgentReferral != 0)
+	if len(existed) == 0 {
+		id = 0
+		status = false
+
+		//else if..error existed but AgentReferral == 0 (personal)
+	} else if agentBorrower.AgentReferral.Int64 == 0 {
+
+		//if found duplicate (existed) but just 1, that is IdCardNumber then skip
+		if len(existed) == 1 && existed[0] == "IdCardNumber" {
+			id = 0
+			status = false
+			existed = nil
+		}
+	}
 	return c.JSON(http.StatusOK, &Response{
-		IDAgentBorrower: int64(agentBorrower.ID),
-		Status:          true,
+		IDAgentBorrower: id,
+		Status:          status,
 		Fields:          existed,
 	})
 }
