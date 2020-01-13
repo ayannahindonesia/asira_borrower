@@ -35,6 +35,13 @@ var EnglishToIndonesiaFields map[string]string = map[string]string{
 	"TaxIDnumber":  "NPWP",
 }
 
+var EnglishToIndonesiaFieldsUnderscored map[string]string = map[string]string{
+	"phone":         "Nomor Telpon",
+	"idcard_number": "KTP",
+	"email":         "Email",
+	"taxid_number":  "NPWP",
+}
+
 // general function to validate all kind of api request payload / body
 func validateRequestPayload(c echo.Context, rules govalidator.MapData, data interface{}) (i interface{}) {
 	opts := govalidator.Options{
@@ -156,7 +163,12 @@ func checkUniqueFields(idcardNumber string, uniques map[string]string) (string, 
 		err = db.Count(&count).Error
 		fmt.Println("check err & count ", err, count)
 		if err != nil || count > 0 {
-			fieldsFound += key + ", "
+			word, ok := EnglishToIndonesiaFieldsUnderscored[key]
+			if !ok {
+				fmt.Println(err)
+				word = key
+			}
+			fieldsFound += word + ", "
 		}
 	}
 	if fieldsFound != "" {
@@ -188,7 +200,7 @@ func checkPatchFields(tableName string, fieldID string, id uint64, uniques map[s
 		//query count
 		err = db.Count(&count).Error
 		if err != nil || count > 0 {
-			word, ok := EnglishToIndonesiaFields[key]
+			word, ok := EnglishToIndonesiaFieldsUnderscored[key]
 			if !ok {
 				fmt.Println(err)
 				word = key
