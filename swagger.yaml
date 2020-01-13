@@ -45,7 +45,7 @@ paths:
                 type: object
                 allOf:
                   - $ref: '#/components/schemas/ErrorResponse'
-  /serviceinfo:
+  /client/serviceinfo:
     get:
       tags:
         - Client
@@ -1621,6 +1621,25 @@ paths:
           description: OTP Sent
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Forbidden'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
   /unverified_borrower/otp_verify:
     post:
       tags:
