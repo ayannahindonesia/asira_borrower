@@ -21,6 +21,7 @@ type Filter struct {
 	TaxIDnumber  string `json:"taxid_number" condition:"optional"`
 	Phone        string `json:"phone" condition:"optional"`
 	Email        string `json:"email" condition:"optional"`
+	AgentReferral        string `json:"agent_referral" condition:"optional"`
 }
 
 type Payload struct {
@@ -53,6 +54,10 @@ func AgentCheckBorrower(c echo.Context) error {
 		TaxIDnumber:  payloadFilter.TaxIDnumber,
 		Phone:        payloadFilter.Phone,
 		Email:        payloadFilter.Email,
+		AgentReferral: sql.NullInt64{
+			Int64: 0,
+			Valid: true,
+		}
 	})
 
 	//if not exist yet
