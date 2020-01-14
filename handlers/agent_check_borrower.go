@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"asira_borrower/models"
+	"asira_borrower/asira"
 	"database/sql"
-	"fmt"
 	"net/http"
-	"reflect"
 
 	"github.com/labstack/echo"
 	"github.com/thedevsaddam/govalidator"
@@ -48,90 +46,72 @@ func AgentCheckBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "invalid post body")
 	}
 
-	//check is agent's borrower exist or not
-	var agentBorrower models.Borrower
-	err = agentBorrower.FilterSearchSingle(&Filter{
-		IdCardNumber: payloadFilter.IdCardNumber,
-		TaxIDnumber:  payloadFilter.TaxIDnumber,
-		Phone:        payloadFilter.Phone,
-		Email:        payloadFilter.Email,
-		AgentReferral: sql.NullInt64{
-			Int64: 0,
-			Valid: true,
-		},
-	})
-
-	//if not exist yet
+	//check manual fields if not unique
+	var fields = map[string]string{
+		"phone":        payloadFilter.Phone,
+		"email":        payloadFilter.Email,
+		"taxid_number": payloadFilter.TaxIDnumber,
+	}
+	foundFields, err := checkUniqueFields(payloadFilter.IdCardNumber, fields)
 	if err != nil {
-		return c.JSON(http.StatusOK, &Response{
-			IDAgentBorrower: 0,
-			Status:          false,
-			Fields:          nil,
-		})
+		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+foundFields)
 	}
-	//if exist
-	existed := existingFields(agentBorrower, payloadFilter)
 
-	//set
-	id := agentBorrower.ID
-	status := true
-
-	//if fields duplicate not found for agent's borrower (AgentReferral != 0)
-	if len(existed) == 0 {
-		id = 0
-		status = false
-
-		//else if..error existed but AgentReferral == 0 (personal)
-	} else if agentBorrower.AgentReferral.Int64 == 0 {
-
-		//if found duplicate (existed) but just 1, that is IdCardNumber then skip
-		if len(existed) == 1 && existed[0] == "KTP" {
-			id = 0
-			status = false
-			existed = nil
-		}
+	//max borrower duplicate just == 1
+	db := asira.App.DB
+	var count int
+	db = db.Table("borrowers").
+		Select("*").
+		Where("idcard_number = ? AND agent_referral <> 0", payloadFilter.IdCardNumber).
+		Where(generateDeleteCheck("borrowers"))
+	err = db.Count(&count).Error
+	if count >= 1 {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
 	}
-	return c.JSON(http.StatusOK, &Response{
-		IDAgentBorrower: id,
-		Status:          status,
-		Fields:          existed,
-	})
+
+	responseBody := map[string]interface{}{
+		"status":  true,
+		"message": "Ok",
+	}
+	return c.JSON(http.StatusOK, responseBody)
 }
 
-func existingFields(agentBorrower models.Borrower, payload Payload) []string {
-	var exists []string
-	valPayload := reflect.ValueOf(payload)
-	valAgentBorrower := reflect.ValueOf(agentBorrower)
+// func existingFields(agentBorrower models.Borrower, payload Payload) []string {
+// 	var exists []string
+// 	valPayload := reflect.ValueOf(payload)
+// 	valAgentBorrower := reflect.ValueOf(agentBorrower)
 
-	//loop per field agent borrower
-	for i := 0; i < valAgentBorrower.NumField(); i++ {
-		field := valAgentBorrower.Type().Field(i).Name
-		//cek availability
-		check := compareReflectFieldValue(field, valPayload, valAgentBorrower)
-		if check == true {
-			word, ok := EnglishToIndonesiaFields[field]
-			if !ok {
-				fmt.Println(err)
-				word = field
-			}
-			exists = append(exists, word)
-			fmt.Printf("%+v\n", exists)
-		}
-		//fmt.Printf("%+v\n", check)
-	}
-	return exists
-}
+// 	//loop per field agent borrower
+// 	for i := 0; i < valAgentBorrower.NumField(); i++ {
+// 		field := valAgentBorrower.Type().Field(i).Name
+// 		//cek availability
+// 		check := compareReflectFieldValue(field, valPayload, valAgentBorrower)
+// 		if check == true {
+// 			word, ok := EnglishToIndonesiaFields[field]
+// 			if !ok {
+// 				fmt.Println(err)
+// 				word = field
+// 			}
+// 			word = strings.TrimSpace(word)
+// 			fmt.Println("word =>>(", word, ")")
+// 			exists = append(exists, word)
+// 			fmt.Printf("%+v\n", exists)
+// 		}
+// 		//fmt.Printf("%+v\n", check)
+// 	}
+// 	return exists
+// }
 
-func compareReflectFieldValue(is string, isReflect reflect.Value, inReflect reflect.Value) bool {
-	//ambil data
-	isValue := reflect.Indirect(isReflect).FieldByName(is)
-	inValue := reflect.Indirect(inReflect).FieldByName(is)
+// func compareReflectFieldValue(is string, isReflect reflect.Value, inReflect reflect.Value) bool {
+// 	//ambil data
+// 	isValue := reflect.Indirect(isReflect).FieldByName(is)
+// 	inValue := reflect.Indirect(inReflect).FieldByName(is)
 
-	//cek equality
-	// if reflect.DeepEqual(isValue, inValue)
-	isVal := isValue.String()
-	if len(isVal) > 0 && isVal == inValue.String() {
-		return true
-	}
-	return false
-}
+// 	//cek equality
+// 	// if reflect.DeepEqual(isValue, inValue)
+// 	isVal := isValue.String()
+// 	if len(isVal) > 0 && isVal == inValue.String() {
+// 		return true
+// 	}
+// 	return false
+// }
