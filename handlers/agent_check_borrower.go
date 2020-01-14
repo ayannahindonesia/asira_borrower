@@ -85,7 +85,7 @@ func AgentCheckBorrower(c echo.Context) error {
 	} else if agentBorrower.AgentReferral.Int64 == 0 {
 
 		//if found duplicate (existed) but just 1, that is IdCardNumber then skip
-		if len(existed) == 1 && existed[0] == "IdCardNumber" {
+		if len(existed) == 1 && existed[0] == "KTP" {
 			id = 0
 			status = false
 			existed = nil
