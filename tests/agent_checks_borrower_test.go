@@ -40,6 +40,19 @@ func TestAgentChecksBorrower(t *testing.T) {
 	// test valid response
 	obj := auth.POST("/agent/checks_borrower").WithJSON(payload).
 		Expect().
+		Status(http.StatusInternalServerError).JSON().Object()
+	obj.ContainsKey("message").NotEmpty()
+
+	payload = map[string]interface{}{
+
+		"idcard_number": "98761234512349999",
+		"phone":         "+6298123",
+		"email":         "adz@gmail.com",
+		"taxid_number":  "0987654321234569999",
+	}
+	// test valid response
+	obj = auth.POST("/agent/checks_borrower").WithJSON(payload).
+		Expect().
 		Status(http.StatusOK).JSON().Object()
 	obj.ContainsKey("status").ValueEqual("status", true)
 
