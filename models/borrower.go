@@ -64,7 +64,6 @@ type (
 		AgentReferral        sql.NullInt64 `json:"agent_referral" gorm:"column:agent_referral"`
 		Status               string        `json:"status" gorm:"column:status;default:'active'"`
 		NthLoans             int           `json:"nth_loans" gorm:"-"`
-		LoanStatus           string        `json:"loan_status" gorm:"-"`
 	}
 )
 

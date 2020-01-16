@@ -15,6 +15,11 @@ import (
 	"github.com/labstack/echo"
 )
 
+type BorrowerResponse struct {
+	models.Borrower
+	LoanStatus string `json:"loan_status"`
+}
+
 func AgentAllBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
 
@@ -42,7 +47,7 @@ func AgentAllBorrower(c echo.Context) error {
 		rows      int
 		page      int
 		lastPage  int
-		borrowers []models.Borrower
+		borrowers []BorrowerResponse
 	)
 
 	// pagination parameters
