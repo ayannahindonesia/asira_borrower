@@ -113,13 +113,12 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 
 	//cek unique for patching
 	uniques := map[string]string{
-		"idcard_number":      borrowerModel.IdCardNumber,
 		"taxid_number":       borrowerModel.TaxIDnumber,
 		"email":              borrowerModel.Email,
 		"phone":              borrowerModel.Phone,
 		"bank_accountnumber": borrowerModel.BankAccountNumber,
 	}
-	foundFields, err := checkPatchFields("borrowers", "id", borrowerModel.ID, uniques)
+	foundFields, err := checkUniqueFields(borrowerModel.IdCardNumber, uniques)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error : "+foundFields)
 	}
