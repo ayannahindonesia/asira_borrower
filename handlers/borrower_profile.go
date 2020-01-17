@@ -14,7 +14,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-type BorrowerResponse struct {
+type BorrowerPersonalResponse struct {
 	models.Borrower
 	LoanStatus string `json:"loan_status"`
 }
@@ -28,7 +28,7 @@ func BorrowerProfile(c echo.Context) error {
 	claims := token.Claims.(jwt.MapClaims)
 
 	//check current borrower
-	borrower := BorrowerResponse{}
+	borrower := BorrowerPersonalResponse{}
 	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
 	//manual query
