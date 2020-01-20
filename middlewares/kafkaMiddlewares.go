@@ -429,7 +429,7 @@ func syncAgent(dataAgent []byte) (err error) {
 		if err != nil {
 			return err
 		}
-		err = agent.Save()
+		err = agent.SaveNoKafka()
 
 		return err
 	}
