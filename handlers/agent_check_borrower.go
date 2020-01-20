@@ -83,7 +83,12 @@ func existingFields(agentBorrower models.Borrower, payload Payload) []string {
 		//cek availability
 		check := compareReflectFieldValue(field, valPayload, valAgentBorrower)
 		if check == true {
-			exists = append(exists, field)
+			word, ok := EnglishToIndonesiaFields[field]
+			if !ok {
+				fmt.Println(err)
+				word = field
+			}
+			exists = append(exists, word)
 			fmt.Printf("%+v\n", exists)
 		}
 		//fmt.Printf("%+v\n", check)
