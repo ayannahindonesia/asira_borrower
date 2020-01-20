@@ -78,6 +78,8 @@ func TestAgentBorrowerProfile(t *testing.T) {
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 	obj.ContainsKey("monthly_income").ValueEqual("monthly_income", 6500000)
+	//must not updated
+	obj.ContainsKey("other_income").ValueEqual("other_income", 2000000)
 
 	//already exist
 	data = map[string]interface{}{
