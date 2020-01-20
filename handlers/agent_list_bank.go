@@ -22,7 +22,7 @@ func AgentAllBank(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	agentID, err := strconv.Atoi(claims["jti"].(string))
+	agentID, err := strconv.ParseUint(claims["jti"].(string), 10, 64)
 	var agent models.Agent
 	err = agent.FindbyID(agentID)
 	if err != nil {

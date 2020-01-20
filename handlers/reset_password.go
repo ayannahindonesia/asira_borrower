@@ -20,8 +20,8 @@ func ClientResetPassword(c echo.Context) error {
 
 	defer c.Request().Body.Close()
 	borrower := models.Borrower{}
-	r := c.Request()
-	baseURL := c.Scheme() + "://" + r.Host
+	// r := c.Request()
+	baseURL := c.Scheme() + "://ayannah.co.id" // + r.Host
 	payloadRules := govalidator.MapData{
 		"email": []string{"email", "unique:borrowers,email"},
 	}
@@ -104,7 +104,7 @@ func ChangePassword(c echo.Context) error {
 	}
 	//check Borrower ID
 	borrowerModel := models.Borrower{}
-	err = borrowerModel.FindbyID(int(uuid_reset_password.Borrower.Int64))
+	err = borrowerModel.FindbyID(uint64(uuid_reset_password.Borrower.Int64))
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun Tidak ditemukan")
 	}

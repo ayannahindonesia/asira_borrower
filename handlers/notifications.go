@@ -1,11 +1,16 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
 	"fmt"
+	"log"
+	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
+	"github.com/ayannahindonesia/basemodel"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
@@ -17,31 +22,82 @@ func NotificationsGet(c echo.Context) error {
 
 	type Filter struct {
 		RecipientID string `json:"recipient_id"`
+		Title       string `json:"title"`
 	}
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
-	notification := models.Notification{}
+
+	db := asira.App.DB
+	var (
+		totalRows     int
+		offset        int
+		rows          int
+		page          int
+		lastPage      int
+		notifications []models.Notification
+	)
 
 	// pagination parameters
-	rows, err := strconv.Atoi(c.QueryParam("rows"))
-	page, err := strconv.Atoi(c.QueryParam("page"))
-	orderby := c.QueryParam("orderby")
-	sort := c.QueryParam("sort")
+	rows, err = strconv.Atoi(c.QueryParam("rows"))
+	page, err = strconv.Atoi(c.QueryParam("page"))
+	orderby := strings.Split(c.QueryParam("orderby"), ",")
+	sort := strings.Split(c.QueryParam("sort"), ",")
 
-	// filters
+	// pagination parameters
+	if rows > 0 {
+		if page <= 0 {
+			page = 1
+		}
+		offset = (page * rows) - rows
+	}
+
 	//NOTE: borrower user default formater
 	recipient_id := fmt.Sprintf("borrower-%d", borrowerID)
 
-	//search
-	result, err := notification.PagedFilterSearch(page, rows, orderby, sort, &Filter{
-		RecipientID: recipient_id,
-	})
-	if err != nil {
-		return returnInvalidResponse(http.StatusNotFound, err, "Notifikasi tidak Ditemukan")
+	//filters
+	db = db.Table("notifications").
+		Select("*").
+		Where("recipient_id = ?", recipient_id).
+		Where("title <> 'failed'")
+
+	if len(orderby) > 0 {
+		if len(sort) > 0 {
+			for k, v := range orderby {
+				q := v
+				if len(sort) > k {
+					value := sort[k]
+					if strings.ToUpper(value) == "ASC" || strings.ToUpper(value) == "DESC" {
+						q = v + " " + strings.ToUpper(value)
+					}
+				}
+				db = db.Order(q)
+			}
+		}
 	}
 
+	countDB := db
+	countDB.Where("notifications.deleted_at IS NULL").Count(&totalRows)
+
+	if rows > 0 {
+		db = db.Limit(rows).Offset(offset)
+		lastPage = int(math.Ceil(float64(totalRows) / float64(rows)))
+	}
+	err = db.Find(&notifications).Error
+	if err != nil {
+		log.Println(err)
+	}
+
+	result := basemodel.PagedFindResult{
+		TotalData:   totalRows,
+		Rows:        rows,
+		CurrentPage: page,
+		LastPage:    lastPage,
+		From:        offset + 1,
+		To:          offset + rows,
+		Data:        notifications,
+	}
 	return c.JSON(http.StatusOK, result)
 }

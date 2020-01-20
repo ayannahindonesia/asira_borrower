@@ -25,9 +25,9 @@ func BorrowerLoanApply(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
-	loan.Borrower = uint64(borrowerID)
+	loan.Borrower = borrowerID
 
 	payloadRules := govalidator.MapData{
 		"loan_amount":       []string{"required"},
@@ -91,14 +91,14 @@ func BorrowerLoanGet(c echo.Context) error {
 		offset = (page * rows) - rows
 	}
 
-	db = db.Table("loans l").
+	db = db.Table("loans").
 		Select("*, bp.name as product_name, bs.name as service_name").
-		Joins("INNER JOIN products bp ON bp.id = l.product").
+		Joins("INNER JOIN products bp ON bp.id = loans.product").
 		Joins("INNER JOIN services bs ON bs.id = bp.service_id").
-		Where("l.borrower = ?", borrowerID)
+		Where("loans.borrower = ?", borrowerID)
 
 	if status := c.QueryParam("status"); len(status) > 0 {
-		db = db.Where("l.status = ?", status)
+		db = db.Where("loans.status = ?", status)
 	}
 
 	if rows > 0 && offset > 0 {
@@ -165,20 +165,20 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
-	loanID, err := strconv.Atoi(c.Param("loan_id"))
+	loanID, err := strconv.ParseUint(c.Param("loan_id"), 10, 64)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error parsing loan id to integer")
 	}
 
 	type Filter struct {
-		ID       int    `json:"id"`
+		ID       uint64 `json:"id"`
 		Borrower uint64 `json:"borrower"`
 	}
 	err = loan.FilterSearchSingle(&Filter{
 		ID:       loanID,
-		Borrower: uint64(borrowerID),
+		Borrower: borrowerID,
 	})
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "query result error")
@@ -186,7 +186,7 @@ func BorrowerLoanOTPrequest(c echo.Context) error {
 
 	borrower.FindbyID(borrowerID)
 
-	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
+	catenate := strconv.Itoa(int(borrowerID)) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
 	counter, _ := strconv.Atoi(catenate)
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
 
@@ -221,20 +221,20 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
-	loanID, err := strconv.Atoi(c.Param("loan_id"))
+	loanID, err := strconv.ParseUint(c.Param("loan_id"), 10, 64)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error parsing loan id to integer")
 	}
 
 	type Filter struct {
-		ID       int    `json:"id"`
+		ID       uint64 `json:"id"`
 		Borrower uint64 `json:"borrower"`
 	}
 	err = loan.FilterSearchSingle(&Filter{
 		ID:       loanID,
-		Borrower: uint64(borrowerID),
+		Borrower: borrowerID,
 	})
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "ID tidak ditemukan")
@@ -244,7 +244,7 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 		return returnInvalidResponse(http.StatusBadRequest, "", fmt.Sprintf("loan %v sudah di verifikasi", loanID))
 	}
 
-	catenate := strconv.Itoa(borrowerID) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
+	catenate := strconv.Itoa(int(borrowerID)) + strconv.Itoa(int(loan.ID)) // combine borrower id with loan id as counter
 	counter, _ := strconv.Atoi(catenate)
 	if asira.App.OTP.HOTP.Verify(LoanOTPverify.OTPcode, counter) {
 		loan.OTPverified = true
@@ -270,10 +270,10 @@ func validateLoansProduct(l models.Loan) (err error) {
 
 	db := asira.App.DB
 
-	err = db.Table("banks b").
+	err = db.Table("banks").
 		Select("p.id").
-		Joins("INNER JOIN borrowers bo ON bo.bank = b.id").
-		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
+		Joins("INNER JOIN borrowers bo ON bo.bank = banks.id").
+		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(banks.services))").
 		Joins("INNER JOIN products p ON p.service_id = s.id").
 		Where("p.id = ?", l.Product).
 		Where("bo.id = ?", l.Borrower).Count(&count).Error

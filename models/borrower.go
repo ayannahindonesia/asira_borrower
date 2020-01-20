@@ -63,7 +63,6 @@ type (
 		OTPverified          bool          `json:"otp_verified" gorm:"column:otp_verified;type:boolean" sql:"DEFAULT:FALSE"`
 		AgentReferral        sql.NullInt64 `json:"agent_referral" gorm:"column:agent_referral"`
 		Status               string        `json:"status" gorm:"column:status;default:'active'"`
-		NthLoans             int           `json:"nth_loans" gorm:"-"`
 	}
 )
 
@@ -106,7 +105,7 @@ func (b *Borrower) Unsuspend() error {
 	return err
 }
 
-func (b *Borrower) FindbyID(id int) error {
+func (b *Borrower) FindbyID(id uint64) error {
 	err := basemodel.FindbyID(&b, id)
 	return err
 }

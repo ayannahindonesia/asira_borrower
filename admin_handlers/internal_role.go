@@ -37,7 +37,7 @@ func AddRole(c echo.Context) error {
 
 func UpdateRole(c echo.Context) error {
 	defer c.Request().Body.Close()
-	Iroles_id, _ := strconv.Atoi(c.Param("role_id"))
+	Iroles_id, _ := strconv.ParseUint(c.Param("role_id"), 10, 64)
 
 	Iroles := models.InternalRoles{}
 	err := Iroles.FindbyID(Iroles_id)
@@ -90,7 +90,7 @@ func RoleGetDetails(c echo.Context) error {
 
 	Iroles := models.InternalRoles{}
 
-	IrolesID, _ := strconv.Atoi(c.Param("role_id"))
+	IrolesID, _ := strconv.ParseUint(c.Param("role_id"), 10, 64)
 	err := Iroles.FindbyID(IrolesID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "Role ID tidak ditemukan")

@@ -65,7 +65,7 @@ func LoanPurposeNew(c echo.Context) error {
 func LoanPurposeDetail(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	loan_purpose_id, _ := strconv.Atoi(c.Param("loan_purpose_id"))
+	loan_purpose_id, _ := strconv.ParseUint(c.Param("loan_purpose_id"), 10, 64)
 
 	purpose := models.LoanPurpose{}
 	err := purpose.FindbyID(loan_purpose_id)
@@ -79,7 +79,7 @@ func LoanPurposeDetail(c echo.Context) error {
 func LoanPurposePatch(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	loan_purpose_id, _ := strconv.Atoi(c.Param("loan_purpose_id"))
+	loan_purpose_id, _ := strconv.ParseUint(c.Param("loan_purpose_id"), 10, 64)
 
 	purpose := models.LoanPurpose{}
 	err := purpose.FindbyID(loan_purpose_id)
@@ -108,7 +108,7 @@ func LoanPurposePatch(c echo.Context) error {
 func LoanPurposeDelete(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	loan_purpose_id, _ := strconv.Atoi(c.Param("loan_purpose_id"))
+	loan_purpose_id, _ := strconv.ParseUint(c.Param("loan_purpose_id"), 10, 64)
 
 	purpose := models.LoanPurpose{}
 	err := purpose.FindbyID(loan_purpose_id)

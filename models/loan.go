@@ -15,7 +15,6 @@ import (
 type (
 	Loan struct {
 		basemodel.BaseModel
-		DeletedTime         time.Time      `json:"deleted_time" gorm:"column:deleted_time"`
 		Borrower            uint64         `json:"borrower" gorm:"column:borrower;foreignkey"`
 		Status              string         `json:"status" gorm:"column:status;type:varchar(255)" sql:"DEFAULT:'processing'"`
 		LoanAmount          float64        `json:"loan_amount" gorm:"column:loan_amount;type:int;not null"`
@@ -47,7 +46,7 @@ type (
 // gorm callback hook
 func (l *Loan) BeforeCreate() (err error) {
 	borrower := Borrower{}
-	err = borrower.FindbyID(int(l.Borrower))
+	err = borrower.FindbyID(l.Borrower)
 	if err != nil {
 		return err
 	}
@@ -73,7 +72,7 @@ func (l *Loan) BeforeCreate() (err error) {
 
 func (l *Loan) SetProductLoanReferences() (err error) {
 	product := Product{}
-	err = product.FindbyID(int(l.Product))
+	err = product.FindbyID(l.Product)
 	if err != nil {
 		return err
 	}
@@ -97,9 +96,9 @@ func (l *Loan) Calculate() (err error) {
 		parsedFees     LoanFees
 	)
 
-	borrower.FindbyID(int(l.Borrower))
-	bank.FindbyID(int(borrower.Bank.Int64))
-	product.FindbyID(int(l.Product))
+	borrower.FindbyID(l.Borrower)
+	bank.FindbyID(uint64(borrower.Bank.Int64))
+	product.FindbyID(l.Product)
 
 	json.Unmarshal(l.Fees.RawMessage, &fees)
 
@@ -193,13 +192,11 @@ func (l *Loan) SaveNoKafka() error {
 }
 
 func (l *Loan) Delete() error {
-	l.DeletedTime = time.Now()
-	err := basemodel.Save(&l)
-
+	err := basemodel.Delete(&l)
 	return err
 }
 
-func (l *Loan) FindbyID(id int) error {
+func (l *Loan) FindbyID(id uint64) error {
 	err := basemodel.FindbyID(&l, id)
 	return err
 }

@@ -28,6 +28,20 @@ type (
 	}
 )
 
+var EnglishToIndonesiaFields map[string]string = map[string]string{
+	"Phone":        "Nomor Telpon",
+	"IdCardNumber": "KTP",
+	"Email":        "Email",
+	"TaxIDnumber":  "NPWP",
+}
+
+var EnglishToIndonesiaFieldsUnderscored map[string]string = map[string]string{
+	"phone":         "Nomor Telpon",
+	"idcard_number": "KTP",
+	"email":         "Email",
+	"taxid_number":  "NPWP",
+}
+
 // general function to validate all kind of api request payload / body
 func validateRequestPayload(c echo.Context, rules govalidator.MapData, data interface{}) (i interface{}) {
 	opts := govalidator.Options{
@@ -111,10 +125,11 @@ func isBorrowerAlreadyRegistered(idcardNumber string) error {
 	var count int
 
 	//get users based on borrower id
-	db = db.Table("borrowers b").
+	db = db.Table("borrowers").
 		Select("u.*").
-		Joins("INNER JOIN users u ON b.id = u.borrower").
-		Where("b.idcard_number = ?", idcardNumber)
+		Joins("INNER JOIN users u ON borrowers.id = u.borrower").
+		Where("borrowers.idcard_number = ?", idcardNumber).
+		Where(generateDeleteCheck("borrowers"))
 
 	err = db.Count(&count).Error
 	fmt.Println("check err & count ", err, count)
@@ -145,11 +160,20 @@ func checkUniqueFields(idcardNumber string, uniques map[string]string) (string, 
 			//skip checking
 			continue
 		}
+
+		//additional check for soft delete
+		db = db.Where(generateDeleteCheck("borrowers"))
+
 		//query count
 		err = db.Count(&count).Error
 		fmt.Println("check err & count ", err, count)
 		if err != nil || count > 0 {
-			fieldsFound += key + ", "
+			word, ok := EnglishToIndonesiaFieldsUnderscored[key]
+			if !ok {
+				fmt.Println(err)
+				word = key
+			}
+			fieldsFound += word + ", "
 		}
 	}
 	if fieldsFound != "" {
@@ -178,10 +202,19 @@ func checkPatchFields(tableName string, fieldID string, id uint64, uniques map[s
 			//skip checking
 			continue
 		}
+
+		//additional check for soft delete
+		db = db.Where(generateDeleteCheck(tableName))
+
 		//query count
 		err = db.Count(&count).Error
 		if err != nil || count > 0 {
-			fieldsFound += key + ", "
+			word, ok := EnglishToIndonesiaFieldsUnderscored[key]
+			if !ok {
+				fmt.Println(err)
+				word = key
+			}
+			fieldsFound += word + ", "
 		}
 	}
 	if fieldsFound != "" {
@@ -215,6 +248,7 @@ func deleteImageS3(imageURL string) error {
 	return nil
 }
 
+//encrypt data with AES 256 CFB
 func encrypt(text string, passphrase string) (string, error) {
 	// key := []byte(keyText)
 	plaintext := []byte(text)
@@ -239,6 +273,7 @@ func encrypt(text string, passphrase string) (string, error) {
 	return base64.URLEncoding.EncodeToString(ciphertext), err
 }
 
+//decrypt data with AES 256 CFB
 func decrypt(encryptedText string, passphrase string) (string, error) {
 	ciphertext, _ := base64.URLEncoding.DecodeString(encryptedText)
 
@@ -261,4 +296,10 @@ func decrypt(encryptedText string, passphrase string) (string, error) {
 	stream.XORKeyStream(ciphertext, ciphertext)
 
 	return fmt.Sprintf("%s", ciphertext), nil
+}
+
+//generateDelete return delete condition : "tablename.deleted_at IS NULL"
+func generateDeleteCheck(tableName string) string {
+	defaultFormat := "%s.deleted_at IS NULL"
+	return fmt.Sprintf(defaultFormat, tableName)
 }

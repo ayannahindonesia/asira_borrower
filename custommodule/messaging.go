@@ -4,14 +4,18 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/jarcoal/httpmock"
 )
 
 type (
+	//Messaging hold properties for SMS and notification
 	Messaging struct {
 		Key       string
 		Secret    string
@@ -20,6 +24,7 @@ type (
 		URL       string
 		Endpoints MessagingEndpoints
 	}
+
 	MessagingEndpoints struct {
 		ClientAuth       string
 		SMS              string
@@ -77,9 +82,11 @@ func (model *Messaging) ClientAuth() (err error) {
 // RefreshToken func
 func (model *Messaging) RefreshToken() (err error) {
 	if time.Now().After(model.Expire) {
-		err = model.ClientAuth()
-		if err != nil {
-			return err
+		if flag.Lookup("test.v") == nil {
+			err = model.ClientAuth()
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -91,6 +98,29 @@ func (model *Messaging) SendSMS(number string, message string) (err error) {
 	err = model.RefreshToken()
 	if err != nil {
 		return err
+	}
+
+	///if under test (go test *)
+	if flag.Lookup("test.v") != nil {
+
+		//activate mockup response
+		httpmock.Activate()
+		defer httpmock.DeactivateAndReset()
+		log.Println("run under go test")
+
+		//Mockup responder
+		httpmock.RegisterResponder("POST", model.URL+model.Endpoints.SMS,
+			func(req *http.Request) (*http.Response, error) {
+
+				//fake response
+				result := "{\"status\":\"success\"}"
+				resp, err := httpmock.NewJsonResponse(http.StatusOK, result)
+				if err != nil {
+					return httpmock.NewStringResponse(http.StatusInternalServerError, err.Error()), nil
+				}
+				return resp, nil
+			},
+		)
 	}
 
 	payload, _ := json.Marshal(map[string]interface{}{
