@@ -215,6 +215,14 @@
   version = "v1.1.0"
 
 [[projects]]
+  digest = "1:9fd40d80bd0ef0cbe9fc46330c798a4185a1b309ab049455651afc50396ec924"
+  name = "github.com/jarcoal/httpmock"
+  packages = ["."]
+  pruneopts = ""
+  revision = "ac2099de8d3789d30b99b740d1a9d242097462df"
+  version = "v1.0.4"
+
+[[projects]]
   digest = "1:d45477e90c25c8c6d7d4237281167aa56079382fc042db4b44a8328071649bfa"
   name = "github.com/jcmturner/gofork"
   packages = [
@@ -735,6 +743,7 @@
     "github.com/fsnotify/fsnotify",
     "github.com/gavv/httpexpect",
     "github.com/google/uuid",
+    "github.com/jarcoal/httpmock",
     "github.com/jinzhu/gorm",
     "github.com/jinzhu/gorm/dialects/postgres",
     "github.com/labstack/echo",
