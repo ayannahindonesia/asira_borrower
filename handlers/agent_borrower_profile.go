@@ -24,7 +24,7 @@ func AgentBorrowerProfile(c echo.Context) error {
 
 	//cek borrower
 	borrowerModel := models.Borrower{}
-	err := borrowerModel.FindbyID(int(borrowerID))
+	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "validation error : Akun borrower agent tidak ditemukan")
 	}
@@ -48,7 +48,7 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 	borrowerID, _ := strconv.ParseUint(c.Param("borrower_id"), 10, 64)
 
 	borrowerModel := models.Borrower{}
-	err := borrowerModel.FindbyID(int(borrowerID))
+	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusNotFound, err, "validation error : Akun borrower agent tidak ditemukan")
 	}

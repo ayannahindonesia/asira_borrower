@@ -1,17 +1,14 @@
 package models
 
 import (
-	"time"
-
 	"github.com/ayannahindonesia/basemodel"
 )
 
 type (
 	BankType struct {
 		basemodel.BaseModel
-		DeletedTime time.Time `json:"deleted_time" gorm:"column:deleted_time" sql:"DEFAULT:current_timestamp"`
-		Name        string    `json:"name" gorm:"name"`
-		Description string    `json:"description" gorm:"description"`
+		Name        string `json:"name" gorm:"name"`
+		Description string `json:"description" gorm:"description"`
 	}
 )
 
@@ -35,7 +32,7 @@ func (b *BankType) Delete() error {
 	return err
 }
 
-func (b *BankType) FindbyID(id int) error {
+func (b *BankType) FindbyID(id uint64) error {
 	err := basemodel.FindbyID(&b, id)
 	return err
 }

@@ -22,5 +22,5 @@
 
 [[constraint]]
     name= "github.com/ayannahindonesia/basemodel"
-    branch = "master"
+    branch = "use-gorm-model"
     source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@github.com/ayannahindonesia/basemodel.git"

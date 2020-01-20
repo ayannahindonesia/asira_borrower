@@ -249,7 +249,7 @@ func VerifyAccountOTP(c echo.Context) error {
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
 	payloadRules := govalidator.MapData{
 		"phone":    []string{"regex:^[0-9]+$", "required"},
@@ -261,7 +261,7 @@ func VerifyAccountOTP(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	catenate := strconv.Itoa(borrowerID) + otpVerify.Phone[len(otpVerify.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
+	catenate := strconv.Itoa(int(borrowerID)) + otpVerify.Phone[len(otpVerify.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
 	counter, _ := strconv.Atoi(catenate)
 	if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, counter) {
 		updateAccountOTPstatus(borrowerID)
@@ -277,7 +277,7 @@ func VerifyAccountOTP(c echo.Context) error {
 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
 }
 
-func updateAccountOTPstatus(borrowerID int) {
+func updateAccountOTPstatus(borrowerID uint64) {
 	modelBorrower := models.Borrower{}
 	_ = modelBorrower.FindbyID(borrowerID)
 	modelBorrower.OTPverified = true

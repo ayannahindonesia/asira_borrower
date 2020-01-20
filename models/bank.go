@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"github.com/ayannahindonesia/basemodel"
 	"github.com/lib/pq"
 )
@@ -10,7 +8,6 @@ import (
 type (
 	Bank struct {
 		basemodel.BaseModel
-		DeletedTime         time.Time     `json:"deleted_time" gorm:"column:deleted_time" sql:"DEFAULT:current_timestamp"`
 		Name                string        `json:"name" gorm:"column:name;type:varchar(255)"`
 		Image               string        `json:"image" gorm:"column:image;type:text"`
 		Type                int           `json:"type" gorm:"column:type;type:varchar(255)"`
@@ -46,7 +43,7 @@ func (model *Bank) Delete() error {
 	return err
 }
 
-func (model *Bank) FindbyID(id int) error {
+func (model *Bank) FindbyID(id uint64) error {
 	err := basemodel.FindbyID(&model, id)
 	return err
 }

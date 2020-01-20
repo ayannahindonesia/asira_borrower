@@ -21,11 +21,11 @@ func BorrowerBankProduct(c echo.Context) error {
 	var results []models.Product
 	var count int
 
-	db = db.Table("banks b").
-		Select("p.*").
-		Joins("INNER JOIN borrowers bo ON bo.bank = b.id").
-		Joins("INNER JOIN services s ON s.id IN (SELECT UNNEST(b.services))").
-		Joins("INNER JOIN products p ON p.service_id = s.id AND p.id IN (SELECT UNNEST(b.products))").
+	db = db.Table("products").
+		Select("products.*").
+		Joins("INNER JOIN services s ON s.id = products.service_id").
+		Joins("INNER JOIN banks bnk ON s.id IN (SELECT UNNEST(bnk.services)) AND products.id IN (SELECT UNNEST(bnk.products))").
+		Joins("INNER JOIN borrowers bo ON bo.bank = bnk.id").
 		Where("bo.id = ?", borrowerID)
 
 	if serviceID := c.QueryParam("service_id"); len(serviceID) > 0 {
@@ -49,7 +49,7 @@ func BorrowerBankProductDetails(c echo.Context) error {
 	defer c.Request().Body.Close()
 	bankProduct := models.Product{}
 
-	productID, _ := strconv.Atoi(c.Param("product_id"))
+	productID, _ := strconv.ParseUint(c.Param("product_id"), 10, 64)
 	err := bankProduct.FindbyID(productID)
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Product Tidak Ditemukan")

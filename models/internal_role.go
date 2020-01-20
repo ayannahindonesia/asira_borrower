@@ -44,7 +44,7 @@ func (b *InternalRoles) Delete() error {
 	return err
 }
 
-func (b *InternalRoles) FindbyID(id int) error {
+func (b *InternalRoles) FindbyID(id uint64) error {
 	err := basemodel.FindbyID(&b, id)
 	return err
 }

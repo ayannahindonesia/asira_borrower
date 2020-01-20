@@ -4,16 +4,17 @@
 CREATE TABLE "images" (
     "id" bigserial,
     "image_string" text,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
 CREATE TABLE "bank_types" (
     "id" bigserial,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_time" timestamptz,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     "name" varchar(255),
     "description" text,
     PRIMARY KEY ("id")
@@ -21,9 +22,9 @@ CREATE TABLE "bank_types" (
 
 CREATE TABLE "banks" (
     "id" bigserial,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_time" timestamptz,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     "name" varchar(255),
     "image" text,
     "type" varchar(255),
@@ -41,9 +42,9 @@ CREATE TABLE "banks" (
 
 CREATE TABLE "services" (
     "id" bigserial,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_time" timestamptz,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     "name" varchar(255),
     "image" text,
     "status" varchar(255),
@@ -52,9 +53,9 @@ CREATE TABLE "services" (
 
 CREATE TABLE "agents" (
     "id" bigserial,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_time" timestamptz,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     "name" varchar(255),
     "username" varchar(255),
     "password" text,
@@ -71,9 +72,9 @@ CREATE TABLE "agents" (
 
 CREATE TABLE "products" (
     "id" bigserial,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_time" timestamptz,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     "name" varchar(255),
     "status" varchar(255),
     "service_id" bigserial,
@@ -91,9 +92,10 @@ CREATE TABLE "products" (
 ) WITH (OIDS = FALSE);
 
 CREATE TABLE "borrowers" (
-    "id" bigserial,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "id" bigserial,    
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     "suspended_time" timestamptz,
     "fullname" varchar(255) NOT NULL,
     "nickname" varchar(255),
@@ -155,9 +157,9 @@ CREATE TABLE "borrowers" (
 
 CREATE TABLE "loan_purposes" (
     "id" bigserial,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_time" timestamptz,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     "name" varchar(255),
     "status" varchar(255),
     PRIMARY KEY ("id")
@@ -165,9 +167,9 @@ CREATE TABLE "loan_purposes" (
 
 CREATE TABLE "loans" (
     "id" bigserial,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_time" timestamptz,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     "borrower" bigserial,
     "product" bigserial,
     "status" varchar(255) DEFAULT  ('processing'),
@@ -198,8 +200,9 @@ CREATE TABLE "uuid_reset_passwords" (
     "borrower" bigserial,
     "expired" timestamptz,
     "used"  BOOLEAN,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     FOREIGN KEY ("borrower") REFERENCES borrowers(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
@@ -209,9 +212,10 @@ CREATE TABLE "client_configs" (
     "name" varchar(255) NOT NULL,
     "role" varchar(255) NOT NULL,
     "secret" varchar(255) NOT NULL,
-    "key" varchar(255) NOT NULL,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "key" varchar(255) NOT NULL,    
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -221,8 +225,9 @@ CREATE TABLE "internal_roles" (
     "system" varchar(255) NOT NULL,
     "description" text,
     "status" BOOLEAN,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -235,17 +240,18 @@ CREATE TABLE "notifications" (
     "firebase_token" varchar(255),
     "topic" varchar(125),
     "response" varchar(255),
-    "send_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "send_time" timestamptz DEFAULT CURRENT_TIMESTAMP,    
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
 CREATE TABLE "users" (
     "id" bigserial,
-    "created_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_time" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_time" timestamptz,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
     "borrower" bigserial NOT NULL,
     "password" varchar(255) NOT NULL,
     "fcm_token" varchar(255),
