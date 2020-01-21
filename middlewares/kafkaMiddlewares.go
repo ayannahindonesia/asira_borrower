@@ -6,7 +6,6 @@ import (
 	"asira_borrower/models"
 	"errors"
 	"flag"
-	"reflect"
 
 	"encoding/json"
 	"fmt"
@@ -157,68 +156,8 @@ func kafkaPayloadBuilder(i interface{}, model string) (payload interface{}) {
 	return payload
 }
 
-func handleOperation(modObj interface{}, mode interface{}) error {
-	var err error
-	var in interface{}
-	var methodCreate reflect.Value
-	var methodSave reflect.Value
-	var methodDelete reflect.Value
-
-	//get object
-	switch modObj.(type) {
-	case models.BankType:
-		mod := modObj.(models.BankType)
-		methodCreate = reflect.ValueOf(mod).MethodByName("Create")
-		methodSave = reflect.ValueOf(mod).MethodByName("Save")
-		methodDelete = reflect.ValueOf(mod).MethodByName("Delete")
-		break
-	// case models.Bank:
-	// 	mod := modObj.(models.Bank)
-	// 	break
-	// case models.Service:
-	// 	mod := modObj.(models.Service)
-	// 	break
-	// case models.Product:
-	// 	mod := modObj.(models.Product)
-	// 	break
-	// case models.LoanPurpose:
-	// 	mod := modObj.(models.LoanPurpose)
-	// 	break
-	default:
-		return errors.New("invalid obj")
-		break
-	}
-
-	//set reflect parameter  nil
-	in = nil
-	parms := []reflect.Value{reflect.ValueOf(in)}
-
-	//cek
-	switch mode.(string) {
-	default:
-		err = fmt.Errorf("invalid payload")
-		break
-	case "create":
-		methodCreate.Call(parms)
-		break
-	case "update":
-		methodSave.Call(parms)
-		break
-	case "delete":
-		methodDelete.Call(parms)
-		break
-	}
-
-	return err
-}
-
 //processMessage process messages from kafka
 func processMessage(kafkaMessage []byte) (err error) {
-	// defer func() {
-	// 	if r := recover(); r != nil {
-	// 		fmt.Println("Recovered : ", r)
-	// 	}
-	// }()
 
 	var arr map[string]interface{}
 
@@ -228,55 +167,118 @@ func processMessage(kafkaMessage []byte) (err error) {
 	if err != nil {
 		return err
 	}
+
+	//convert payload
 	marshal, err := json.Marshal(arr["payload"])
 	if err != nil {
 		return errors.New("invalid payload")
 	}
-	if len(arr["mode"].(string)) == 0 {
-		return errors.New("invalid mode")
-	}
+
 	//cek obj type
 	switch data[0] {
 	case "bank_type":
 		{
 			mod := models.BankType{}
 			json.Unmarshal(marshal, &mod)
-			handleOperation(mod, arr["mode"])
+
+			switch arr["mode"] {
+			default:
+				err = fmt.Errorf("invalid payload")
+				break
+			case "create":
+				err = mod.Create()
+				break
+			case "update":
+				err = mod.Save()
+				break
+			case "delete":
+				err = mod.Delete()
+				break
+			}
 		}
 		break
 	case "bank":
 		{
 			mod := models.Bank{}
 			json.Unmarshal(marshal, &mod)
-			handleOperation(mod, arr["mode"])
+
+			switch arr["mode"] {
+			default:
+				err = fmt.Errorf("invalid payload")
+				break
+			case "create":
+				err = mod.Create()
+				break
+			case "update":
+				err = mod.Save()
+				break
+			case "delete":
+				err = mod.Delete()
+				break
+			}
 		}
 		break
 	case "service":
 		{
 			mod := models.Service{}
 			json.Unmarshal(marshal, &mod)
-			handleOperation(mod, arr["mode"])
+
+			switch arr["mode"] {
+			default:
+				err = fmt.Errorf("invalid payload")
+				break
+			case "create":
+				err = mod.Create()
+				break
+			case "update":
+				err = mod.Save()
+				break
+			case "delete":
+				err = mod.Delete()
+				break
+			}
 		}
 		break
 	case "product":
 		{
 			mod := models.Product{}
 			json.Unmarshal(marshal, &mod)
-			handleOperation(mod, arr["mode"])
+
+			switch arr["mode"] {
+			default:
+				err = fmt.Errorf("invalid payload")
+				break
+			case "create":
+				err = mod.Create()
+				break
+			case "update":
+				err = mod.Save()
+				break
+			case "delete":
+				err = mod.Delete()
+				break
+			}
 		}
 		break
 	case "loan_purpose":
 		{
 			mod := models.LoanPurpose{}
 			json.Unmarshal(marshal, &mod)
-			handleOperation(mod, arr["mode"])
-		}
-		break
-	case "loan":
-		// log.Printf("message : %v", string(kafkaMessage))
-		err = loanUpdate([]byte(data[1]))
-		if err != nil {
-			return err
+
+			switch arr["mode"] {
+			default:
+				err = fmt.Errorf("invalid payload")
+				break
+			case "create":
+				err = mod.Create()
+				break
+			case "update":
+				err = mod.Save()
+				break
+			case "delete":
+				err = mod.Delete()
+				break
+			}
 		}
 		break
 	case "agent":
@@ -284,7 +286,28 @@ func processMessage(kafkaMessage []byte) (err error) {
 		{
 			mod := models.Agent{}
 			json.Unmarshal(marshal, &mod)
-			handleOperation(mod, arr["mode"])
+
+			switch arr["mode"] {
+			default:
+				err = fmt.Errorf("invalid payload")
+				break
+			case "create":
+				err = mod.Create()
+				break
+			case "update":
+				err = mod.Save()
+				break
+			case "delete":
+				err = mod.Delete()
+				break
+			}
+		}
+		break
+	case "loan":
+		// log.Printf("message : %v", string(kafkaMessage))
+		err = loanUpdate([]byte(data[1]))
+		if err != nil {
+			return err
 		}
 		break
 	default:
