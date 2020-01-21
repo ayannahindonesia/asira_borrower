@@ -85,166 +85,97 @@ func (k *AsiraKafkaHandlers) Listen() ([]byte, error) {
 	return nil, fmt.Errorf("unidentified error while listening")
 }
 
+func handleOperation(modObj interface{}, mode interface{}) error{
+	var err error
+	//get object
+	switch modObj.(type) {
+	case models.BankType:
+		mod := modObj.(models.BankType)
+		break
+	case models.Bank:
+		mod := modObj.(models.Bank)
+		break
+	case models.Service:
+		mod := modObj.(models.Service)
+		break
+	case models.Product:
+		mod := modObj.(models.Product)
+		break
+	case models.LoanPurpose:
+		mod := modObj.(models.LoanPurpose)
+		break
+	}
+
+	//
+	switch mode.(string) {
+	default:
+		err = fmt.Errorf("invalid payload")
+		break
+	case "create":
+		err = mod.Create()
+		break
+	case "update":
+		err = mod.Save()
+		break
+	case "delete":
+		err = mod.Delete()
+		break
+	}
+	
+	return err
+}
+
 func processMessage(kafkaMessage []byte) (err error) {
+
+	var arr map[string]interface{}
+
+	//parse msg
 	data := strings.SplitN(string(kafkaMessage), ":", 2)
+	err = json.Unmarshal([]byte(data[1]), &arr)
+	if err != nil {
+		return err
+	}
+	marshal, _ := json.Marshal(arr["payload"])
+
+	//cek obj type
 	switch data[0] {
 	case "bank_type":
 		{
-			var bankType models.BankType
-			var a map[string]interface{}
-
-			err = json.Unmarshal([]byte(data[1]), &a)
-			if err != nil {
-				return err
-			}
-
-			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := uint64(a["id"].(float64))
-				err = bankType.FindbyID(ID)
-				if err != nil {
-					return err
-				}
-
-				err = bankType.Delete()
-				if err != nil {
-					return err
-				}
-			} else {
-				err = json.Unmarshal([]byte(data[1]), &bankType)
-				if err != nil {
-					return err
-				}
-				bankType.Save()
-				return err
-			}
+			mod := models.BankType{}
+			json.Unmarshal(marshal, &mod)
+			handleOperation(mod, arr["mode"])
 		}
 		break
 	case "bank":
 		{
-			var bank models.Bank
-			var a map[string]interface{}
-
-			err = json.Unmarshal([]byte(data[1]), &a)
-			if err != nil {
-				return err
-			}
-
-			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := uint64(a["id"].(float64))
-				err = bank.FindbyID(ID)
-				if err != nil {
-					return err
-				}
-
-				err = bank.Delete()
-				if err != nil {
-					return err
-				}
-			} else {
-				err = json.Unmarshal([]byte(data[1]), &bank)
-				if err != nil {
-					return err
-				}
-				bank.Save()
-				return err
-			}
+			mod := models.Bank{}
+			json.Unmarshal(marshal, &mod)
+			handleOperation(mod, arr["mode"])
 		}
 		break
 	case "service":
 		{
-			var service models.Service
-			var a map[string]interface{}
-
-			err = json.Unmarshal([]byte(data[1]), &a)
-			if err != nil {
-				return err
-			}
-
-			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := uint64(a["id"].(float64))
-				err := service.FindbyID(ID)
-				if err != nil {
-					return err
-				}
-
-				err = service.Delete()
-				if err != nil {
-					return err
-				}
-			} else {
-				err = json.Unmarshal([]byte(data[1]), &service)
-				if err != nil {
-					return err
-				}
-				err = service.Save()
-				return err
-			}
+			mod := models.Service{}
+			json.Unmarshal(marshal, &mod)
+			handleOperation(mod, arr["mode"])
 		}
 		break
 	case "product":
-		{
-			var product models.Product
-			var a map[string]interface{}
-
-			err = json.Unmarshal([]byte(data[1]), &a)
-			if err != nil {
-				return err
-			}
-
-			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := uint64(a["id"].(float64))
-				err := product.FindbyID(ID)
-				if err != nil {
-					return err
-				}
-
-				err = product.Delete()
-				if err != nil {
-					return err
-				}
-			} else {
-				err = json.Unmarshal([]byte(data[1]), &product)
-				if err != nil {
-					return err
-				}
-				err = product.Save()
-				return err
-			}
+		{	
+			mod := models.Product{}
+			json.Unmarshal(marshal, &mod)
+			handleOperation(mod, arr["mode"])
 		}
 		break
 	case "loan_purpose":
 		{
-			var loanPurpose models.LoanPurpose
-			var a map[string]interface{}
-
-			err = json.Unmarshal([]byte(data[1]), &a)
-			if err != nil {
-				return err
-			}
-
-			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := uint64(a["id"].(float64))
-				err := loanPurpose.FindbyID(ID)
-				if err != nil {
-					return err
-				}
-
-				err = loanPurpose.Delete()
-				if err != nil {
-					return err
-				}
-			} else {
-				err = json.Unmarshal([]byte(data[1]), &loanPurpose)
-				if err != nil {
-					return err
-				}
-				err = loanPurpose.Save()
-				return err
-			}
+			mod := models.LoanPurpose{}
+			json.Unmarshal(marshal, &mod)
+			handleOperation(mod, arr["mode"])
 		}
 		break
 	case "loan":
-		log.Printf("message : %v", string(kafkaMessage))
+		// log.Printf("message : %v", string(kafkaMessage))
 		err = loanUpdate([]byte(data[1]))
 		if err != nil {
 			return err
@@ -429,7 +360,7 @@ func syncAgent(dataAgent []byte) (err error) {
 		if err != nil {
 			return err
 		}
-		err = agent.Save()
+		err = agent.SaveNoKafka()
 
 		return err
 	}
