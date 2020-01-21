@@ -22,10 +22,8 @@ development:
     sasl: true
     log_verbose: true
     topics:
-      produces:
-        for_lender: asira_borrower_to_lender
-      consumes:
-        for_borrower: asira_lender_to_borrower
+      produces: asira_backend
+      consumes: asira_backend
   clients:
     admin: Z3JhZGlvczp1bHRpbXVz
     android: YW5kcm9rZXk6YW5kcm9zZWNyZXQ= # androkey:androsecret
