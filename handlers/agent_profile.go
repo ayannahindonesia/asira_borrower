@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"asira_borrower/middlewares"
 	"asira_borrower/models"
+
 	"fmt"
 	"net/http"
 	"strconv"
@@ -171,9 +173,14 @@ func AgentProfileEdit(c echo.Context) error {
 	}
 	//restoring old password and update data
 	agentModel.Password = password
-	err = agentModel.Save()
+	// err = agentModel.Save()
+	// if err != nil {
+	// 	return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal mengubah data akun agen")
+	// }
+
+	err = middlewares.SubmitKafkaPayload(agentModel, "agent_update")
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal mengubah data akun agen")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat agent baru")
 	}
 
 	//Refetching after update

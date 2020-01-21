@@ -797,7 +797,7 @@ func Truncate(tableList []string) (err error) {
 				"loan_purposes",
 				"loans",
 				"uuid_reset_passwords",
-				"client",
+				"clients",
 				"internal_roles",
 				"agents",
 				"notifications",

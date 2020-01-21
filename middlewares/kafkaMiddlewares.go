@@ -96,7 +96,7 @@ func SubmitKafkaPayload(i interface{}, model string) (err error) {
 	topic := asira.App.Config.GetString(fmt.Sprintf("%s.kafka.topics.produces", asira.App.ENV))
 
 	var payload interface{}
-	payload = kafkaPayloadBuilder(i, model)
+	payload = kafkaPayloadBuilder(i, &model)
 
 	jMarshal, _ := json.Marshal(payload)
 
@@ -121,7 +121,7 @@ func SubmitKafkaPayload(i interface{}, model string) (err error) {
 	return nil
 }
 
-func kafkaPayloadBuilder(i interface{}, model string) (payload interface{}) {
+func kafkaPayloadBuilder(i interface{}, model *string) (payload interface{}) {
 	type KafkaModelPayload struct {
 		ID      float64     `json:"id"`
 		Payload interface{} `json:"payload"`
@@ -129,14 +129,16 @@ func kafkaPayloadBuilder(i interface{}, model string) (payload interface{}) {
 	}
 	var mode string
 
-	log.Printf("model : %v", model)
-
-	if strings.HasSuffix(model, "_delete") {
+	checkSuffix := *model
+	if strings.HasSuffix(checkSuffix, "_delete") {
 		mode = "delete"
-	} else if strings.HasSuffix(model, "_create") {
+		*model = strings.TrimSuffix(checkSuffix, "_delete")
+	} else if strings.HasSuffix(checkSuffix, "_create") {
 		mode = "create"
-	} else if strings.HasSuffix(model, "_update") {
+		*model = strings.TrimSuffix(checkSuffix, "_create")
+	} else if strings.HasSuffix(checkSuffix, "_update") {
 		mode = "update"
+		*model = strings.TrimSuffix(checkSuffix, "_update")
 	}
 
 	var inInterface map[string]interface{}
@@ -149,8 +151,6 @@ func kafkaPayloadBuilder(i interface{}, model string) (payload interface{}) {
 			Mode:    mode,
 		}
 	}
-
-	log.Printf("payload built : %v", payload)
 
 	return payload
 }
