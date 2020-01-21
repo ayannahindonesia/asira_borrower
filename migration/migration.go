@@ -23,14 +23,14 @@ func Seed() {
 
 	if asira.App.ENV == "development" {
 		// seed internals
-		client := []models.Client_config{
-			models.Client_config{
+		client := []models.Client{
+			models.Client{
 				Name:   "admin",
 				Key:    "adminkey",
 				Role:   "admin",
 				Secret: "adminsecret",
 			},
-			models.Client_config{
+			models.Client{
 				Name:   "android",
 				Key:    "androkey",
 				Role:   "client",
@@ -219,6 +219,24 @@ func TestSeed() {
 	defer seeder.Commit()
 
 	if asira.App.ENV == "development" {
+		//seeding client
+		client := []models.Client{
+			models.Client{
+				Name:   "admin",
+				Key:    "adminkey",
+				Role:   "admin",
+				Secret: "adminsecret",
+			},
+			models.Client{
+				Name:   "android",
+				Key:    "androkey",
+				Role:   "client",
+				Secret: "androsecret",
+			},
+		}
+		for _, clients := range client {
+			clients.Create()
+		}
 		// seed bank types
 		bankTypes := []models.BankType{
 			models.BankType{
@@ -702,14 +720,14 @@ func TestSeed() {
 			irole.Create()
 		}
 
-		client := []models.Client_config{
-			models.Client_config{
+		client := []models.Client{
+			models.Client{
 				Name:   "admin",
 				Key:    "adminkey",
 				Role:   "admin",
 				Secret: "adminsecret",
 			},
-			models.Client_config{
+			models.Client{
 				Name:   "android",
 				Key:    "androkey",
 				Role:   "client",
@@ -797,7 +815,7 @@ func Truncate(tableList []string) (err error) {
 				"loan_purposes",
 				"loans",
 				"uuid_reset_passwords",
-				"client_configs",
+				"client",
 				"internal_roles",
 				"agents",
 				"notifications",

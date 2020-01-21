@@ -207,7 +207,7 @@ CREATE TABLE "uuid_reset_passwords" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
-CREATE TABLE "client_configs" (
+CREATE TABLE "clients" (
     "id" bigserial,
     "name" varchar(255) NOT NULL,
     "role" varchar(255) NOT NULL,
@@ -271,7 +271,7 @@ DROP TABLE IF EXISTS "borrowers" CASCADE;
 DROP TABLE IF EXISTS "loan_purposes" CASCADE;
 DROP TABLE IF EXISTS "loans" CASCADE;
 DROP TABLE IF EXISTS "uuid_reset_passwords" CASCADE;
-DROP TABLE IF EXISTS "client_configs" CASCADE;
+DROP TABLE IF EXISTS "clients" CASCADE;
 DROP TABLE IF EXISTS "internal_roles" CASCADE;
 DROP TABLE IF EXISTS "agents" CASCADE;
 DROP TABLE IF EXISTS "notifications" CASCADE;
