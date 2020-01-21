@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"asira_borrower/asira"
-	"asira_borrower/handlers"
 	"asira_borrower/models"
 	"errors"
 	"flag"
@@ -404,7 +403,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	link := "" //FUTURE: link open apps detail
 	message := formatedMsg + link
 
-	err = handlers.SendMail(to, subject, message)
+	err = asira.App.Emailer.SendMail(to, subject, message)
 	if err != nil {
 		log.Println(err.Error())
 	}

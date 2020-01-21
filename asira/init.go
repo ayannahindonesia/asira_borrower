@@ -32,7 +32,8 @@ type (
 		OTP       OTP           `json:"otp"`
 		Kafka     KafkaInstance `json:"kafka"`
 		Messaging custommodule.Messaging
-		S3        custommodule.S3 `json:"s3"`
+		S3        custommodule.S3      `json:"s3"`
+		Emailer   custommodule.Emailer `json:"email"`
 	}
 
 	OTP struct {
@@ -64,6 +65,7 @@ func init() {
 	App.KafkaInit()
 	App.MessagingInit()
 	App.S3init()
+	App.EmailerInit()
 
 	otpSecret := gotp.RandomSecret(16)
 	App.OTP = OTP{
@@ -190,5 +192,18 @@ func (x *Application) S3init() (err error) {
 
 	x.S3, err = custommodule.NewS3(s3conf["access_key"].(string), s3conf["secret_key"].(string), s3conf["host"].(string), s3conf["bucket_name"].(string), s3conf["region"].(string))
 
+	return err
+}
+
+//EmailerInit load config for s3
+func (x *Application) EmailerInit() (err error) {
+	emailerConf := x.Config.GetStringMap(fmt.Sprintf("%s.mailer", x.ENV))
+
+	x.Emailer = custommodule.Emailer{
+		Host:     emailerConf["host"].(string),
+		Port:     emailerConf["port"].(int),
+		Email:    emailerConf["email"].(string),
+		Password: emailerConf["password"].(string),
+	}
 	return err
 }
