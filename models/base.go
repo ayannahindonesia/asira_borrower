@@ -11,7 +11,7 @@ import (
 )
 
 func KafkaSubmitModel(i interface{}, model string) (err error) {
-	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.produces", asira.App.ENV))
+	topic := asira.App.Config.GetString(fmt.Sprintf("%s.kafka.topics.produces", asira.App.ENV))
 
 	var payload interface{}
 	payload = kafkaPayloadBuilder(i, model)
@@ -25,15 +25,15 @@ func KafkaSubmitModel(i interface{}, model string) (err error) {
 	defer kafkaProducer.Close()
 
 	msg := &sarama.ProducerMessage{
-		Topic: topics["for_lender"].(string),
-		Value: sarama.StringEncoder(strings.TrimSuffix(model, "_delete") + ":" + string(jMarshal)),
+		Topic: topic,
+		Value: sarama.StringEncoder(model + ":" + string(jMarshal)),
 	}
 
 	select {
 	case kafkaProducer.Input() <- msg:
-		log.Printf("Produced topic : %s", topics["for_lender"].(string))
+		log.Printf("Produced topic : %s", topic)
 	case err := <-kafkaProducer.Errors():
-		log.Printf("Fail producing topic : %s error : %v", topics["for_lender"].(string), err)
+		log.Printf("Fail producing topic : %s error : %v", topic, err)
 	}
 
 	return nil
