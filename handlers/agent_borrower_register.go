@@ -121,7 +121,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"department":            []string{"required"},
 		"been_workingfor":       []string{},
 		"direct_superiorname":   []string{},
-		"employer_number":       []string{"required"},
+		"employer_number":       []string{},
 		"monthly_income":        []string{"required"},
 		"other_income":          []string{},
 		"other_incomesource":    []string{},

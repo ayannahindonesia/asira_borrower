@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -12,6 +14,11 @@ import (
 	"github.com/labstack/echo"
 )
 
+type BorrowerPersonalResponse struct {
+	models.Borrower
+	LoanStatus string `json:"loan_status"`
+}
+
 //BorrowerProfile get borrower personal profile
 func BorrowerProfile(c echo.Context) error {
 	defer c.Request().Body.Close()
@@ -20,15 +27,26 @@ func BorrowerProfile(c echo.Context) error {
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 
-	borrowerModel := models.Borrower{}
-
+	//check current borrower
+	borrower := BorrowerPersonalResponse{}
 	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
-	err := borrowerModel.FindbyID(borrowerID)
+
+	//manual query
+	db := asira.App.DB
+
+	//query loan from borrowers
+	LoanStatusQuery := fmt.Sprintf("CASE WHEN (SELECT COUNT(id) FROM loans l WHERE l.borrower = borrowers.id AND status IN ('%s', '%s') AND (due_date IS NULL OR due_date = '0001-01-01 00:00:00+00' OR (NOW() > l.disburse_date AND NOW() < l.due_date + make_interval(days => 1)))) > 0 THEN '%s' ELSE '%s' END", "approved", "processing", "active", "inactive")
+
+	//gen query
+	db = db.Table("borrowers").
+		Select("borrowers.*, "+LoanStatusQuery+" as loan_status").
+		Where("borrowers.id = ?", borrowerID)
+
+	err = db.Find(&borrower).Error
 	if err != nil {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
-
-	return c.JSON(http.StatusOK, borrowerModel)
+	return c.JSON(http.StatusOK, borrower)
 }
 
 //BorrowerProfileEdit patch data borrower personal
@@ -50,9 +68,9 @@ func BorrowerProfileEdit(c echo.Context) error {
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{},
 		"gender":                []string{},
-		"idcard_number":         []string{"unique_edit:borrowers,idcard_number"},
-		"taxid_number":          []string{"unique_edit:borrowers,taxid_number"},
-		"email":                 []string{"email", "unique:borrowers,taxid_number"},
+		"idcard_number":         []string{},
+		"taxid_number":          []string{},
+		"email":                 []string{"email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{},
 		"last_education":        []string{},
@@ -98,6 +116,19 @@ func BorrowerProfileEdit(c echo.Context) error {
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
+
+	//cek unique for patching
+	var fields = map[string]string{
+		"phone":              borrowerModel.Phone,
+		"email":              borrowerModel.Email,
+		"taxid_number":       borrowerModel.TaxIDnumber,
+		"bank_accountnumber": borrowerModel.BankAccountNumber,
+	}
+	fieldsFound, err := checkUniqueFields(borrowerModel.IdCardNumber, fields)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+fieldsFound)
+	}
+
 	err = borrowerModel.Save()
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal Membuat Akun")

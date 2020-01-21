@@ -20,8 +20,8 @@ func ClientResetPassword(c echo.Context) error {
 
 	defer c.Request().Body.Close()
 	borrower := models.Borrower{}
-	r := c.Request()
-	baseURL := c.Scheme() + "://" + r.Host
+	// r := c.Request()
+	baseURL := c.Scheme() + "://ayannah.co.id" // + r.Host
 	payloadRules := govalidator.MapData{
 		"email": []string{"email", "unique:borrowers,email"},
 	}

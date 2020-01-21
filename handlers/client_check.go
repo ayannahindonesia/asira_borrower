@@ -25,16 +25,16 @@ func CheckData(c echo.Context) error {
 	var values []string
 
 	if email := c.QueryParam("email"); email != "" && !asira.App.DB.Where("email = ? AND agent_referral = 0", email).Find(&borrower).RecordNotFound() {
-		values = append(values, "Email")
+		values = append(values, EnglishToIndonesiaFieldsUnderscored["email"])
 	}
 	if phone := c.QueryParam("phone"); phone != "" && !asira.App.DB.Where("phone = ? AND agent_referral = 0", phone).Find(&borrower).RecordNotFound() {
-		values = append(values, "Phone")
+		values = append(values, EnglishToIndonesiaFieldsUnderscored["phone"])
 	}
 	if idcard_number := c.QueryParam("idcard_number"); idcard_number != "" && !asira.App.DB.Where("idcard_number = ? AND agent_referral = 0", idcard_number).Find(&borrower).RecordNotFound() {
-		values = append(values, "Id Card Number")
+		values = append(values, EnglishToIndonesiaFieldsUnderscored["idcard_number"])
 	}
 	if taxid_number := c.QueryParam("taxid_number"); taxid_number != "" && !asira.App.DB.Where("taxid_number = ? AND agent_referral = 0", taxid_number).Find(&borrower).RecordNotFound() {
-		values = append(values, "Tax Id Number")
+		values = append(values, EnglishToIndonesiaFieldsUnderscored["taxid_number"])
 	}
 	if len(values) < 1 {
 		return c.JSON(http.StatusOK, map[string]interface{}{

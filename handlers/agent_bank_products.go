@@ -35,7 +35,7 @@ func AgentBankProduct(c echo.Context) error {
 	db = db.Table("products").
 		Select("products.*").
 		Joins("INNER JOIN services s ON s.id = products.service_id").
-		Joins("INNER JOIN banks b ON s.id IN (SELECT UNNEST(b.services))").
+		Joins("INNER JOIN banks b ON s.id IN (SELECT UNNEST(b.services)) AND products.id IN (SELECT UNNEST(b.products) )").
 		Joins("INNER JOIN agents ag ON b.id IN (SELECT UNNEST(ag.banks))").
 		Where("ag.id = ?", agentID)
 

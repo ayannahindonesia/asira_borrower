@@ -106,24 +106,36 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 	}
 
 	//parse payload
-	validate := validateRequestPayload(c, payloadRules, &borrowerModel)
+	var borrowerPayload models.Borrower
+	validate := validateRequestPayload(c, payloadRules, &borrowerPayload)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
 	//cek unique for patching
 	uniques := map[string]string{
-		"idcard_number":      borrowerModel.IdCardNumber,
-		"taxid_number":       borrowerModel.TaxIDnumber,
-		"email":              borrowerModel.Email,
-		"phone":              borrowerModel.Phone,
-		"bank_accountnumber": borrowerModel.BankAccountNumber,
+		"taxid_number":       borrowerPayload.TaxIDnumber,
+		"email":              borrowerPayload.Email,
+		"phone":              borrowerPayload.Phone,
+		"bank_accountnumber": borrowerPayload.BankAccountNumber,
 	}
-	foundFields, err := checkPatchFields("borrowers", "id", borrowerModel.ID, uniques)
+	foundFields, err := checkUniqueFields(borrowerModel.IdCardNumber, uniques)
 	if err != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error : "+foundFields)
 	}
 
+	if borrowerPayload.MonthlyIncome > 0 {
+		borrowerModel.MonthlyIncome = borrowerPayload.MonthlyIncome
+
+	}
+	if borrowerPayload.OtherIncome > 0 {
+		borrowerModel.OtherIncome = borrowerPayload.OtherIncome
+
+	}
+	if len(borrowerPayload.OtherIncomeSource) > 0 {
+		borrowerModel.OtherIncomeSource = borrowerPayload.OtherIncomeSource
+
+	}
 	//saving
 	err = borrowerModel.Save()
 	if err != nil {

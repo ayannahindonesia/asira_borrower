@@ -29,6 +29,7 @@ type (
 		DisburseDateChanged bool      `json:"disburse_date_changed"`
 		DisburseStatus      string    `json:"disburse_status"`
 		RejectReason        string    `json:"reject_reason"`
+		DueDate             time.Time `json:"due_date"`
 	}
 )
 
@@ -229,12 +230,18 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	if err != nil {
 		return err
 	}
+
+	//copy data
 	loan.Status = loanData.Status
 	loan.DisburseDate = loanData.DisburseDate
 	loan.DisburseStatus = loanData.DisburseStatus
 	loan.DisburseDateChanged = loanData.DisburseDateChanged
 	loan.RejectReason = loanData.RejectReason
+	loan.DueDate = loanData.DueDate
 	err = loan.SaveNoKafka()
+	if err != nil {
+		return err
+	}
 
 	err = borrower.FindbyID(loan.Borrower)
 	if err != nil {
