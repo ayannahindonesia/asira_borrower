@@ -5,6 +5,8 @@ import (
 	"asira_borrower/handlers"
 	"asira_borrower/models"
 	"errors"
+	"flag"
+	"reflect"
 
 	"encoding/json"
 	"fmt"
@@ -37,7 +39,7 @@ var wg sync.WaitGroup
 
 func init() {
 	var err error
-	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.consumes", asira.App.ENV))
+	topic := asira.App.Config.GetString(fmt.Sprintf("%s.kafka.topics.consumes", asira.App.ENV))
 
 	kafka := &AsiraKafkaHandlers{}
 	kafka.KafkaConsumer, err = sarama.NewConsumer([]string{asira.App.Kafka.Host}, asira.App.Kafka.Config)
@@ -45,7 +47,7 @@ func init() {
 		log.Printf("error while creating new kafka consumer : %v", err)
 	}
 
-	kafka.SetPartitionConsumer(topics["for_borrower"].(string))
+	kafka.SetPartitionConsumer(topic)
 
 	wg.Add(1)
 	go func() {
@@ -86,24 +88,103 @@ func (k *AsiraKafkaHandlers) Listen() ([]byte, error) {
 	return nil, fmt.Errorf("unidentified error while listening")
 }
 
-func handleOperation(modObj interface{}, mode interface{}) error{
+// SubmitKafkaPayload submits payload to kafka
+func SubmitKafkaPayload(i interface{}, model string) (err error) {
+	// skip kafka submit when in unit testing
+	if flag.Lookup("test.v") != nil {
+		return nil
+	}
+
+	topic := asira.App.Config.GetString(fmt.Sprintf("%s.kafka.topics.produces", asira.App.ENV))
+
+	var payload interface{}
+	payload = kafkaPayloadBuilder(i, model)
+
+	jMarshal, _ := json.Marshal(payload)
+
+	kafkaProducer, err := sarama.NewAsyncProducer([]string{asira.App.Kafka.Host}, asira.App.Kafka.Config)
+	if err != nil {
+		return err
+	}
+	defer kafkaProducer.Close()
+
+	msg := &sarama.ProducerMessage{
+		Topic: topic,
+		Value: sarama.StringEncoder(model + ":" + string(jMarshal)),
+	}
+
+	select {
+	case kafkaProducer.Input() <- msg:
+		log.Printf("Produced topic : %s", topic)
+	case err := <-kafkaProducer.Errors():
+		log.Printf("Fail producing topic : %s error : %v", topic, err)
+	}
+
+	return nil
+}
+
+func kafkaPayloadBuilder(i interface{}, model string) (payload interface{}) {
+	type KafkaModelPayload struct {
+		ID      float64     `json:"id"`
+		Payload interface{} `json:"payload"`
+		Mode    string      `json:"mode"`
+	}
+	var mode string
+
+	log.Printf("model : %v", model)
+
+	if strings.HasSuffix(model, "_delete") {
+		mode = "delete"
+	} else if strings.HasSuffix(model, "_create") {
+		mode = "create"
+	} else if strings.HasSuffix(model, "_update") {
+		mode = "update"
+	}
+
+	var inInterface map[string]interface{}
+	inrec, _ := json.Marshal(i)
+	json.Unmarshal(inrec, &inInterface)
+	if modelID, ok := inInterface["id"].(float64); ok {
+		payload = KafkaModelPayload{
+			ID:      modelID,
+			Payload: i,
+			Mode:    mode,
+		}
+	}
+
+	log.Printf("payload built : %v", payload)
+
+	return payload
+}
+
+func handleOperation(modObj interface{}, mode interface{}) error {
 	var err error
+	var methodCreate reflect.Value
+	var methodSave reflect.Value
+	var methodDelete reflect.Value
+
 	//get object
 	switch modObj.(type) {
 	case models.BankType:
 		mod := modObj.(models.BankType)
+		methodCreate = reflect.ValueOf(mod).MethodByName("Create")
+		methodSave = reflect.ValueOf(mod).MethodByName("Save")
+		methodDelete = reflect.ValueOf(mod).MethodByName("Delete")
 		break
-	case models.Bank:
-		mod := modObj.(models.Bank)
-		break
-	case models.Service:
-		mod := modObj.(models.Service)
-		break
-	case models.Product:
-		mod := modObj.(models.Product)
-		break
-	case models.LoanPurpose:
-		mod := modObj.(models.LoanPurpose)
+	// case models.Bank:
+	// 	mod := modObj.(models.Bank)
+	// 	break
+	// case models.Service:
+	// 	mod := modObj.(models.Service)
+	// 	break
+	// case models.Product:
+	// 	mod := modObj.(models.Product)
+	// 	break
+	// case models.LoanPurpose:
+	// 	mod := modObj.(models.LoanPurpose)
+	// 	break
+	default:
+		return errors.New("invalid obj")
 		break
 	}
 
@@ -113,20 +194,26 @@ func handleOperation(modObj interface{}, mode interface{}) error{
 		err = fmt.Errorf("invalid payload")
 		break
 	case "create":
-		err = mod.Create()
+		methodCreate.Call()
 		break
 	case "update":
-		err = mod.Save()
+		methodSave.Call()
 		break
 	case "delete":
-		err = mod.Delete()
+		methodDelete.Call()
 		break
 	}
-	
+
 	return err
 }
 
+//processMessage process messages from kafka
 func processMessage(kafkaMessage []byte) (err error) {
+	// defer func() {
+	// 	if r := recover(); r != nil {
+	// 		fmt.Println("Recovered : ", r)
+	// 	}
+	// }()
 
 	var arr map[string]interface{}
 
@@ -136,8 +223,13 @@ func processMessage(kafkaMessage []byte) (err error) {
 	if err != nil {
 		return err
 	}
-	marshal, _ := json.Marshal(arr["payload"])
-
+	marshal, err := json.Marshal(arr["payload"])
+	if err != nil {
+		return errors.New("invalid payload")
+	}
+	if len(arr["mode"].(string)) == 0 {
+		return errors.New("invalid mode")
+	}
 	//cek obj type
 	switch data[0] {
 	case "bank_type":
@@ -162,7 +254,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 		}
 		break
 	case "product":
-		{	
+		{
 			mod := models.Product{}
 			json.Unmarshal(marshal, &mod)
 			handleOperation(mod, arr["mode"])
@@ -183,10 +275,11 @@ func processMessage(kafkaMessage []byte) (err error) {
 		}
 		break
 	case "agent":
-		log.Printf("message : %v", string(kafkaMessage))
-		err = syncAgent([]byte(data[1]))
-		if err != nil {
-			return err
+		// log.Printf("message : %v", string(kafkaMessage))
+		{
+			mod := models.Agent{}
+			json.Unmarshal(marshal, &mod)
+			handleOperation(mod, arr["mode"])
 		}
 		break
 	default:
@@ -341,38 +434,6 @@ type Filter struct {
 	Username string `json:"username"`
 }
 
-func syncAgent(dataAgent []byte) (err error) {
-
-	var agent models.Agent
-	var a map[string]interface{}
-	fmt.Println("dataAgent => ", dataAgent)
-	err = json.Unmarshal(dataAgent, &a)
-	if err != nil {
-		return err
-	}
-
-	if a["delete"] != nil && a["delete"].(bool) == true {
-		ID := uint64(a["id"].(float64))
-		err := agent.FindbyID(ID)
-		if err != nil {
-			return err
-		}
-
-		err = agent.Delete()
-		if err != nil {
-			return err
-		}
-	} else {
-		err = json.Unmarshal(dataAgent, &agent)
-		if err != nil {
-			return err
-		}
-		err = agent.SaveNoKafka()
-
-		return err
-	}
-	return nil
-}
 func FormatingMessage(msgType string, object interface{}) string {
 
 	var msg string
