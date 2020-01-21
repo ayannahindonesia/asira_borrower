@@ -22,7 +22,6 @@ type (
 		Fees                postgres.Jsonb `json:"fees" gorm:"column:fees;type:jsonb"`
 		Interest            float64        `json:"interest" gorm:"column:interest;type:int;not null"`
 		TotalLoan           float64        `json:"total_loan" gorm:"column:total_loan;type:int;not null"`
-		DisburseAmount      float64        `json:"disburse_amount" gorm:"column:disburse_amount;type:int;not null"`
 		DueDate             time.Time      `json:"due_date" gorm:"column:due_date"`
 		LayawayPlan         float64        `json:"layaway_plan" gorm:"column:layaway_plan;type:int;not null"` // how much borrower will pay per month
 		Product             uint64         `json:"product" gorm:"column:product;foreignkey"`
@@ -33,6 +32,7 @@ type (
 		DisburseDate        time.Time      `json:"disburse_date" gorm:"column:disburse_date"`
 		DisburseDateChanged bool           `json:"disburse_date_changed" gorm:"column:disburse_date_changed"`
 		DisburseStatus      string         `json:"disburse_status" gorm:"column:disburse_status" sql:"DEFAULT:'processing'"`
+		ApprovalDate        time.Time      `json:"approval_date" gorm:"column:approval_date"`
 		RejectReason        string         `json:"reject_reason" gorm:"column:reject_reason"`
 	}
 

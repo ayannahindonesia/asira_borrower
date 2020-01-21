@@ -188,6 +188,7 @@ CREATE TABLE "loans" (
     "disburse_date" timestamptz,
     "disburse_date_changed" BOOLEAN,
     "disburse_status" varchar(255) DEFAULT ('processing'),
+    "approval_date" timestamptz,
     "reject_reason" text,
     FOREIGN KEY ("borrower") REFERENCES borrowers(id),
     FOREIGN KEY ("product") REFERENCES products(id),
