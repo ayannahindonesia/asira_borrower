@@ -23,6 +23,7 @@ type (
 		Interest            float64        `json:"interest" gorm:"column:interest;type:int;not null"`
 		TotalLoan           float64        `json:"total_loan" gorm:"column:total_loan;type:int;not null"`
 		DueDate             time.Time      `json:"due_date" gorm:"column:due_date"`
+		DisburseAmount      float64        `json:"disburse_amount" gorm:"column:disburse_amount;type:int;not null"`
 		LayawayPlan         float64        `json:"layaway_plan" gorm:"column:layaway_plan;type:int;not null"` // how much borrower will pay per month
 		Product             uint64         `json:"product" gorm:"column:product;foreignkey"`
 		LoanIntention       string         `json:"loan_intention" gorm:"column:loan_intention;type:varchar(255);not null"`
