@@ -12,7 +12,7 @@ import (
 func CreateClientConfig(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	clientC := models.Client_config{}
+	clientC := models.Client{}
 
 	payloadRules := govalidator.MapData{
 		"name": []string{"required"},
