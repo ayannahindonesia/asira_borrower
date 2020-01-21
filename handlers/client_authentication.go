@@ -29,7 +29,7 @@ func ClientLogin(c echo.Context) error {
 		Secret string `json:"secret"`
 	}
 
-	clientModel := models.Client_config{}
+	clientModel := models.Client{}
 	err = clientModel.FilterSearchSingle(&Login{
 		Key:    auth[0],
 		Secret: auth[1],
