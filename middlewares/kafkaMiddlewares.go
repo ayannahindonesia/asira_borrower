@@ -159,6 +159,7 @@ func kafkaPayloadBuilder(i interface{}, model string) (payload interface{}) {
 
 func handleOperation(modObj interface{}, mode interface{}) error {
 	var err error
+	var in interface{}
 	var methodCreate reflect.Value
 	var methodSave reflect.Value
 	var methodDelete reflect.Value
@@ -188,19 +189,23 @@ func handleOperation(modObj interface{}, mode interface{}) error {
 		break
 	}
 
-	//
+	//set reflect parameter  nil
+	in = nil
+	parms := []reflect.Value{reflect.ValueOf(in)}
+
+	//cek
 	switch mode.(string) {
 	default:
 		err = fmt.Errorf("invalid payload")
 		break
 	case "create":
-		methodCreate.Call()
+		methodCreate.Call(parms)
 		break
 	case "update":
-		methodSave.Call()
+		methodSave.Call(parms)
 		break
 	case "delete":
-		methodDelete.Call()
+		methodDelete.Call(parms)
 		break
 	}
 
