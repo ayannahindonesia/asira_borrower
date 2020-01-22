@@ -788,7 +788,6 @@ func Truncate(tableList []string) (err error) {
 	if len(tableList) > 0 {
 		if tableList[0] == "all" {
 			tableList = []string{
-				"agents",
 				"banks",
 				"bank_types",
 				"services",
@@ -800,6 +799,7 @@ func Truncate(tableList []string) (err error) {
 				"uuid_reset_passwords",
 				"clients",
 				"internal_roles",
+				"agents",
 				"notifications",
 				"users",
 			}
