@@ -23,10 +23,10 @@ func (model *Service) Save() error {
 	return err
 }
 
-// func (model *Service) FirstOrCreate() (err error) {
-// 	err = basemodel.FirstOrCreate(&model)
-// 	return nil
-// }
+func (model *Service) FirstOrCreate() (err error) {
+	err = basemodel.FirstOrCreate(&model)
+	return nil
+}
 
 func (model *Service) Delete() error {
 	err := basemodel.Delete(&model)

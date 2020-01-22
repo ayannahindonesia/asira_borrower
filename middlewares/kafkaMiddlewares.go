@@ -161,6 +161,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 	var arr map[string]interface{}
 
 	//parse msg
+	fmt.Println(string(kafkaMessage))
 	data := strings.SplitN(string(kafkaMessage), ":", 2)
 	err = json.Unmarshal([]byte(data[1]), &arr)
 	if err != nil {
@@ -174,6 +175,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 	}
 
 	//cek obj type
+	err = nil
 	switch data[0] {
 	case "bank_type":
 		{
@@ -184,11 +186,8 @@ func processMessage(kafkaMessage []byte) (err error) {
 			default:
 				err = fmt.Errorf("invalid payload")
 				break
-			case "create":
-				err = mod.Create()
-				break
-			case "update":
-				err = mod.Save()
+			case "create", "update":
+				err = mod.FirstOrCreate()
 				break
 			case "delete":
 				err = mod.Delete()
@@ -205,11 +204,8 @@ func processMessage(kafkaMessage []byte) (err error) {
 			default:
 				err = fmt.Errorf("invalid payload")
 				break
-			case "create":
-				err = mod.Create()
-				break
-			case "update":
-				err = mod.Save()
+			case "create", "update":
+				err = mod.FirstOrCreate()
 				break
 			case "delete":
 				err = mod.Delete()
@@ -226,11 +222,8 @@ func processMessage(kafkaMessage []byte) (err error) {
 			default:
 				err = fmt.Errorf("invalid payload")
 				break
-			case "create":
-				err = mod.Create()
-				break
-			case "update":
-				err = mod.Save()
+			case "create", "update":
+				err = mod.FirstOrCreate()
 				break
 			case "delete":
 				err = mod.Delete()
@@ -247,11 +240,8 @@ func processMessage(kafkaMessage []byte) (err error) {
 			default:
 				err = fmt.Errorf("invalid payload")
 				break
-			case "create":
-				err = mod.Create()
-				break
-			case "update":
-				err = mod.Save()
+			case "create", "update":
+				err = mod.FirstOrCreate()
 				break
 			case "delete":
 				err = mod.Delete()
@@ -268,11 +258,8 @@ func processMessage(kafkaMessage []byte) (err error) {
 			default:
 				err = fmt.Errorf("invalid payload")
 				break
-			case "create":
-				err = mod.Create()
-				break
-			case "update":
-				err = mod.Save()
+			case "create", "update":
+				err = mod.FirstOrCreate()
 				break
 			case "delete":
 				err = mod.Delete()
@@ -290,11 +277,8 @@ func processMessage(kafkaMessage []byte) (err error) {
 			default:
 				err = fmt.Errorf("invalid payload")
 				break
-			case "create":
-				err = mod.Create()
-				break
-			case "update":
-				err = mod.Save()
+			case "create", "update":
+				err = mod.FirstOrCreate()
 				break
 			case "delete":
 				err = mod.Delete()
@@ -313,7 +297,7 @@ func processMessage(kafkaMessage []byte) (err error) {
 		return nil
 		break
 	}
-	return nil
+	return err
 }
 
 func loanUpdate(kafkaMessage []byte) (err error) {
@@ -358,6 +342,8 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	loan.DisburseDateChanged = loanData.DisburseDateChanged
 	loan.RejectReason = loanData.RejectReason
 	loan.DueDate = loanData.DueDate
+
+	//NOTE: no kafka for loan, except loan otp verify success
 	err = loan.SaveNoKafka()
 	if err != nil {
 		return err

@@ -165,10 +165,15 @@ func (l *Loan) Create() error {
 		return err
 	}
 
-	if l.OTPverified {
-		err = KafkaSubmitModel(l, "loan")
-	}
+	// if l.OTPverified {
+	// 	err = KafkaSubmitModel(l, "loan")
+	// }
 	return err
+}
+
+func (l *Loan) FirstOrCreate() (err error) {
+	err = basemodel.FirstOrCreate(&l)
+	return nil
 }
 
 func (l *Loan) Save() error {

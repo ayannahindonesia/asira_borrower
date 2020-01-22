@@ -38,9 +38,12 @@ func (model *Agent) Save() error {
 	if err != nil {
 		return err
 	}
-
-	// err = KafkaSubmitModel(model, "agent")
 	return err
+}
+
+func (model *Agent) FirstOrCreate() (err error) {
+	err = basemodel.FirstOrCreate(&model)
+	return nil
 }
 
 // Save update agent
