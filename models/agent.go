@@ -42,8 +42,7 @@ func (model *Agent) Save() error {
 }
 
 func (model *Agent) FirstOrCreate() (err error) {
-	err = basemodel.FirstOrCreate(&model)
-	return nil
+	return basemodel.FirstOrCreate(&model)
 }
 
 // Save update agent
