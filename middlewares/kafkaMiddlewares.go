@@ -186,8 +186,11 @@ func processMessage(kafkaMessage []byte) (err error) {
 			default:
 				err = fmt.Errorf("invalid payload")
 				break
-			case "create", "update":
+			case "create":
 				err = mod.FirstOrCreate()
+				break
+			case "update":
+				err = mod.Save()
 				break
 			case "delete":
 				err = mod.Delete()
@@ -204,8 +207,11 @@ func processMessage(kafkaMessage []byte) (err error) {
 			default:
 				err = fmt.Errorf("invalid payload")
 				break
-			case "create", "update":
+			case "create":
 				err = mod.FirstOrCreate()
+				break
+			case "update":
+				err = mod.Save()
 				break
 			case "delete":
 				err = mod.Delete()
@@ -222,8 +228,11 @@ func processMessage(kafkaMessage []byte) (err error) {
 			default:
 				err = fmt.Errorf("invalid payload")
 				break
-			case "create", "update":
+			case "create":
 				err = mod.FirstOrCreate()
+				break
+			case "update":
+				err = mod.Save()
 				break
 			case "delete":
 				err = mod.Delete()
@@ -240,8 +249,11 @@ func processMessage(kafkaMessage []byte) (err error) {
 			default:
 				err = fmt.Errorf("invalid payload")
 				break
-			case "create", "update":
+			case "create":
 				err = mod.FirstOrCreate()
+				break
+			case "update":
+				err = mod.Save()
 				break
 			case "delete":
 				err = mod.Delete()
@@ -258,8 +270,11 @@ func processMessage(kafkaMessage []byte) (err error) {
 			default:
 				err = fmt.Errorf("invalid payload")
 				break
-			case "create", "update":
+			case "create":
 				err = mod.FirstOrCreate()
+				break
+			case "update":
+				err = mod.Save()
 				break
 			case "delete":
 				err = mod.Delete()
