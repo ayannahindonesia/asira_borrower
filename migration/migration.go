@@ -203,14 +203,6 @@ func Seed() {
 		}
 		uuid.Create()
 
-		roles := models.InternalRoles{
-			Name:        "Admin",
-			System:      "Core",
-			Description: "Role Admin",
-			Status:      true,
-		}
-		roles.Create()
-
 	}
 }
 
@@ -689,19 +681,6 @@ func TestSeed() {
 		}
 		uuid.Create()
 
-		//seed internal roles
-		iroles := []models.InternalRoles{
-			models.InternalRoles{
-				Name:        "admin",
-				Description: "ini admin",
-				Status:      true,
-				System:      "Core",
-			},
-		}
-		for _, irole := range iroles {
-			irole.Create()
-		}
-
 		client := []models.Client{
 			models.Client{
 				Name:   "admin",
@@ -798,7 +777,6 @@ func Truncate(tableList []string) (err error) {
 				"loans",
 				"uuid_reset_passwords",
 				"clients",
-				"internal_roles",
 				"agents",
 				"notifications",
 				"users",

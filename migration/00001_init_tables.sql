@@ -220,18 +220,6 @@ CREATE TABLE "clients" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
-CREATE TABLE "internal_roles" (
-    "id" bigserial,
-    "name" varchar(255) NOT NULL,
-    "system" varchar(255) NOT NULL,
-    "description" text,
-    "status" BOOLEAN,
-    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamptz,
-    PRIMARY KEY ("id")
-) WITH (OIDS = FALSE);
-
 CREATE TABLE "notifications" (
     "id" bigserial,
     "client_id" bigserial,
