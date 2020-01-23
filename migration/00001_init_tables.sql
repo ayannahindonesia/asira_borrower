@@ -42,23 +42,37 @@ CREATE TABLE "services" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+CREATE TABLE "agent_providers" (
+    "id" bigserial,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
+    "name" varchar(255),
+    "pic" varchar(255),
+    "phone" varchar(255) UNIQUE,
+    "address" text,
+    "status" varchar(255),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
 CREATE TABLE "agents" (
     "id" bigserial,
     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_at" timestamptz,
     "name" varchar(255),
-    "username" varchar(255),
+    "username" varchar(255) UNIQUE,
     "password" text,
     "image" text,
-    "email" varchar(255),
-    "phone" varchar(255),
+    "email" varchar(255) UNIQUE,
+    "phone" bigint UNIQUE,
     "category" varchar(255),
     "agent_provider" bigint,
     "banks" int ARRAY,
     "status" varchar(255),
     "fcm_token" varchar(255),
-    PRIMARY KEY ("id")
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("agent_provider") REFERENCES agent_providers(id)
 ) WITH (OIDS = FALSE);
 
 CREATE TABLE "products" (
@@ -253,5 +267,6 @@ DROP TABLE IF EXISTS "loans" CASCADE;
 DROP TABLE IF EXISTS "uuid_reset_passwords" CASCADE;
 DROP TABLE IF EXISTS "clients" CASCADE;
 DROP TABLE IF EXISTS "agents" CASCADE;
+DROP TABLE IF EXISTS "agent_providers" CASCADE;
 DROP TABLE IF EXISTS "notifications" CASCADE;
 DROP TABLE IF EXISTS "users" CASCADE;

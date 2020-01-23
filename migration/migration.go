@@ -508,6 +508,34 @@ func TestSeed() {
 			loan.Create()
 		}
 
+		//agent provider migration
+		agentProviders := []models.AgentProvider{
+			models.AgentProvider{
+				Name:    "Agent Provider A",
+				PIC:     "PIC A",
+				Phone:   "081234567890",
+				Address: "address of provider a",
+				Status:  "active",
+			},
+			models.AgentProvider{
+				Name:    "Agent Provider B",
+				PIC:     "PIC B",
+				Phone:   "081234567891",
+				Address: "address of provider b",
+				Status:  "active",
+			},
+			models.AgentProvider{
+				Name:    "Agent Provider C",
+				PIC:     "PIC C",
+				Phone:   "081234567892",
+				Address: "address of provider c",
+				Status:  "active",
+			},
+		}
+		for _, agentProvider := range agentProviders {
+			agentProvider.Create()
+		}
+
 		//agent migration
 		agents := []models.Agent{
 			models.Agent{
@@ -777,6 +805,7 @@ func Truncate(tableList []string) (err error) {
 				"uuid_reset_passwords",
 				"clients",
 				"agents",
+				"agent_providers",
 				"notifications",
 				"users",
 			}

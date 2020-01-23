@@ -282,9 +282,26 @@ func processMessage(kafkaMessage []byte) (err error) {
 			}
 		}
 		break
+	case "agent_provider":
+		mod := models.AgentProvider{}
+		json.Unmarshal(marshal, &mod)
+
+		switch arr["mode"] {
+		default:
+			err = fmt.Errorf("invalid payload")
+			break
+		case "create":
+			err = mod.FirstOrCreate()
+			break
+		case "update":
+			err = mod.Save()
+			break
+		case "delete":
+			err = mod.Delete()
+			break
+		}
 	case "agent":
 		{
-			log.Printf("incoming payload : %s", string(kafkaMessage))
 			mod := models.Agent{}
 			json.Unmarshal(marshal, &mod)
 
@@ -536,24 +553,24 @@ func createUnitTestModels(i interface{}, model string) error {
 	switch model {
 	default:
 		return fmt.Errorf("invalid model")
-	// case "agent_provider":
-	// 	if x, ok := i.(models.AgentProvider); ok {
-	// 		switch mode {
-	// 		default:
-	// 			return fmt.Errorf("invalid model")
-	// 			break
-	// 		case "create":
-	// 			err = x.FirstOrCreate()
-	// 			break
-	// 		case "update":
-	// 			err = x.Save()
-	// 			break
-	// 		case "delete":
-	// 			err = x.Delete()
-	// 			break
-	// 		}
-	// 	}
-	// 	break
+	case "agent_provider":
+		if x, ok := i.(models.AgentProvider); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
 	case "agent":
 		if x, ok := i.(models.Agent); ok {
 			switch mode {
