@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"asira_borrower/middlewares"
 	"asira_borrower/models"
 	"fmt"
 	"log"
@@ -280,6 +281,11 @@ func AgentLoanOTPverify(c echo.Context) error {
 	if asira.App.OTP.HOTP.Verify(LoanOTPverify.OTPcode, counter) {
 		loan.OTPverified = true
 		loan.Save()
+		err = middlewares.SubmitKafkaPayload(loan, "loan_update")
+		if err != nil {
+			log.Printf("verify %v", loan)
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal mensinkronisasi Loan")
+		}
 
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": fmt.Sprintf("loan %v verified", loan.ID)})
 	}
@@ -288,7 +294,11 @@ func AgentLoanOTPverify(c echo.Context) error {
 	if asira.App.ENV == "development" && LoanOTPverify.OTPcode == "888999" {
 		loan.OTPverified = true
 		loan.Save()
-
+		err = middlewares.SubmitKafkaPayload(loan, "loan_update")
+		if err != nil {
+			log.Printf("verify : %v", loan)
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal mensinkronisasi Loan")
+		}
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": fmt.Sprintf("loan %v verified", loan.ID)})
 	}
 

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"asira_borrower/middlewares"
 	"asira_borrower/models"
 	"database/sql"
 	"encoding/json"
@@ -352,22 +353,34 @@ func AgentVerifyOTP(c echo.Context) error {
 	catenate := strconv.Itoa(int(borrowerID)) + agent.Phone[len(agent.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
 	counter, _ := strconv.Atoi(catenate)
 	if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, counter) {
-		updateAgentBorrowerOTPStatus(borrowerID)
+		err = updateAccountOTPstatus(borrowerID)
+		if err != nil {
+			return returnInvalidResponse(http.StatusBadRequest, "", "gagal mengubah otp borrower")
+		}
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
 	}
 
 	// bypass otp
 	if asira.App.ENV == "development" && otpVerify.OTPcode == "888999" {
-		updateAgentBorrowerOTPStatus(borrowerID)
+		err = updateAccountOTPstatus(borrowerID)
+		if err != nil {
+			return returnInvalidResponse(http.StatusBadRequest, "", "gagal mengubah otp borrower")
+		}
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
 	}
 
 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
 }
 
-func updateAgentBorrowerOTPStatus(borrowerID uint64) {
+func updateAgentBorrowerOTPStatus(borrowerID uint64) error {
 	modelBorrower := models.Borrower{}
 	_ = modelBorrower.FindbyID(borrowerID)
 	modelBorrower.OTPverified = true
-	modelBorrower.Save()
+	// modelBorrower.Save()
+	err = middlewares.SubmitKafkaPayload(modelBorrower, "borrower_update")
+	if err != nil {
+		modelBorrower.OTPverified = false
+		return err
+	}
+	return nil
 }
