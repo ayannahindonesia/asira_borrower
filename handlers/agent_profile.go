@@ -178,9 +178,10 @@ func AgentProfileEdit(c echo.Context) error {
 	// 	return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal mengubah data akun agen")
 	// }
 
+	//agentModel.Save()
 	err = middlewares.SubmitKafkaPayload(agentModel, "agent_update")
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat agent baru")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal memperbaharui agent")
 	}
 
 	//Refetching after update

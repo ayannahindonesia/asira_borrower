@@ -268,8 +268,8 @@ func processMessage(kafkaMessage []byte) (err error) {
 		}
 		break
 	case "agent":
-		// log.Printf("message : %v", string(kafkaMessage))
 		{
+			log.Printf("incoming payload : %s", string(kafkaMessage))
 			mod := models.Agent{}
 			json.Unmarshal(marshal, &mod)
 
@@ -277,8 +277,11 @@ func processMessage(kafkaMessage []byte) (err error) {
 			default:
 				err = fmt.Errorf("invalid payload")
 				break
-			case "create", "update":
+			case "create":
 				err = mod.FirstOrCreate()
+				break
+			case "update":
+				err = mod.Save()
 				break
 			case "delete":
 				err = mod.Delete()
