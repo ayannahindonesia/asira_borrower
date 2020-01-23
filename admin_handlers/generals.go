@@ -1,4 +1,4 @@
-package admin_handlers
+package adminHandlers
 
 import (
 	"asira_borrower/asira"
@@ -11,6 +11,7 @@ import (
 )
 
 type (
+	//JWTclaims JWT data
 	JWTclaims struct {
 		Username string `json:"username"`
 		Role     string `json:"role"`
@@ -18,7 +19,7 @@ type (
 	}
 )
 
-// general function to validate all kind of api request payload / body
+//validateRequestPayload general function to validate all kind of api request payload / body
 func validateRequestPayload(c echo.Context, rules govalidator.MapData, data interface{}) (i interface{}) {
 	opts := govalidator.Options{
 		Request: c.Request(),
@@ -35,7 +36,7 @@ func validateRequestPayload(c echo.Context, rules govalidator.MapData, data inte
 	return i
 }
 
-// general function to validate all kind of api request url query
+//validateRequestQuery general function to validate all kind of api request url query
 func validateRequestQuery(c echo.Context, rules govalidator.MapData) (i interface{}) {
 	opts := govalidator.Options{
 		Request: c.Request(),
@@ -53,6 +54,7 @@ func validateRequestQuery(c echo.Context, rules govalidator.MapData) (i interfac
 	return i
 }
 
+//createJwtToken create JWT token string
 func returnInvalidResponse(httpcode int, details interface{}, message string) error {
 	responseBody := map[string]interface{}{
 		"message": message,
@@ -62,7 +64,7 @@ func returnInvalidResponse(httpcode int, details interface{}, message string) er
 	return echo.NewHTTPError(httpcode, responseBody)
 }
 
-// self explanation
+//createJwtToken create JWT token string
 func createJwtToken(id string, role string) (string, error) {
 	jwtConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", asira.App.ENV))
 

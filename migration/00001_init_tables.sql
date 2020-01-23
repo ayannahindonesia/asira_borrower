@@ -1,15 +1,6 @@
 -- +goose Up
 -- SQL in this section is executed when the migration is applied.
 
-CREATE TABLE "images" (
-    "id" bigserial,
-    "image_string" text,
-    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamptz,
-    PRIMARY KEY ("id")
-) WITH (OIDS = FALSE);
-
 CREATE TABLE "bank_types" (
     "id" bigserial,
     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
@@ -261,7 +252,6 @@ DROP TABLE IF EXISTS "loan_purposes" CASCADE;
 DROP TABLE IF EXISTS "loans" CASCADE;
 DROP TABLE IF EXISTS "uuid_reset_passwords" CASCADE;
 DROP TABLE IF EXISTS "clients" CASCADE;
-DROP TABLE IF EXISTS "internal_roles" CASCADE;
 DROP TABLE IF EXISTS "agents" CASCADE;
 DROP TABLE IF EXISTS "notifications" CASCADE;
 DROP TABLE IF EXISTS "users" CASCADE;
