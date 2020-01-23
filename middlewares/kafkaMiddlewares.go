@@ -90,7 +90,7 @@ func (k *AsiraKafkaHandlers) Listen() ([]byte, error) {
 func SubmitKafkaPayload(i interface{}, model string) (err error) {
 	// skip kafka submit when in unit testing
 	if flag.Lookup("test.v") != nil {
-		return nil
+		return createUnitTestModels(i, model)
 	}
 
 	topic := asira.App.Config.GetString(fmt.Sprintf("%s.kafka.topics.produces", asira.App.ENV))
@@ -515,4 +515,190 @@ func FormatingMessage(msgType string, object interface{}) string {
 	}
 
 	return msg
+}
+
+func createUnitTestModels(i interface{}, model string) error {
+	var (
+		mode string
+		err  error
+	)
+	if strings.HasSuffix(model, "_delete") {
+		mode = "delete"
+		model = strings.TrimSuffix(model, "_delete")
+	} else if strings.HasSuffix(model, "_create") {
+		mode = "create"
+		model = strings.TrimSuffix(model, "_create")
+	} else if strings.HasSuffix(model, "_update") {
+		mode = "update"
+		model = strings.TrimSuffix(model, "_update")
+	}
+
+	switch model {
+	default:
+		return fmt.Errorf("invalid model")
+	// case "agent_provider":
+	// 	if x, ok := i.(models.AgentProvider); ok {
+	// 		switch mode {
+	// 		default:
+	// 			return fmt.Errorf("invalid model")
+	// 			break
+	// 		case "create":
+	// 			err = x.FirstOrCreate()
+	// 			break
+	// 		case "update":
+	// 			err = x.Save()
+	// 			break
+	// 		case "delete":
+	// 			err = x.Delete()
+	// 			break
+	// 		}
+	// 	}
+	// 	break
+	case "agent":
+		if x, ok := i.(models.Agent); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "bank_type":
+		if x, ok := i.(models.BankType); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "bank":
+		if x, ok := i.(models.Bank); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "loan_purpose":
+		if x, ok := i.(models.LoanPurpose); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "product":
+		if x, ok := i.(models.Product); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "service":
+		if x, ok := i.(models.Service); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "loan":
+		if x, ok := i.(models.Loan); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "borrower":
+		if x, ok := i.(models.Borrower); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	}
+
+	return err
 }
