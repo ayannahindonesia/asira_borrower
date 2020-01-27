@@ -363,6 +363,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		DisburseDate        time.Time `json:"disburse_date"`
 		DisburseStatus      string    `json:"disburse_status"`
 		DisburseDateChanged bool      `json:"disburse_date_changed"`
+		DueDate             time.Time `json:"due_date"`
 	}
 	var loanData Loan
 	loan := models.Loan{}
@@ -379,6 +380,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		DisburseDate:        loanData.DisburseDate,
 		DisburseStatus:      loanData.DisburseStatus,
 		DisburseDateChanged: loanData.DisburseDateChanged,
+		DueDate:             loanData.DueDate,
 	})
 	//data ada di kafka sebelumnya
 	if err == nil {
@@ -392,15 +394,23 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	}
 
 	//copy data
-	loan.Status = loanData.Status
-	loan.DisburseDate = loanData.DisburseDate
-	loan.DisburseStatus = loanData.DisburseStatus
-	loan.DisburseDateChanged = loanData.DisburseDateChanged
-	loan.RejectReason = loanData.RejectReason
-	loan.DueDate = loanData.DueDate
+	copyData, err := json.Marshal(loanData)
+	if err != nil {
+		return errors.New("Gagal sinkronisasi loan data")
+	}
+	err = json.Unmarshal(copyData, &loan)
+	if err != nil {
+		return errors.New("Gagal sinkronisasi loan data")
+	}
+	// loan.Status = loanData.Status
+	// loan.DisburseDate = loanData.DisburseDate
+	// loan.DisburseStatus = loanData.DisburseStatus
+	// loan.DisburseDateChanged = loanData.DisburseDateChanged
+	// loan.RejectReason = loanData.RejectReason
+	// loan.DueDate = loanData.DueDate
 
 	//NOTE: no kafka for loan, except loan otp verify success
-	err = loan.SaveNoKafka()
+	err = loan.Save()
 	if err != nil {
 		return err
 	}
