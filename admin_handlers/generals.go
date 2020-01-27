@@ -54,7 +54,7 @@ func validateRequestQuery(c echo.Context, rules govalidator.MapData) (i interfac
 	return i
 }
 
-//createJwtToken create JWT token string
+//returnInvalidResponse error response
 func returnInvalidResponse(httpcode int, details interface{}, message string) error {
 	responseBody := map[string]interface{}{
 		"message": message,
