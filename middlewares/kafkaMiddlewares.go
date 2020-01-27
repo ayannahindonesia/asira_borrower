@@ -321,6 +321,27 @@ func processMessage(kafkaMessage []byte) (err error) {
 			}
 		}
 		break
+	case "borrower":
+		mod := models.Borrower{}
+
+		marshal, _ := json.Marshal(arr["payload"])
+		json.Unmarshal(marshal, &mod)
+
+		switch arr["mode"] {
+		default:
+			err = fmt.Errorf("invalid payload")
+			break
+		case "create":
+			err = mod.FirstOrCreate()
+			break
+		case "update":
+			err = mod.Save()
+			break
+		case "delete":
+			err = mod.Delete()
+			break
+		}
+		break
 	case "loan":
 		// log.Printf("message : %v", string(kafkaMessage))
 		err = loanUpdate([]byte(data[1]))
