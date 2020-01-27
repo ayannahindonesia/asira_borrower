@@ -249,7 +249,7 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 	counter, _ := strconv.Atoi(catenate)
 	if asira.App.OTP.HOTP.Verify(LoanOTPverify.OTPcode, counter) {
 		loan.OTPverified = true
-		loan.Save()
+		// loan.Save()
 		err = middlewares.SubmitKafkaPayload(loan, "loan_update")
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal mensinkronisasi Loan")
@@ -260,7 +260,7 @@ func BorrowerLoanOTPverify(c echo.Context) error {
 	// bypass otp
 	if asira.App.ENV == "development" && LoanOTPverify.OTPcode == "888999" {
 		loan.OTPverified = true
-		loan.Save()
+		// loan.Save()
 		err = middlewares.SubmitKafkaPayload(loan, "loan_update")
 		if err != nil {
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal mensinkronisasi Loan")
