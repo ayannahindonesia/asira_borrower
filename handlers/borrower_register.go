@@ -286,11 +286,21 @@ func VerifyAccountOTP(c echo.Context) error {
 }
 
 func updateAccountOTPstatus(borrowerID uint64) error {
+
+	type FilterCheckOTP struct {
+		ID          uint64 `json:"id"`
+		OTPverified bool   `json:"otp_verified"`
+	}
+
 	modelBorrower := models.Borrower{}
-	_ = modelBorrower.FindbyID(borrowerID)
-	if modelBorrower.OTPverified == true {
+	err := modelBorrower.FilterSearchSingle(&FilterCheckOTP{
+		ID:          borrowerID,
+		OTPverified: true,
+	})
+	if err == nil {
 		return errors.New("Nasabah sudah terverifikasi")
 	}
+
 	modelBorrower.OTPverified = true
 	err = middlewares.SubmitKafkaPayload(modelBorrower, "borrower_update")
 	if err != nil {
