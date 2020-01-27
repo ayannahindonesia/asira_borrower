@@ -23,8 +23,7 @@ func (b *BankType) Save() error {
 }
 
 func (model *BankType) FirstOrCreate() (err error) {
-	err = basemodel.FirstOrCreate(&model)
-	return nil
+	return basemodel.FirstOrCreate(&model)
 }
 
 func (b *BankType) Delete() error {

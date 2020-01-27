@@ -24,8 +24,7 @@ func (model *Service) Save() error {
 }
 
 func (model *Service) FirstOrCreate() (err error) {
-	err = basemodel.FirstOrCreate(&model)
-	return nil
+	return basemodel.FirstOrCreate(&model)
 }
 
 func (model *Service) Delete() error {

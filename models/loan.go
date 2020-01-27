@@ -172,8 +172,7 @@ func (l *Loan) Create() error {
 }
 
 func (l *Loan) FirstOrCreate() (err error) {
-	err = basemodel.FirstOrCreate(&l)
-	return nil
+	return basemodel.FirstOrCreate(&l)
 }
 
 func (l *Loan) Save() error {

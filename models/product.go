@@ -35,8 +35,7 @@ func (model *Product) Save() error {
 }
 
 func (model *Product) FirstOrCreate() (err error) {
-	err = basemodel.FirstOrCreate(&model)
-	return nil
+	return basemodel.FirstOrCreate(&model)
 }
 
 func (model *Product) Delete() error {
