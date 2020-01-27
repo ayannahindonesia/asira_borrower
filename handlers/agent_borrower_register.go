@@ -376,7 +376,7 @@ func updateAgentBorrowerOTPStatus(borrowerID uint64) error {
 	modelBorrower := models.Borrower{}
 	_ = modelBorrower.FindbyID(borrowerID)
 	modelBorrower.OTPverified = true
-	// modelBorrower.Save()
+	modelBorrower.Save()
 	err = middlewares.SubmitKafkaPayload(modelBorrower, "borrower_update")
 	if err != nil {
 		modelBorrower.OTPverified = false
