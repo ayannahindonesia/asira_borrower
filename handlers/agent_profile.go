@@ -30,7 +30,8 @@ type (
 
 	AgentResponse struct {
 		models.Agent
-		BankNames pq.StringArray `json:"bank_names"`
+		BankNames         pq.StringArray `json:"bank_names"`
+		AgentProviderName string         `json:"agent_provider"`
 	}
 )
 
@@ -49,7 +50,8 @@ func AgentProfile(c echo.Context) error {
 	//set banks name
 	agentBank := AgentResponse{}
 	db := asira.App.DB.Table("agents").
-		Select("agents.*, (SELECT ARRAY_AGG(name) FROM banks WHERE id IN (SELECT UNNEST(agents.banks))) as bank_names").
+		Select("agents.*, (SELECT ARRAY_AGG(name) FROM banks WHERE banks.id IN (SELECT UNNEST(agents.banks))) as bank_names, agent_providers.name AS agent_provider_name").
+		Joins("INNER JOIN agent_providers ON agent_providers.id = agents.agent_provider").
 		Where("agents.id = ?", agentID)
 
 	err = db.Find(&agentBank).Error
