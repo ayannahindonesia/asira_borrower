@@ -25,7 +25,6 @@ func NewRouter() *echo.Echo {
 	gopath, _ := os.Getwd()
 	e.Static("/", gopath+"/assets")
 
-	groups.AdminGroup(e)
 	groups.ClientGroup(e)
 	groups.BorrowerGroup(e)
 	groups.UnverifiedBorrowerGroup(e)
