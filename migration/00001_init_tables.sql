@@ -65,7 +65,7 @@ CREATE TABLE "agents" (
     "password" text,
     "image" text,
     "email" varchar(255) UNIQUE,
-    "phone" bigint UNIQUE,
+    "phone" varchar(255) UNIQUE,
     "category" varchar(255),
     "agent_provider" bigint,
     "banks" int ARRAY,
