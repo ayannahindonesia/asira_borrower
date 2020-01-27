@@ -182,9 +182,6 @@ func (l *Loan) Save() error {
 		return err
 	}
 
-	if l.OTPverified {
-		err = KafkaSubmitModel(l, "loan")
-	}
 	return err
 }
 
