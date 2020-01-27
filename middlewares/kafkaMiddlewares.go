@@ -343,8 +343,8 @@ func processMessage(kafkaMessage []byte) (err error) {
 		}
 		break
 	case "loan":
-		// log.Printf("message : %v", string(kafkaMessage))
-		err = loanUpdate([]byte(data[1]))
+		marshal, _ := json.Marshal(arr["payload"])
+		err = loanUpdate(marshal)
 		if err != nil {
 			return err
 		}
@@ -380,14 +380,12 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		DisburseDate:        loanData.DisburseDate,
 		DisburseStatus:      loanData.DisburseStatus,
 		DisburseDateChanged: loanData.DisburseDateChanged,
-		DueDate:             loanData.DueDate,
 	})
 	//data ada di kafka sebelumnya
 	if err == nil {
-		return errors.New("loan already in db")
+		return errors.New("loan yang identik sudah ada")
 	}
 
-	//get by ID saja
 	err = loan.FindbyID(loanData.ID)
 	if err != nil {
 		return err
@@ -402,12 +400,6 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	if err != nil {
 		return errors.New("Gagal sinkronisasi loan data")
 	}
-	// loan.Status = loanData.Status
-	// loan.DisburseDate = loanData.DisburseDate
-	// loan.DisburseStatus = loanData.DisburseStatus
-	// loan.DisburseDateChanged = loanData.DisburseDateChanged
-	// loan.RejectReason = loanData.RejectReason
-	// loan.DueDate = loanData.DueDate
 
 	//NOTE: no kafka for loan, except loan otp verify success
 	err = loan.Save()
