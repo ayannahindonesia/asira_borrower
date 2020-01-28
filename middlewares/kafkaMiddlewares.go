@@ -343,11 +343,33 @@ func processMessage(kafkaMessage []byte) (err error) {
 		}
 		break
 	case "loan":
+
+		mod := models.Loan{}
+
 		marshal, _ := json.Marshal(arr["payload"])
-		err = loanUpdate(marshal)
+		json.Unmarshal(marshal, &mod)
+
+		switch arr["mode"] {
+		default:
+			err = fmt.Errorf("invalid payload")
+			break
+		case "create":
+			err = mod.FirstOrCreate()
+			break
+		case "update":
+			err = mod.Save()
+			break
+		case "delete":
+			err = mod.Delete()
+			break
+		}
 		if err != nil {
 			return err
 		}
+
+		//processing email n fcm notification
+		err = sendLoanNotifications(mod)
+
 		break
 	default:
 		return nil
@@ -356,7 +378,9 @@ func processMessage(kafkaMessage []byte) (err error) {
 	return err
 }
 
-func loanUpdate(kafkaMessage []byte) (err error) {
+//sendLoanNotifications send email & firebase notification if loan has changed
+func sendLoanNotifications(loanData models.Loan) (err error) {
+
 	type Filter struct {
 		ID                  uint64    `json:"id"`
 		Status              string    `json:"status"`
@@ -365,14 +389,9 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		DisburseDateChanged bool      `json:"disburse_date_changed"`
 		DueDate             time.Time `json:"due_date"`
 	}
-	var loanData Loan
+
 	loan := models.Loan{}
 	borrower := models.Borrower{}
-
-	err = json.Unmarshal(kafkaMessage, &loanData)
-	if err != nil {
-		return err
-	}
 
 	err = loan.FilterSearchSingle(&Filter{
 		ID:                  loanData.ID,
@@ -381,28 +400,13 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		DisburseStatus:      loanData.DisburseStatus,
 		DisburseDateChanged: loanData.DisburseDateChanged,
 	})
-	//data ada di kafka sebelumnya
+	//data ada di kafka sebelumnya; mencegah send email & notif lebih dari sekali
 	if err == nil {
 		return errors.New("loan yang identik sudah ada")
 	}
 
+	//get current loan
 	err = loan.FindbyID(loanData.ID)
-	if err != nil {
-		return err
-	}
-
-	//copy data
-	copyData, err := json.Marshal(loanData)
-	if err != nil {
-		return errors.New("Gagal sinkronisasi loan data")
-	}
-	err = json.Unmarshal(copyData, &loan)
-	if err != nil {
-		return errors.New("Gagal sinkronisasi loan data")
-	}
-
-	//NOTE: no kafka for loan, except loan otp verify success
-	err = loan.Save()
 	if err != nil {
 		return err
 	}
@@ -430,38 +434,56 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		formatedMsg = FormatingMessage("loan_rejected", loan)
 	}
 
+	//set title for notif and email
+	title := "Status Pinjaman Anda"
+
+	//send Loan status to email borrower
+	err = sendEmailLoan(borrower.Email, title, formatedMsg)
+	if err != nil {
+		return err
+	}
+
+	//send Loan status to FCM notification
+	err = sendFCMLoan(loan, borrower, title, formatedMsg)
+
+	return err
+}
+
+func sendEmailLoan(email string, title string, formatedMsg string) error {
+	subject := "[NO REPLY] - " + title
+	link := "" //FUTURE: link open apps detail
+	message := formatedMsg + link
+
+	//sending email
+	err := asira.App.Emailer.SendMail(email, subject, message)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	return nil
+}
+
+func sendFCMLoan(loan models.Loan, borrower models.Borrower, title string, message string) error {
 	//custom map data for firebase key "Data"
 	mapData := map[string]string{
 		"id":     fmt.Sprintf("%d", loan.ID),
 		"status": loan.Status,
 	}
 
-	//set recipient ID
-	recipientID := fmt.Sprintf("borrower-%d", borrower.ID)
-
-	//set title for notif and email
-	title := "Status Pinjaman Anda"
-
-	to := borrower.Email
-	subject := "[NO REPLY] - " + title
-	link := "" //FUTURE: link open apps detail
-	message := formatedMsg + link
-
-	err = asira.App.Emailer.SendMail(to, subject, message)
-	if err != nil {
-		log.Println(err.Error())
-	}
-
 	//get user login n fcm data from borrower
 	user := models.User{}
-	err = user.FindbyBorrowerID(borrower.ID)
+	err := user.FindbyBorrowerID(borrower.ID)
 	if err != nil {
 		log.Println(err.Error())
 	}
+
+	//set recipient ID format
+	recipientID := fmt.Sprintf("borrower-%d", borrower.ID)
 
 	//send notif
 	fmt.Println("FCMToken : ", user.FCMToken)
-	responseBody, err := asira.App.Messaging.SendNotificationByToken(title, formatedMsg, mapData, user.FCMToken, recipientID)
+	responseBody, err := asira.App.Messaging.SendNotificationByToken(title, message, mapData, user.FCMToken, recipientID)
+	//if error create error info in notifications table
 	if err != nil {
 		type ErrorResponse struct {
 			Details string `json:"details"`
@@ -475,7 +497,6 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 			log.Printf(err.Error())
 			return err
 		}
-
 		//set error notif
 		notif := models.Notification{}
 		notif.Title = "failed"
@@ -486,7 +507,6 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		return err
 	}
 
-	log.Println("Response Body : ", string(responseBody))
 	//logging notification
 	var notif models.Notification
 	err = json.Unmarshal(responseBody, &notif)
@@ -497,12 +517,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	} else {
 		notif.Create()
 	}
-
-	return err
-}
-
-type Filter struct {
-	Username string `json:"username"`
+	return nil
 }
 
 func FormatingMessage(msgType string, object interface{}) string {
