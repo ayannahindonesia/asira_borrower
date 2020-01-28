@@ -35,7 +35,7 @@ func BorrowerProfile(c echo.Context) error {
 	db := asira.App.DB
 
 	//query loan from borrowers
-	LoanStatusQuery := fmt.Sprintf("CASE WHEN (SELECT COUNT(id) FROM loans l WHERE l.borrower = borrowers.id AND status IN ('%s', '%s') AND (due_date IS NULL OR due_date = '0001-01-01 00:00:00+00' OR (NOW() > l.disburse_date AND NOW() < l.due_date + make_interval(days => 1)))) > 0 THEN '%s' ELSE '%s' END", "approved", "processing", "active", "inactive")
+	LoanStatusQuery := fmt.Sprintf("CASE WHEN (SELECT COUNT(id) FROM loans l WHERE l.borrower = borrowers.id AND status IN ('%s', '%s') AND (due_date IS NULL OR due_date = '0001-01-01 00:00:00+00' OR NOW() < l.due_date + make_interval(days => 1))) > 0  THEN '%s' ELSE '%s' END", "approved", "processing", "active", "inactive")
 
 	//gen query
 	db = db.Table("borrowers").
