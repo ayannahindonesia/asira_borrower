@@ -2,6 +2,7 @@ package migration
 
 import (
 	"asira_borrower/asira"
+	"asira_borrower/middlewares"
 	"asira_borrower/models"
 	"database/sql"
 	"encoding/json"
@@ -142,6 +143,7 @@ func Seed() {
 		}
 		for _, borrower := range borrowers {
 			borrower.Create()
+			middlewares.SubmitKafkaPayload(borrower, "borrower_create")
 		}
 
 		users := []models.User{
@@ -191,6 +193,7 @@ func Seed() {
 		}
 		for _, loan := range loans {
 			loan.Create()
+			middlewares.SubmitKafkaPayload(loan, "loan_create")
 		}
 
 		//seed uuid
