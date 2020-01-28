@@ -376,6 +376,7 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 
 		//parse error response
 		err = json.Unmarshal(responseBody, &errorResponse)
+		fmt.Printf("errorResponse : %v", errorResponse)
 		if err != nil {
 			log.Printf(err.Error())
 			return err
