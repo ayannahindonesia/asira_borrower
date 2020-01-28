@@ -202,6 +202,11 @@ func RegisterBorrower(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
+	err = middlewares.SubmitKafkaPayload(borrower, "borrower_create")
+	if err != nil {
+		borrower.Delete()
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Sinkronisasi Borrower Baru Gagal")
+	}
 
 	//save borrower_id to user entity and storing
 	user.Borrower = borrower.ID

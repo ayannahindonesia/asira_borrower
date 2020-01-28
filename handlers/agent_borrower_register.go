@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"asira_borrower/middlewares"
 	"asira_borrower/models"
 	"database/sql"
 	"encoding/json"
@@ -245,6 +246,11 @@ func AgentRegisterBorrower(c echo.Context) error {
 	err = borrower.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
+	}
+	err = middlewares.SubmitKafkaPayload(borrower, "borrower_create")
+	if err != nil {
+		borrower.Delete()
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Sinkronisasi Borrower Baru Gagal")
 	}
 
 	return c.JSON(http.StatusCreated, borrower)

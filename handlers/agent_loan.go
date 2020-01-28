@@ -62,8 +62,12 @@ func AgentLoanApply(c echo.Context) error {
 
 	err = loan.Create()
 	if err != nil {
-		log.Printf("apply : %v", loan)
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat Loan")
+	}
+	err = middlewares.SubmitKafkaPayload(loan, "loan_create")
+	if err != nil {
+		loan.Delete()
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Sinkronisasi Borrower Baru Gagal")
 	}
 
 	return c.JSON(http.StatusCreated, loan)
