@@ -249,7 +249,6 @@ func AgentRegisterBorrower(c echo.Context) error {
 	}
 	err = middlewares.SubmitKafkaPayload(borrower, "borrower_create")
 	if err != nil {
-		borrower.Delete()
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Sinkronisasi Borrower Baru Gagal")
 	}
 

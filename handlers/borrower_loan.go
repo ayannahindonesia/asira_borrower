@@ -53,7 +53,6 @@ func BorrowerLoanApply(c echo.Context) error {
 	}
 	err = middlewares.SubmitKafkaPayload(loan, "loan_create")
 	if err != nil {
-		loan.Delete()
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Sinkronisasi Borrower Baru Gagal")
 	}
 	return c.JSON(http.StatusCreated, loan)
