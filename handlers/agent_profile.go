@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"asira_borrower/middlewares"
 	"asira_borrower/models"
+
 	"fmt"
 	"net/http"
 	"strconv"
@@ -28,7 +30,8 @@ type (
 
 	AgentResponse struct {
 		models.Agent
-		BankNames pq.StringArray `json:"bank_names"`
+		BankNames         pq.StringArray `json:"bank_names"`
+		AgentProviderName string         `json:"agent_provider"`
 	}
 )
 
@@ -47,7 +50,7 @@ func AgentProfile(c echo.Context) error {
 	//set banks name
 	agentBank := AgentResponse{}
 	db := asira.App.DB.Table("agents").
-		Select("agents.*, (SELECT ARRAY_AGG(name) FROM banks WHERE id IN (SELECT UNNEST(agents.banks))) as bank_names").
+		Select("agents.*, (SELECT ARRAY_AGG(name) FROM banks WHERE banks.id IN (SELECT UNNEST(agents.banks))) as bank_names, (SELECT agent_providers.name FROM agent_providers WHERE agent_providers.id = agents.agent_provider) as agent_provider_name").
 		Where("agents.id = ?", agentID)
 
 	err = db.Find(&agentBank).Error
@@ -171,9 +174,15 @@ func AgentProfileEdit(c echo.Context) error {
 	}
 	//restoring old password and update data
 	agentModel.Password = password
-	err = agentModel.Save()
+	// err = agentModel.Save()
+	// if err != nil {
+	// 	return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal mengubah data akun agen")
+	// }
+
+	// agentModel.Save()
+	err = middlewares.SubmitKafkaPayload(agentModel, "agent_update")
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal mengubah data akun agen")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal memperbaharui agent")
 	}
 
 	//Refetching after update

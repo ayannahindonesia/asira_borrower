@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"asira_borrower/middlewares"
 	"asira_borrower/models"
 	"net/http"
 	"strconv"
@@ -137,9 +138,10 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 
 	}
 	//saving
-	err = borrowerModel.Save()
+	// err = borrowerModel.Save()
+	err = middlewares.SubmitKafkaPayload(borrowerModel, "borrower_update")
 	if err != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Gagal Membuat Akun")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal update Borrower")
 	}
 
 	return c.JSON(http.StatusOK, borrowerModel)

@@ -29,8 +29,6 @@ func (model *Agent) Create() error {
 	if err != nil {
 		return err
 	}
-
-	err = KafkaSubmitModel(model, "agent")
 	return err
 }
 
@@ -40,9 +38,11 @@ func (model *Agent) Save() error {
 	if err != nil {
 		return err
 	}
-
-	err = KafkaSubmitModel(model, "agent")
 	return err
+}
+
+func (model *Agent) FirstOrCreate() (err error) {
+	return basemodel.FirstOrCreate(&model)
 }
 
 // Save update agent

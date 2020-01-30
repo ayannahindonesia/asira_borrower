@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"asira_borrower/middlewares"
 	"asira_borrower/models"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -200,6 +202,10 @@ func RegisterBorrower(c echo.Context) error {
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
+	err = middlewares.SubmitKafkaPayload(borrower, "borrower_create")
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Sinkronisasi Borrower Baru Gagal")
+	}
 
 	//save borrower_id to user entity and storing
 	user.Borrower = borrower.ID
@@ -264,22 +270,46 @@ func VerifyAccountOTP(c echo.Context) error {
 	catenate := strconv.Itoa(int(borrowerID)) + otpVerify.Phone[len(otpVerify.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
 	counter, _ := strconv.Atoi(catenate)
 	if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, counter) {
-		updateAccountOTPstatus(borrowerID)
+		err = updateAccountOTPstatus(borrowerID)
+		if err != nil {
+			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
+		}
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
 	}
 
 	// bypass otp
 	if asira.App.ENV == "development" && otpVerify.OTPcode == "888999" {
-		updateAccountOTPstatus(borrowerID)
+		err = updateAccountOTPstatus(borrowerID)
+		if err != nil {
+			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
+		}
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
 	}
 
 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
 }
 
-func updateAccountOTPstatus(borrowerID uint64) {
+func updateAccountOTPstatus(borrowerID uint64) error {
+
+	type FilterCheckOTP struct {
+		ID          uint64 `json:"id"`
+		OTPverified bool   `json:"otp_verified"`
+	}
+
 	modelBorrower := models.Borrower{}
-	_ = modelBorrower.FindbyID(borrowerID)
+	err := modelBorrower.FilterSearchSingle(&FilterCheckOTP{
+		ID:          borrowerID,
+		OTPverified: true,
+	})
+	if err == nil {
+		return errors.New("Nasabah sudah terverifikasi")
+	}
+
 	modelBorrower.OTPverified = true
-	modelBorrower.Save()
+	err = middlewares.SubmitKafkaPayload(modelBorrower, "borrower_update")
+	if err != nil {
+		modelBorrower.OTPverified = false
+		return err
+	}
+	return nil
 }
