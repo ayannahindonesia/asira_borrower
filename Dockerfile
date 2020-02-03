@@ -10,7 +10,7 @@ ARG CONFIGPATH="/data/"
 ADD . $GOPATH/src/"${APPNAME}"
 WORKDIR $GOPATH/src/"${APPNAME}"
 
-RUN apk add --update git gcc libc-dev tzdata;
+RUN apk add --update --no-cache git gcc libc-dev tzdata;
 RUN apk --no-cache add curl
 #  wget gcc libc-dev make openssl py-pip;
 RUN go get -u github.com/golang/dep/cmd/dep
