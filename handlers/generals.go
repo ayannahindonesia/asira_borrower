@@ -230,6 +230,7 @@ func uploadImageS3Formatted(prefix string, base64Image string) (string, error) {
 	filename := prefix + strconv.FormatInt(time.Now().Unix(), 10)
 	url, err := asira.App.S3.UploadJPEG(unbased, filename)
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 
