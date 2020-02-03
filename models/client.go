@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	Client_config struct {
+	Client struct {
 		basemodel.BaseModel
 		Name   string `json:"name" gorm:"column:name"`
 		Secret string `json:"secret" gorm:"column:secret"`
@@ -15,31 +15,31 @@ type (
 )
 
 // gorm callback hook
-func (i *Client_config) BeforeCreate() (err error) {
+func (i *Client) BeforeCreate() (err error) {
 	return nil
 }
 
-func (i *Client_config) Create() error {
+func (i *Client) Create() error {
 	err := basemodel.Create(&i)
 	return err
 }
 
 // gorm callback hook
-func (i *Client_config) BeforeSave() (err error) {
+func (i *Client) BeforeSave() (err error) {
 	return nil
 }
 
-func (i *Client_config) Save() error {
+func (i *Client) Save() error {
 	err := basemodel.Save(&i)
 	return err
 }
 
-func (l *Client_config) FilterSearchSingle(filter interface{}) (err error) {
+func (l *Client) FilterSearchSingle(filter interface{}) (err error) {
 	err = basemodel.SingleFindFilter(&l, filter)
 	return err
 }
 
-func (i *Client_config) Delete() error {
+func (i *Client) Delete() error {
 	err := basemodel.Delete(&i)
 	return err
 }

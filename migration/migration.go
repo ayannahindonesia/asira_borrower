@@ -2,6 +2,7 @@ package migration
 
 import (
 	"asira_borrower/asira"
+	"asira_borrower/middlewares"
 	"asira_borrower/models"
 	"database/sql"
 	"encoding/json"
@@ -23,14 +24,14 @@ func Seed() {
 
 	if asira.App.ENV == "development" {
 		// seed internals
-		client := []models.Client_config{
-			models.Client_config{
+		client := []models.Client{
+			models.Client{
 				Name:   "admin",
 				Key:    "adminkey",
 				Role:   "admin",
 				Secret: "adminsecret",
 			},
-			models.Client_config{
+			models.Client{
 				Name:   "android",
 				Key:    "androkey",
 				Role:   "client",
@@ -142,6 +143,7 @@ func Seed() {
 		}
 		for _, borrower := range borrowers {
 			borrower.Create()
+			middlewares.SubmitKafkaPayload(borrower, "borrower_create")
 		}
 
 		users := []models.User{
@@ -191,6 +193,7 @@ func Seed() {
 		}
 		for _, loan := range loans {
 			loan.Create()
+			middlewares.SubmitKafkaPayload(loan, "loan_create")
 		}
 
 		//seed uuid
@@ -202,14 +205,6 @@ func Seed() {
 			},
 		}
 		uuid.Create()
-
-		roles := models.InternalRoles{
-			Name:        "Admin",
-			System:      "Core",
-			Description: "Role Admin",
-			Status:      true,
-		}
-		roles.Create()
 
 	}
 }
@@ -516,6 +511,34 @@ func TestSeed() {
 			loan.Create()
 		}
 
+		//agent provider migration
+		agentProviders := []models.AgentProvider{
+			models.AgentProvider{
+				Name:    "Agent Provider A",
+				PIC:     "PIC A",
+				Phone:   "081234567890",
+				Address: "address of provider a",
+				Status:  "active",
+			},
+			models.AgentProvider{
+				Name:    "Agent Provider B",
+				PIC:     "PIC B",
+				Phone:   "081234567891",
+				Address: "address of provider b",
+				Status:  "active",
+			},
+			models.AgentProvider{
+				Name:    "Agent Provider C",
+				PIC:     "PIC C",
+				Phone:   "081234567892",
+				Address: "address of provider c",
+				Status:  "active",
+			},
+		}
+		for _, agentProvider := range agentProviders {
+			agentProvider.Create()
+		}
+
 		//agent migration
 		agents := []models.Agent{
 			models.Agent{
@@ -689,27 +712,14 @@ func TestSeed() {
 		}
 		uuid.Create()
 
-		//seed internal roles
-		iroles := []models.InternalRoles{
-			models.InternalRoles{
-				Name:        "admin",
-				Description: "ini admin",
-				Status:      true,
-				System:      "Core",
-			},
-		}
-		for _, irole := range iroles {
-			irole.Create()
-		}
-
-		client := []models.Client_config{
-			models.Client_config{
+		client := []models.Client{
+			models.Client{
 				Name:   "admin",
 				Key:    "adminkey",
 				Role:   "admin",
 				Secret: "adminsecret",
 			},
-			models.Client_config{
+			models.Client{
 				Name:   "android",
 				Key:    "androkey",
 				Role:   "client",
@@ -788,18 +798,17 @@ func Truncate(tableList []string) (err error) {
 	if len(tableList) > 0 {
 		if tableList[0] == "all" {
 			tableList = []string{
-				"bank_types",
 				"banks",
+				"bank_types",
 				"services",
 				"products",
-				"images",
 				"borrowers",
 				"loan_purposes",
 				"loans",
 				"uuid_reset_passwords",
-				"client_configs",
-				"internal_roles",
+				"clients",
 				"agents",
+				"agent_providers",
 				"notifications",
 				"users",
 			}

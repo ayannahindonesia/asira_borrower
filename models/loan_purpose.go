@@ -20,6 +20,10 @@ func (l *LoanPurpose) Save() (err error) {
 	return err
 }
 
+func (l *LoanPurpose) FirstOrCreate() (err error) {
+	return basemodel.FirstOrCreate(&l)
+}
+
 func (l *LoanPurpose) Delete() (err error) {
 	err = basemodel.Delete(&l)
 	return err

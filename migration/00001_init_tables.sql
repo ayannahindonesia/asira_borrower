@@ -1,15 +1,6 @@
 -- +goose Up
 -- SQL in this section is executed when the migration is applied.
 
-CREATE TABLE "images" (
-    "id" bigserial,
-    "image_string" text,
-    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamptz,
-    PRIMARY KEY ("id")
-) WITH (OIDS = FALSE);
-
 CREATE TABLE "bank_types" (
     "id" bigserial,
     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
@@ -51,23 +42,37 @@ CREATE TABLE "services" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+CREATE TABLE "agent_providers" (
+    "id" bigserial,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
+    "name" varchar(255),
+    "pic" varchar(255),
+    "phone" varchar(255) UNIQUE,
+    "address" text,
+    "status" varchar(255),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
 CREATE TABLE "agents" (
     "id" bigserial,
     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_at" timestamptz,
     "name" varchar(255),
-    "username" varchar(255),
+    "username" varchar(255) UNIQUE,
     "password" text,
     "image" text,
-    "email" varchar(255),
-    "phone" varchar(255),
+    "email" varchar(255) UNIQUE,
+    "phone" varchar(255) UNIQUE,
     "category" varchar(255),
     "agent_provider" bigint,
     "banks" int ARRAY,
     "status" varchar(255),
     "fcm_token" varchar(255),
-    PRIMARY KEY ("id")
+    PRIMARY KEY ("id"),
+    FOREIGN KEY ("agent_provider") REFERENCES agent_providers(id)
 ) WITH (OIDS = FALSE);
 
 CREATE TABLE "products" (
@@ -188,6 +193,7 @@ CREATE TABLE "loans" (
     "disburse_date" timestamptz,
     "disburse_date_changed" BOOLEAN,
     "disburse_status" varchar(255) DEFAULT ('processing'),
+    "approval_date" timestamptz,
     "reject_reason" text,
     FOREIGN KEY ("borrower") REFERENCES borrowers(id),
     FOREIGN KEY ("product") REFERENCES products(id),
@@ -207,24 +213,12 @@ CREATE TABLE "uuid_reset_passwords" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
-CREATE TABLE "client_configs" (
+CREATE TABLE "clients" (
     "id" bigserial,
     "name" varchar(255) NOT NULL,
     "role" varchar(255) NOT NULL,
     "secret" varchar(255) NOT NULL,
     "key" varchar(255) NOT NULL,    
-    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
-    "deleted_at" timestamptz,
-    PRIMARY KEY ("id")
-) WITH (OIDS = FALSE);
-
-CREATE TABLE "internal_roles" (
-    "id" bigserial,
-    "name" varchar(255) NOT NULL,
-    "system" varchar(255) NOT NULL,
-    "description" text,
-    "status" BOOLEAN,
     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_at" timestamptz,
@@ -271,8 +265,8 @@ DROP TABLE IF EXISTS "borrowers" CASCADE;
 DROP TABLE IF EXISTS "loan_purposes" CASCADE;
 DROP TABLE IF EXISTS "loans" CASCADE;
 DROP TABLE IF EXISTS "uuid_reset_passwords" CASCADE;
-DROP TABLE IF EXISTS "client_configs" CASCADE;
-DROP TABLE IF EXISTS "internal_roles" CASCADE;
+DROP TABLE IF EXISTS "clients" CASCADE;
 DROP TABLE IF EXISTS "agents" CASCADE;
+DROP TABLE IF EXISTS "agent_providers" CASCADE;
 DROP TABLE IF EXISTS "notifications" CASCADE;
 DROP TABLE IF EXISTS "users" CASCADE;

@@ -2,9 +2,9 @@ package middlewares
 
 import (
 	"asira_borrower/asira"
-	"asira_borrower/handlers"
 	"asira_borrower/models"
 	"errors"
+	"flag"
 
 	"encoding/json"
 	"fmt"
@@ -37,7 +37,7 @@ var wg sync.WaitGroup
 
 func init() {
 	var err error
-	topics := asira.App.Config.GetStringMap(fmt.Sprintf("%s.kafka.topics.consumes", asira.App.ENV))
+	topic := asira.App.Config.GetString(fmt.Sprintf("%s.kafka.topics.consumes", asira.App.ENV))
 
 	kafka := &AsiraKafkaHandlers{}
 	kafka.KafkaConsumer, err = sarama.NewConsumer([]string{asira.App.Kafka.Host}, asira.App.Kafka.Config)
@@ -45,7 +45,7 @@ func init() {
 		log.Printf("error while creating new kafka consumer : %v", err)
 	}
 
-	kafka.SetPartitionConsumer(topics["for_borrower"].(string))
+	kafka.SetPartitionConsumer(topic)
 
 	wg.Add(1)
 	go func() {
@@ -86,201 +86,312 @@ func (k *AsiraKafkaHandlers) Listen() ([]byte, error) {
 	return nil, fmt.Errorf("unidentified error while listening")
 }
 
+// SubmitKafkaPayload submits payload to kafka
+func SubmitKafkaPayload(i interface{}, model string) (err error) {
+	// skip kafka submit when in unit testing
+	if flag.Lookup("test.v") != nil {
+		return createUnitTestModels(i, model)
+	}
+
+	topic := asira.App.Config.GetString(fmt.Sprintf("%s.kafka.topics.produces", asira.App.ENV))
+
+	var payload interface{}
+	payload = kafkaPayloadBuilder(i, &model)
+
+	jMarshal, _ := json.Marshal(payload)
+
+	kafkaProducer, err := sarama.NewAsyncProducer([]string{asira.App.Kafka.Host}, asira.App.Kafka.Config)
+	if err != nil {
+		return err
+	}
+	defer kafkaProducer.Close()
+
+	msg := &sarama.ProducerMessage{
+		Topic: topic,
+		Value: sarama.StringEncoder(model + ":" + string(jMarshal)),
+	}
+
+	select {
+	case kafkaProducer.Input() <- msg:
+		log.Printf("Produced topic : %s", topic)
+	case err := <-kafkaProducer.Errors():
+		log.Printf("Fail producing topic : %s error : %v", topic, err)
+	}
+
+	return nil
+}
+
+func kafkaPayloadBuilder(i interface{}, model *string) (payload interface{}) {
+	type KafkaModelPayload struct {
+		ID      float64     `json:"id"`
+		Payload interface{} `json:"payload"`
+		Mode    string      `json:"mode"`
+	}
+	var mode string
+
+	checkSuffix := *model
+	if strings.HasSuffix(checkSuffix, "_delete") {
+		mode = "delete"
+		*model = strings.TrimSuffix(checkSuffix, "_delete")
+	} else if strings.HasSuffix(checkSuffix, "_create") {
+		mode = "create"
+		*model = strings.TrimSuffix(checkSuffix, "_create")
+	} else if strings.HasSuffix(checkSuffix, "_update") {
+		mode = "update"
+		*model = strings.TrimSuffix(checkSuffix, "_update")
+	}
+
+	var inInterface map[string]interface{}
+	inrec, _ := json.Marshal(i)
+	json.Unmarshal(inrec, &inInterface)
+	if modelID, ok := inInterface["id"].(float64); ok {
+		payload = KafkaModelPayload{
+			ID:      modelID,
+			Payload: i,
+			Mode:    mode,
+		}
+	}
+
+	return payload
+}
+
+//processMessage process messages from kafka
 func processMessage(kafkaMessage []byte) (err error) {
+
+	var arr map[string]interface{}
+
+	//parse msg
+	fmt.Println(string(kafkaMessage))
 	data := strings.SplitN(string(kafkaMessage), ":", 2)
+	err = json.Unmarshal([]byte(data[1]), &arr)
+	if err != nil {
+		return err
+	}
+
+	//convert payload
+	marshal, err := json.Marshal(arr["payload"])
+	if err != nil {
+		return errors.New("invalid payload")
+	}
+
+	//cek obj type
+	err = nil
 	switch data[0] {
 	case "bank_type":
 		{
-			var bankType models.BankType
-			var a map[string]interface{}
+			mod := models.BankType{}
+			json.Unmarshal(marshal, &mod)
 
-			err = json.Unmarshal([]byte(data[1]), &a)
-			if err != nil {
-				return err
-			}
-
-			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := uint64(a["id"].(float64))
-				err = bankType.FindbyID(ID)
-				if err != nil {
-					return err
-				}
-
-				err = bankType.Delete()
-				if err != nil {
-					return err
-				}
-			} else {
-				err = json.Unmarshal([]byte(data[1]), &bankType)
-				if err != nil {
-					return err
-				}
-				bankType.Save()
-				return err
+			switch arr["mode"] {
+			default:
+				err = fmt.Errorf("invalid payload")
+				break
+			case "create":
+				err = mod.FirstOrCreate()
+				break
+			case "update":
+				err = mod.Save()
+				break
+			case "delete":
+				err = mod.Delete()
+				break
 			}
 		}
 		break
 	case "bank":
 		{
-			var bank models.Bank
-			var a map[string]interface{}
+			mod := models.Bank{}
+			json.Unmarshal(marshal, &mod)
 
-			err = json.Unmarshal([]byte(data[1]), &a)
-			if err != nil {
-				return err
-			}
-
-			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := uint64(a["id"].(float64))
-				err = bank.FindbyID(ID)
-				if err != nil {
-					return err
-				}
-
-				err = bank.Delete()
-				if err != nil {
-					return err
-				}
-			} else {
-				err = json.Unmarshal([]byte(data[1]), &bank)
-				if err != nil {
-					return err
-				}
-				bank.Save()
-				return err
+			switch arr["mode"] {
+			default:
+				err = fmt.Errorf("invalid payload")
+				break
+			case "create":
+				err = mod.FirstOrCreate()
+				break
+			case "update":
+				err = mod.Save()
+				break
+			case "delete":
+				err = mod.Delete()
+				break
 			}
 		}
 		break
 	case "service":
 		{
-			var service models.Service
-			var a map[string]interface{}
+			mod := models.Service{}
+			json.Unmarshal(marshal, &mod)
 
-			err = json.Unmarshal([]byte(data[1]), &a)
-			if err != nil {
-				return err
-			}
-
-			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := uint64(a["id"].(float64))
-				err := service.FindbyID(ID)
-				if err != nil {
-					return err
-				}
-
-				err = service.Delete()
-				if err != nil {
-					return err
-				}
-			} else {
-				err = json.Unmarshal([]byte(data[1]), &service)
-				if err != nil {
-					return err
-				}
-				err = service.Save()
-				return err
+			switch arr["mode"] {
+			default:
+				err = fmt.Errorf("invalid payload")
+				break
+			case "create":
+				err = mod.FirstOrCreate()
+				break
+			case "update":
+				err = mod.Save()
+				break
+			case "delete":
+				err = mod.Delete()
+				break
 			}
 		}
 		break
 	case "product":
 		{
-			var product models.Product
-			var a map[string]interface{}
+			mod := models.Product{}
+			json.Unmarshal(marshal, &mod)
 
-			err = json.Unmarshal([]byte(data[1]), &a)
-			if err != nil {
-				return err
-			}
-
-			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := uint64(a["id"].(float64))
-				err := product.FindbyID(ID)
-				if err != nil {
-					return err
-				}
-
-				err = product.Delete()
-				if err != nil {
-					return err
-				}
-			} else {
-				err = json.Unmarshal([]byte(data[1]), &product)
-				if err != nil {
-					return err
-				}
-				err = product.Save()
-				return err
+			switch arr["mode"] {
+			default:
+				err = fmt.Errorf("invalid payload")
+				break
+			case "create":
+				err = mod.FirstOrCreate()
+				break
+			case "update":
+				err = mod.Save()
+				break
+			case "delete":
+				err = mod.Delete()
+				break
 			}
 		}
 		break
 	case "loan_purpose":
 		{
-			var loanPurpose models.LoanPurpose
-			var a map[string]interface{}
+			mod := models.LoanPurpose{}
+			json.Unmarshal(marshal, &mod)
 
-			err = json.Unmarshal([]byte(data[1]), &a)
-			if err != nil {
-				return err
+			switch arr["mode"] {
+			default:
+				err = fmt.Errorf("invalid payload")
+				break
+			case "create":
+				err = mod.FirstOrCreate()
+				break
+			case "update":
+				err = mod.Save()
+				break
+			case "delete":
+				err = mod.Delete()
+				break
 			}
+		}
+		break
+	case "agent_provider":
+		mod := models.AgentProvider{}
+		json.Unmarshal(marshal, &mod)
 
-			if a["delete"] != nil && a["delete"].(bool) == true {
-				ID := uint64(a["id"].(float64))
-				err := loanPurpose.FindbyID(ID)
-				if err != nil {
-					return err
-				}
+		switch arr["mode"] {
+		default:
+			err = fmt.Errorf("invalid payload")
+			break
+		case "create":
+			err = mod.FirstOrCreate()
+			break
+		case "update":
+			err = mod.Save()
+			break
+		case "delete":
+			err = mod.Delete()
+			break
+		}
+	case "agent":
+		{
+			mod := models.Agent{}
+			json.Unmarshal(marshal, &mod)
 
-				err = loanPurpose.Delete()
-				if err != nil {
-					return err
-				}
-			} else {
-				err = json.Unmarshal([]byte(data[1]), &loanPurpose)
-				if err != nil {
-					return err
-				}
-				err = loanPurpose.Save()
-				return err
+			switch arr["mode"] {
+			default:
+				err = fmt.Errorf("invalid payload")
+				break
+			case "create":
+				err = mod.FirstOrCreate()
+				break
+			case "update":
+				err = mod.Save()
+				break
+			case "delete":
+				err = mod.Delete()
+				break
 			}
+		}
+		break
+	case "borrower":
+		mod := models.Borrower{}
+
+		marshal, _ := json.Marshal(arr["payload"])
+		json.Unmarshal(marshal, &mod)
+
+		switch arr["mode"] {
+		default:
+			err = fmt.Errorf("invalid payload")
+			break
+		case "create":
+			err = mod.FirstOrCreate()
+			break
+		case "update":
+			err = mod.Save()
+			break
+		case "delete":
+			err = mod.Delete()
+			break
 		}
 		break
 	case "loan":
-		log.Printf("message : %v", string(kafkaMessage))
-		err = loanUpdate([]byte(data[1]))
+
+		mod := models.Loan{}
+
+		marshal, _ := json.Marshal(arr["payload"])
+		json.Unmarshal(marshal, &mod)
+
+		switch arr["mode"] {
+		default:
+			err = fmt.Errorf("invalid payload")
+			break
+		case "create":
+			err = mod.FirstOrCreate()
+			break
+		case "update":
+			err = mod.Save()
+			break
+		case "delete":
+			err = mod.Delete()
+			break
+		}
 		if err != nil {
 			return err
 		}
-		break
-	case "agent":
-		log.Printf("message : %v", string(kafkaMessage))
-		err = syncAgent([]byte(data[1]))
-		if err != nil {
-			return err
-		}
+
+		//processing email n fcm notification
+		err = sendLoanNotifications(mod)
+
 		break
 	default:
 		return nil
 		break
 	}
-	return nil
+	return err
 }
 
-func loanUpdate(kafkaMessage []byte) (err error) {
+//sendLoanNotifications send email & firebase notification if loan has changed
+func sendLoanNotifications(loanData models.Loan) (err error) {
+
 	type Filter struct {
 		ID                  uint64    `json:"id"`
 		Status              string    `json:"status"`
 		DisburseDate        time.Time `json:"disburse_date"`
 		DisburseStatus      string    `json:"disburse_status"`
 		DisburseDateChanged bool      `json:"disburse_date_changed"`
+		DueDate             time.Time `json:"due_date"`
 	}
-	var loanData Loan
+
 	loan := models.Loan{}
 	borrower := models.Borrower{}
-
-	err = json.Unmarshal(kafkaMessage, &loanData)
-	if err != nil {
-		return err
-	}
 
 	err = loan.FilterSearchSingle(&Filter{
 		ID:                  loanData.ID,
@@ -289,25 +400,13 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		DisburseStatus:      loanData.DisburseStatus,
 		DisburseDateChanged: loanData.DisburseDateChanged,
 	})
-	//data ada di kafka sebelumnya
+	//data ada di kafka sebelumnya; mencegah send email & notif lebih dari sekali
 	if err == nil {
-		return errors.New("loan already in db")
+		return errors.New("loan yang identik sudah ada")
 	}
 
-	//get by ID saja
+	//get current loan
 	err = loan.FindbyID(loanData.ID)
-	if err != nil {
-		return err
-	}
-
-	//copy data
-	loan.Status = loanData.Status
-	loan.DisburseDate = loanData.DisburseDate
-	loan.DisburseStatus = loanData.DisburseStatus
-	loan.DisburseDateChanged = loanData.DisburseDateChanged
-	loan.RejectReason = loanData.RejectReason
-	loan.DueDate = loanData.DueDate
-	err = loan.SaveNoKafka()
 	if err != nil {
 		return err
 	}
@@ -335,38 +434,56 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		formatedMsg = FormatingMessage("loan_rejected", loan)
 	}
 
+	//set title for notif and email
+	title := "Status Pinjaman Anda"
+
+	//send Loan status to email borrower
+	err = sendEmailLoan(borrower.Email, title, formatedMsg)
+	if err != nil {
+		return err
+	}
+
+	//send Loan status to FCM notification
+	err = sendFCMLoan(loan, borrower, title, formatedMsg)
+
+	return err
+}
+
+func sendEmailLoan(email string, title string, formatedMsg string) error {
+	subject := "[NO REPLY] - " + title
+	link := "" //FUTURE: link open apps detail
+	message := formatedMsg + link
+
+	//sending email
+	err := asira.App.Emailer.SendMail(email, subject, message)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	return nil
+}
+
+func sendFCMLoan(loan models.Loan, borrower models.Borrower, title string, message string) error {
 	//custom map data for firebase key "Data"
 	mapData := map[string]string{
 		"id":     fmt.Sprintf("%d", loan.ID),
 		"status": loan.Status,
 	}
 
-	//set recipient ID
-	recipientID := fmt.Sprintf("borrower-%d", borrower.ID)
-
-	//set title for notif and email
-	title := "Status Pinjaman Anda"
-
-	to := borrower.Email
-	subject := "[NO REPLY] - " + title
-	link := "" //FUTURE: link open apps detail
-	message := formatedMsg + link
-
-	err = handlers.SendMail(to, subject, message)
-	if err != nil {
-		log.Println(err.Error())
-	}
-
 	//get user login n fcm data from borrower
 	user := models.User{}
-	err = user.FindbyBorrowerID(borrower.ID)
+	err := user.FindbyBorrowerID(borrower.ID)
 	if err != nil {
 		log.Println(err.Error())
 	}
+
+	//set recipient ID format
+	recipientID := fmt.Sprintf("borrower-%d", borrower.ID)
 
 	//send notif
 	fmt.Println("FCMToken : ", user.FCMToken)
-	responseBody, err := asira.App.Messaging.SendNotificationByToken(title, formatedMsg, mapData, user.FCMToken, recipientID)
+	responseBody, err := asira.App.Messaging.SendNotificationByToken(title, message, mapData, user.FCMToken, recipientID)
+	//if error create error info in notifications table
 	if err != nil {
 		type ErrorResponse struct {
 			Details string `json:"details"`
@@ -380,7 +497,6 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 			log.Printf(err.Error())
 			return err
 		}
-
 		//set error notif
 		notif := models.Notification{}
 		notif.Title = "failed"
@@ -391,7 +507,6 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 		return err
 	}
 
-	log.Println("Response Body : ", string(responseBody))
 	//logging notification
 	var notif models.Notification
 	err = json.Unmarshal(responseBody, &notif)
@@ -402,46 +517,9 @@ func loanUpdate(kafkaMessage []byte) (err error) {
 	} else {
 		notif.Create()
 	}
-
-	return err
-}
-
-type Filter struct {
-	Username string `json:"username"`
-}
-
-func syncAgent(dataAgent []byte) (err error) {
-
-	var agent models.Agent
-	var a map[string]interface{}
-	fmt.Println("dataAgent => ", dataAgent)
-	err = json.Unmarshal(dataAgent, &a)
-	if err != nil {
-		return err
-	}
-
-	if a["delete"] != nil && a["delete"].(bool) == true {
-		ID := uint64(a["id"].(float64))
-		err := agent.FindbyID(ID)
-		if err != nil {
-			return err
-		}
-
-		err = agent.Delete()
-		if err != nil {
-			return err
-		}
-	} else {
-		err = json.Unmarshal(dataAgent, &agent)
-		if err != nil {
-			return err
-		}
-		err = agent.SaveNoKafka()
-
-		return err
-	}
 	return nil
 }
+
 func FormatingMessage(msgType string, object interface{}) string {
 
 	var msg string
@@ -492,4 +570,190 @@ func FormatingMessage(msgType string, object interface{}) string {
 	}
 
 	return msg
+}
+
+func createUnitTestModels(i interface{}, model string) error {
+	var (
+		mode string
+		err  error
+	)
+	if strings.HasSuffix(model, "_delete") {
+		mode = "delete"
+		model = strings.TrimSuffix(model, "_delete")
+	} else if strings.HasSuffix(model, "_create") {
+		mode = "create"
+		model = strings.TrimSuffix(model, "_create")
+	} else if strings.HasSuffix(model, "_update") {
+		mode = "update"
+		model = strings.TrimSuffix(model, "_update")
+	}
+
+	switch model {
+	default:
+		return fmt.Errorf("invalid model")
+	case "agent_provider":
+		if x, ok := i.(models.AgentProvider); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "agent":
+		if x, ok := i.(models.Agent); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "bank_type":
+		if x, ok := i.(models.BankType); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "bank":
+		if x, ok := i.(models.Bank); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "loan_purpose":
+		if x, ok := i.(models.LoanPurpose); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "product":
+		if x, ok := i.(models.Product); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "service":
+		if x, ok := i.(models.Service); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "loan":
+		if x, ok := i.(models.Loan); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	case "borrower":
+		if x, ok := i.(models.Borrower); ok {
+			switch mode {
+			default:
+				return fmt.Errorf("invalid model")
+				break
+			case "create":
+				err = x.FirstOrCreate()
+				break
+			case "update":
+				err = x.Save()
+				break
+			case "delete":
+				err = x.Delete()
+				break
+			}
+		}
+		break
+	}
+
+	return err
 }

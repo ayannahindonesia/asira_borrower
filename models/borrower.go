@@ -73,10 +73,15 @@ func (b *Borrower) Create() error {
 		return err
 	}
 
-	if b.OTPverified == true {
-		err = KafkaSubmitModel(b, "borrower")
-	}
+	// if b.OTPverified == true {
+	// 	err = KafkaSubmitModel(b, "borrower")
+	// }
 	return err
+}
+
+// FirstOrCreate func
+func (b *Borrower) FirstOrCreate() error {
+	return basemodel.FirstOrCreate(&b)
 }
 
 func (b *Borrower) Save() error {
@@ -84,10 +89,11 @@ func (b *Borrower) Save() error {
 	if err != nil {
 		return err
 	}
+	return err
+}
 
-	if b.OTPverified == true {
-		err = KafkaSubmitModel(b, "borrower")
-	}
+func (b *Borrower) Delete() error {
+	err := basemodel.Delete(&b)
 	return err
 }
 

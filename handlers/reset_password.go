@@ -52,7 +52,7 @@ func ClientResetPassword(c echo.Context) error {
 		link := baseURL + "/deepLinks/" + uuid.UUID
 		message := "Hai Nasabah,\n\nIni adalah email untuk melakukan reset login akun anda. Silahkan klik link di bawah ini agar dapat melakukan reset login akun.\nLink ini hanya valid dalam waktu 24 jam.\n" + link + " \n\n\n Ayannah Solusi Nusantara Team"
 
-		err = SendMail(to, subject, message)
+		err = asira.App.Emailer.SendMail(to, subject, message)
 		if err != nil {
 			log.Println(err.Error())
 		}

@@ -49,12 +49,18 @@ func NewS3(accesskey string, secretkey string, host string, bucketname string, r
 func (x *S3) UploadJPEG(b []byte, filename string) (string, error) {
 	var err error
 	if flag.Lookup("test.v") == nil {
-		session, _ := session.NewSession(x.Config)
+		session, err := session.NewSession(x.Config)
+		if err != nil {
+			return "", err
+		}
 
 		s3Client := s3.New(session)
-		s3Client.CreateBucket(&s3.CreateBucketInput{
+		_, err = s3Client.CreateBucket(&s3.CreateBucketInput{
 			Bucket: aws.String(x.Bucket),
 		})
+		if err != nil {
+			return "", err
+		}
 
 		file, _ := os.Create("files/" + filename + ".jpeg")
 		defer file.Close()

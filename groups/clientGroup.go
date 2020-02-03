@@ -1,7 +1,6 @@
 package groups
 
 import (
-	"asira_borrower/admin_handlers"
 	"asira_borrower/handlers"
 	"asira_borrower/middlewares"
 
@@ -29,8 +28,8 @@ func ClientGroup(e *echo.Echo) {
 	g.GET("/bank_services/:id", handlers.ClientBankServicebyID)
 
 	// loan purposes
-	g.GET("/loan_purposes", admin_handlers.LoanPurposeList)
-	g.GET("/loan_purposes/:loan_purpose_id", admin_handlers.LoanPurposeDetail)
+	g.GET("/loan_purposes", handlers.LoanPurposeList)
+	g.GET("/loan_purposes/:loan_purpose_id", handlers.LoanPurposeDetail)
 
 	//server time & service info
 	g.GET("/serviceinfo", handlers.ServiceInfo)
