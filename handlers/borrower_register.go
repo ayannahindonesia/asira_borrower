@@ -4,13 +4,11 @@ import (
 	"asira_borrower/asira"
 	"asira_borrower/middlewares"
 	"asira_borrower/models"
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -32,105 +30,62 @@ func RegisterBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
 	type (
 		Register struct {
-			Fullname             string    `json:"fullname"`
-			Nickname             string    `json:"nickname"`
-			Gender               string    `json:"gender" `
-			IdCardNumber         string    `json:"idcard_number" `
-			IdCardImage          string    `json:"idcard_image"`
-			TaxIDImage           string    `json:"taxid_image"`
-			TaxIDnumber          string    `json:"taxid_number"`
-			Nationality          string    `json:"nationality"`
-			Email                string    `json:"email"`
-			Birthday             time.Time `json:"birthday"`
-			Birthplace           string    `json:"birthplace"`
-			LastEducation        string    `json:"last_education"`
-			MotherName           string    `json:"mother_name"`
-			Phone                string    `json:"phone"`
-			MarriedStatus        string    `json:"marriage_status"`
-			SpouseName           string    `json:"spouse_name"`
-			SpouseBirthday       time.Time `json:"spouse_birthday"`
-			SpouseLastEducation  string    `json:"spouse_lasteducation"`
-			Dependants           int       `json:"dependants,omitempty"`
-			Address              string    `json:"address"`
-			Province             string    `json:"province"`
-			City                 string    `json:"city"`
-			NeighbourAssociation string    `json:"neighbour_association"`
-			Hamlets              string    `json:"hamlets"`
-			HomePhoneNumber      string    `json:"home_phonenumber"`
-			Subdistrict          string    `json:"subdistrict"`
-			UrbanVillage         string    `json:"urban_village"`
-			HomeOwnership        string    `json:"home_ownership"`
-			LivedFor             int       `json:"lived_for"`
-			Occupation           string    `json:"occupation"`
-			EmployeeID           string    `json:"employee_id"`
-			EmployerName         string    `json:"employer_name"`
-			EmployerAddress      string    `json:"employer_address"`
-			Department           string    `json:"department"`
-			BeenWorkingFor       int       `json:"been_workingfor"`
-			DirectSuperior       string    `json:"direct_superiorname"`
-			EmployerNumber       string    `json:"employer_number"`
-			MonthlyIncome        int       `json:"monthly_income"`
-			OtherIncome          int       `json:"other_income"`
-			OtherIncomeSource    string    `json:"other_incomesource"`
-			FieldOfWork          string    `json:"field_of_work"`
-			RelatedPersonName    string    `json:"related_personname"`
-			RelatedRelation      string    `json:"related_relation"`
-			RelatedPhoneNumber   string    `json:"related_phonenumber"`
-			RelatedHomePhone     string    `json:"related_homenumber"`
-			RelatedAddress       string    `json:"related_address"`
-			Bank                 int       `json:"bank"`
-			BankAccountNumber    string    `json:"bank_accountnumber"`
-			Password             string    `json:"password"`
+			Fullname string `json:"fullname"`
+			Email    string `json:"email"`
+			Phone    string `json:"phone"`
+			Password string `json:"password"`
+			OTPCode  string `json:"otp_code"`
 		}
 	)
 	register := Register{}
 	payloadRules := govalidator.MapData{
-		"fullname":              []string{"required"},
-		"nickname":              []string{},
-		"gender":                []string{"required"},
-		"idcard_number":         []string{"required"},
-		"taxid_number":          []string{},
-		"nationality":           []string{},
-		"email":                 []string{"required", "email"},
-		"birthday":              []string{"date"},
-		"birthplace":            []string{"required"},
-		"last_education":        []string{"required"},
-		"mother_name":           []string{"required"},
-		"phone":                 []string{"required", "id_phonenumber"},
-		"marriage_status":       []string{"required"},
-		"spouse_name":           []string{},
-		"spouse_birthday":       []string{"date"},
-		"spouse_lasteducation":  []string{},
-		"dependants":            []string{},
-		"address":               []string{"required"},
-		"province":              []string{"required"},
-		"city":                  []string{"required"},
-		"neighbour_association": []string{"required"},
-		"hamlets":               []string{"required"},
-		"home_phonenumber":      []string{},
-		"subdistrict":           []string{"required"},
-		"urban_village":         []string{"required"},
-		"home_ownership":        []string{"required"},
-		"lived_for":             []string{"required"},
-		"occupation":            []string{"required"},
-		"employee_id":           []string{},
-		"employer_name":         []string{"required"},
-		"employer_address":      []string{"required"},
-		"department":            []string{"required"},
-		"been_workingfor":       []string{},
-		"direct_superiorname":   []string{},
-		"employer_number":       []string{"required"},
-		"monthly_income":        []string{"required"},
-		"other_income":          []string{},
-		"other_incomesource":    []string{},
-		"field_of_work":         []string{"required"},
-		"related_personname":    []string{"required"},
-		"related_relation":      []string{"required"},
-		"related_phonenumber":   []string{"required"},
-		"related_homenumber":    []string{},
-		"bank":                  []string{},
-		"bank_accountnumber":    []string{},
-		"password":              []string{"required"},
+		"fullname": []string{"required"},
+		"email":    []string{"required", "unique:borrowers,email"},
+		"phone":    []string{"required", "id_phonenumber", "unique:borrowers,phone"},
+		"password": []string{"required"},
+		"otp_code": []string{"required"},
+		// "nickname":              []string{},
+		//"birthday": []string{"date"},
+		// "gender":                []string{},
+		// "idcard_number":         []string{},
+		// "taxid_number":          []string{},
+		// "nationality":           []string{},
+		// "birthplace":            []string{},
+		// "last_education":        []string{},
+		// "mother_name":           []string{},
+		// "marriage_status":       []string{},
+		// "spouse_name":           []string{},
+		// "spouse_birthday":       []string{},
+		// "spouse_lasteducation":  []string{},
+		// "dependants":            []string{},
+		// "address":               []string{},
+		// "province":              []string{},
+		// "city":                  []string{},
+		// "neighbour_association": []string{},
+		// "hamlets":               []string{},
+		// "home_phonenumber":      []string{},
+		// "subdistrict":           []string{},
+		// "urban_village":         []string{},
+		// "home_ownership":        []string{},
+		// "lived_for":             []string{},
+		// "occupation":            []string{},
+		// "employee_id":           []string{},
+		// "employer_name":         []string{},
+		// "employer_address":      []string{},
+		// "department":            []string{},
+		// "been_workingfor":       []string{},
+		// "direct_superiorname":   []string{},
+		// "employer_number":       []string{},
+		// "monthly_income":        []string{},
+		// "other_income":          []string{},
+		// "other_incomesource":    []string{},
+		// "field_of_work":         []string{},
+		// "related_personname":    []string{},
+		// "related_relation":      []string{},
+		// "related_phonenumber":   []string{},
+		// "related_homenumber":    []string{},
+		// "bank":                  []string{},
+		// "bank_accountnumber":    []string{},
 	}
 
 	validate := validateRequestPayload(c, payloadRules, &register)
@@ -145,59 +100,59 @@ func RegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 
-	//upload image id card
-	IdCardImage, err := uploadImageS3Formatted("ktp", register.IdCardImage)
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : IDCardImage failed to upload")
-	}
+	// //upload image id card
+	// IdCardImage, err := uploadImageS3Formatted("ktp", register.IdCardImage)
+	// if err != nil {
+	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : IDCardImage failed to upload")
+	// }
 
-	//upload image tax card
-	TaxIDImage, err := uploadImageS3Formatted("tax", register.TaxIDImage)
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : TaxIDImage failed to upload")
-	}
+	// //upload image tax card
+	// TaxIDImage, err := uploadImageS3Formatted("tax", register.TaxIDImage)
+	// if err != nil {
+	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : TaxIDImage failed to upload")
+	// }
 
 	//create 1 user for 1 borrower (nasabah personal)
 	user := models.User{}
 
-	//search already exist Borrower registered by agent
-	err = isBorrowerAlreadyRegistered(register.IdCardNumber)
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Borrower personal sudah terdaftar sebelumnya")
-	}
+	// //search already exist Borrower registered by agent
+	// err = isBorrowerAlreadyRegistered(register.IdCardNumber)
+	// if err != nil {
+	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Borrower personal sudah terdaftar sebelumnya")
+	// }
 
-	//check manual fields if not unique
-	var fields = map[string]string{
-		"phone":              register.Phone,
-		"email":              register.Email,
-		"taxid_number":       register.TaxIDnumber,
-		"bank_accountnumber": register.BankAccountNumber,
-	}
-	fieldsFound, err := checkUniqueFields(register.IdCardNumber, fields)
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+fieldsFound)
-	}
+	// //check manual fields if not unique
+	// var fields = map[string]string{
+	// 	"phone": register.Phone,
+	// 	"email": register.Email,
+	// }
+	// fieldsFound, err := checkUniqueFields(register.IdCardNumber, fields)
+	// if err != nil {
+	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+fieldsFound)
+	// }
+
+	//TODO: cek OTP
 
 	//create new personal borrower
 	json.Unmarshal(r, &borrower)
-	encryptPassphrase := asira.App.Config.GetString(fmt.Sprintf("%s.passphrase", asira.App.ENV))
-	borrower.IdCardImage, err = encrypt(IdCardImage, encryptPassphrase)
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi Id card gagal")
-	}
-	borrower.TaxIDImage, err = encrypt(TaxIDImage, encryptPassphrase)
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
-	}
+	// encryptPassphrase := asira.App.Config.GetString(fmt.Sprintf("%s.passphrase", asira.App.ENV))
+	// borrower.IdCardImage, err = encrypt(IdCardImage, encryptPassphrase)
+	// if err != nil {
+	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi Id card gagal")
+	// }
+	// borrower.TaxIDImage, err = encrypt(TaxIDImage, encryptPassphrase)
+	// if err != nil {
+	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
+	// }
 
-	borrower.Bank = sql.NullInt64{
-		Int64: int64(register.Bank),
-		Valid: true,
-	}
-	borrower.AgentReferral = sql.NullInt64{
-		Int64: 0,
-		Valid: true,
-	}
+	// borrower.Bank = sql.NullInt64{
+	// 	Int64: int64(register.Bank),
+	// 	Valid: true,
+	// }
+	// borrower.AgentReferral = sql.NullInt64{
+	// 	Int64: 0,
+	// 	Valid: true,
+	// }
 	err = borrower.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
