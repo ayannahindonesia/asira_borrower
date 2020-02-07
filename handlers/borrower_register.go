@@ -17,13 +17,18 @@ import (
 
 type (
 	VerifyAccountOTPrequest struct {
-		Phone string `json:"phone"`
+		Phone  string `json:"phone"`
+		Try    int    `json:"try"`
+		Secret string `json:"secret"`
 	}
 	VerifyAccountOTPverify struct {
 		VerifyAccountOTPrequest
 		OTPcode string `json:"otp_code"`
 	}
 )
+
+var SaltOTPs = []string{"78007", "36571", "577177"} //prime number // ke konfig ?? OR Redis?
+var Secret = "KMndM2vURIGoe1jgzYOA6RTa8qzB5k"       //TODO: pindah k config
 
 //RegisterBorrower register borrower personal
 func RegisterBorrower(c echo.Context) error {
@@ -153,6 +158,14 @@ func RegisterBorrower(c echo.Context) error {
 	// 	Int64: 0,
 	// 	Valid: true,
 	// }
+
+	// bypass otp
+	if TryValidateOTP(SaltOTPs, register.Phone, register.OTPCode) || (asira.App.ENV == "development" && register.OTPCode == "888999") {
+		borrower.OTPverified = true
+	} else {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Invalid kode OTP")
+	}
+
 	err = borrower.Create()
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
@@ -170,6 +183,18 @@ func RegisterBorrower(c echo.Context) error {
 	return c.JSON(http.StatusCreated, borrower)
 }
 
+func TryValidateOTP(salts []string, phone string, comparedOTP string) bool {
+	//test salted OTP
+	for _, salt := range salts {
+		catenate := salt + phone[len(phone)-6:]
+		counter, _ := strconv.Atoi(catenate)
+		if asira.App.OTP.HOTP.Verify(comparedOTP, counter) {
+			return true
+		}
+	}
+	return false
+}
+
 func RequestOTPverifyAccount(c echo.Context) error {
 	defer c.Request().Body.Close()
 
@@ -179,20 +204,34 @@ func RequestOTPverifyAccount(c echo.Context) error {
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
-
+	fmt.Println(borrowerID)
 	payloadRules := govalidator.MapData{
-		"phone": []string{"regex:^[0-9]+$", "required"},
+		"phone":  []string{"required", "id_phonenumber"},
+		"try":    []string{"required"},
+		"secret": []string{"required"},
 	}
-
+	//parse payload
 	validate := validateRequestPayload(c, payloadRules, &otpRequest)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	catenate := strconv.Itoa(borrowerID) + otpRequest.Phone[len(otpRequest.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
+	//cek payload
+	// Try, _ := strconv.Atoi(otpRequest.Try)
+	Try := otpRequest.Try
+	if Try < 1 || Try > len(SaltOTPs) {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "invalid Try")
+	}
+	if otpRequest.Secret != Secret {
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "invalid Secret")
+	}
+
+	// combine borrower id with last 6 digit of phone as counter
+	catenate := SaltOTPs[Try-1] + otpRequest.Phone[len(otpRequest.Phone)-6:]
+	// catenate := getRandomOpt() + otpRequest.Phone[len(otpRequest.Phone)-8:]
 	counter, _ := strconv.Atoi(catenate)
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
-
+	//send SMS OTP
 	message := fmt.Sprintf("Code OTP Registrasi anda adalah %s", otpCode)
 	err := asira.App.Messaging.SendSMS(otpRequest.Phone, message)
 	if err != nil {
@@ -202,47 +241,63 @@ func RequestOTPverifyAccount(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Terkirim"})
 }
 
-func VerifyAccountOTP(c echo.Context) error {
-	defer c.Request().Body.Close()
+// func getRandomOpt() string {
+// 	len := len(SaltOTPs)
+// 	i := uint32(0)
+// 	if len > 0 {
+// 		i = getRandomUint32() % uint32(len)
+// 	}
+// 	return SaltOTPs[i]
+// }
 
-	otpVerify := VerifyAccountOTPverify{}
+// func getRandomUint32() uint32 {
+// 	x := time.Now().UnixNano()
+// 	test := uint32((x >> 32) ^ x)
+// 	fmt.Println("Random : ", test)
+// 	return test
+// }
 
-	user := c.Get("user")
-	token := user.(*jwt.Token)
-	claims := token.Claims.(jwt.MapClaims)
-	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
+// func VerifyAccountOTP(c echo.Context) error {
+// 	defer c.Request().Body.Close()
 
-	payloadRules := govalidator.MapData{
-		"phone":    []string{"regex:^[0-9]+$", "required"},
-		"otp_code": []string{"required"},
-	}
+// 	otpVerify := VerifyAccountOTPverify{}
 
-	validate := validateRequestPayload(c, payloadRules, &otpVerify)
-	if validate != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
-	}
+// 	user := c.Get("user")
+// 	token := user.(*jwt.Token)
+// 	claims := token.Claims.(jwt.MapClaims)
+// 	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
-	catenate := strconv.Itoa(int(borrowerID)) + otpVerify.Phone[len(otpVerify.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
-	counter, _ := strconv.Atoi(catenate)
-	if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, counter) {
-		err = updateAccountOTPstatus(borrowerID)
-		if err != nil {
-			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
-		}
-		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
-	}
+// 	payloadRules := govalidator.MapData{
+// 		"phone":    []string{"regex:^[0-9]+$", "required"},
+// 		"otp_code": []string{"required"},
+// 	}
 
-	// bypass otp
-	if asira.App.ENV == "development" && otpVerify.OTPcode == "888999" {
-		err = updateAccountOTPstatus(borrowerID)
-		if err != nil {
-			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
-		}
-		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
-	}
+// 	validate := validateRequestPayload(c, payloadRules, &otpVerify)
+// 	if validate != nil {
+// 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
+// 	}
 
-	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
-}
+// 	catenate := strconv.Itoa(int(borrowerID)) + otpVerify.Phone[len(otpVerify.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
+// 	counter, _ := strconv.Atoi(catenate)
+// 	if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, counter) {
+// 		err = updateAccountOTPstatus(borrowerID)
+// 		if err != nil {
+// 			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
+// 		}
+// 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
+// 	}
+
+// 	// bypass otp
+// 	if asira.App.ENV == "development" && otpVerify.OTPcode == "888999" {
+// 		err = updateAccountOTPstatus(borrowerID)
+// 		if err != nil {
+// 			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
+// 		}
+// 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
+// 	}
+
+// 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
+// }
 
 func updateAccountOTPstatus(borrowerID uint64) error {
 	modelBorrower := models.Borrower{}

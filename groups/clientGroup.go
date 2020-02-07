@@ -33,4 +33,6 @@ func ClientGroup(e *echo.Echo) {
 
 	//server time & service info
 	g.GET("/serviceinfo", handlers.ServiceInfo)
+
+	g.POST("/otp_request", handlers.RequestOTPverifyAccount)
 }
