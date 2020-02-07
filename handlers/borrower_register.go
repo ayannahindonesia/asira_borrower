@@ -28,8 +28,7 @@ type (
 	}
 )
 
-var SaltOTPs = []string{"78007", "36571", "577177"} //prime number // ke konfig ?? OR Redis?
-var Secret = "KMndM2vURIGoe1jgzYOA6RTa8qzB5k"       //TODO: pindah k config
+var SaltOTPs = []string{"78007", "36571", "577177"} //prime number
 
 //RegisterBorrower register borrower personal
 func RegisterBorrower(c echo.Context) error {
@@ -162,7 +161,7 @@ func RegisterBorrower(c echo.Context) error {
 	}
 
 	// bypass otp
-	if TryValidateOTP(SaltOTPs, register.Phone, register.OTPCode) || (asira.App.ENV == "development" && register.OTPCode == "888999") {
+	if tryValidateOTP(SaltOTPs, register.Phone, register.OTPCode) || (asira.App.ENV == "development" && register.OTPCode == "888999") {
 		borrower.OTPverified = true
 	} else {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Invalid kode OTP")
@@ -186,7 +185,7 @@ func RegisterBorrower(c echo.Context) error {
 	return c.JSON(http.StatusCreated, borrower)
 }
 
-func TryValidateOTP(salts []string, phone string, comparedOTP string) bool {
+func tryValidateOTP(salts []string, phone string, comparedOTP string) bool {
 	//test salted OTP
 	for _, salt := range salts {
 		catenate := salt + phone[len(phone)-6:]
@@ -198,6 +197,7 @@ func TryValidateOTP(salts []string, phone string, comparedOTP string) bool {
 	return false
 }
 
+// RequestOTPverifyAccount request OTP from /client/
 func RequestOTPverifyAccount(c echo.Context) error {
 	defer c.Request().Body.Close()
 
@@ -219,19 +219,20 @@ func RequestOTPverifyAccount(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	//cek payload
+	//cek otp request try
 	// Try, _ := strconv.Atoi(otpRequest.Try)
 	Try := otpRequest.Try
 	if Try < 1 || Try > len(SaltOTPs) {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "invalid Try")
 	}
+	//get OTP secret
+	Secret := asira.App.Config.GetString(fmt.Sprintf("%s.messaging.otp_secret", asira.App.ENV))
 	if otpRequest.Secret != Secret {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "invalid Secret")
 	}
 
 	// combine borrower id with last 6 digit of phone as counter
 	catenate := SaltOTPs[Try-1] + otpRequest.Phone[len(otpRequest.Phone)-6:]
-	// catenate := getRandomOpt() + otpRequest.Phone[len(otpRequest.Phone)-8:]
 	counter, _ := strconv.Atoi(catenate)
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
 
