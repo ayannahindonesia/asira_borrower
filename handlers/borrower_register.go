@@ -4,6 +4,7 @@ import (
 	"asira_borrower/asira"
 	"asira_borrower/middlewares"
 	"asira_borrower/models"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -150,14 +151,15 @@ func RegisterBorrower(c echo.Context) error {
 	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
 	// }
 
-	// borrower.Bank = sql.NullInt64{
-	// 	Int64: int64(register.Bank),
-	// 	Valid: true,
-	// }
-	// borrower.AgentReferral = sql.NullInt64{
-	// 	Int64: 0,
-	// 	Valid: true,
-	// }
+	//must set nol
+	borrower.Bank = sql.NullInt64{
+		Int64: 0,
+		Valid: true,
+	}
+	borrower.AgentReferral = sql.NullInt64{
+		Int64: 0,
+		Valid: true,
+	}
 
 	// bypass otp
 	if TryValidateOTP(SaltOTPs, register.Phone, register.OTPCode) || (asira.App.ENV == "development" && register.OTPCode == "888999") {
@@ -178,6 +180,7 @@ func RegisterBorrower(c echo.Context) error {
 	//save borrower_id to user entity and storing
 	user.Borrower = borrower.ID
 	user.Password = register.Password
+	fmt.Println("register.Password = ", register.Password)
 	user.Create()
 
 	return c.JSON(http.StatusCreated, borrower)
@@ -231,6 +234,7 @@ func RequestOTPverifyAccount(c echo.Context) error {
 	// catenate := getRandomOpt() + otpRequest.Phone[len(otpRequest.Phone)-8:]
 	counter, _ := strconv.Atoi(catenate)
 	otpCode := asira.App.OTP.HOTP.At(int(counter))
+
 	//send SMS OTP
 	message := fmt.Sprintf("Code OTP Registrasi anda adalah %s", otpCode)
 	err := asira.App.Messaging.SendSMS(otpRequest.Phone, message)
