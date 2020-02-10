@@ -45,8 +45,8 @@ func RegisterBorrower(c echo.Context) error {
 	register := Register{}
 	payloadRules := govalidator.MapData{
 		"fullname": []string{"required"},
-		"email":    []string{"required", "unique:borrowers,email"},
-		"phone":    []string{"required", "id_phonenumber", "unique:borrowers,phone"},
+		"email":    []string{"required"},
+		"phone":    []string{"required", "id_phonenumber"},
 		"password": []string{"required"},
 		"otp_code": []string{"required"},
 	}
