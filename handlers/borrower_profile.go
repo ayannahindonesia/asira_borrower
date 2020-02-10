@@ -67,16 +67,16 @@ func BorrowerProfileEdit(c echo.Context) error {
 	}
 
 	payloadRules := govalidator.MapData{
-		"fullname":              []string{"required"},
+		"fullname":              []string{},
 		"gender":                []string{},
 		"idcard_number":         []string{"required"},
-		"taxid_number":          []string{},
-		"email":                 []string{"required", "email"},
+		"taxid_number":          []string{"required"},
+		"email":                 []string{"email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{},
 		"last_education":        []string{},
 		"mother_name":           []string{"required"},
-		"phone":                 []string{"required"},
+		"phone":                 []string{},
 		"marriage_status":       []string{},
 		"spouse_name":           []string{},
 		"spouse_birthday":       []string{"date"},
@@ -118,12 +118,6 @@ func BorrowerProfileEdit(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
-	//search already exist Borrower registered by agent
-	err = isBorrowerAlreadyRegistered(borrowerModel.IdCardNumber)
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Borrower personal sudah terdaftar sebelumnya")
-	}
-
 	//cek unique for patching
 	var fields = map[string]string{
 		"phone":              borrowerModel.Phone,
@@ -131,7 +125,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 		"taxid_number":       borrowerModel.TaxIDnumber,
 		"bank_accountnumber": borrowerModel.BankAccountNumber,
 	}
-	fieldsFound, err := checkUniqueFields(borrowerModel.IdCardNumber, fields)
+	//custom patch, coz personal and agent's might be exist
+	fieldsFound, err := checkPatchFieldsBorrowers(borrowerModel.ID, borrowerModel.IdCardNumber, fields)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+fieldsFound)
 	}

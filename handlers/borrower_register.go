@@ -49,53 +49,17 @@ func RegisterBorrower(c echo.Context) error {
 		"phone":    []string{"required", "id_phonenumber", "unique:borrowers,phone"},
 		"password": []string{"required"},
 		"otp_code": []string{"required"},
-		// "nickname":              []string{},
-		//"birthday": []string{"date"},
-		// "gender":                []string{},
-		// "idcard_number":         []string{},
-		// "taxid_number":          []string{},
-		// "nationality":           []string{},
-		// "birthplace":            []string{},
-		// "last_education":        []string{},
-		// "mother_name":           []string{},
-		// "marriage_status":       []string{},
-		// "spouse_name":           []string{},
-		// "spouse_birthday":       []string{},
-		// "spouse_lasteducation":  []string{},
-		// "dependants":            []string{},
-		// "address":               []string{},
-		// "province":              []string{},
-		// "city":                  []string{},
-		// "neighbour_association": []string{},
-		// "hamlets":               []string{},
-		// "home_phonenumber":      []string{},
-		// "subdistrict":           []string{},
-		// "urban_village":         []string{},
-		// "home_ownership":        []string{},
-		// "lived_for":             []string{},
-		// "occupation":            []string{},
-		// "employee_id":           []string{},
-		// "employer_name":         []string{},
-		// "employer_address":      []string{},
-		// "department":            []string{},
-		// "been_workingfor":       []string{},
-		// "direct_superiorname":   []string{},
-		// "employer_number":       []string{},
-		// "monthly_income":        []string{},
-		// "other_income":          []string{},
-		// "other_incomesource":    []string{},
-		// "field_of_work":         []string{},
-		// "related_personname":    []string{},
-		// "related_relation":      []string{},
-		// "related_phonenumber":   []string{},
-		// "related_homenumber":    []string{},
-		// "bank":                  []string{},
-		// "bank_accountnumber":    []string{},
 	}
 
 	validate := validateRequestPayload(c, payloadRules, &register)
 	if validate != nil {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
+	}
+
+	//search already exist Borrower registered by agent
+	err = isBorrowerAlreadyRegistered(register.Email, register.Phone)
+	if err != nil {
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Borrower personal sudah terdaftar sebelumnya")
 	}
 
 	borrower := models.Borrower{}
@@ -105,50 +69,11 @@ func RegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 
-	// //upload image id card
-	// IdCardImage, err := uploadImageS3Formatted("ktp", register.IdCardImage)
-	// if err != nil {
-	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : IDCardImage failed to upload")
-	// }
-
-	// //upload image tax card
-	// TaxIDImage, err := uploadImageS3Formatted("tax", register.TaxIDImage)
-	// if err != nil {
-	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : TaxIDImage failed to upload")
-	// }
-
 	//create 1 user for 1 borrower (nasabah personal)
 	user := models.User{}
 
-	// //search already exist Borrower registered by agent
-	// err = isBorrowerAlreadyRegistered(register.IdCardNumber)
-	// if err != nil {
-	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Borrower personal sudah terdaftar sebelumnya")
-	// }
-
-	// //check manual fields if not unique
-	// var fields = map[string]string{
-	// 	"phone": register.Phone,
-	// 	"email": register.Email,
-	// }
-	// fieldsFound, err := checkUniqueFields(register.IdCardNumber, fields)
-	// if err != nil {
-	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+fieldsFound)
-	// }
-
-	//TODO: cek OTP
-
 	//create new personal borrower
 	json.Unmarshal(r, &borrower)
-	// encryptPassphrase := asira.App.Config.GetString(fmt.Sprintf("%s.passphrase", asira.App.ENV))
-	// borrower.IdCardImage, err = encrypt(IdCardImage, encryptPassphrase)
-	// if err != nil {
-	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi Id card gagal")
-	// }
-	// borrower.TaxIDImage, err = encrypt(TaxIDImage, encryptPassphrase)
-	// if err != nil {
-	// 	return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
-	// }
 
 	//must set nol
 	borrower.Bank = sql.NullInt64{
@@ -179,7 +104,6 @@ func RegisterBorrower(c echo.Context) error {
 	//save borrower_id to user entity and storing
 	user.Borrower = borrower.ID
 	user.Password = register.Password
-	fmt.Println("register.Password = ", register.Password)
 	user.Create()
 
 	return c.JSON(http.StatusCreated, borrower)
@@ -260,48 +184,6 @@ func RequestOTPverifyAccount(c echo.Context) error {
 // 	test := uint32((x >> 32) ^ x)
 // 	fmt.Println("Random : ", test)
 // 	return test
-// }
-
-// func VerifyAccountOTP(c echo.Context) error {
-// 	defer c.Request().Body.Close()
-
-// 	otpVerify := VerifyAccountOTPverify{}
-
-// 	user := c.Get("user")
-// 	token := user.(*jwt.Token)
-// 	claims := token.Claims.(jwt.MapClaims)
-// 	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
-
-// 	payloadRules := govalidator.MapData{
-// 		"phone":    []string{"regex:^[0-9]+$", "required"},
-// 		"otp_code": []string{"required"},
-// 	}
-
-// 	validate := validateRequestPayload(c, payloadRules, &otpVerify)
-// 	if validate != nil {
-// 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
-// 	}
-
-// 	catenate := strconv.Itoa(int(borrowerID)) + otpVerify.Phone[len(otpVerify.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
-// 	counter, _ := strconv.Atoi(catenate)
-// 	if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, counter) {
-// 		err = updateAccountOTPstatus(borrowerID)
-// 		if err != nil {
-// 			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
-// 		}
-// 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
-// 	}
-
-// 	// bypass otp
-// 	if asira.App.ENV == "development" && otpVerify.OTPcode == "888999" {
-// 		err = updateAccountOTPstatus(borrowerID)
-// 		if err != nil {
-// 			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
-// 		}
-// 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
-// 	}
-
-// 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
 // }
 
 func updateAccountOTPstatus(borrowerID uint64) error {
