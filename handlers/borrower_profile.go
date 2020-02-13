@@ -70,7 +70,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 		"fullname":              []string{},
 		"gender":                []string{},
 		"idcard_number":         []string{"required"},
-		"taxid_number":          []string{"required"},
+		"taxid_number":          []string{},
 		"email":                 []string{"email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{},
