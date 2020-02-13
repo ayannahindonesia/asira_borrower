@@ -349,6 +349,11 @@ func processMessage(kafkaMessage []byte) (err error) {
 		marshal, _ := json.Marshal(arr["payload"])
 		json.Unmarshal(marshal, &mod)
 
+		//processing email n fcm notification
+		if err = sendLoanNotifications(mod); err != nil {
+			fmt.Println("sendLoanNotifications : ", err)
+		}
+
 		switch arr["mode"] {
 		default:
 			err = fmt.Errorf("invalid payload")
@@ -366,9 +371,6 @@ func processMessage(kafkaMessage []byte) (err error) {
 		if err != nil {
 			return err
 		}
-
-		//processing email n fcm notification
-		err = sendLoanNotifications(mod)
 
 		break
 	default:

@@ -243,7 +243,7 @@ func checkPatchFieldsBorrowers(id uint64, idcard_number string, uniques map[stri
 		db = db.Not(fieldID, id)
 
 		if idcard_number != "" || len(idcard_number) > 0 {
-			db = db.Not(fieldID, idcard_number)
+			db = db.Not("idcard_number", idcard_number)
 		}
 
 		//if field not empty
