@@ -149,9 +149,10 @@ func BorrowerProfileEdit(c echo.Context) error {
 		"email":              borrowerModel.Email,
 		"taxid_number":       borrowerModel.TaxIDnumber,
 		"bank_accountnumber": borrowerModel.BankAccountNumber,
+		"idcard_number":      borrowerModel.IdCardNumber,
 	}
 	//custom patch, coz personal and agent's might be exist
-	fieldsFound, err := checkPatchFieldsBorrowers(borrowerModel.ID, borrowerModel.IdCardNumber, fields)
+	fieldsFound, err := checkFieldsBorrowersPersonal(borrowerModel.ID, fields)
 	if err != nil {
 		NLog("warning", LogTag, map[string]interface{}{
 			NLOGMSG:        "error validate patching borrower",
