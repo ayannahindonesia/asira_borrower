@@ -67,11 +67,22 @@ func TestBorrowerPatchProfile(t *testing.T) {
 	})
 
 	data := map[string]interface{}{
-		"monthly_income": 500,
+		"idcard_number":         "61289137218",
+		"taxid_number":          "1928374650",
+		"mother_name":           "A",
+		"address":               "Hiu Putih A",
+		"city":                  "Palangkaraya",
+		"province":              "yia ling",
+		"neighbour_association": "001",
+		"hamlets":               "002",
+		"subdistrict":           "grogol",
+		"urban_village":         "jelambar",
+		"occupation":            "dev",
+		"bank":                  map[string]interface{}{"Int64": 1, "Valid": true},
 	}
 	obj := auth.PATCH("/borrower/profile").WithJSON(data).
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 
-	obj.Value("monthly_income").Equal(500)
+	obj.Value("province").Equal("yia ling")
 }

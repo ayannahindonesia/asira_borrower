@@ -120,7 +120,7 @@ func isInArrayInt64(id int64, banks []int64) bool {
 }
 
 //isBorrowerRegisteredByAgent check is borrower already registered with agent register borrower
-func isBorrowerAlreadyRegistered(idcardNumber string) error {
+func isBorrowerAlreadyRegistered(email string, phone string) error {
 	db := asira.App.DB
 	var count int
 
@@ -128,7 +128,8 @@ func isBorrowerAlreadyRegistered(idcardNumber string) error {
 	db = db.Table("borrowers").
 		Select("u.*").
 		Joins("INNER JOIN users u ON borrowers.id = u.borrower").
-		Where("borrowers.idcard_number = ?", idcardNumber).
+		Where("borrowers.phone = ?", phone).
+		Or("borrowers.email = ?", email).
 		Where(generateDeleteCheck("borrowers"))
 
 	err = db.Count(&count).Error
@@ -151,8 +152,9 @@ func checkUniqueFields(idcardNumber string, uniques map[string]string) (string, 
 		db = db.Table("borrowers").Select("*")
 
 		//get users other than idcardNumber...
-		db = db.Not("idcard_number", idcardNumber)
-
+		if idcardNumber != "" || len(idcardNumber) > 0 {
+			db = db.Not("idcard_number", idcardNumber)
+		}
 		//if field not empty
 		if len(val) > 0 || val != "" {
 			db = db.Where(fmt.Sprintf("LOWER(%s) = ?", key), strings.ToLower(val))
@@ -194,6 +196,55 @@ func checkPatchFields(tableName string, fieldID string, id uint64, uniques map[s
 
 		//get users other than idcardNumber...
 		db = db.Not(fieldID, id)
+
+		//if field not empty
+		if len(val) > 0 || val != "" {
+			db = db.Where(fmt.Sprintf("LOWER(%s) = ?", key), strings.ToLower(val))
+		} else {
+			//skip checking
+			continue
+		}
+
+		//additional check for soft delete
+		db = db.Where(generateDeleteCheck(tableName))
+
+		//query count
+		err = db.Count(&count).Error
+		if err != nil || count > 0 {
+			word, ok := EnglishToIndonesiaFieldsUnderscored[key]
+			if !ok {
+				fmt.Println(err)
+				word = key
+			}
+			fieldsFound += word + ", "
+		}
+	}
+	if fieldsFound != "" {
+		return fieldsFound, errors.New("data unique already exist")
+	}
+	return fieldsFound, nil
+}
+
+//checkPatchFieldsBorrowers update check field other than id and idcard_number
+func checkPatchFieldsBorrowers(id uint64, idcard_number string, uniques map[string]string) (string, error) {
+
+	var count int
+	fieldsFound := ""
+	tableName := "borrowers"
+	fieldID := "id"
+
+	//...check unique
+	for key, val := range uniques {
+		//init query
+		db := asira.App.DB
+		db = db.Table(tableName).Select(fieldID)
+
+		//get users other than idcardNumber...
+		db = db.Not(fieldID, id)
+
+		if idcard_number != "" || len(idcard_number) > 0 {
+			db = db.Not("idcard_number", idcard_number)
+		}
 
 		//if field not empty
 		if len(val) > 0 || val != "" {

@@ -31,7 +31,7 @@ type (
 	AgentResponse struct {
 		models.Agent
 		BankNames         pq.StringArray `json:"bank_names"`
-		AgentProviderName string         `json:"agent_provider"`
+		AgentProviderName string         `json:"agent_provider_name"`
 	}
 )
 
