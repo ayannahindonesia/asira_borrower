@@ -142,7 +142,7 @@ func (model *Messaging) SendSMS(number string, message string) (err error) {
 		body, _ := ioutil.ReadAll(response.Body)
 		log.Printf("Failed sending sms : %s", string(body))
 
-		return fmt.Errorf("Failed sending SMS")
+		return fmt.Errorf("Failed sending SMS " + string(body))
 	}
 
 	return nil

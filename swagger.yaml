@@ -68,6 +68,42 @@ paths:
                 allOf:
                   - $ref: '#/components/schemas/ErrorResponse'
   
+  /client/otp_request:
+    post:
+      tags:
+        - Client
+      summary: verify borrower using otp
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/otpRequest'
+      responses:
+        '200':
+          description: OTP Sent
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Unauthorized'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Forbidden'
+        '422':
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
   /client/check_unique:
     get:
       tags:
@@ -547,7 +583,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/registerRequest'
+              $ref: '#/components/schemas/registerRequestNew'
       description: >-
         <p>requesting to borrower register endpoint.</p>
       responses:
@@ -1236,7 +1272,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/patchProfileRequest'
+              $ref: '#/components/schemas/registerRequest'
       responses:
         '200':
           description: OK
@@ -1956,6 +1992,9 @@ components:
           items:
             type: string
           example: ["Bank A", "Bank B"]
+        agent_provider_name:
+          type: string
+          example: "Agent Provider A"
     agentBorrowerDetailResponse:
       type: object
       properties:
@@ -2516,6 +2555,23 @@ components:
         - related_relation
         - related_phonenumber
         - password
+    registerRequestNew:
+      properties:
+        fullname:
+          type: string
+          example: Benedict Cucumbatch
+        email:
+          type: string
+          example: ben@avenger.com
+        phone:
+          type: string
+          example: 081234567890
+        password:
+          type: string
+          example: iamgroot
+        otp_code:
+          type: string
+          example: 690264
     registerRequest:
       properties:
         fullname:
@@ -2689,15 +2745,9 @@ components:
           type: string
           example: iamgroot
       required: 
-        - fullname
-        - gender
         - idcard_number
-        - email
-        - birthday
-        - birthplace
-        - last_education
+        - taxid_number
         - mother_name
-        - phone
         - marriage_status
         - dependants
         - address
@@ -2708,19 +2758,7 @@ components:
         - subdistrict
         - urban_village
         - home_ownership
-        - lived_for
         - occupation
-        - employer_name
-        - employer_address
-        - department
-        - been_workingfor
-        - employer_number
-        - monthly_income
-        - field_of_work
-        - related_personname
-        - related_relation
-        - related_phonenumber
-        - password
     bankServiceList:
       type: object
       properties:
@@ -2758,6 +2796,9 @@ components:
         status:
           type: string
           example: active
+        description:
+              type: string
+              example: active
     bankProductList:
       type: object
       properties:
@@ -3123,6 +3164,12 @@ components:
         phone:
           type: string
           example: "081234567890"
+        secret:
+          type: string 
+          example: "yasudfhiu2u83298"
+        try:
+          type: number
+          example: 1
     otpVerifyRequest:
       properties:
         phone:

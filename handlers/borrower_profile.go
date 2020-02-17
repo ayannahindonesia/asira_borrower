@@ -69,30 +69,30 @@ func BorrowerProfileEdit(c echo.Context) error {
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{},
 		"gender":                []string{},
-		"idcard_number":         []string{},
+		"idcard_number":         []string{"required"},
 		"taxid_number":          []string{},
 		"email":                 []string{"email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{},
 		"last_education":        []string{},
-		"mother_name":           []string{},
+		"mother_name":           []string{"required"},
 		"phone":                 []string{},
 		"marriage_status":       []string{},
 		"spouse_name":           []string{},
 		"spouse_birthday":       []string{"date"},
 		"spouse_lasteducation":  []string{},
 		"dependants":            []string{},
-		"address":               []string{},
-		"province":              []string{},
-		"city":                  []string{},
-		"neighbour_association": []string{},
-		"hamlets":               []string{},
+		"address":               []string{"required"},
+		"province":              []string{"required"},
+		"city":                  []string{"required"},
+		"neighbour_association": []string{"required"},
+		"hamlets":               []string{"required"},
 		"home_phonenumber":      []string{},
-		"subdistrict":           []string{},
-		"urban_village":         []string{},
+		"subdistrict":           []string{"required"},
+		"urban_village":         []string{"required"},
 		"home_ownership":        []string{},
 		"lived_for":             []string{},
-		"occupation":            []string{},
+		"occupation":            []string{"required"},
 		"employee_id":           []string{},
 		"employer_name":         []string{},
 		"employer_address":      []string{},
@@ -125,10 +125,47 @@ func BorrowerProfileEdit(c echo.Context) error {
 		"taxid_number":       borrowerModel.TaxIDnumber,
 		"bank_accountnumber": borrowerModel.BankAccountNumber,
 	}
-	fieldsFound, err := checkUniqueFields(borrowerModel.IdCardNumber, fields)
+	//custom patch, coz personal and agent's might be exist
+	fieldsFound, err := checkPatchFieldsBorrowers(borrowerModel.ID, borrowerModel.IdCardNumber, fields)
 	if err != nil {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+fieldsFound)
 	}
+
+	//get passphrase encryption
+	encryptPassphrase := asira.App.Config.GetString(fmt.Sprintf("%s.passphrase", asira.App.ENV))
+
+	//upload image id card
+	if borrowerModel.IdCardImage != "" || len(borrowerModel.IdCardImage) != 0 {
+		IdCardImage, err := uploadImageS3Formatted("ktp", borrowerModel.IdCardImage)
+		if err != nil {
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Gambar KTP gagal diunggah")
+		}
+		borrowerModel.IdCardImage, err = encrypt(IdCardImage, encryptPassphrase)
+		if err != nil {
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi KTP gagal")
+		}
+	}
+
+	//upload image tax card
+	if borrowerModel.TaxIDImage != "" || len(borrowerModel.TaxIDImage) != 0 {
+		TaxIDImage, err := uploadImageS3Formatted("tax", borrowerModel.TaxIDImage)
+		if err != nil {
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Gambar NPWP gagal diunggah")
+		}
+		borrowerModel.TaxIDImage, err = encrypt(TaxIDImage, encryptPassphrase)
+		if err != nil {
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
+		}
+	}
+
+	// borrowerModel.Bank = sql.NullInt64{
+	// 	Int64: int64(register.Bank),
+	// 	Valid: true,
+	// }
+	// borrower.AgentReferral = sql.NullInt64{
+	// 	Int64: 0,
+	// 	Valid: true,
+	// }
 
 	// err = borrowerModel.Save()
 	err = middlewares.SubmitKafkaPayload(borrowerModel, "borrower_update")
