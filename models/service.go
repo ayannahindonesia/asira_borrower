@@ -7,9 +7,10 @@ import (
 type (
 	Service struct {
 		basemodel.BaseModel
-		Name   string `json:"name" gorm:"column:name;type:varchar(255)"`
-		Image  string `json:"image" gorm:"column:image"`
-		Status string `json:"status" gorm:"column:status;type:varchar(255)"`
+		Name        string `json:"name" gorm:"column:name;type:varchar(255)"`
+		Image       string `json:"image" gorm:"column:image"`
+		Status      string `json:"status" gorm:"column:status;type:varchar(255)"`
+		Description string `json:"description" gorm:"column:description;type:varchar(255)"`
 	}
 )
 
