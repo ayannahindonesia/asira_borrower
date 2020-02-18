@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"asira_borrower/models"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
@@ -13,6 +14,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ayannahindonesia/northstar/lib/northstarlib"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -354,4 +357,46 @@ func decrypt(encryptedText string, passphrase string) (string, error) {
 func generateDeleteCheck(tableName string) string {
 	defaultFormat := "%s.deleted_at IS NULL"
 	return fmt.Sprintf(defaultFormat, tableName)
+}
+
+// NLog send log to northstar service
+func NLog(level string, tag string, message string, jwttoken *jwt.Token, note string, nouser bool, typeUser string) {
+	var (
+		uid      string
+		username string
+		err      error
+	)
+
+	if !nouser {
+		jti, _ := strconv.ParseUint(jwttoken.Claims.(jwt.MapClaims)["jti"].(string), 10, 64)
+		if typeUser == "borrower" {
+			user := models.Borrower{}
+			err = user.FindbyID(jti)
+			if err == nil {
+				uid = fmt.Sprint(user.ID)
+				username = user.Phone
+			}
+		} else {
+			// agent
+			user := models.Agent{}
+			err = user.FindbyID(jti)
+			if err == nil {
+				uid = fmt.Sprint(user.ID)
+				username = user.Username
+			}
+		}
+	}
+
+	err = asira.App.Northstar.SubmitKafkaLog(northstarlib.Log{
+		Level:    level,
+		Tag:      tag,
+		Messages: message,
+		UID:      uid,
+		Username: username,
+		Note:     note,
+	}, "log")
+
+	if err != nil {
+		log.Printf("error northstar log : %v", err)
+	}
 }

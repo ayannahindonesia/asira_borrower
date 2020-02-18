@@ -54,6 +54,8 @@ func BorrowerProfile(c echo.Context) error {
 func BorrowerProfileEdit(c echo.Context) error {
 	defer c.Request().Body.Close()
 
+	LogTag := "BorrowerProfileEdit"
+
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
@@ -115,6 +117,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 
 	validate := validateRequestPayload(c, payloadRules, &borrowerModel)
 	if validate != nil {
+		NLog("error", LogTag, fmt.Sprintf("validation error : %v", validate), c.Get("user").(*jwt.Token), "", false, "borrower")
+
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
@@ -128,6 +132,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 	//custom patch, coz personal and agent's might be exist
 	fieldsFound, err := checkPatchFieldsBorrowers(borrowerModel.ID, borrowerModel.IdCardNumber, fields)
 	if err != nil {
+		NLog("warning", LogTag, fmt.Sprintf("error validate patching borrower : %v borrower : %v", err, borrowerModel), c.Get("user").(*jwt.Token), "", false, "borrower")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+fieldsFound)
 	}
 
@@ -138,10 +144,16 @@ func BorrowerProfileEdit(c echo.Context) error {
 	if borrowerModel.IdCardImage != "" || len(borrowerModel.IdCardImage) != 0 {
 		IdCardImage, err := uploadImageS3Formatted("ktp", borrowerModel.IdCardImage)
 		if err != nil {
+			NLog("error", LogTag, fmt.Sprintf("error uploading ID Card image : %v borrower : %v", err, borrowerModel), c.Get("user").(*jwt.Token), "", false, "borrower")
+
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gambar KTP gagal diunggah")
 		}
+
+		//encrypt image url
 		borrowerModel.IdCardImage, err = encrypt(IdCardImage, encryptPassphrase)
 		if err != nil {
+			NLog("error", LogTag, fmt.Sprintf("error encrypting ID Card image : %v borrower : %v", err, borrowerModel), c.Get("user").(*jwt.Token), "", false, "borrower")
+
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi KTP gagal")
 		}
 	}
@@ -150,10 +162,16 @@ func BorrowerProfileEdit(c echo.Context) error {
 	if borrowerModel.TaxIDImage != "" || len(borrowerModel.TaxIDImage) != 0 {
 		TaxIDImage, err := uploadImageS3Formatted("tax", borrowerModel.TaxIDImage)
 		if err != nil {
+			NLog("error", LogTag, fmt.Sprintf("error uploading Tax ID image : %v borrower : %v", err, borrowerModel), c.Get("user").(*jwt.Token), "", false, "borrower")
+
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gambar NPWP gagal diunggah")
 		}
+
+		//encrypt image url
 		borrowerModel.TaxIDImage, err = encrypt(TaxIDImage, encryptPassphrase)
 		if err != nil {
+			NLog("error", LogTag, fmt.Sprintf("error encrypting ID Card image : %v borrower : %v", err, borrowerModel), c.Get("user").(*jwt.Token), "", false, "borrower")
+
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
 		}
 	}
@@ -170,6 +188,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 	// err = borrowerModel.Save()
 	err = middlewares.SubmitKafkaPayload(borrowerModel, "borrower_update")
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("error submitting to kafka after creating borrower : %v borrower : %v", err, borrowerModel), c.Get("user").(*jwt.Token), "", false, "borrower")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal update Borrower")
 	}
 
