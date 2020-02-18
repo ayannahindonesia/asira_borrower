@@ -32,7 +32,7 @@ func AgentGroup(e *echo.Echo) {
 	g.GET("/bank_products", handlers.AgentBankProduct)
 
 	//borrowers owned by current agent (jti) and bank_id
-	g.GET("/borrowers/:bank_id", handlers.AgentAllBorrower)
+	g.GET("/borrowers", handlers.AgentAllBorrower)
 
 	//borrowers owned by current agent (jti) and agent's borrower_id
 	g.GET("/borrower/:borrower_id", handlers.AgentBorrowerProfile)
