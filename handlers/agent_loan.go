@@ -356,7 +356,7 @@ func AgentLoanOTPverify(c echo.Context) error {
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": fmt.Sprintf("loan %v verified", loan.ID)})
 	}
 
-	NLog("error", LogTag, fmt.Sprintf("cannot validate OTP : %v", agent.Phone), c.Get("user").(*jwt.Token), "", false, "agent")
+	NLog("error", LogTag, fmt.Sprintf("cannot validate OTP : %v", LoanOTPverify.OTPcode), c.Get("user").(*jwt.Token), "", false, "agent")
 
 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP yang anda masukan salah")
 }
