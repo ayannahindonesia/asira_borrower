@@ -19,6 +19,7 @@ type BorrowerResponse struct {
 	models.Borrower
 	NthLoans   int    `json:"nth_loans" gorm:"-"`
 	LoanStatus string `json:"loan_status"`
+	BankName   string `json:"bank_name"`
 }
 
 func AgentAllBorrower(c echo.Context) error {
@@ -75,7 +76,7 @@ func AgentAllBorrower(c echo.Context) error {
 
 	//filters
 	db = db.Table("borrowers").
-		Select("borrowers.*, "+LoanStatusQuery+" as loan_status, (SELECT COUNT(id) FROM loans l WHERE l.borrower = borrowers.id AND l.status = ?) as nth_loans", "approved").
+		Select("borrowers.*, "+LoanStatusQuery+" as loan_status, (SELECT COUNT(id) FROM loans l WHERE l.borrower = borrowers.id AND l.status = ?) as nth_loans, (SELECT b.name FROM banks b WHERE b.id = borrowers.bank) as bank_name", "approved").
 		Where("borrowers.agent_referral = ?", agentID)
 
 	//show borrowers for specific bankID
