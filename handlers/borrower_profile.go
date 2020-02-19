@@ -24,6 +24,8 @@ type BorrowerPersonalResponse struct {
 func BorrowerProfile(c echo.Context) error {
 	defer c.Request().Body.Close()
 
+	LogTag := "BorrowerProfile"
+
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
@@ -45,6 +47,8 @@ func BorrowerProfile(c echo.Context) error {
 
 	err = db.Find(&borrower).Error
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("error get borrower profile : %v borrower id : %v", err, borrowerID), c.Get("user").(*jwt.Token), "", false, "borrower")
+
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 	return c.JSON(http.StatusOK, borrower)
@@ -186,6 +190,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal update Borrower")
 	}
 
+	NLog("event", LogTag, fmt.Sprintf("borrower edit profile : %v", borrowerModel), c.Get("user").(*jwt.Token), "", false, "borrower")
+
 	return c.JSON(http.StatusOK, borrowerModel)
 }
 
@@ -215,13 +221,15 @@ func BorrowerChangePassword(c echo.Context) error {
 
 	validate := validateRequestPayload(c, payloadRules, &userBorrower)
 	if validate != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid borrower personal : %v borrower id : %v", err, borrowerID), c.Get("user").(*jwt.Token), "", false, "borrower")
+		NLog("warning", LogTag, fmt.Sprintf("error validation : %v", validate), c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
 	passwordByte, err := bcrypt.GenerateFromPassword([]byte(userBorrower.Password), bcrypt.DefaultCost)
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("error generate passoword : %v", err), c.Get("user").(*jwt.Token), "", false, "borrower")
+
 		return err
 	}
 
