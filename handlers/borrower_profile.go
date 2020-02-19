@@ -176,7 +176,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 		//encrypt image url
 		borrowerModel.TaxIDImage, err = encrypt(TaxIDImage, encryptPassphrase)
 		if err != nil {
-			NLog("error", LogTag, fmt.Sprintf("error encrypting ID Card image : %v borrower : %v", err, borrowerModel), c.Get("user").(*jwt.Token), "", false, "borrower")
+			NLog("error", LogTag, fmt.Sprintf("error encrypting Tax ID image : %v borrower : %v", err, borrowerModel), c.Get("user").(*jwt.Token), "", false, "borrower")
 
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
 		}

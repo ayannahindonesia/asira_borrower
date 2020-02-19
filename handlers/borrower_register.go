@@ -241,7 +241,7 @@ func updateAccountOTPstatus(c echo.Context, borrowerID uint64) error {
 	modelBorrower.OTPverified = true
 	err = middlewares.SubmitKafkaPayload(modelBorrower, "borrower_update")
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("error kafka submit update borrower : %v borrower : %v", err, modelBorrower), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, fmt.Sprintf("error kafka submit update borrower : %v borrower ID : %v", err, borrowerID), c.Get("user").(*jwt.Token), "", false, "agent")
 
 		modelBorrower.OTPverified = false
 		return err

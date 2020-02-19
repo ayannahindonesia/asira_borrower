@@ -10,20 +10,24 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/thedevsaddam/govalidator"
 )
 
 type (
+	//AgentLoginCreds payload agent's login credentials
 	AgentLoginCreds struct {
 		Key      string `json:"key"`
 		Password string `json:"password"`
 	}
 )
 
-// borrower login, borrower can choose either login with email / phone
+//AgentLogin borrower login, borrower can choose either login with email / phone
 func AgentLogin(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "AgentLogin"
 
 	var (
 		credentials AgentLoginCreds
@@ -40,6 +44,8 @@ func AgentLogin(c echo.Context) error {
 
 	validate := validateRequestPayload(c, rules, &credentials)
 	if validate != nil {
+		NLog("warning", LogTag, fmt.Sprintf("error validation : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+
 		return returnInvalidResponse(http.StatusBadRequest, validate, "Gagal login")
 	}
 
@@ -50,18 +56,26 @@ func AgentLogin(c echo.Context) error {
 
 		err = bcrypt.CompareHashAndPassword([]byte(agent.Password), []byte(credentials.Password))
 		if err != nil {
-			return returnInvalidResponse(http.StatusOK, err, "Password anda salah")
+			NLog("error", LogTag, fmt.Sprintf("error password : %v username : %v", err, credentials.Key), c.Get("user").(*jwt.Token), "", true, "")
+
+			return returnInvalidResponse(http.StatusOK, err, "Gagal Login")
 		}
 
 		//set role
 		tokenrole := "agent"
 		token, err = createJwtToken(strconv.FormatUint(agent.ID, 10), tokenrole)
 		if err != nil {
+			NLog("error", LogTag, fmt.Sprintf("error generating token  : %v ", err), c.Get("user").(*jwt.Token), "", true, "")
+
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat token")
 		}
 	} else {
+		NLog("error", LogTag, fmt.Sprintf("error login  : %v username : %v", err, credentials.Key), c.Get("user").(*jwt.Token), "", true, "")
+
 		return returnInvalidResponse(http.StatusOK, "", "Gagal Login")
 	}
+
+	NLog("event", LogTag, fmt.Sprintf("success login  : %v", credentials.Key), c.Get("user").(*jwt.Token), "", true, "")
 
 	jwtConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", asira.App.ENV))
 	expiration := time.Duration(jwtConf["duration"].(int)) * time.Minute
