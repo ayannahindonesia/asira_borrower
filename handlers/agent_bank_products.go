@@ -58,7 +58,7 @@ func AgentBankProduct(c echo.Context) error {
 
 	err = db.Find(&results).Count(&count).Error
 	if err != nil || count == 0 {
-		NLog("error", LogTag, fmt.Sprintf("empty products list : %v", err), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("warning", LogTag, fmt.Sprintf("empty products list : %v", err), c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusNotFound, err, "Service Product Tidak Ditemukan")
 	}

@@ -15,14 +15,18 @@ import (
 	"github.com/labstack/echo"
 )
 
+//BorrowerResponse hold custom response
 type BorrowerResponse struct {
 	models.Borrower
 	NthLoans   int    `json:"nth_loans" gorm:"-"`
 	LoanStatus string `json:"loan_status"`
 }
 
+//AgentAllBorrower get borrower list owned by agent
 func AgentAllBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "AgentAllBorrower"
 
 	type Filter struct {
 		AgentReferral sql.NullInt64 `json:"agent_referral"`
@@ -36,6 +40,8 @@ func AgentAllBorrower(c echo.Context) error {
 	var agent models.Agent
 	err = agent.FindbyID(agentID)
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("not valid agent : %v agent ID", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 
@@ -102,6 +108,8 @@ func AgentAllBorrower(c echo.Context) error {
 	}
 	err = db.Find(&borrowers).Error
 	if err != nil {
+		NLog("warning", LogTag, fmt.Sprintf("empty agent's borrower list  : %v agent ID", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data agent's borrowers tidak ditemukan")
 	}
 

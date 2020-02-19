@@ -15,6 +15,7 @@ import (
 	"github.com/labstack/echo"
 )
 
+//BorrowerPersonalResponse custom response
 type BorrowerPersonalResponse struct {
 	models.Borrower
 	LoanStatus string `json:"loan_status"`
@@ -148,7 +149,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 
 	//upload image id card
 	if borrowerModel.IdCardImage != "" || len(borrowerModel.IdCardImage) != 0 {
-		IdCardImage, err := uploadImageS3Formatted("ktp", borrowerModel.IdCardImage)
+		IDCardImage, err := uploadImageS3Formatted("ktp", borrowerModel.IdCardImage)
 		if err != nil {
 			NLog("error", LogTag, fmt.Sprintf("error uploading ID Card image : %v borrower : %v", err, borrowerModel), c.Get("user").(*jwt.Token), "", false, "borrower")
 
@@ -156,7 +157,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 		}
 
 		//encrypt image url
-		borrowerModel.IdCardImage, err = encrypt(IdCardImage, encryptPassphrase)
+		borrowerModel.IdCardImage, err = encrypt(IDCardImage, encryptPassphrase)
 		if err != nil {
 			NLog("error", LogTag, fmt.Sprintf("error encrypting ID Card image : %v borrower : %v", err, borrowerModel), c.Get("user").(*jwt.Token), "", false, "borrower")
 

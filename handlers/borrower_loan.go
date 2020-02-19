@@ -123,7 +123,7 @@ func BorrowerLoanGet(c echo.Context) error {
 	}
 	err := db.Find(&results).Count(&totalRows).Error
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("empty loan list : %v", err), c.Get("user").(*jwt.Token), "", false, "borrower")
+		NLog("warning", LogTag, fmt.Sprintf("empty loan list : %v", err), c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		returnInvalidResponse(http.StatusInternalServerError, err, "pencarian loan gagal")
 	}

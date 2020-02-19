@@ -292,7 +292,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 func AgentRequestOTP(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	// LogTag := "AgentRequestOTP"
+	LogTag := "AgentRequestOTP"
 
 	otpRequest := VerifyAccountOTPrequest{}
 
@@ -310,6 +310,7 @@ func AgentRequestOTP(c echo.Context) error {
 	})
 
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("not valid borrower : %v borrower ID : %v", err, borrowerID), c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's borrower")
 	}
@@ -320,6 +321,8 @@ func AgentRequestOTP(c echo.Context) error {
 
 	validate := validateRequestPayload(c, payloadRules, &otpRequest)
 	if validate != nil {
+		NLog("error", LogTag, fmt.Sprintf("error validation : %v", validate), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
@@ -330,6 +333,8 @@ func AgentRequestOTP(c echo.Context) error {
 		Phone: otpRequest.Phone,
 	})
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("not valid agent's phone : %v", otpRequest.Phone), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's phone")
 	}
 
@@ -342,6 +347,8 @@ func AgentRequestOTP(c echo.Context) error {
 	message := fmt.Sprintf("Code OTP Registrasi anda adalah %s", otpCode)
 	err = asira.App.Messaging.SendSMS(agent.Phone, message)
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("error failed Sending SMS OTP : %v payload : %v", err, message), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending otp")
 	}
 
@@ -351,6 +358,8 @@ func AgentRequestOTP(c echo.Context) error {
 //AgentVerifyOTP verify OTP after call request OTP (AgentRequestOTP)
 func AgentVerifyOTP(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "AgentVerifyOTP"
 
 	otpVerify := VerifyAccountOTPverify{}
 
@@ -367,6 +376,8 @@ func AgentVerifyOTP(c echo.Context) error {
 		AgentReferral: AgentID,
 	})
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("not valid borrower : %v borrower ID : %v", err, borrowerID), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's borrower")
 	}
 
@@ -377,6 +388,8 @@ func AgentVerifyOTP(c echo.Context) error {
 
 	validate := validateRequestPayload(c, payloadRules, &otpVerify)
 	if validate != nil {
+		NLog("error", LogTag, fmt.Sprintf("error validation : %v", validate), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
@@ -387,6 +400,8 @@ func AgentVerifyOTP(c echo.Context) error {
 		Phone: otpVerify.Phone,
 	})
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("not valid agent's phone : %v", otpVerify.Phone), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's phone")
 	}
 
@@ -395,6 +410,8 @@ func AgentVerifyOTP(c echo.Context) error {
 	if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, counter) {
 		err = updateAccountOTPstatus(c, borrowerID)
 		if err != nil {
+			NLog("error", LogTag, fmt.Sprintf("cannot change borrower's OTP verified status : %v", otpVerify.Phone), c.Get("user").(*jwt.Token), "", false, "agent")
+
 			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
@@ -404,10 +421,14 @@ func AgentVerifyOTP(c echo.Context) error {
 	if asira.App.ENV == "development" && otpVerify.OTPcode == "888999" {
 		err = updateAccountOTPstatus(c, borrowerID)
 		if err != nil {
+			NLog("error", LogTag, fmt.Sprintf("cannot change borrower's OTP verified status: %v", otpVerify.Phone), c.Get("user").(*jwt.Token), "", false, "agent")
+
 			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
 	}
+
+	NLog("error", LogTag, fmt.Sprintf("cannot validate OTP : %v", otpVerify.OTPcode), c.Get("user").(*jwt.Token), "", false, "agent")
 
 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
 }

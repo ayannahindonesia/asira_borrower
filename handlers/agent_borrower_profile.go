@@ -49,7 +49,7 @@ func AgentBorrowerProfile(c echo.Context) error {
 func AgentBorrowerProfileEdit(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	LogTag := "AgentBorrowerProfile"
+	LogTag := "AgentBorrowerProfileEdit"
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)

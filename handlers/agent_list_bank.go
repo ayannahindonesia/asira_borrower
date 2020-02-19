@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"asira_borrower/models"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -9,8 +10,12 @@ import (
 	"github.com/labstack/echo"
 )
 
+//AgentAllBank get bank list owned by agent
 func AgentAllBank(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "AgentAllBank"
+
 	var (
 		rows int
 		page int
@@ -26,6 +31,8 @@ func AgentAllBank(c echo.Context) error {
 	var agent models.Agent
 	err = agent.FindbyID(agentID)
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("not valid agent : %v agent ID", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 
@@ -41,6 +48,8 @@ func AgentAllBank(c echo.Context) error {
 		ID: []int64(agent.Banks),
 	})
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("not found agent's banks : %v", err), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data agent banks tidak ditemukan")
 	}
 
