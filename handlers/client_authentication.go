@@ -12,11 +12,16 @@ import (
 	"github.com/labstack/echo"
 )
 
+//ClientLogin clientauth
 func ClientLogin(c echo.Context) error {
 	defer c.Request().Body.Close()
 
+	LogTag := "ClientLogin"
+
 	data, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Basic "))
 	if err != nil {
+		NLog("warning", LogTag, fmt.Sprintf("error client authentification : %v", err), nil, "", true, "")
+
 		return returnInvalidResponse(http.StatusUnauthorized, "", "Invalid Creadentials")
 	}
 
@@ -36,11 +41,15 @@ func ClientLogin(c echo.Context) error {
 	})
 
 	if err != nil {
+		NLog("error", LogTag, "client creadentials not found", nil, "", true, "")
+
 		return returnInvalidResponse(http.StatusUnauthorized, "", "Creadentials tidak ditemukan")
 	}
 
 	token, err := createJwtToken(clientModel.Name, clientModel.Role)
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("failed creating token for client %v : %v", clientModel.Name, err), nil, "", true, "")
+
 		return returnInvalidResponse(http.StatusInternalServerError, "", fmt.Sprint(err))
 	}
 

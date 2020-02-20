@@ -2,13 +2,16 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"fmt"
 	"net/http"
 	"strings"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
 type (
+	//Borrower payload for CheckData(...)
 	Borrower struct {
 		IdCardNumber string `json:"idcard_number" gorm:"column:idcard_number;type:varchar(255);unique;not null"`
 		TaxIDnumber  string `json:"taxid_number" gorm:"column:taxid_number;type:varchar(255)"`
@@ -17,8 +20,12 @@ type (
 	}
 )
 
+//CheckData for unique field
 func CheckData(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "CheckData"
+
 	var (
 		borrower Borrower
 	)
@@ -30,10 +37,10 @@ func CheckData(c echo.Context) error {
 	if phone := c.QueryParam("phone"); phone != "" && !asira.App.DB.Where("phone = ? AND agent_referral = 0", phone).Find(&borrower).RecordNotFound() {
 		values = append(values, EnglishToIndonesiaFieldsUnderscored["phone"])
 	}
-	if idcard_number := c.QueryParam("idcard_number"); idcard_number != "" && !asira.App.DB.Where("idcard_number = ? AND agent_referral = 0", idcard_number).Find(&borrower).RecordNotFound() {
+	if idCardNumber := c.QueryParam("idcard_number"); idCardNumber != "" && !asira.App.DB.Where("idcard_number = ? AND agent_referral = 0", idCardNumber).Find(&borrower).RecordNotFound() {
 		values = append(values, EnglishToIndonesiaFieldsUnderscored["idcard_number"])
 	}
-	if taxid_number := c.QueryParam("taxid_number"); taxid_number != "" && !asira.App.DB.Where("taxid_number = ? AND agent_referral = 0", taxid_number).Find(&borrower).RecordNotFound() {
+	if taxIDNumber := c.QueryParam("taxid_number"); taxIDNumber != "" && !asira.App.DB.Where("taxid_number = ? AND agent_referral = 0", taxIDNumber).Find(&borrower).RecordNotFound() {
 		values = append(values, EnglishToIndonesiaFieldsUnderscored["taxid_number"])
 	}
 	if len(values) < 1 {
@@ -42,6 +49,9 @@ func CheckData(c echo.Context) error {
 			"message": "Ok",
 		})
 	}
+
+	NLog("error", LogTag, fmt.Sprintf("fields already exist : %v", values), c.Get("user").(*jwt.Token), "", true, "")
+
 	result := "Field : " + strings.Join(values, " , ") + " Telah Digunakan"
 	return returnInvalidResponse(http.StatusUnprocessableEntity, "", result)
 

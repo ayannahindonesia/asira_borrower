@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:33f56caa9ab45fedc63d3d1d3e342d9f9d00726071f22c67d06b0cd26d49a55e"
+  digest = "1:c5df3a7b173c2d0f8f8dff4afb67f6f9b16a27f20f30eae421b475b654950193"
   name = "github.com/Shopify/sarama"
   packages = ["."]
   pruneopts = ""
-  revision = "675b0b1ff204c259877004140a540d6adf38db17"
-  version = "v1.24.1"
+  revision = "b3a812117be917e2dd4f8cbcf4ff861e3ae7ef38"
+  version = "v1.26.1"
 
 [[projects]]
   digest = "1:e8f914c174ebc670d1713986d5e4f47a21f349209ac929d00558a496f59c7384"
@@ -74,6 +74,14 @@
   pruneopts = ""
   revision = "c249f28655b3176855185c8cd94a11506bac9ccf"
   source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@github.com/ayannahindonesia/basemodel.git"
+
+[[projects]]
+  branch = "master"
+  digest = "1:bf42355ebdead4663b76d73a953c724cf2db20690b26106d6cf82103e9283404"
+  name = "github.com/ayannahindonesia/northstar"
+  packages = ["lib/northstarlib"]
+  pruneopts = ""
+  revision = "124eb2f4a360934afeab5f682221a4d069713cbc"
 
 [[projects]]
   digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"
@@ -739,6 +747,7 @@
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/ayannahindonesia/basemodel",
+    "github.com/ayannahindonesia/northstar/lib/northstarlib",
     "github.com/dgrijalva/jwt-go",
     "github.com/fsnotify/fsnotify",
     "github.com/gavv/httpexpect",

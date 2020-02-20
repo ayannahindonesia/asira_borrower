@@ -3,8 +3,10 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"database/sql"
+	"fmt"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/thedevsaddam/govalidator"
 )
@@ -33,6 +35,8 @@ type Payload struct {
 func AgentCheckBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
 
+	LogTag := "AgentCheckBorrower"
+
 	//validate post
 	payloadFilter := Payload{}
 	rules := govalidator.MapData{
@@ -43,6 +47,8 @@ func AgentCheckBorrower(c echo.Context) error {
 	}
 	validate := validateRequestPayload(c, rules, &payloadFilter)
 	if validate != nil {
+		NLog("error", LogTag, fmt.Sprintf("error validation : %v", validate), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "invalid post body")
 	}
 
@@ -54,6 +60,8 @@ func AgentCheckBorrower(c echo.Context) error {
 	}
 	foundFields, err := checkUniqueFields(payloadFilter.IdCardNumber, fields)
 	if err != nil {
+		NLog("warning", LogTag, fmt.Sprintf("data already exist : %v", foundFields), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+foundFields)
 	}
 
@@ -66,6 +74,8 @@ func AgentCheckBorrower(c echo.Context) error {
 		Where(generateDeleteCheck("borrowers"))
 	err = db.Count(&count).Error
 	if count >= 1 {
+		NLog("warning", LogTag, fmt.Sprintf("borrower already registered : %v", count), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
 	}
 

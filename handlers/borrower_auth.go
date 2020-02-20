@@ -11,6 +11,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/thedevsaddam/govalidator"
 )
@@ -26,6 +27,8 @@ type (
 //BorrowerLogin borrower login, borrower can choose either login with email / phone
 func BorrowerLogin(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "BorrowerLogin"
 
 	var (
 		credentials BorrowerLoginCreds
@@ -43,6 +46,8 @@ func BorrowerLogin(c echo.Context) error {
 
 	validate := validateRequestPayload(c, rules, &credentials)
 	if validate != nil {
+		NLog("warning", LogTag, fmt.Sprintf("error authentification : %v", validate), c.Get("user").(*jwt.Token), "", true, "")
+
 		return returnInvalidResponse(http.StatusBadRequest, validate, "Gagal login")
 	}
 
@@ -65,13 +70,18 @@ func BorrowerLogin(c echo.Context) error {
 	user := models.User{}
 	err = user.FindbyBorrowerID(borrower.ID)
 	if err != nil {
-		return returnInvalidResponse(http.StatusOK, err, "Borrower tidak memiliki akun personal")
+		NLog("warning", LogTag, fmt.Sprintf("error authentification : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Borrower tidak memiliki akun personal")
 	}
 
 	if !validKey { // check the password
+
 		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(credentials.Password))
 		if err != nil {
-			return returnInvalidResponse(http.StatusOK, err, "Password anda salah")
+			NLog("error", LogTag, fmt.Sprintf("username : %v ; password error : %v", credentials.Key, err), c.Get("user").(*jwt.Token), "", true, "")
+
+			return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Password anda salah")
 		}
 
 		tokenrole := "unverified_borrower"
@@ -80,11 +90,18 @@ func BorrowerLogin(c echo.Context) error {
 		}
 		token, err = createJwtToken(strconv.FormatUint(borrower.ID, 10), tokenrole)
 		if err != nil {
+			NLog("error", LogTag, fmt.Sprintf("error generating token : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat token")
 		}
 	} else {
-		return returnInvalidResponse(http.StatusOK, "", "Gagal Login")
+		NLog("error", LogTag, fmt.Sprintf("error login  : %v username : %v", err, credentials.Key), c.Get("user").(*jwt.Token), "", true, "")
+
+		return returnInvalidResponse(http.StatusUnprocessableEntity, "", "Gagal Login")
 	}
+
+	//logging
+	NLog("event", LogTag, fmt.Sprintf("Login Success %v", credentials.Key), c.Get("user").(*jwt.Token), "", true, "")
 
 	jwtConf := asira.App.Config.GetStringMap(fmt.Sprintf("%s.jwt", asira.App.ENV))
 	expiration := time.Duration(jwtConf["duration"].(int)) * time.Minute
