@@ -82,6 +82,8 @@ func AgentLoanApply(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Sinkronisasi Borrower Baru Gagal")
 	}
 
+	NAudittrail(models.Loan{}, loan, token, "loan", fmt.Sprint(loan.ID), "agent loan apply")
+
 	return c.JSON(http.StatusCreated, loan)
 }
 
