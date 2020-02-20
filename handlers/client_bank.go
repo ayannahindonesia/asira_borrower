@@ -2,14 +2,19 @@ package handlers
 
 import (
 	"asira_borrower/models"
+	"fmt"
 	"net/http"
 	"strconv"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
+//ClientBanks get banks
 func ClientBanks(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "ClientBanks"
 
 	banks := models.Bank{}
 
@@ -24,19 +29,26 @@ func ClientBanks(c echo.Context) error {
 	result, err := banks.PagedFilterSearch(page, rows, orderby, sort, &filter)
 
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("query result error : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "query result error")
 	}
 
 	return c.JSON(http.StatusOK, result)
 }
 
+//ClientBankbyID get bank detail
 func ClientBankbyID(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "ClientBankbyID"
 
 	bank := models.Bank{}
 	bankID, _ := strconv.ParseUint(c.Param("bank_id"), 10, 64)
 	err := bank.FindbyID(bankID)
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("query result error : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "bank tidak ditemukan")
 	}
 

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Shopify/sarama"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 )
@@ -26,12 +27,18 @@ var (
 func ServiceInfo(c echo.Context) error {
 	defer c.Request().Body.Close()
 
+	LogTag := "ServiceInfo"
+
 	info.Time = fmt.Sprintf("%v", time.Now().Format("2006-01-02T15:04:05"))
 	info.Stacks = true
 	if err = healthcheckKafka(); err != nil {
+		NLog("error", LogTag, fmt.Sprintf("kafka down : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+
 		info.Stacks = false
 	}
 	if err = healthcheckDB(); err != nil {
+		NLog("error", LogTag, fmt.Sprintf("database down : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+
 		info.Stacks = false
 	}
 
