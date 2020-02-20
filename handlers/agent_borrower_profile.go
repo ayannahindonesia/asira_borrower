@@ -64,6 +64,7 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 
 		return returnInvalidResponse(http.StatusNotFound, err, "validation error : Akun borrower agent tidak ditemukan")
 	}
+	origin := borrowerModel
 
 	//cek borrower valid, owned by agent
 	if borrowerModel.AgentReferral.Int64 != agentID {
@@ -162,6 +163,8 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal update Borrower")
 	}
+
+	NAudittrail(origin, borrowerModel, token, "borrower", fmt.Sprint(borrowerModel.ID), "update")
 
 	return c.JSON(http.StatusOK, borrowerModel)
 }

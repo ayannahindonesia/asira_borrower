@@ -74,6 +74,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
+	origin := borrowerModel
 
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{},
@@ -191,6 +192,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal update Borrower")
 	}
 
+	NAudittrail(origin, borrowerModel, token, "borrower", fmt.Sprint(borrowerModel.ID), "borrower edit profile")
+
 	NLog("event", LogTag, fmt.Sprintf("borrower edit profile : %v", borrowerModel), c.Get("user").(*jwt.Token), "", false, "borrower")
 
 	return c.JSON(http.StatusOK, borrowerModel)
@@ -242,6 +245,9 @@ func BorrowerChangePassword(c echo.Context) error {
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Ubah Password Gagal")
 	}
+
+	NAudittrail(models.Loan{}, userBorrower, token, "borrower", fmt.Sprint(userBorrower.ID), "borrower change password")
+
 	responseBody := map[string]interface{}{
 		"status":  true,
 		"message": "Ubah Passord berhasil",

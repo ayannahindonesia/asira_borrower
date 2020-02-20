@@ -285,6 +285,8 @@ func AgentRegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Sinkronisasi Borrower Baru Gagal")
 	}
 
+	NAudittrail(models.Borrower{}, borrower, token, "borrower", fmt.Sprint(borrower.ID), "update")
+
 	return c.JSON(http.StatusCreated, borrower)
 }
 
