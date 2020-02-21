@@ -69,7 +69,7 @@ func BorrowerLoanApply(c echo.Context) error {
 
 	NLog("event", LogTag, fmt.Sprintf("success create loan : %v", loan), c.Get("user").(*jwt.Token), "", false, "borrower")
 
-	NAudittrail(models.Loan{}, loan, token, "borrower", fmt.Sprint(loan.ID), "borrower loan apply")
+	NAudittrail(models.Loan{}, loan, token, "borrower", fmt.Sprint(loan.ID), "borrower loan apply", "borrower")
 
 	return c.JSON(http.StatusCreated, loan)
 }

@@ -403,7 +403,7 @@ func NLog(level string, tag string, message string, jwttoken *jwt.Token, note st
 }
 
 // NAudittrail send audit trail log to northstar service
-func NAudittrail(ori interface{}, new interface{}, jwttoken *jwt.Token, entity string, entityID string, action string) {
+func NAudittrail(ori interface{}, new interface{}, jwttoken *jwt.Token, entity string, entityID string, action string, typeUser string) {
 	var (
 		uid      string
 		username string
@@ -411,14 +411,27 @@ func NAudittrail(ori interface{}, new interface{}, jwttoken *jwt.Token, entity s
 	)
 
 	jti, _ := strconv.ParseUint(jwttoken.Claims.(jwt.MapClaims)["jti"].(string), 10, 64)
-	user := models.User{}
-	err = user.FindbyID(jti)
-	if err == nil {
-		uid = fmt.Sprint(user.ID)
-		username = user.Username
+	if typeUser == "borrower" {
+		user := models.Borrower{}
+		err = user.FindbyID(jti)
+		if err == nil {
+			uid = fmt.Sprint(user.ID)
+			username = user.Phone
+		} else {
+			uid = "0"
+			username = "not found"
+		}
 	} else {
-		uid = "0"
-		username = "not found"
+		// agent
+		user := models.Agent{}
+		err = user.FindbyID(jti)
+		if err == nil {
+			uid = fmt.Sprint(user.ID)
+			username = user.Username
+		} else {
+			uid = "0"
+			username = "not found"
+		}
 	}
 
 	oriMarshal, _ := json.Marshal(ori)
@@ -428,7 +441,7 @@ func NAudittrail(ori interface{}, new interface{}, jwttoken *jwt.Token, entity s
 		Client:   asira.App.Northstar.Secret,
 		UserID:   uid,
 		Username: username,
-		Roles:    fmt.Sprint(user.Roles),
+		Roles:    typeUser,
 		Entity:   entity,
 		EntityID: entityID,
 		Action:   action,

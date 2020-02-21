@@ -2,3 +2,8 @@
     name= "github.com/ayannahindonesia/basemodel"
     branch = "master"
     source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@github.com/ayannahindonesia/basemodel.git"
+
+[[constraint]]
+  name = "github.com/ayannahindonesia/northstar"
+  branch = "755-audittrail"
+  source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@github.com/ayannahindonesia/northstar.git"
