@@ -131,6 +131,8 @@ func RegisterBorrower(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 
+	NAudittrail(models.User{}, user, c.Get("user").(*jwt.Token), "borrower", fmt.Sprint(user.ID), "borrower register", "")
+
 	return c.JSON(http.StatusCreated, borrower)
 }
 
