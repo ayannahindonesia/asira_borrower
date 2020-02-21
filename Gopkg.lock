@@ -76,12 +76,13 @@
   source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@github.com/ayannahindonesia/basemodel.git"
 
 [[projects]]
-  branch = "master"
-  digest = "1:bf42355ebdead4663b76d73a953c724cf2db20690b26106d6cf82103e9283404"
+  branch = "755-audittrail"
+  digest = "1:139f119f04733db3e1a13cebe036dcad77c14b61c90eae5332e0afad1e9754b1"
   name = "github.com/ayannahindonesia/northstar"
   packages = ["lib/northstarlib"]
   pruneopts = ""
-  revision = "124eb2f4a360934afeab5f682221a4d069713cbc"
+  revision = "e9c431ce4b3eaf84a5dc71d526e550df6856b379"
+  source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@github.com/ayannahindonesia/northstar.git"
 
 [[projects]]
   digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"

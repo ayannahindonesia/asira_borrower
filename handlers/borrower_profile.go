@@ -192,7 +192,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal update Borrower")
 	}
 
-	NAudittrail(origin, borrowerModel, token, "borrower", fmt.Sprint(borrowerModel.ID), "borrower edit profile")
+	NAudittrail(origin, borrowerModel, token, "borrower", fmt.Sprint(borrowerModel.ID), "borrower edit profile", "borrower")
 
 	NLog("event", LogTag, fmt.Sprintf("borrower edit profile : %v", borrowerModel), c.Get("user").(*jwt.Token), "", false, "borrower")
 
@@ -246,7 +246,7 @@ func BorrowerChangePassword(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Ubah Password Gagal")
 	}
 
-	NAudittrail(models.Loan{}, userBorrower, token, "borrower", fmt.Sprint(userBorrower.ID), "borrower change password")
+	NAudittrail(models.Loan{}, userBorrower, token, "borrower", fmt.Sprint(userBorrower.ID), "borrower change password", "borrower")
 
 	responseBody := map[string]interface{}{
 		"status":  true,
