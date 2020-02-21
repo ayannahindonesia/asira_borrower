@@ -12,7 +12,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"northstar/lib/northstarlib"
 	"strconv"
 	"strings"
 	"time"
