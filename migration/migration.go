@@ -206,6 +206,55 @@ func Seed() {
 		}
 		uuid.Create()
 
+		faqs := []models.FAQ{
+			models.FAQ{
+				Title: "How to register",
+				Description: `
+				<html>
+				<head>
+				</head>
+				<body>
+				<div class="panel" style="background-color:white; max-height:0; padding:20px 20px; transition:max-height 0.2s ease-out;margin-bottom:50px" >
+				<strong class="accordion">Section 1</strong>
+				<p>Lorem ipsum...1</p>
+				</div>
+				<div class="panel" style="background-color:white; max-height:0; padding:20px 20px; transition:max-height 0.2s ease-out;margin-bottom:50px" >
+				<strong class="accordion">Section 2</strong>
+				<p>Lorem ipsum...2</p>
+				</div>
+				<div class="panel" style="background-color:white; max-height:0; padding:20px 20px; transition:max-height 0.2s ease-out;margin-bottom:50px" >
+				<strong class="accordion">Section 3</strong>
+				<p>Lorem ipsum...3</p>
+				</div>
+				</body>
+				</html>`,
+			},
+			models.FAQ{
+				Title: "How to applying loan",
+				Description: `
+				<html>
+				<head>
+				</head>
+				<body>
+				<div class="panel" style="background-color:white; max-height:0; padding:20px 20px; transition:max-height 0.2s ease-out;margin-bottom:50px" >
+				<strong class="accordion">Section 1</strong>
+				<p>Lorem ipsum...1</p>
+				</div>
+				<div class="panel" style="background-color:white; max-height:0; padding:20px 20px; transition:max-height 0.2s ease-out;margin-bottom:50px" >
+				<strong class="accordion">Section 2</strong>
+				<p>Lorem ipsum...2</p>
+				</div>
+				<div class="panel" style="background-color:white; max-height:0; padding:20px 20px; transition:max-height 0.2s ease-out;margin-bottom:50px" >
+				<strong class="accordion">Section 3</strong>
+				<p>Lorem ipsum...3</p>
+				</div>
+				</body>
+				</html>`,
+			},
+		}
+		for _, faq := range faqs {
+			faq.Create()
+		}
 	}
 }
 
@@ -790,6 +839,56 @@ func TestSeed() {
 			user.Create()
 		}
 
+		faqs := []models.FAQ{
+			models.FAQ{
+				Title: "How to register",
+				Description: `
+				<html>
+				<head>
+				</head>
+				<body>
+				<div class="panel" style="background-color:white; max-height:0; padding:20px 20px; transition:max-height 0.2s ease-out;margin-bottom:50px" >
+				<strong class="accordion">Section 1</strong>
+				<p>Lorem ipsum...1</p>
+				</div>
+				<div class="panel" style="background-color:white; max-height:0; padding:20px 20px; transition:max-height 0.2s ease-out;margin-bottom:50px" >
+				<strong class="accordion">Section 2</strong>
+				<p>Lorem ipsum...2</p>
+				</div>
+				<div class="panel" style="background-color:white; max-height:0; padding:20px 20px; transition:max-height 0.2s ease-out;margin-bottom:50px" >
+				<strong class="accordion">Section 3</strong>
+				<p>Lorem ipsum...3</p>
+				</div>
+				</body>
+				</html>`,
+			},
+			models.FAQ{
+				Title: "How to applying loan",
+				Description: `
+				<html>
+				<head>
+				</head>
+				<body>
+				<div class="panel" style="background-color:white; max-height:0; padding:20px 20px; transition:max-height 0.2s ease-out;margin-bottom:50px" >
+				<strong class="accordion">Section 1</strong>
+				<p>Lorem ipsum...1</p>
+				</div>
+				<div class="panel" style="background-color:white; max-height:0; padding:20px 20px; transition:max-height 0.2s ease-out;margin-bottom:50px" >
+				<strong class="accordion">Section 2</strong>
+				<p>Lorem ipsum...2</p>
+				</div>
+				<div class="panel" style="background-color:white; max-height:0; padding:20px 20px; transition:max-height 0.2s ease-out;margin-bottom:50px" >
+				<strong class="accordion">Section 3</strong>
+				<p>Lorem ipsum...3</p>
+				</div>
+				</body>
+				</html>`,
+			},
+		}
+		for _, faq := range faqs {
+			faq.Create()
+		}
+
 	}
 }
 
@@ -811,6 +910,7 @@ func Truncate(tableList []string) (err error) {
 				"agent_providers",
 				"notifications",
 				"users",
+				"faqs",
 			}
 		}
 

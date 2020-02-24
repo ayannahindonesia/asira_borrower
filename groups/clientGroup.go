@@ -35,4 +35,8 @@ func ClientGroup(e *echo.Echo) {
 	g.GET("/serviceinfo", handlers.ServiceInfo)
 
 	g.POST("/otp_request", handlers.RequestOTPverifyAccount)
+
+	//FAQ
+	g.GET("/faq", handlers.FAQList)
+	g.GET("/faq/:faq_id", handlers.FAQDetail)
 }
