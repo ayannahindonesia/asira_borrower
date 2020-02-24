@@ -45,7 +45,7 @@ func FAQList(c echo.Context) error {
 	} else {
 		type Filter struct {
 			Title       string `json:"title" condition:"LIKE"`
-			Description string `json:"description"`
+			Description string `json:"description" condition:"LIKE"`
 		}
 		result, err = faq.PagedFindFilter(page, rows, orderby, sort, &Filter{
 			Title:       c.QueryParam("title"),
@@ -56,7 +56,7 @@ func FAQList(c echo.Context) error {
 	if err != nil {
 		NLog("warning", "FAQList", fmt.Sprintf("error finding FAQ : %v", err), c.Get("user").(*jwt.Token), "", true, "")
 
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Pencarian tidak ditemukan")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "FAQ tidak ditemukan")
 	}
 
 	return c.JSON(http.StatusOK, result)
@@ -73,7 +73,7 @@ func FAQDetail(c echo.Context) error {
 	if err != nil {
 		NLog("warning", "FAQDetail", fmt.Sprintf("FAQ %v not found : %v", faqID, err), c.Get("user").(*jwt.Token), "", true, "")
 
-		return returnInvalidResponse(http.StatusNotFound, err, "Tidak memiliki hak akses")
+		return returnInvalidResponse(http.StatusNotFound, err, "FAQ tidak ditemukan")
 	}
 
 	return c.JSON(http.StatusOK, faq)
