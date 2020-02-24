@@ -21,11 +21,6 @@ type FAQPayload struct {
 //FAQList get FAQ list
 func FAQList(c echo.Context) error {
 	defer c.Request().Body.Close()
-	if err != nil {
-		NLog("warning", "FAQList", fmt.Sprintf("unauthorized access FAQList : '%v'", err), c.Get("user").(*jwt.Token), "", true, "")
-
-		return returnInvalidResponse(http.StatusForbidden, err, fmt.Sprintf("%s", err))
-	}
 
 	// pagination parameters
 	rows, err := strconv.Atoi(c.QueryParam("rows"))
@@ -70,9 +65,6 @@ func FAQList(c echo.Context) error {
 // FAQDetail get FAQ detail by id
 func FAQDetail(c echo.Context) error {
 	defer c.Request().Body.Close()
-	if err != nil {
-		return returnInvalidResponse(http.StatusForbidden, err, fmt.Sprintf("%s", err))
-	}
 
 	faqID, _ := strconv.ParseUint(c.Param("faq_id"), 10, 64)
 
