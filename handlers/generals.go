@@ -33,8 +33,11 @@ type (
 )
 
 const (
-	NLOGMSG   = "message"
-	NLOGERR   = "error"
+	//NLOGMSG for message body
+	NLOGMSG = "message"
+	//NLOGERR for error info
+	NLOGERR = "error"
+	//NLOGQUERY for detailed query tracing
 	NLOGQUERY = "query"
 )
 
