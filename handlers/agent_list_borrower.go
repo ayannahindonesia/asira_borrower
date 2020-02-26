@@ -40,7 +40,10 @@ func AgentAllBorrower(c echo.Context) error {
 	var agent models.Agent
 	err = agent.FindbyID(agentID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid agent : %v agent ID", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:    "not valid agent",
+			NLOGERR:    err,
+			"agent_id": agentID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
@@ -108,7 +111,11 @@ func AgentAllBorrower(c echo.Context) error {
 	}
 	err = db.Find(&borrowers).Error
 	if err != nil {
-		NLog("warning", LogTag, fmt.Sprintf("empty agent's borrower list  : %v agent ID", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:    "empty agent's borrower list",
+			NLOGERR:    err,
+			"agent_id": agentID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data agent's borrowers tidak ditemukan")
 	}
