@@ -7,6 +7,7 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -29,6 +30,12 @@ type (
 		Role     string `json:"role"`
 		jwt.StandardClaims
 	}
+)
+
+const (
+	NLOGMSG   = "message"
+	NLOGERR   = "error"
+	NLOGQUERY = "query"
 )
 
 var EnglishToIndonesiaFields map[string]string = map[string]string{
@@ -360,7 +367,7 @@ func generateDeleteCheck(tableName string) string {
 }
 
 // NLog send log to northstar service
-func NLog(level string, tag string, message string, jwttoken *jwt.Token, note string, nouser bool, typeUser string) {
+func NLog(level string, tag string, message interface{}, jwttoken *jwt.Token, note string, nouser bool, typeUser string) {
 	var (
 		uid      string
 		username string
@@ -387,10 +394,12 @@ func NLog(level string, tag string, message string, jwttoken *jwt.Token, note st
 		}
 	}
 
+	Message, _ := json.Marshal(message)
+
 	err = asira.App.Northstar.SubmitKafkaLog(northstarlib.Log{
 		Level:    level,
 		Tag:      tag,
-		Messages: message,
+		Messages: string(Message),
 		UID:      uid,
 		Username: username,
 		Note:     note,
