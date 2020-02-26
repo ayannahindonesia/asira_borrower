@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/middlewares"
 	"asira_borrower/models"
 	"fmt"
@@ -30,14 +31,20 @@ func AgentBorrowerProfile(c echo.Context) error {
 	borrowerModel := models.Borrower{}
 	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid borrower : %v borrower ID : %v", err, borrowerID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "not valid borrower",
+			NLOGERR:       err,
+			NLOGQUERY:     asira.App.DB.QueryExpr(),
+			"borrower_id": borrowerID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusNotFound, err, "validation error : Akun borrower agent tidak ditemukan")
 	}
 
 	//cek borrower valid, owned by agent
 	if borrowerModel.AgentReferral.Int64 != agentID {
-		NLog("error", LogTag, fmt.Sprintf("borrower %v not owned by agent ID : %v", borrowerID, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: fmt.Sprintf("borrower %v not owned by agent ID : %v", borrowerID, agentID),
+			NLOGERR: "borrower.AgentID not equal AgentID"}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "validation error : bukan borrower agent yang valid")
 	}
@@ -60,14 +67,21 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 	borrowerModel := models.Borrower{}
 	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
-		NLog("warning", LogTag, fmt.Sprintf("not valid borrower : %v borrower ID : %v", err, borrowerID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:       "not valid borrower",
+			NLOGERR:       err,
+			NLOGQUERY:     asira.App.DB.QueryExpr(),
+			"borrower_id": borrowerID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusNotFound, err, "validation error : Akun borrower agent tidak ditemukan")
 	}
 
 	//cek borrower valid, owned by agent
 	if borrowerModel.AgentReferral.Int64 != agentID {
-		NLog("error", LogTag, fmt.Sprintf("borrower %v not owned by agent ID : %v", borrowerID, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       fmt.Sprintf("borrower %v not owned by agent ID : %v", borrowerID, agentID),
+			NLOGERR:       "borrower.AgentID not equal AgentID",
+			"borrower_id": borrowerID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "validation error : bukan borrower agent yang valid")
 	}
@@ -123,7 +137,10 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 	var borrowerPayload models.Borrower
 	validate := validateRequestPayload(c, payloadRules, &borrowerPayload)
 	if validate != nil {
-		NLog("warning", LogTag, fmt.Sprintf("error validation : %v", validate), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "error validation",
+			NLOGERR:       validate,
+			"borrower_id": borrowerID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
@@ -137,7 +154,11 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 	}
 	foundFields, err := checkUniqueFields(borrowerModel.IdCardNumber, uniques)
 	if err != nil {
-		NLog("warning", LogTag, fmt.Sprintf("data already exist : %v", foundFields), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:       "data already exist",
+			NLOGERR:       foundFields,
+			"borrower_id": borrowerID,
+			"payload":     borrowerPayload}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error : "+foundFields)
 	}
@@ -158,7 +179,11 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 	// err = borrowerModel.Save()
 	err = middlewares.SubmitKafkaPayload(borrowerModel, "borrower_update")
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("error kafka submit update borrower : %v borrower ID : %v", err, borrowerID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "error kafka submit update borrower",
+			NLOGERR:       err,
+			"borrower_id": borrowerID,
+			"payload":     borrowerPayload}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal update Borrower")
 	}
