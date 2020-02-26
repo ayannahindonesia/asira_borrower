@@ -279,9 +279,9 @@ func AgentRegisterBorrower(c echo.Context) error {
 		NLog("warning", LogTag, map[string]interface{}{
 			NLOGMSG:            "data already exist",
 			NLOGERR:            err,
-			"fields_found": foundFields,,
+			"fields_found":     foundFields,
 			"borrower_payload": register}, c.Get("user").(*jwt.Token), "", false, "agent")
-		
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+foundFields)
 	}
 
@@ -296,8 +296,8 @@ func AgentRegisterBorrower(c echo.Context) error {
 	err = db.Count(&count).Error
 	if count >= 1 {
 		NLog("warning", LogTag, map[string]interface{}{
-			NLOGMSG:            "borrower already registered",
-			NLOGERR:            err,
+			NLOGMSG: "borrower already registered",
+			NLOGERR: err,
 			"count": count}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
@@ -308,18 +308,18 @@ func AgentRegisterBorrower(c echo.Context) error {
 	err = borrower.Create()
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:            "failed to create agent's borrower",
-			NLOGERR:            err,
+			NLOGMSG:   "failed to create agent's borrower",
+			NLOGERR:   err,
 			NLOGQUERY: asira.App.DB.QueryExpr(),
-			"count": count}, c.Get("user").(*jwt.Token), "", false, "agent")
-	
+			"count":   count}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 	err = middlewares.SubmitKafkaPayload(borrower, "borrower_create")
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:            "failed kafka submit create agent's borrower",
-			NLOGERR:            err,
+			NLOGMSG:    "failed kafka submit create agent's borrower",
+			NLOGERR:    err,
 			"borrower": borrower}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Sinkronisasi Borrower Baru Gagal")
@@ -351,8 +351,8 @@ func AgentRequestOTP(c echo.Context) error {
 
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:            "not valid borrower",
-			NLOGERR:            err,
+			NLOGMSG:       "not valid borrower",
+			NLOGERR:       err,
 			"borrower_id": borrowerID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's borrower")
@@ -365,8 +365,8 @@ func AgentRequestOTP(c echo.Context) error {
 	validate := validateRequestPayload(c, payloadRules, &otpRequest)
 	if validate != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:            "error validation",
-			NLOGERR:            validate,
+			NLOGMSG:       "error validation",
+			NLOGERR:       validate,
 			"otp_payload": otpRequest}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
@@ -380,8 +380,8 @@ func AgentRequestOTP(c echo.Context) error {
 	})
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:            "not valid agent's phone",
-			NLOGERR:            err,
+			NLOGMSG:       "not valid agent's phone",
+			NLOGERR:       err,
 			"otp_payload": otpRequest}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's phone")
@@ -397,10 +397,10 @@ func AgentRequestOTP(c echo.Context) error {
 	err = asira.App.Messaging.SendSMS(agent.Phone, message)
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:            "error failed Sending SMS OTP ",
-			NLOGERR:            err,
+			NLOGMSG:   "error failed Sending SMS OTP ",
+			NLOGERR:   err,
 			"payload": message}, c.Get("user").(*jwt.Token), "", false, "agent")
-		
+
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending otp")
 	}
 
@@ -429,10 +429,10 @@ func AgentVerifyOTP(c echo.Context) error {
 	})
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:            "not valid borrower",
-			NLOGERR:            err,
+			NLOGMSG:       "not valid borrower",
+			NLOGERR:       err,
 			"borrower_id": borrowerID}, c.Get("user").(*jwt.Token), "", false, "agent")
-		
+
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's borrower")
 	}
 
@@ -444,9 +444,9 @@ func AgentVerifyOTP(c echo.Context) error {
 	validate := validateRequestPayload(c, payloadRules, &otpVerify)
 	if validate != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:            "error validation",
-			NLOGERR:            validate}, c.Get("user").(*jwt.Token), "", false, "agent")
-		
+			NLOGMSG: "error validation",
+			NLOGERR: validate}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
@@ -458,10 +458,10 @@ func AgentVerifyOTP(c echo.Context) error {
 	})
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:            "not valid agent's phone",
-			NLOGERR:            err,
+			NLOGMSG:       "not valid agent's phone",
+			NLOGERR:       err,
 			"otp_payload": otpVerify}, c.Get("user").(*jwt.Token), "", false, "agent")
-	
+
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's phone")
 	}
 
@@ -471,8 +471,8 @@ func AgentVerifyOTP(c echo.Context) error {
 		err = updateAccountOTPstatus(c, borrowerID)
 		if err != nil {
 			NLog("error", LogTag, map[string]interface{}{
-				NLOGMSG:            "cannot change borrower's OTP verified status",
-				NLOGERR:            err,
+				NLOGMSG:       "cannot change borrower's OTP verified status",
+				NLOGERR:       err,
 				"otp_payload": otpVerify}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
@@ -485,8 +485,8 @@ func AgentVerifyOTP(c echo.Context) error {
 		err = updateAccountOTPstatus(c, borrowerID)
 		if err != nil {
 			NLog("error", LogTag, map[string]interface{}{
-				NLOGMSG:            "cannot change borrower's OTP verified status",
-				NLOGERR:            err,
+				NLOGMSG:       "cannot change borrower's OTP verified status",
+				NLOGERR:       err,
 				"otp_payload": otpVerify}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
@@ -495,10 +495,9 @@ func AgentVerifyOTP(c echo.Context) error {
 	}
 
 	NLog("error", LogTag, map[string]interface{}{
-		NLOGMSG:            "cannot validate OTP",
-		NLOGERR:            "invalid OTP code",
+		NLOGMSG:       "cannot validate OTP",
+		NLOGERR:       "invalid OTP code",
 		"otp_payload": otpVerify}, c.Get("user").(*jwt.Token), "", false, "agent")
-
 
 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
 }

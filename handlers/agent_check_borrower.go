@@ -63,11 +63,11 @@ func AgentCheckBorrower(c echo.Context) error {
 	foundFields, err := checkUniqueFields(payloadFilter.IdCardNumber, fields)
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:   "data already exist",
-			NLOGERR:   err,
-			NLOGQUERY: asira.App.DB.QueryExpr(),,
+			NLOGMSG:        "data already exist",
+			NLOGERR:        err,
+			NLOGQUERY:      asira.App.DB.QueryExpr(),
 			"fields_found": foundFields}, c.Get("user").(*jwt.Token), "", false, "agent")
-		
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+foundFields)
 	}
 
@@ -85,8 +85,8 @@ func AgentCheckBorrower(c echo.Context) error {
 			NLOGMSG:   "borrower already registered",
 			NLOGERR:   err,
 			NLOGQUERY: asira.App.DB.QueryExpr(),
-			"count": count}, c.Get("user").(*jwt.Token), "", false, "agent")
-		
+			"count":   count}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		NLog("warning", LogTag, fmt.Sprintf("borrower already registered : %v", count), c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
