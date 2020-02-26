@@ -32,12 +32,16 @@ func ServiceInfo(c echo.Context) error {
 	info.Time = fmt.Sprintf("%v", time.Now().Format("2006-01-02T15:04:05"))
 	info.Stacks = true
 	if err = healthcheckKafka(); err != nil {
-		NLog("error", LogTag, fmt.Sprintf("kafka down : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "kafka down",
+			NLOGERR: err}, c.Get("user").(*jwt.Token), "", true, "")
 
 		info.Stacks = false
 	}
 	if err = healthcheckDB(); err != nil {
-		NLog("error", LogTag, fmt.Sprintf("database down : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "database down",
+			NLOGERR: err}, c.Get("user").(*jwt.Token), "", true, "")
 
 		info.Stacks = false
 	}

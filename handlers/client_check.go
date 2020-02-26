@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"asira_borrower/asira"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -50,7 +49,9 @@ func CheckData(c echo.Context) error {
 		})
 	}
 
-	NLog("error", LogTag, fmt.Sprintf("fields already exist : %v", values), c.Get("user").(*jwt.Token), "", true, "")
+	NLog("error", LogTag, map[string]interface{}{
+		NLOGMSG: "fields already exist",
+		NLOGERR: values}, c.Get("user").(*jwt.Token), "", true, "")
 
 	result := "Field : " + strings.Join(values, " , ") + " Telah Digunakan"
 	return returnInvalidResponse(http.StatusUnprocessableEntity, "", result)

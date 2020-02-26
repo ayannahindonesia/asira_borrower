@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
 	"fmt"
 	"net/http"
@@ -29,7 +30,10 @@ func ClientBanks(c echo.Context) error {
 	result, err := banks.PagedFilterSearch(page, rows, orderby, sort, &filter)
 
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("query result error : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "query result error",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", true, "")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "query result error")
 	}
