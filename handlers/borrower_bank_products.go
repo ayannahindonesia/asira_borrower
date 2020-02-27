@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -38,7 +37,10 @@ func BorrowerBankProduct(c echo.Context) error {
 
 	err = db.Find(&results).Count(&count).Error
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("Product not found : %v", err), c.Get("user").(*jwt.Token), "", true, "borrower")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "Product not found",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "Product Tidak Ditemukan")
 	}
@@ -61,7 +63,10 @@ func BorrowerBankProductDetails(c echo.Context) error {
 	productID, _ := strconv.ParseUint(c.Param("product_id"), 10, 64)
 	err := bankProduct.FindbyID(productID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("Product not found : %v", err), c.Get("user").(*jwt.Token), "", true, "borrower")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "Product not found",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "Product Tidak Ditemukan")
 	}

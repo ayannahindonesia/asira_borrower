@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -29,7 +29,11 @@ func FCMTokenUpdate(c echo.Context) error {
 	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 	err := userBorrower.FindbyBorrowerID(borrowerID)
 	if err != nil {
-		NLog("warning", LogTag, fmt.Sprintf("unauthorized : %v", borrowerID), c.Get("user").(*jwt.Token), "", false, "borrower")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "unauthorized",
+			NLOGERR:       err,
+			NLOGQUERY:     asira.App.DB.QueryExpr(),
+			"borrower_id": borrowerID}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "unauthorized")
 	}
@@ -40,7 +44,9 @@ func FCMTokenUpdate(c echo.Context) error {
 
 	validate := validateRequestPayload(c, payloadRules, &payload)
 	if validate != nil {
-		NLog("warning", LogTag, fmt.Sprintf("error validation : %v", validate), c.Get("user").(*jwt.Token), "", false, "borrower")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "error validation",
+			NLOGERR: validate}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
@@ -49,7 +55,9 @@ func FCMTokenUpdate(c echo.Context) error {
 	userBorrower.FCMToken = payload.FCMToken
 	err = userBorrower.Save()
 	if err != nil {
-		NLog("warning", LogTag, fmt.Sprintf("error update user borrower FCMToken : %v", err), c.Get("user").(*jwt.Token), "", false, "borrower")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "error update user borrower FCMToken ",
+			NLOGERR: err}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "error saving Password")
 	}
@@ -59,7 +67,8 @@ func FCMTokenUpdate(c echo.Context) error {
 		"message": "FCM Token Updated",
 	}
 
-	NLog("event", LogTag, fmt.Sprintf("success updating FCMToken : %v", userBorrower.FCMToken), c.Get("user").(*jwt.Token), "", false, "borrower")
+	NLog("event", LogTag, map[string]interface{}{
+		NLOGMSG: "success updating FCMToken"}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 	return c.JSON(http.StatusOK, responseBody)
 }

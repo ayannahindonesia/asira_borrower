@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -50,7 +49,7 @@ func ClientBankbyID(c echo.Context) error {
 	bank := models.Bank{}
 	bankID, _ := strconv.ParseUint(c.Param("bank_id"), 10, 64)
 	err := bank.FindbyID(bankID)
-	if err != nil {		
+	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
 			NLOGMSG:   "query result error",
 			NLOGERR:   err,
