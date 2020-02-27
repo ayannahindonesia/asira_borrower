@@ -192,7 +192,7 @@ func RequestOTPverifyAccount(c echo.Context) error {
 			NLOGMSG:         "error validate borrower",
 			NLOGERR:         validate,
 			NLOGQUERY:       asira.App.DB.QueryExpr(),
-			"borrower_user": userBorrower}, c.Get("user").(*jwt.Token), "", false, "borrower")
+			"borrower_user": otpRequest}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
