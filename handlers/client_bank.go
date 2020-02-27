@@ -50,8 +50,11 @@ func ClientBankbyID(c echo.Context) error {
 	bank := models.Bank{}
 	bankID, _ := strconv.ParseUint(c.Param("bank_id"), 10, 64)
 	err := bank.FindbyID(bankID)
-	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("query result error : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+	if err != nil {		
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "query result error",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", true, "")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "bank tidak ditemukan")
 	}
