@@ -152,10 +152,10 @@ func BorrowerProfileEdit(c echo.Context) error {
 	fieldsFound, err := checkPatchFieldsBorrowers(borrowerModel.ID, borrowerModel.IdCardNumber, fields)
 	if err != nil {
 		NLog("warning", LogTag, map[string]interface{}{
-			NLOGMSG:   "error validate patching borrower",
-			NLOGERR:   err,
-			"fields-found": fieldsFound,,
-			"borrower": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")
+			NLOGMSG:        "error validate patching borrower",
+			NLOGERR:        err,
+			"fields-found": fieldsFound,
+			"borrower":     borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+fieldsFound)
 	}
@@ -168,8 +168,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 		IDCardImage, err := uploadImageS3Formatted("ktp", borrowerModel.IdCardImage)
 		if err != nil {
 			NLog("error", LogTag, map[string]interface{}{
-				NLOGMSG:   "error uploading ID Card image",
-				NLOGERR:   err,
+				NLOGMSG:    "error uploading ID Card image",
+				NLOGERR:    err,
 				"borrower": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gambar KTP gagal diunggah")
@@ -179,8 +179,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 		borrowerModel.IdCardImage, err = encrypt(IDCardImage, encryptPassphrase)
 		if err != nil {
 			NLog("error", LogTag, map[string]interface{}{
-				NLOGMSG:   "error encrypting ID Card image",
-				NLOGERR:   err,
+				NLOGMSG:    "error encrypting ID Card image",
+				NLOGERR:    err,
 				"borrower": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi KTP gagal")
@@ -192,8 +192,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 		TaxIDImage, err := uploadImageS3Formatted("tax", borrowerModel.TaxIDImage)
 		if err != nil {
 			NLog("error", LogTag, map[string]interface{}{
-				NLOGMSG:   "error uploading Tax ID image",
-				NLOGERR:   err,
+				NLOGMSG:    "error uploading Tax ID image",
+				NLOGERR:    err,
 				"borrower": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gambar NPWP gagal diunggah")
@@ -203,8 +203,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 		borrowerModel.TaxIDImage, err = encrypt(TaxIDImage, encryptPassphrase)
 		if err != nil {
 			NLog("error", LogTag, map[string]interface{}{
-				NLOGMSG:   "error encrypting Tax ID image",
-				NLOGERR:   err,
+				NLOGMSG:    "error encrypting Tax ID image",
+				NLOGERR:    err,
 				"borrower": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
@@ -215,8 +215,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 	err = middlewares.SubmitKafkaPayload(borrowerModel, "borrower_update")
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:   "error submitting to kafka after creating borrower",
-			NLOGERR:   err,
+			NLOGMSG:    "error submitting to kafka after creating borrower",
+			NLOGERR:    err,
 			"borrower": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal update Borrower")
@@ -224,7 +224,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 
 	
 	NLog("info", LogTag, map[string]interface{}{
-		NLOGMSG:   "succcess borrower edit profile",
+		NLOGMSG:    "succcess borrower edit profile",
 		"borrower": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 	return c.JSON(http.StatusOK, borrowerModel)
@@ -246,10 +246,10 @@ func BorrowerChangePassword(c echo.Context) error {
 	err = userBorrower.FindbyBorrowerID(borrowerID)
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:   "not valid borrower personal",
-			NLOGERR:   err,
+			NLOGMSG:       "not valid borrower personal",
+			NLOGERR:       err,
 			"borrower_id": borrowerID}, c.Get("user").(*jwt.Token), "", false, "borrower")
-			
+
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun bukan borrower personal")
 	}
 
@@ -260,8 +260,8 @@ func BorrowerChangePassword(c echo.Context) error {
 	validate := validateRequestPayload(c, payloadRules, &userBorrower)
 	if validate != nil {
 		NLog("warning", LogTag, map[string]interface{}{
-			NLOGMSG:   "error validation",
-			NLOGERR:   validate}, c.Get("user").(*jwt.Token), "", false, "borrower")
+			NLOGMSG: "error validation",
+			NLOGERR: validate}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
@@ -269,9 +269,9 @@ func BorrowerChangePassword(c echo.Context) error {
 	passwordByte, err := bcrypt.GenerateFromPassword([]byte(userBorrower.Password), bcrypt.DefaultCost)
 	if err != nil {
 		NLog("warning", LogTag, map[string]interface{}{
-			NLOGMSG:   "error generate passoword",
-			NLOGERR:   err}, c.Get("user").(*jwt.Token), "", false, "borrower")
-		
+			NLOGMSG: "error generate passoword",
+			NLOGERR: err}, c.Get("user").(*jwt.Token), "", false, "borrower")
+
 		return err
 	}
 
@@ -280,9 +280,9 @@ func BorrowerChangePassword(c echo.Context) error {
 	err = userBorrower.Save()
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:   "Failed update borrower password",
-			NLOGERR:   err,
-			NLOGQUERY:   asira.App.DB.QueryExpr(),
+			NLOGMSG:         "Failed update borrower password",
+			NLOGERR:         err,
+			NLOGQUERY:       asira.App.DB.QueryExpr(),
 			"borrower_user": userBorrower}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Ubah Password Gagal")
