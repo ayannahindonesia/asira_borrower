@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -24,7 +23,10 @@ func BorrowerBankService(c echo.Context) error {
 	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 	err := borrowerModel.FindbyID(borrowerID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("error borrower ID : %v", err), c.Get("user").(*jwt.Token), "", false, "borrower")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "error borrower ID",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
@@ -38,7 +40,10 @@ func BorrowerBankService(c echo.Context) error {
 		Where("id IN (SELECT UNNEST(services) FROM banks WHERE id = ?)", borrowerModel.Bank.Int64).Find(&results).Count(&count).Error
 
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("Service not found"), c.Get("user").(*jwt.Token), "", true, "borrower")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "Service not found",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Tidak Ditemukan")
 	}
@@ -61,7 +66,10 @@ func BorrowerBankServiceDetails(c echo.Context) error {
 	serviceID, _ := strconv.ParseUint(c.Param("service_id"), 10, 64)
 	err := bServices.FindbyID(serviceID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("Service detail not found"), c.Get("user").(*jwt.Token), "", true, "borrower")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "Service detail not found",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "Service Detail Tidak Ditemukan")
 	}

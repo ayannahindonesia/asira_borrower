@@ -60,6 +60,10 @@ func RegisterBorrower(c echo.Context) error {
 
 	validate := validateRequestPayload(c, payloadRules, &register)
 	if validate != nil {
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "empty validate borrower",
+			NLOGERR: validate}, c.Get("user").(*jwt.Token), "", false, "borrower")
+
 		NLog("warning", LogTag, fmt.Sprintf("error validate borrower : %v", validate), c.Get("user").(*jwt.Token), "", true, "borrower")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
@@ -68,7 +72,9 @@ func RegisterBorrower(c echo.Context) error {
 	//search already exist Borrower registered by agent
 	err = isBorrowerAlreadyRegistered(register.Email, register.Phone)
 	if err != nil {
-		NLog("warning", LogTag, fmt.Sprintf("error validate borrower : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "empty validate borrower",
+			NLOGERR: err}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Borrower personal sudah terdaftar sebelumnya")
 	}
@@ -77,7 +83,9 @@ func RegisterBorrower(c echo.Context) error {
 	//marshalling data
 	r, err := json.Marshal(register)
 	if err != nil {
-		NLog("warning", LogTag, fmt.Sprintf("error parse borrower data : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "error parse borrower data",
+			NLOGERR: err}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
@@ -102,21 +110,28 @@ func RegisterBorrower(c echo.Context) error {
 	if tryValidateOTP(SaltOTPs, register.Phone, register.OTPCode) || (asira.App.ENV == "development" && register.OTPCode == "888999") {
 		borrower.OTPverified = true
 	} else {
-		NLog("warning", LogTag, fmt.Sprintf("invalid OTP register borrower : %v", register), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "invalid OTP register borrower ",
+			NLOGERR: register}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Invalid kode OTP")
 	}
 
 	err = borrower.Create()
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("error create borrower : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "error create borrower",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 
 	err = middlewares.SubmitKafkaPayload(borrower, "borrower_create")
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("error create user for borrower : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "error submit kafka create borrower",
+			NLOGERR: err}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Sinkronisasi Borrower Baru Gagal")
 	}
@@ -126,7 +141,10 @@ func RegisterBorrower(c echo.Context) error {
 	user.Password = register.Password
 	user.Create()
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("error create user for borrower : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "error create user for borrower",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
@@ -170,7 +188,11 @@ func RequestOTPverifyAccount(c echo.Context) error {
 	//parse payload
 	validate := validateRequestPayload(c, payloadRules, &otpRequest)
 	if validate != nil {
-		NLog("warning", LogTag, fmt.Sprintf("error validate borrower : %v", validate), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:         "error validate borrower",
+			NLOGERR:         validate,
+			NLOGQUERY:       asira.App.DB.QueryExpr(),
+			"borrower_user": userBorrower}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
@@ -179,14 +201,18 @@ func RequestOTPverifyAccount(c echo.Context) error {
 	// Try, _ := strconv.Atoi(otpRequest.Try)
 	Try := otpRequest.Try
 	if Try < 1 || Try > len(SaltOTPs) {
-		NLog("warning", LogTag, fmt.Sprintf("invalid Try parameter : %v", validate), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "invalid Try parameter",
+			NLOGERR: "try < 1 or try not valid"}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "invalid Try")
 	}
 	//get OTP secret
 	Secret := asira.App.Config.GetString(fmt.Sprintf("%s.messaging.otp_secret", asira.App.ENV))
 	if otpRequest.Secret != Secret {
-		NLog("warning", LogTag, fmt.Sprintf("invalid Secret parameter : %v", validate), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "invalid Try parameter",
+			NLOGERR: otpRequest}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "invalid Secret")
 	}
@@ -200,12 +226,17 @@ func RequestOTPverifyAccount(c echo.Context) error {
 	message := fmt.Sprintf("Code OTP Registrasi anda adalah %s", otpCode)
 	err := asira.App.Messaging.SendSMS(otpRequest.Phone, message)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("error failed Sending SMS OTP : %v payload : %v", err, validate), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "error failed Sending SMS OTP",
+			NLOGERR:   err,
+			"payload": otpRequest}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending otp")
 	}
 
-	NLog("event", LogTag, fmt.Sprintf("success send OTP : %v", otpRequest.Phone), c.Get("user").(*jwt.Token), "", true, "")
+	NLog("info", LogTag, map[string]interface{}{
+		NLOGMSG:   "success send OTP",
+		"payload": otpRequest}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 	return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Terkirim"})
 }
