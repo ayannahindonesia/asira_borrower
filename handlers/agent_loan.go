@@ -40,7 +40,10 @@ func AgentLoanApply(c echo.Context) error {
 
 	validate := validateRequestPayload(c, payloadRules, &loan)
 	if validate != nil {
-		NLog("warning", LogTag, fmt.Sprintf("error validation : %v agent ID : %v", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:   "error validation",
+			NLOGERR:   err,
+			"payload": loan}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
@@ -49,7 +52,10 @@ func AgentLoanApply(c echo.Context) error {
 	agent := models.Agent{}
 	err = agent.FindbyID(agentID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid agent : %v agent ID : %v", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:    "not valid agent",
+			NLOGERR:    err,
+			"agent_id": agentID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnauthorized, validate, "validation error : not valid agent")
 	}
@@ -57,27 +63,40 @@ func AgentLoanApply(c echo.Context) error {
 	//validate is borrower registered by agent
 	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
 	if !check {
-		NLog("error", LogTag, fmt.Sprintf("not valid agent's borrower : %v borrower ID : %v", err, loan.Borrower), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "not valid agent's borrower",
+			NLOGERR:       err,
+			"borrower_id": loan.Borrower}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnauthorized, validate, "validation error : not valid agent's borrower")
 	}
 
 	err = validateAgentLoansProduct(loan, agentID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid product : %v loan : %v", err, loan), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "not valid product",
+			NLOGERR: err,
+			"loan":  loan}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error : not valid product")
 	}
 
 	err = loan.Create()
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("error create loan : %v loan : %v", err, loan), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "error create loan",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr(),
+			"loan":    loan}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat Loan")
 	}
 	err = middlewares.SubmitKafkaPayload(loan, "loan_create")
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("error kafka sumbit create loan : %v loan : %v", err, loan), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "error kafka sumbit create loan",
+			NLOGERR: err,
+			"loan":  loan}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Sinkronisasi Borrower Baru Gagal")
 	}
@@ -149,7 +168,11 @@ func AgentLoanGet(c echo.Context) error {
 	}
 	err := db.Find(&results).Count(&totalRows).Error
 	if err != nil {
-		NLog("warning", LogTag, fmt.Sprintf("empty loan : %v loan count : %v", err, totalRows), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:      "empty loan",
+			NLOGERR:      err,
+			NLOGQUERY:    asira.App.DB.QueryExpr(),
+			"loan_count": totalRows}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		returnInvalidResponse(http.StatusInternalServerError, err, "pencarian loan gagal")
 	}
@@ -185,7 +208,10 @@ func AgentLoanGetDetails(c echo.Context) error {
 	loanID, err := strconv.ParseUint(c.Param("loan_id"), 10, 64)
 	err = loan.FindbyID(loanID)
 	if err != nil {
-		NLog("warning", LogTag, fmt.Sprintf("not valid loan : %v loan ID : %v", err, loanID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:   "not valid loan",
+			NLOGERR:   err,
+			"loan_id": loanID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
 	}
@@ -194,7 +220,9 @@ func AgentLoanGetDetails(c echo.Context) error {
 	agent := models.Agent{}
 	err = agent.FindbyID(agentID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid agent : %v agent ID : %v", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "not valid agent",
+			NLOGERR: err}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
 	}
@@ -202,7 +230,10 @@ func AgentLoanGetDetails(c echo.Context) error {
 	//validate is borrower registered by agent
 	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
 	if !check {
-		NLog("error", LogTag, fmt.Sprintf("not valid agent's borrower : %v borrower ID : %v", err, loan.Borrower), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:       "not valid agent's borrower",
+			NLOGERR:       err,
+			"borrower_id": loan.Borrower}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnauthorized, check, "validation error : not valid agent's borrower")
 	}
@@ -226,7 +257,10 @@ func AgentLoanOTPrequest(c echo.Context) error {
 	loanID, err := strconv.ParseUint(c.Param("loan_id"), 10, 64)
 	err = loan.FindbyID(loanID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid loan : %v loan ID : %v", err, loanID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "not valid loan",
+			NLOGERR:   err,
+			"loan_id": loanID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
 	}
@@ -235,7 +269,10 @@ func AgentLoanOTPrequest(c echo.Context) error {
 	agent := models.Agent{}
 	err = agent.FindbyID(agentID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid agent : %v agent ID : %v", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:    "not valid agent",
+			NLOGERR:    err,
+			"agent_id": agentID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
 	}
@@ -243,7 +280,10 @@ func AgentLoanOTPrequest(c echo.Context) error {
 	//validate is borrower registered by agent
 	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
 	if !check {
-		NLog("error", LogTag, fmt.Sprintf("not valid agent's borrower : %v borrower ID : %v", err, loan.Borrower), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "not valid agent's borrower",
+			NLOGERR:       err,
+			"borrower_id": loan.Borrower}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnauthorized, check, "validation error : not valid agent's borrower")
 	}
@@ -252,7 +292,10 @@ func AgentLoanOTPrequest(c echo.Context) error {
 	borrower := models.Borrower{}
 	err = borrower.FindbyID(loan.Borrower)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid borrower : %v borrower ID : %v", err, loan.Borrower), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "not valid borrower",
+			NLOGERR:       err,
+			"borrower_id": loan.Borrower}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error : not valid borrower")
 	}
@@ -263,7 +306,10 @@ func AgentLoanOTPrequest(c echo.Context) error {
 	message := fmt.Sprintf("Code OTP Pengajuan Pinjaman anda adalah %s", otpCode)
 	err = asira.App.Messaging.SendSMS(agent.Phone, message)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("error failed Sending SMS OTP : %v payload : %v", err, message), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "error failed Sending SMS OTP",
+			NLOGERR:   err,
+			"payload": message}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending otp")
 	}
@@ -287,7 +333,10 @@ func AgentLoanOTPverify(c echo.Context) error {
 
 	validate := validateRequestPayload(c, payloadRules, &LoanOTPverify)
 	if validate != nil {
-		NLog("warning", LogTag, fmt.Sprintf("error validation : %v", validate), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "error validation",
+			NLOGERR:       validate,
+			"otp_payload": LoanOTPverify}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
@@ -302,7 +351,10 @@ func AgentLoanOTPverify(c echo.Context) error {
 	loanID, err := strconv.ParseUint(c.Param("loan_id"), 10, 64)
 	err = loan.FindbyID(loanID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid loan : %v loan ID : %v", err, loanID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "not valid loan",
+			NLOGERR:   err,
+			"loan_id": loanID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "loan id not valid")
 	}
@@ -311,7 +363,10 @@ func AgentLoanOTPverify(c echo.Context) error {
 	agent := models.Agent{}
 	err = agent.FindbyID(agentID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid agent : %v agent ID : %v", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:    "not valid loan",
+			NLOGERR:    err,
+			"agent_id": agentID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent")
 	}
@@ -319,13 +374,18 @@ func AgentLoanOTPverify(c echo.Context) error {
 	//validate is borrower registered by agent
 	check := agent.CheckBorrowerOwnedByAgent(loan.Borrower)
 	if !check {
-		NLog("error", LogTag, fmt.Sprintf("not valid agent's borrower : %v borrower ID : %v", err, loan.Borrower), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "not valid agent's borrower",
+			NLOGERR:       "borrower not owned by agent",
+			"borrower_id": loan.Borrower}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusUnauthorized, check, "validation error : not valid agent's borrower")
 	}
 
 	if loan.OTPverified {
-		NLog("error", LogTag, fmt.Sprintf("loan already verified : %v loan ID : %v", err, loanID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "loan already verified",
+			"loan":  loan}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusBadRequest, "", fmt.Sprintf("loan %v sudah di verifikasi", loanID))
 	}
@@ -337,7 +397,10 @@ func AgentLoanOTPverify(c echo.Context) error {
 		// loan.Save()
 		err = middlewares.SubmitKafkaPayload(loan, "loan_update")
 		if err != nil {
-			NLog("error", LogTag, fmt.Sprintf("error kafka submit update loan : %v loan ID : %v", err, loan), c.Get("user").(*jwt.Token), "", false, "agent")
+			NLog("error", LogTag, map[string]interface{}{
+				NLOGMSG: "error kafka submit update loan",
+				NLOGERR: err,
+				"loan":  loan}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal mensinkronisasi Loan")
 		}
@@ -351,14 +414,20 @@ func AgentLoanOTPverify(c echo.Context) error {
 		// loan.Save()
 		err = middlewares.SubmitKafkaPayload(loan, "loan_update")
 		if err != nil {
-			NLog("error", LogTag, fmt.Sprintf("error kafka submit update loan : %v loan ID : %v", err, loan), c.Get("user").(*jwt.Token), "", false, "agent")
+			NLog("error", LogTag, map[string]interface{}{
+				NLOGMSG: "error kafka submit update loan",
+				NLOGERR: err,
+				"loan":  loan}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal mensinkronisasi Loan")
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": fmt.Sprintf("loan %v verified", loan.ID)})
 	}
 
-	NLog("error", LogTag, fmt.Sprintf("cannot validate OTP : %v", LoanOTPverify.OTPcode), c.Get("user").(*jwt.Token), "", false, "agent")
+	NLog("error", LogTag, map[string]interface{}{
+		NLOGMSG:       "cannot validate OTP",
+		NLOGERR:       "invalid OTP code",
+		"otp_payload": LoanOTPverify}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP yang anda masukan salah")
 }

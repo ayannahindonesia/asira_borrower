@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -35,7 +34,10 @@ func AgentBankService(c echo.Context) error {
 	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 	err := agentModel.FindbyID(agentID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid agent : %v agent ID : %v", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "not valid agent",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun agen tidak ditemukan")
 	}
@@ -46,7 +48,10 @@ func AgentBankService(c echo.Context) error {
 
 	//check bank exist in Agent.Banks; manual looping for performance
 	if isInArrayInt64(bankID, []int64(agentModel.Banks)) == false {
-		NLog("warning", LogTag, fmt.Sprintf("not valid bank ID : %v", bankID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "not valid bank ID",
+			NLOGERR:   err,
+			"bank_id": bankID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "Bank ID tidak terdaftar untuk agen")
 	}
@@ -70,7 +75,10 @@ func AgentBankService(c echo.Context) error {
 	err = objDB.Find(&results).Count(&count).Error
 
 	if err != nil || count == 0 {
-		NLog("error", LogTag, fmt.Sprintf("service not found : %v count : %v", err, count), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "service not found",
+			NLOGERR: err,
+			"count": count}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusNotFound, err, "Service Tidak Ditemukan")
 	}

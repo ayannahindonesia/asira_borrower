@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
 	"fmt"
 	"net/http"
@@ -37,7 +38,11 @@ func LoanPurposeList(c echo.Context) error {
 		Status: status,
 	})
 	if err != nil {
-		NLog("warning", LogTag, fmt.Sprintf("error get Loan Purpose list  : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:   "error get Loan Purpose list",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", true, "")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "pencarian tidak ditemukan")
 	}
@@ -56,7 +61,10 @@ func LoanPurposeDetail(c echo.Context) error {
 	purpose := models.LoanPurpose{}
 	err := purpose.FindbyID(loanPurposeID)
 	if err != nil {
-		NLog("warning", LogTag, fmt.Sprintf("loan purpose %v not found : %v", loanPurposeID, err), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:   fmt.Sprintf("loan purpose %v not found", loanPurposeID),
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", true, "")
 
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan purpose %v tidak ditemukan", loanPurposeID))
 	}

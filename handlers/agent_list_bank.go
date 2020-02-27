@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"asira_borrower/models"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -31,7 +30,10 @@ func AgentAllBank(c echo.Context) error {
 	var agent models.Agent
 	err = agent.FindbyID(agentID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid agent : %v agent ID", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:    "not valid agent",
+			NLOGERR:    err,
+			"agent_id": agentID}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
@@ -48,7 +50,10 @@ func AgentAllBank(c echo.Context) error {
 		ID: []int64(agent.Banks),
 	})
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not found agent's banks : %v", err), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "not found agent's banks",
+			NLOGERR: err,
+			"banks": agent.Banks}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data agent banks tidak ditemukan")
 	}

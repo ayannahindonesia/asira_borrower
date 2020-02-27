@@ -20,13 +20,19 @@ func ClientLogin(c echo.Context) error {
 
 	data, err := base64.StdEncoding.DecodeString(strings.TrimPrefix(c.Request().Header.Get("Authorization"), "Basic "))
 	if err != nil {
-		NLog("warning", LogTag, fmt.Sprintf("error client authentification : %v", err), nil, "", true, "")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "error client authentification",
+			NLOGERR: err}, nil, "", true, "")
 
 		return returnInvalidResponse(http.StatusUnauthorized, "", "Invalid Creadentials")
 	}
 
 	auth := strings.Split(string(data), ":")
 	if len(auth) < 2 {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "creadentials not found",
+			NLOGERR: err}, nil, "", true, "")
+
 		return returnInvalidResponse(http.StatusUnauthorized, "", "Creadentials tidak ditemukan")
 	}
 	type Login struct {
@@ -41,15 +47,18 @@ func ClientLogin(c echo.Context) error {
 	})
 
 	if err != nil {
-		NLog("error", LogTag, "client creadentials not found", nil, "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "creadentials not found",
+			NLOGERR: err}, nil, "", true, "")
 
 		return returnInvalidResponse(http.StatusUnauthorized, "", "Creadentials tidak ditemukan")
 	}
 
 	token, err := createJwtToken(clientModel.Name, clientModel.Role)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("failed creating token for client %v : %v", clientModel.Name, err), nil, "", true, "")
-
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "creadentials not found",
+			NLOGERR: err}, nil, "", true, "")
 		return returnInvalidResponse(http.StatusInternalServerError, "", fmt.Sprint(err))
 	}
 
