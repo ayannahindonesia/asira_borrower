@@ -8,6 +8,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/ayannahindonesia/basemodel"
 	"github.com/dgrijalva/jwt-go"
@@ -155,6 +156,12 @@ func AgentLoanGet(c echo.Context) error {
 	if bankID > 0 {
 		db = db.Joins("INNER JOIN banks bnk ON bs.id IN (SELECT UNNEST(bnk.services))  AND br.bank = bnk.id").
 			Where("bnk.id = ?", bankID)
+	}
+
+	//filter fullname borrower
+	name := c.QueryParam("name")
+	if len(name) > 0 {
+		db = db.Where("LOWER(loans.borrower_info->>'fullname') LIKE ?", "%"+strings.ToLower(name)+"%")
 	}
 
 	db = db.Where("ag.id = ?", agentID)
