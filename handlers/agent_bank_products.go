@@ -3,7 +3,6 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -33,7 +32,10 @@ func AgentBankProduct(c echo.Context) error {
 	agentModels := models.Agent{}
 	err := agentModels.FindbyID(agentID)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid agent : %v agent ID : %v", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "not valid agent",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "agent tidak valid")
 	}
@@ -58,7 +60,10 @@ func AgentBankProduct(c echo.Context) error {
 
 	err = db.Find(&results).Count(&count).Error
 	if err != nil || count == 0 {
-		NLog("warning", LogTag, fmt.Sprintf("empty products list : %v", err), c.Get("user").(*jwt.Token), "", false, "agent")
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:   "empty products list",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 		return returnInvalidResponse(http.StatusNotFound, err, "Service Product Tidak Ditemukan")
 	}

@@ -4,7 +4,6 @@ import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
 	"fmt"
-	"log"
 	"math"
 	"net/http"
 	"strconv"
@@ -90,9 +89,10 @@ func NotificationsGet(c echo.Context) error {
 
 	err = db.Find(&notifications).Error
 	if err != nil {
-		NLog("warning", LogTag, fmt.Sprintf("error query notification : %v", err), c.Get("user").(*jwt.Token), "", false, "borrower")
-
-		log.Println(err)
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:   "empty query notification",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "borrower")
 	}
 
 	result := basemodel.PagedFindResult{

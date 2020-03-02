@@ -101,7 +101,9 @@ func ChangePassword(c echo.Context) error {
 
 	validate := validateRequestPayload(c, payloadRules, &reset)
 	if validate != nil {
-		NLog("error", LogTag, fmt.Sprintf("error validation : %v", validate), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "error validation",
+			NLOGERR: validate}, c.Get("user").(*jwt.Token), "", true, "")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
@@ -115,20 +117,26 @@ func ChangePassword(c echo.Context) error {
 		UUID: reset.UUID,
 	})
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("error invalid UUID : %v UUID : %v", err, reset.UUID), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: fmt.Sprintf("error invalid UUID : %v", reset.UUID),
+			NLOGERR: err}, c.Get("user").(*jwt.Token), "", true, "")
 
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("UUID : %v tidak ditemukan", reset.UUID))
 	}
 
 	if clientResetPassword.Used == true {
-		NLog("error", LogTag, fmt.Sprintf("already used UUID : %v UUID : %v", err, reset.UUID), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: fmt.Sprintf("already used UUID : %v", reset.UUID),
+			NLOGERR: "clientResetPassword.Used == true"}, c.Get("user").(*jwt.Token), "", true, "")
 
 		return returnInvalidResponse(http.StatusNotFound, "", "Anda telah melakukan pergantian password")
 	}
 
 	diff := now.Sub(clientResetPassword.Expired)
 	if diff > 0 {
-		NLog("error", LogTag, fmt.Sprintf("expired used UUID : %v UUID : %v", err, reset.UUID), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: fmt.Sprintf("expired used UUID : %v", reset.UUID),
+			NLOGERR: diff}, c.Get("user").(*jwt.Token), "", true, "")
 
 		return returnInvalidResponse(http.StatusNotFound, "", "Link Expired")
 	}
@@ -136,14 +144,20 @@ func ChangePassword(c echo.Context) error {
 	borrowerModel := models.Borrower{}
 	err = borrowerModel.FindbyID(uint64(clientResetPassword.Borrower.Int64))
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("borrower not found : %v borrower ID : %v", err, clientResetPassword.Borrower.Int64), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "borrower not found",
+			NLOGERR:       err,
+			"borrower_id": clientResetPassword.Borrower.Int64}, c.Get("user").(*jwt.Token), "", true, "")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun Tidak ditemukan")
 	}
 
 	passwordByte, err := bcrypt.GenerateFromPassword([]byte(reset.Password), bcrypt.DefaultCost)
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("error generate password hash : %v borrower ID : %v", err, clientResetPassword.Borrower.Int64), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "error generate password hash",
+			NLOGERR:       err,
+			"borrower_id": clientResetPassword.Borrower.Int64}, c.Get("user").(*jwt.Token), "", true, "")
 
 		return err
 	}
@@ -152,14 +166,20 @@ func ChangePassword(c echo.Context) error {
 	userBorrower := models.User{}
 	err = userBorrower.FindbyBorrowerID(uint64(clientResetPassword.Borrower.Int64))
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("not valid personal borrower  : %v borrower ID : %v", err, clientResetPassword.Borrower.Int64), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "not valid personal borrower",
+			NLOGERR:       err,
+			"borrower_id": clientResetPassword.Borrower.Int64}, c.Get("user").(*jwt.Token), "", true, "")
 
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun bukan borrower personal")
 	}
 	userBorrower.Password = string(passwordByte)
 	err = userBorrower.Save()
 	if err != nil {
-		NLog("error", LogTag, fmt.Sprintf("error update user borrower password  : %v borrower ID : %v", err, clientResetPassword.Borrower.Int64), c.Get("user").(*jwt.Token), "", true, "")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "error update user borrower password ",
+			NLOGERR:       err,
+			"borrower_id": clientResetPassword.Borrower.Int64}, c.Get("user").(*jwt.Token), "", true, "")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Ubah Password Gagal")
 	}
@@ -172,7 +192,9 @@ func ChangePassword(c echo.Context) error {
 		"message": "Ubah Passord berhasil",
 	}
 
-	NLog("event", LogTag, fmt.Sprintf("success change password  : %v borrower ID : %v", err, clientResetPassword.Borrower.Int64), c.Get("user").(*jwt.Token), "", true, "")
+	NLog("info", LogTag, map[string]interface{}{
+		NLOGMSG:       "success change password",
+		"borrower_id": clientResetPassword.Borrower.Int64}, c.Get("user").(*jwt.Token), "", true, "")
 
 	return c.JSON(http.StatusOK, responseBody)
 }
