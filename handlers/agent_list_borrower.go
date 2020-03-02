@@ -67,7 +67,7 @@ func AgentAllBorrower(c echo.Context) error {
 	sort := strings.Split(c.QueryParam("sort"), ",")
 
 	//params bank_id
-	bankID, _ := strconv.ParseInt(c.Param("bank_id"), 10, 64)
+	bankID, _ := strconv.ParseInt(c.QueryParam("bank_id"), 10, 64)
 
 	//set rows, page and offset
 	if rows > 0 {
@@ -85,8 +85,12 @@ func AgentAllBorrower(c echo.Context) error {
 	//filters
 	db = db.Table("borrowers").
 		Select("borrowers.*, "+LoanStatusQuery+" as loan_status, (SELECT COUNT(id) FROM loans l WHERE l.borrower = borrowers.id AND l.status = ?) as nth_loans", "approved").
-		Where("borrowers.agent_referral = ?", agentID).
-		Where("borrowers.bank = ?", bankID)
+		Where("borrowers.agent_referral = ?", agentID)
+
+	//show borrowers for specific bankID
+	if bankID > 0 {
+		db = db.Where("borrowers.bank = ?", bankID)
+	}
 
 	if len(orderby) > 0 {
 		if len(sort) > 0 {
