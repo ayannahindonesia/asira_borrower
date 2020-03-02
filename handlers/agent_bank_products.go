@@ -3,6 +3,7 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -10,8 +11,11 @@ import (
 	"github.com/labstack/echo"
 )
 
+//AgentBankProduct get products in agent.banks
 func AgentBankProduct(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "AgentBankProduct"
 
 	type Result struct {
 		TotalData int              `json:"total_data"`
@@ -29,6 +33,8 @@ func AgentBankProduct(c echo.Context) error {
 	agentModels := models.Agent{}
 	err := agentModels.FindbyID(agentID)
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("not valid agent : %v agent ID : %v", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusForbidden, err, "agent tidak valid")
 	}
 
@@ -52,6 +58,8 @@ func AgentBankProduct(c echo.Context) error {
 
 	err = db.Find(&results).Count(&count).Error
 	if err != nil || count == 0 {
+		NLog("warning", LogTag, fmt.Sprintf("empty products list : %v", err), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusNotFound, err, "Service Product Tidak Ditemukan")
 	}
 

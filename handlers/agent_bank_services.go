@@ -3,6 +3,7 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -11,8 +12,11 @@ import (
 	"github.com/lib/pq"
 )
 
+//AgentBankService get services in agent.banks
 func AgentBankService(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "AgentBankService"
 
 	type Filter struct {
 		Banks pq.Int64Array `json:"banks"`
@@ -31,6 +35,8 @@ func AgentBankService(c echo.Context) error {
 	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 	err := agentModel.FindbyID(agentID)
 	if err != nil {
+		NLog("error", LogTag, fmt.Sprintf("not valid agent : %v agent ID : %v", err, agentID), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun agen tidak ditemukan")
 	}
 
@@ -40,6 +46,8 @@ func AgentBankService(c echo.Context) error {
 
 	//check bank exist in Agent.Banks; manual looping for performance
 	if isInArrayInt64(bankID, []int64(agentModel.Banks)) == false {
+		NLog("warning", LogTag, fmt.Sprintf("not valid bank ID : %v", bankID), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusForbidden, err, "Bank ID tidak terdaftar untuk agen")
 	}
 
@@ -62,7 +70,9 @@ func AgentBankService(c echo.Context) error {
 	err = objDB.Find(&results).Count(&count).Error
 
 	if err != nil || count == 0 {
-		return returnInvalidResponse(http.StatusNotFound, err, "Service Product Tidak Ditemukan")
+		NLog("error", LogTag, fmt.Sprintf("service not found : %v count : %v", err, count), c.Get("user").(*jwt.Token), "", false, "agent")
+
+		return returnInvalidResponse(http.StatusNotFound, err, "Service Tidak Ditemukan")
 	}
 
 	return c.JSON(http.StatusOK, &Result{TotalData: count, Data: results})

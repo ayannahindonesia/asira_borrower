@@ -15,6 +15,8 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/spf13/viper"
 	"github.com/xlzd/gotp"
+
+	"github.com/ayannahindonesia/northstar/lib/northstarlib"
 )
 
 var (
@@ -34,6 +36,7 @@ type (
 		Messaging custommodule.Messaging
 		S3        custommodule.S3      `json:"s3"`
 		Emailer   custommodule.Emailer `json:"email"`
+		Northstar northstarlib.NorthstarLib
 	}
 
 	OTP struct {
@@ -66,6 +69,7 @@ func init() {
 	App.MessagingInit()
 	App.S3init()
 	App.EmailerInit()
+	App.NorthstarInit()
 
 	otpSecret := gotp.RandomSecret(16)
 	App.OTP = OTP{
@@ -206,4 +210,17 @@ func (x *Application) EmailerInit() (err error) {
 		Password: emailerConf["password"].(string),
 	}
 	return err
+}
+
+// NorthstarInit config for northstar logger
+func (x *Application) NorthstarInit() {
+	northstarconf := x.Config.GetStringMap(fmt.Sprintf("%s.northstar", x.ENV))
+
+	x.Northstar = northstarlib.NorthstarLib{
+		Host:         App.Kafka.Host,
+		Secret:       northstarconf["secret"].(string),
+		Topic:        northstarconf["topic"].(string),
+		Send:         northstarconf["send"].(bool),
+		SaramaConfig: App.Kafka.Config,
+	}
 }

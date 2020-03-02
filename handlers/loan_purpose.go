@@ -6,12 +6,15 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
-	"github.com/thedevsaddam/govalidator"
 )
 
+//LoanPurposeList get loan purpose list
 func LoanPurposeList(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "LoanPurposeList"
 
 	// pagination parameters
 	rows, err := strconv.Atoi(c.QueryParam("rows"))
@@ -34,91 +37,28 @@ func LoanPurposeList(c echo.Context) error {
 		Status: status,
 	})
 	if err != nil {
+		NLog("warning", LogTag, fmt.Sprintf("error get Loan Purpose list  : %v", err), c.Get("user").(*jwt.Token), "", true, "")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "pencarian tidak ditemukan")
 	}
 
 	return c.JSON(http.StatusOK, result)
 }
 
-func LoanPurposeNew(c echo.Context) error {
-	defer c.Request().Body.Close()
-
-	purpose := models.LoanPurpose{}
-	payloadRules := govalidator.MapData{
-		"name":   []string{"required"},
-		"status": []string{"required", "loan_purpose_status"},
-	}
-
-	validate := validateRequestPayload(c, payloadRules, &purpose)
-	if validate != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
-	}
-
-	err := purpose.Create()
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal membuat loan purpose baru")
-	}
-
-	return c.JSON(http.StatusCreated, purpose)
-}
-
+//LoanPurposeDetail get loan purpose detail
 func LoanPurposeDetail(c echo.Context) error {
 	defer c.Request().Body.Close()
 
-	loan_purpose_id, _ := strconv.ParseUint(c.Param("loan_purpose_id"), 10, 64)
+	LogTag := "LoanPurposeDetail"
+
+	loanPurposeID, _ := strconv.ParseUint(c.Param("loan_purpose_id"), 10, 64)
 
 	purpose := models.LoanPurpose{}
-	err := purpose.FindbyID(loan_purpose_id)
+	err := purpose.FindbyID(loanPurposeID)
 	if err != nil {
-		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan purpose %v tidak ditemukan", loan_purpose_id))
-	}
+		NLog("warning", LogTag, fmt.Sprintf("loan purpose %v not found : %v", loanPurposeID, err), c.Get("user").(*jwt.Token), "", true, "")
 
-	return c.JSON(http.StatusOK, purpose)
-}
-
-func LoanPurposePatch(c echo.Context) error {
-	defer c.Request().Body.Close()
-
-	loan_purpose_id, _ := strconv.ParseUint(c.Param("loan_purpose_id"), 10, 64)
-
-	purpose := models.LoanPurpose{}
-	err := purpose.FindbyID(loan_purpose_id)
-	if err != nil {
-		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan purpose %v tidak ditemukan", loan_purpose_id))
-	}
-
-	payloadRules := govalidator.MapData{
-		"name":   []string{},
-		"status": []string{"loan_purpose_status"},
-	}
-
-	validate := validateRequestPayload(c, payloadRules, &purpose)
-	if validate != nil {
-		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
-	}
-
-	err = purpose.Save()
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, fmt.Sprintf("Gagal update loan purpose %v", loan_purpose_id))
-	}
-
-	return c.JSON(http.StatusOK, purpose)
-}
-
-func LoanPurposeDelete(c echo.Context) error {
-	defer c.Request().Body.Close()
-
-	loan_purpose_id, _ := strconv.ParseUint(c.Param("loan_purpose_id"), 10, 64)
-
-	purpose := models.LoanPurpose{}
-	err := purpose.FindbyID(loan_purpose_id)
-	if err != nil {
-		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan purpose %v tidak ditemukan", loan_purpose_id))
-	}
-
-	err = purpose.Delete()
-	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, fmt.Sprintf("Gagal delete loan purpose %v", loan_purpose_id))
+		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan purpose %v tidak ditemukan", loanPurposeID))
 	}
 
 	return c.JSON(http.StatusOK, purpose)

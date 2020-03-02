@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"asira_borrower/models"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -13,6 +15,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/ayannahindonesia/northstar/lib/northstarlib"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -354,4 +358,98 @@ func decrypt(encryptedText string, passphrase string) (string, error) {
 func generateDeleteCheck(tableName string) string {
 	defaultFormat := "%s.deleted_at IS NULL"
 	return fmt.Sprintf(defaultFormat, tableName)
+}
+
+// NLog send log to northstar service
+func NLog(level string, tag string, message string, jwttoken *jwt.Token, note string, nouser bool, typeUser string) {
+	var (
+		uid      string
+		username string
+		err      error
+	)
+
+	if !nouser {
+		jti, _ := strconv.ParseUint(jwttoken.Claims.(jwt.MapClaims)["jti"].(string), 10, 64)
+		if typeUser == "borrower" {
+			user := models.Borrower{}
+			err = user.FindbyID(jti)
+			if err == nil {
+				uid = fmt.Sprint(user.ID)
+				username = user.Phone
+			}
+		} else {
+			// agent
+			user := models.Agent{}
+			err = user.FindbyID(jti)
+			if err == nil {
+				uid = fmt.Sprint(user.ID)
+				username = user.Username
+			}
+		}
+	}
+
+	err = asira.App.Northstar.SubmitKafkaLog(northstarlib.Log{
+		Level:    level,
+		Tag:      tag,
+		Messages: message,
+		UID:      uid,
+		Username: username,
+		Note:     note,
+	}, "log")
+
+	if err != nil {
+		log.Printf("error northstar log : %v", err)
+	}
+}
+
+// NAudittrail send audit trail log to northstar service
+func NAudittrail(ori interface{}, new interface{}, jwttoken *jwt.Token, entity string, entityID string, action string, typeUser string) {
+	var (
+		uid      string
+		username string
+		err      error
+	)
+
+	jti, _ := strconv.ParseUint(jwttoken.Claims.(jwt.MapClaims)["jti"].(string), 10, 64)
+	if typeUser == "borrower" {
+		user := models.Borrower{}
+		err = user.FindbyID(jti)
+		if err == nil {
+			uid = fmt.Sprint(user.ID)
+			username = user.Phone
+		} else {
+			uid = "0"
+			username = "not found"
+		}
+	} else {
+		// agent
+		user := models.Agent{}
+		err = user.FindbyID(jti)
+		if err == nil {
+			uid = fmt.Sprint(user.ID)
+			username = user.Username
+		} else {
+			uid = "0"
+			username = "not found"
+		}
+	}
+
+	oriMarshal, _ := json.Marshal(ori)
+	newMarshal, _ := json.Marshal(new)
+
+	err = asira.App.Northstar.SubmitKafkaLog(northstarlib.Audittrail{
+		Client:   asira.App.Northstar.Secret,
+		UserID:   uid,
+		Username: username,
+		Roles:    typeUser,
+		Entity:   entity,
+		EntityID: entityID,
+		Action:   action,
+		Original: fmt.Sprintf(`%s`, string(oriMarshal)),
+		New:      fmt.Sprintf(`%s`, string(newMarshal)),
+	}, "audittrail")
+
+	if err != nil {
+		log.Printf("error northstar log : %v", err)
+	}
 }
