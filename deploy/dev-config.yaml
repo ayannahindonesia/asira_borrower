@@ -51,6 +51,10 @@ development:
     secret_key: s0yHeS/eBvjmyshVckbNqVWnTKwhnaP6kYBpFBHk
     host: https://bucket.cloud.lintasarta.co.id:8082
     bucket_name: bucket-ayannah
+  northstar:
+    secret: Ym9ycm93ZXJrZXk6Ym9ycm93ZXJzZWNyZXQ=
+    topic: northstar_logger
+    send: true
     
 staging:
 

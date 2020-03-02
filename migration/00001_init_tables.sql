@@ -253,6 +253,16 @@ CREATE TABLE "users" (
     FOREIGN KEY ("borrower") REFERENCES borrowers(id)
 ) WITH (OIDS = FALSE);
 
+CREATE TABLE "faqs" (
+    "id" bigserial,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
+    "title" varchar(255),
+    "description" text,
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
 -- +goose Down
 -- SQL in this section is executed when the migration is rolled back.
 
@@ -270,3 +280,4 @@ DROP TABLE IF EXISTS "agents" CASCADE;
 DROP TABLE IF EXISTS "agent_providers" CASCADE;
 DROP TABLE IF EXISTS "notifications" CASCADE;
 DROP TABLE IF EXISTS "users" CASCADE;
+DROP TABLE IF EXISTS "faqs" CASCADE;

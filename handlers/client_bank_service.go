@@ -1,16 +1,21 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
 	"net/http"
 	"strconv"
 	"strings"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
+//ClientBankServices get service
 func ClientBankServices(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "ClientBankServices"
 
 	bankService := models.Service{}
 
@@ -32,20 +37,33 @@ func ClientBankServices(c echo.Context) error {
 	})
 
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "query result error",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", true, "")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "query result error")
 	}
 
 	return c.JSON(http.StatusOK, result)
 }
 
+//ClientBankServicebyID get service detail
 func ClientBankServicebyID(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "ClientBankServicebyID"
 
 	bankService := models.Service{}
 	id, _ := strconv.ParseUint(c.Param("id"), 10, 64)
 	err := bankService.FindbyID(id)
 	if err != nil {
-		return returnInvalidResponse(http.StatusInternalServerError, err, "bank tidak ditemukan")
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "service not found ",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", true, "")
+
+		return returnInvalidResponse(http.StatusInternalServerError, err, "service tidak ditemukan")
 	}
 
 	return c.JSON(http.StatusOK, bankService)

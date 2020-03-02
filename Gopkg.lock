@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  digest = "1:33f56caa9ab45fedc63d3d1d3e342d9f9d00726071f22c67d06b0cd26d49a55e"
+  digest = "1:c5df3a7b173c2d0f8f8dff4afb67f6f9b16a27f20f30eae421b475b654950193"
   name = "github.com/Shopify/sarama"
   packages = ["."]
   pruneopts = ""
-  revision = "675b0b1ff204c259877004140a540d6adf38db17"
-  version = "v1.24.1"
+  revision = "b3a812117be917e2dd4f8cbcf4ff861e3ae7ef38"
+  version = "v1.26.1"
 
 [[projects]]
   digest = "1:e8f914c174ebc670d1713986d5e4f47a21f349209ac929d00558a496f59c7384"
@@ -18,7 +18,7 @@
   version = "v1.5.1"
 
 [[projects]]
-  digest = "1:4f0e337ef89ae8e0a3cd9d53ae5ba613d74047a6e09ddbbdeec5a9a2e23e2ca2"
+  digest = "1:64c07d5c86aeecdfed2025f317f6bae41060072c91a96ce6bff214c0bfb26797"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -40,6 +40,7 @@
     "aws/request",
     "aws/session",
     "aws/signer/v4",
+    "internal/context",
     "internal/ini",
     "internal/s3err",
     "internal/sdkio",
@@ -48,6 +49,7 @@
     "internal/sdkuri",
     "internal/shareddefaults",
     "internal/strings",
+    "internal/sync/singleflight",
     "private/protocol",
     "private/protocol/eventstream",
     "private/protocol/eventstream/eventstreamapi",
@@ -63,17 +65,26 @@
     "service/sts/stsiface",
   ]
   pruneopts = ""
-  revision = "2fa828ed93ccc746b97509ba21309c4035f22009"
-  version = "v1.27.2"
+  revision = "b99c3c7ad11c0e093384dbe7c33310f134e3257c"
+  version = "v1.29.14"
 
 [[projects]]
   branch = "master"
-  digest = "1:d40a8ca5c131ecde6e4124e3a00f2df6fbe28a80049ff281119a9ff0a58d0d59"
+  digest = "1:28fc51830fd6232b7892826f2095caa761b552c3acade04703a9866c0935175c"
   name = "github.com/ayannahindonesia/basemodel"
   packages = ["."]
   pruneopts = ""
-  revision = "c249f28655b3176855185c8cd94a11506bac9ccf"
+  revision = "de7a614915b701a6181d43d47568ee847f5483ba"
   source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@github.com/ayannahindonesia/basemodel.git"
+
+[[projects]]
+  branch = "755-audittrail"
+  digest = "1:148e5b6a9de992f7ff83ac90a3bee2c4feef8cb4d8f03ef2ecca7c1a6b91ace1"
+  name = "github.com/ayannahindonesia/northstar"
+  packages = ["lib/northstarlib"]
+  pruneopts = ""
+  revision = "54874ecf40e079dcba24701dd6aafd6c4b2f527d"
+  source = "https://asira:Uo9Jt_2rPGAzc7vzBri_@github.com/ayannahindonesia/northstar.git"
 
 [[projects]]
   digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"
@@ -180,12 +191,12 @@
   version = "v1.4.1"
 
 [[projects]]
-  digest = "1:0038a7f43b51c8b2a8cd03b5372e73f8eadfe156484c2ae8185ae836f8ebc2cd"
+  digest = "1:d5e928ff735d055c7756e420d2bca5ec8a129fbc738c9f3fa43b65b67426c41a"
   name = "github.com/hashicorp/go-uuid"
   packages = ["."]
   pruneopts = ""
-  revision = "4f571afc59f3043a65f8fe6bf46d887b10a01d43"
-  version = "v1.0.1"
+  revision = "6195a4f20692188e0a389def25559731d1e130f9"
+  version = "v1.0.2"
 
 [[projects]]
   digest = "1:d14365c51dd1d34d5c79833ec91413bfbb166be978724f15701e17080dc06dec"
@@ -261,7 +272,7 @@
   revision = "c2b33e84"
 
 [[projects]]
-  digest = "1:d272cdad9f7f080d8d39fcd7521740b0b2cc2fb8f91ceeaee230b67b0e1efae1"
+  digest = "1:930165280db462b755f06c70934971c6dd262bbca5f1942783239f1b8f3c8c18"
   name = "github.com/klauspost/compress"
   packages = [
     "flate",
@@ -274,8 +285,8 @@
     "zstd/internal/xxhash",
   ]
   pruneopts = ""
-  revision = "f61bac3a179b270c811148ce2a1f819dfc82825f"
-  version = "v1.9.7"
+  revision = "d4b3bb13d45b000ac3a915d4f32069a9284540bb"
+  version = "v1.10.2"
 
 [[projects]]
   digest = "1:4beb546223497fdc767dd15f2f48e271598817cecda2beaf2ad7bf43282d5bf7"
@@ -323,20 +334,20 @@
   version = "v1.8.1"
 
 [[projects]]
-  digest = "1:9b58ad18b38cf0d44b1d006fce319e45f200eafa406fe7f65fe0d0194b9f7a9f"
+  digest = "1:eab986cd0513d271bb1fd9c9d12acd7eb4cfd57cb604122c65bd0914e4637619"
   name = "github.com/mattn/go-colorable"
   packages = ["."]
   pruneopts = ""
-  revision = "98ec13f34aabf44cc914c65a1cfb7b9bc815aef1"
-  version = "v0.1.4"
+  revision = "68e95eba382c972aafde02ead2cd2426a8a92480"
+  version = "v0.1.6"
 
 [[projects]]
-  digest = "1:f438921468fbc770ac4c97628f188913a099d4f004226e4aeb6e0f62f5b14fd1"
+  digest = "1:87fecb4f5564bd9bc810e4c83d4ac434fd17599edc7b35e27580c2cfc48cdb7c"
   name = "github.com/mattn/go-isatty"
   packages = ["."]
   pruneopts = ""
-  revision = "31745d66dd679ac0ac4f8d3ecff168fce6170c6a"
-  version = "v0.0.11"
+  revision = "7b513a986450394f7bbf1476909911b3aa3a55ce"
+  version = "v0.0.12"
 
 [[projects]]
   digest = "1:bcc46a0fbd9e933087bef394871256b5c60269575bb661935874729c65bbbf60"
@@ -355,23 +366,23 @@
   version = "v1.6.0"
 
 [[projects]]
-  digest = "1:f5c875bba9e42adaba2627ec78961b655f747d885615beb1b01e40318ada65ea"
+  digest = "1:9acd22bf007b5c9a85af260b7abf6b7e02e0bfac256a51b6cefefabad59de183"
   name = "github.com/pierrec/lz4"
   packages = [
     ".",
     "internal/xxh32",
   ]
   pruneopts = ""
-  revision = "9085dacd1e1eca033047a5514195779360363ced"
-  version = "2.4.0"
+  revision = "edce7c4c96dac9adc01d38b18fd2456a7c0c5773"
+  version = "v2.4.1"
 
 [[projects]]
-  digest = "1:1d7e1867c49a6dd9856598ef7c3123604ea3daabf5b83f303ff457bcbc410b1d"
+  digest = "1:c45802472e0c06928cd997661f2af610accd85217023b1d5f6331bebce0671d3"
   name = "github.com/pkg/errors"
   packages = ["."]
   pruneopts = ""
-  revision = "ba968bfe8b2f7e042a574c888954fccecfa385b4"
-  version = "v0.8.1"
+  revision = "614d223910a179a466c1767a985424175c39b465"
+  version = "v0.9.1"
 
 [[projects]]
   digest = "1:256484dbbcd271f9ecebc6795b2df8cad4c458dd0f5fd82a8c2fa0c29f233411"
@@ -441,23 +452,23 @@
   version = "v1.0.5"
 
 [[projects]]
-  digest = "1:ede5f300103cb012aafde77c692dc853c4b590bb412d3c7965a11748a5c37635"
+  digest = "1:0d8f28607c22fc1428d9765589b86763a115391e3b8892f7dbd9798bc69a2273"
   name = "github.com/spf13/viper"
   packages = ["."]
   pruneopts = ""
-  revision = "eabbc68a3ecd5cf8c11a2f84dbda5e7a38493b2f"
-  version = "v1.6.1"
+  revision = "4525543ce4fe90f7970f5e2cdc300b8ffc8c0582"
+  version = "v1.6.2"
 
 [[projects]]
-  digest = "1:f7b541897bcde05a04a044c342ddc7425aab7e331f37b47fbb486cd16324b48e"
+  digest = "1:cc4eb6813da8d08694e557fcafae8fcc24f47f61a0717f952da130ca9a486dfc"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require",
   ]
   pruneopts = ""
-  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
-  version = "v1.4.0"
+  revision = "3ebf1ddaeb260c4b1ae502a01c7844fa8c1fa0e9"
+  version = "v1.5.1"
 
 [[projects]]
   digest = "1:e818a738c880c5571b3817e9173add5c598a90f8615fa7a9bafc23fea774a603"
@@ -564,7 +575,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:623570fddb99ef064b125c7bf3161f14aba21fdb787896b6c5070d34187c86f8"
+  digest = "1:2eda274020f8dfe2b4e66c55e0f86e17b9545fb0bad431b2ea520668b7c77f7b"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
@@ -575,11 +586,11 @@
     "pbkdf2",
   ]
   pruneopts = ""
-  revision = "53104e6ec876ad4e22ad27cce588b01392043c1b"
+  revision = "2aa609cf4a9d7d1126360de73b55b6002f9e052a"
 
 [[projects]]
   branch = "master"
-  digest = "1:cab37ea831bb9be343b41a7673e64b6bb8399bc0f051180c04ce561573ed2c89"
+  digest = "1:9ac4dae84a6c14d4d0458d27a8c46fca553cfba156fe0c87f99c50d22034c7e3"
   name = "golang.org/x/net"
   packages = [
     "idna",
@@ -588,15 +599,15 @@
     "publicsuffix",
   ]
   pruneopts = ""
-  revision = "c0dbc17a35534bf2e581d7a942408dc936316da4"
+  revision = "244492dfa37ae2ce87222fd06250a03160745faa"
 
 [[projects]]
   branch = "master"
-  digest = "1:ca984d839d46cda7860ac472476ef53423d8be07f19822f59a7c575127f995be"
+  digest = "1:4003f52ee7e2f3b9c5bb2fdbdf88a68c245fbff7c5ab6566406bf4184deb4076"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "548cf772de5052aa878ccb47cdeb7d262b75c8ec"
+  revision = "5d559ad92b82f3696a2a2f23108ac03758aabedb"
 
 [[projects]]
   digest = "1:740b51a55815493a8d0f2b1e0d0ae48fe48953bf7eaf3fcc4198823bf67768c0"
@@ -640,12 +651,12 @@
   version = "2.0.0"
 
 [[projects]]
-  digest = "1:d68a26e5d4ba1d9213041aad76d2d6b6d68dba853ceb585235311bd86748e473"
+  digest = "1:ad4e62e0be4476bf2533cac5e665c9ec56a424db2aba8e41f8f88aa501e66d20"
   name = "gopkg.in/ini.v1"
   packages = ["."]
   pruneopts = ""
-  revision = "94291fffe2b14f4632ec0e67c1bfecfc1287a168"
-  version = "v1.51.1"
+  revision = "32cf4f7e9c77f151e18b53067b55549b4d1d411d"
+  version = "v1.52.0"
 
 [[projects]]
   digest = "1:4777ba481cc12866b89aafb0a67529e7ac48b9aea06a25f3737b2cf5a3ffda12"
@@ -664,7 +675,7 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:502ab576ba8c47c4de77fe3f2b2386adc1a1447bb5afae2ac7bf0edd2b6f7c52"
+  digest = "1:75b95137454f306ccb36052ee6902730d746a64800ad56ed57f1e6d2c7b27784"
   name = "gopkg.in/jcmturner/gokrb5.v7"
   packages = [
     "asn1tools",
@@ -699,8 +710,8 @@
     "types",
   ]
   pruneopts = ""
-  revision = "363118e62befa8a14ff01031c025026077fe5d6d"
-  version = "v7.3.0"
+  revision = "0b0d9d762bbc834e1e14f3f39dcea984364e9d63"
+  version = "v7.5.0"
 
 [[projects]]
   digest = "1:f9956ccc103c6208cd50c71ee5191b6fdcc635972c12624ef949c9b20b2bb9d1"
@@ -714,20 +725,20 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:5a53f6ef09fb1ac261a97f8a72e8837ff53cbaa969022a6679da210e4cbe9b0f"
+  digest = "1:2efc9662a6a1ff28c65c84fc2f9030f13d3afecdb2ecad445f3b0c80e75fc281"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = ""
-  revision = "1f64d6156d11335c3f22d9330b0ad14fc1e789ce"
-  version = "v2.2.7"
+  revision = "53403b58ad1b561927d19068c655246f2db79d48"
+  version = "v2.2.8"
 
 [[projects]]
-  digest = "1:a007311f74ec15ad1c56672245793e98e67566e78a0bee8b575f9856a8d5299a"
+  digest = "1:bd635888b3909b1399ad52c84ddc8bf8614da1e0d7c6e536d12fbbc669abf82b"
   name = "moul.io/http2curl"
   packages = ["."]
   pruneopts = ""
-  revision = "5cd742060b0e0de91f875277b77dd7d7e68b23ca"
-  version = "v2"
+  revision = "9280a7ca1854f93dfee71d5e7d448627123efaf5"
+  version = "v2.2.0"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -739,6 +750,7 @@
     "github.com/aws/aws-sdk-go/aws/session",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/ayannahindonesia/basemodel",
+    "github.com/ayannahindonesia/northstar/lib/northstarlib",
     "github.com/dgrijalva/jwt-go",
     "github.com/fsnotify/fsnotify",
     "github.com/gavv/httpexpect",

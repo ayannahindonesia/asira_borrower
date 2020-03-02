@@ -4,7 +4,6 @@ import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
 	"fmt"
-	"log"
 	"math"
 	"net/http"
 	"strconv"
@@ -15,10 +14,12 @@ import (
 	"github.com/labstack/echo"
 )
 
+//NotificationsGet  handler for get notification data by recipient_id (custom format + borrower id; i.e. : borrower-%d)
 //FUTURE: NotificationsGetByTopic
-//NOTE:  handler for get notification data by recipient_id (custom format + borrower id; i.e. : borrower-%d)
 func NotificationsGet(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "NotificationsGet"
 
 	type Filter struct {
 		RecipientID string `json:"recipient_id"`
@@ -55,12 +56,12 @@ func NotificationsGet(c echo.Context) error {
 	}
 
 	//NOTE: borrower user default formater
-	recipient_id := fmt.Sprintf("borrower-%d", borrowerID)
+	recipientID := fmt.Sprintf("borrower-%d", borrowerID)
 
 	//filters
 	db = db.Table("notifications").
 		Select("*").
-		Where("recipient_id = ?", recipient_id).
+		Where("recipient_id = ?", recipientID).
 		Where("title <> 'failed'")
 
 	if len(orderby) > 0 {
@@ -85,9 +86,13 @@ func NotificationsGet(c echo.Context) error {
 		db = db.Limit(rows).Offset(offset)
 		lastPage = int(math.Ceil(float64(totalRows) / float64(rows)))
 	}
+
 	err = db.Find(&notifications).Error
 	if err != nil {
-		log.Println(err)
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:   "empty query notification",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "borrower")
 	}
 
 	result := basemodel.PagedFindResult{

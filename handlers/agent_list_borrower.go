@@ -15,14 +15,19 @@ import (
 	"github.com/labstack/echo"
 )
 
+//BorrowerResponse hold custom response
 type BorrowerResponse struct {
 	models.Borrower
 	NthLoans   int    `json:"nth_loans" gorm:"-"`
 	LoanStatus string `json:"loan_status"`
+	BankName   string `json:"bank_name"`
 }
 
+//AgentAllBorrower get borrower list owned by agent
 func AgentAllBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "AgentAllBorrower"
 
 	type Filter struct {
 		AgentReferral sql.NullInt64 `json:"agent_referral"`
@@ -36,6 +41,11 @@ func AgentAllBorrower(c echo.Context) error {
 	var agent models.Agent
 	err = agent.FindbyID(agentID)
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:    "not valid agent",
+			NLOGERR:    err,
+			"agent_id": agentID}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 
@@ -58,7 +68,7 @@ func AgentAllBorrower(c echo.Context) error {
 	sort := strings.Split(c.QueryParam("sort"), ",")
 
 	//params bank_id
-	bankID, _ := strconv.ParseInt(c.Param("bank_id"), 10, 64)
+	bankID, _ := strconv.ParseInt(c.QueryParam("bank_id"), 10, 64)
 
 	//set rows, page and offset
 	if rows > 0 {
@@ -75,9 +85,13 @@ func AgentAllBorrower(c echo.Context) error {
 
 	//filters
 	db = db.Table("borrowers").
-		Select("borrowers.*, "+LoanStatusQuery+" as loan_status, (SELECT COUNT(id) FROM loans l WHERE l.borrower = borrowers.id AND l.status = ?) as nth_loans", "approved").
-		Where("borrowers.agent_referral = ?", agentID).
-		Where("borrowers.bank = ?", bankID)
+		Select("borrowers.*, "+LoanStatusQuery+" as loan_status, (SELECT COUNT(id) FROM loans l WHERE l.borrower = borrowers.id AND l.status = ?) as nth_loans, (SELECT b.name FROM banks b WHERE b.id = borrowers.bank) as bank_name", "approved").
+		Where("borrowers.agent_referral = ?", agentID)
+
+	//show borrowers for specific bankID
+	if bankID > 0 {
+		db = db.Where("borrowers.bank = ?", bankID)
+	}
 
 	if len(orderby) > 0 {
 		if len(sort) > 0 {
@@ -102,6 +116,12 @@ func AgentAllBorrower(c echo.Context) error {
 	}
 	err = db.Find(&borrowers).Error
 	if err != nil {
+
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:    "empty agent's borrower list",
+			NLOGERR:    err,
+			"agent_id": agentID}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data agent's borrowers tidak ditemukan")
 	}
 

@@ -17,11 +17,13 @@ import (
 )
 
 type (
+	//FilterAgentRef for filtering borrower.AgentReferral
 	FilterAgentRef struct {
 		ID            uint64 `json:"id"`
 		AgentReferral int64  `json:"agent_referral"`
 	}
 
+	//FilterAgentPhone for filtering agent
 	FilterAgentPhone struct {
 		ID    uint64 `json:"id"`
 		Phone string `json:"phone"`
@@ -31,6 +33,9 @@ type (
 //AgentRegisterBorrower agent register new borrower
 func AgentRegisterBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "AgentRegisterBorrower"
+
 	type (
 		Register struct {
 			Fullname             string    `json:"fullname"`
@@ -142,12 +147,21 @@ func AgentRegisterBorrower(c echo.Context) error {
 	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 	err := agentModel.FindbyID(agentID)
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "not valid agent",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun Agen tidak ditemukan")
 	}
 
 	//validate
 	validate := validateRequestPayload(c, payloadRules, &register)
 	if validate != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "error validation",
+			NLOGERR: validate}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
@@ -160,11 +174,21 @@ func AgentRegisterBorrower(c echo.Context) error {
 		}
 	}
 	if !validBank {
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "not valid bank ID",
+			NLOGERR: fmt.Sprintf("banks payload : %v", register.Bank)},
+			c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Bank tidak terdaftar untuk agent")
 	}
 
 	r, err := json.Marshal(register)
 	if err != nil {
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "cannot parse agent's borrower payload",
+			NLOGERR: fmt.Sprintf("register payload : %v", register)},
+			c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 	borrower := models.Borrower{}
@@ -175,6 +199,11 @@ func AgentRegisterBorrower(c echo.Context) error {
 	if register.Image != "" || len(register.Image) != 0 {
 		ImageProfil, err = uploadImageS3Formatted("boragn", register.Image)
 		if err != nil {
+			NLog("error", LogTag, map[string]interface{}{
+				NLOGMSG:            "error uploading Image profil",
+				NLOGERR:            err,
+				"borrower_payload": register}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : Image profil failed to upload")
 		}
 	}
@@ -182,23 +211,45 @@ func AgentRegisterBorrower(c echo.Context) error {
 	//upload image id card
 	IdCardImage, err := uploadImageS3Formatted("ktp", register.IdCardImage)
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:            "error uploading ID Card image",
+			NLOGERR:            err,
+			"borrower_payload": register}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : IDCardImage failed to upload")
 	}
 
 	//upload image tax card
 	TaxIDImage, err := uploadImageS3Formatted("tax", register.TaxIDImage)
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:            "error uploading Tax ID image",
+			NLOGERR:            err,
+			"borrower_payload": register}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal : TaxIDImage failed to upload")
 	}
 
-	//encrypted
+	//encrypt ID Card image url
 	encryptPassphrase := asira.App.Config.GetString(fmt.Sprintf("%s.passphrase", asira.App.ENV))
 	borrower.IdCardImage, err = encrypt(IdCardImage, encryptPassphrase)
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:            "error encrypting ID Card image",
+			NLOGERR:            err,
+			"borrower_payload": register}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi Id card gagal")
 	}
+
+	//encrypt ID Card image url
 	borrower.TaxIDImage, err = encrypt(TaxIDImage, encryptPassphrase)
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:            "error encrypting Tax ID image",
+			NLOGERR:            err,
+			"borrower_payload": register}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
 	}
 
@@ -225,6 +276,12 @@ func AgentRegisterBorrower(c echo.Context) error {
 	}
 	foundFields, err := checkUniqueFields(register.IdCardNumber, fields)
 	if err != nil {
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:            "data already exist",
+			NLOGERR:            err,
+			"fields_found":     foundFields,
+			"borrower_payload": register}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+foundFields)
 	}
 
@@ -238,6 +295,11 @@ func AgentRegisterBorrower(c echo.Context) error {
 
 	err = db.Count(&count).Error
 	if count >= 1 {
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "borrower already registered",
+			NLOGERR: err,
+			"count": count}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
 	}
 
@@ -245,12 +307,25 @@ func AgentRegisterBorrower(c echo.Context) error {
 	borrower.OTPverified = false
 	err = borrower.Create()
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "failed to create agent's borrower",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr(),
+			"count":   count}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Pendaftaran Borrower Baru Gagal")
 	}
 	err = middlewares.SubmitKafkaPayload(borrower, "borrower_create")
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:    "failed kafka submit create agent's borrower",
+			NLOGERR:    err,
+			"borrower": borrower}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Sinkronisasi Borrower Baru Gagal")
 	}
+
+	NAudittrail(models.Borrower{}, borrower, token, "borrower", fmt.Sprint(borrower.ID), "update", "agent")
 
 	return c.JSON(http.StatusCreated, borrower)
 }
@@ -258,6 +333,8 @@ func AgentRegisterBorrower(c echo.Context) error {
 //AgentRequestOTP request OTP for after registered new borrower
 func AgentRequestOTP(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "AgentRequestOTP"
 
 	otpRequest := VerifyAccountOTPrequest{}
 
@@ -275,6 +352,11 @@ func AgentRequestOTP(c echo.Context) error {
 	})
 
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "not valid borrower",
+			NLOGERR:       err,
+			"borrower_id": borrowerID}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's borrower")
 	}
 
@@ -284,6 +366,11 @@ func AgentRequestOTP(c echo.Context) error {
 
 	validate := validateRequestPayload(c, payloadRules, &otpRequest)
 	if validate != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "error validation",
+			NLOGERR:       validate,
+			"otp_payload": otpRequest}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
@@ -294,6 +381,11 @@ func AgentRequestOTP(c echo.Context) error {
 		Phone: otpRequest.Phone,
 	})
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "not valid agent's phone",
+			NLOGERR:       err,
+			"otp_payload": otpRequest}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's phone")
 	}
 
@@ -306,6 +398,11 @@ func AgentRequestOTP(c echo.Context) error {
 	message := fmt.Sprintf("Code OTP Registrasi anda adalah %s", otpCode)
 	err = asira.App.Messaging.SendSMS(agent.Phone, message)
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "error failed Sending SMS OTP ",
+			NLOGERR:   err,
+			"payload": message}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "failed sending otp")
 	}
 
@@ -315,6 +412,8 @@ func AgentRequestOTP(c echo.Context) error {
 //AgentVerifyOTP verify OTP after call request OTP (AgentRequestOTP)
 func AgentVerifyOTP(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "AgentVerifyOTP"
 
 	otpVerify := VerifyAccountOTPverify{}
 
@@ -331,6 +430,11 @@ func AgentVerifyOTP(c echo.Context) error {
 		AgentReferral: AgentID,
 	})
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "not valid borrower",
+			NLOGERR:       err,
+			"borrower_id": borrowerID}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's borrower")
 	}
 
@@ -341,6 +445,10 @@ func AgentVerifyOTP(c echo.Context) error {
 
 	validate := validateRequestPayload(c, payloadRules, &otpVerify)
 	if validate != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "error validation",
+			NLOGERR: validate}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
@@ -351,14 +459,24 @@ func AgentVerifyOTP(c echo.Context) error {
 		Phone: otpVerify.Phone,
 	})
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "not valid agent's phone",
+			NLOGERR:       err,
+			"otp_payload": otpVerify}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnauthorized, err, "validation error : not valid agent's phone")
 	}
 
 	catenate := strconv.Itoa(int(borrowerID)) + agent.Phone[len(agent.Phone)-4:] // combine borrower id with last 4 digit of phone as counter
 	counter, _ := strconv.Atoi(catenate)
 	if asira.App.OTP.HOTP.Verify(otpVerify.OTPcode, counter) {
-		err = updateAccountOTPstatus(borrowerID)
+		err = updateAccountOTPstatus(c, borrowerID)
 		if err != nil {
+			NLog("error", LogTag, map[string]interface{}{
+				NLOGMSG:       "cannot change borrower's OTP verified status",
+				NLOGERR:       err,
+				"otp_payload": otpVerify}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
@@ -366,12 +484,22 @@ func AgentVerifyOTP(c echo.Context) error {
 
 	// bypass otp
 	if asira.App.ENV == "development" && otpVerify.OTPcode == "888999" {
-		err = updateAccountOTPstatus(borrowerID)
+		err = updateAccountOTPstatus(c, borrowerID)
 		if err != nil {
+			NLog("error", LogTag, map[string]interface{}{
+				NLOGMSG:       "cannot change borrower's OTP verified status",
+				NLOGERR:       err,
+				"otp_payload": otpVerify}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 			return returnInvalidResponse(http.StatusBadRequest, err, "gagal mengubah otp borrower")
 		}
 		return c.JSON(http.StatusOK, map[string]interface{}{"message": "OTP Verified"})
 	}
+
+	NLog("error", LogTag, map[string]interface{}{
+		NLOGMSG:       "cannot validate OTP",
+		NLOGERR:       "invalid OTP code",
+		"otp_payload": otpVerify}, c.Get("user").(*jwt.Token), "", false, "agent")
 
 	return returnInvalidResponse(http.StatusBadRequest, "", "OTP salah")
 }

@@ -10,8 +10,11 @@ import (
 	"github.com/labstack/echo"
 )
 
+//AgentBankProduct get products in agent.banks
 func AgentBankProduct(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	LogTag := "AgentBankProduct"
 
 	type Result struct {
 		TotalData int              `json:"total_data"`
@@ -29,6 +32,11 @@ func AgentBankProduct(c echo.Context) error {
 	agentModels := models.Agent{}
 	err := agentModels.FindbyID(agentID)
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "not valid agent",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusForbidden, err, "agent tidak valid")
 	}
 
@@ -52,6 +60,11 @@ func AgentBankProduct(c echo.Context) error {
 
 	err = db.Find(&results).Count(&count).Error
 	if err != nil || count == 0 {
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:   "empty products list",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusNotFound, err, "Service Product Tidak Ditemukan")
 	}
 

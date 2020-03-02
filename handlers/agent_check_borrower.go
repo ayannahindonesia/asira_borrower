@@ -3,8 +3,10 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"database/sql"
+	"fmt"
 	"net/http"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 	"github.com/thedevsaddam/govalidator"
 )
@@ -33,6 +35,8 @@ type Payload struct {
 func AgentCheckBorrower(c echo.Context) error {
 	defer c.Request().Body.Close()
 
+	LogTag := "AgentCheckBorrower"
+
 	//validate post
 	payloadFilter := Payload{}
 	rules := govalidator.MapData{
@@ -43,6 +47,10 @@ func AgentCheckBorrower(c echo.Context) error {
 	}
 	validate := validateRequestPayload(c, rules, &payloadFilter)
 	if validate != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG: "error validation",
+			NLOGERR: validate}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "invalid post body")
 	}
 
@@ -54,18 +62,33 @@ func AgentCheckBorrower(c echo.Context) error {
 	}
 	foundFields, err := checkUniqueFields(payloadFilter.IdCardNumber, fields)
 	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:        "data already exist",
+			NLOGERR:        err,
+			NLOGQUERY:      asira.App.DB.QueryExpr(),
+			"fields_found": foundFields}, c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "data sudah ada sebelumnya : "+foundFields)
 	}
 
-	//max borrower duplicate just == 1
 	db := asira.App.DB
 	var count int
+
+	//max borrower duplicate just == 1
 	db = db.Table("borrowers").
 		Select("*").
 		Where("idcard_number = ? AND agent_referral <> 0", payloadFilter.IdCardNumber).
 		Where(generateDeleteCheck("borrowers"))
 	err = db.Count(&count).Error
 	if count >= 1 {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:   "borrower already registered",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr(),
+			"count":   count}, c.Get("user").(*jwt.Token), "", false, "agent")
+
+		NLog("warning", LogTag, fmt.Sprintf("borrower already registered : %v", count), c.Get("user").(*jwt.Token), "", false, "agent")
+
 		return returnInvalidResponse(http.StatusInternalServerError, err, "borrower sudah terdaftar")
 	}
 

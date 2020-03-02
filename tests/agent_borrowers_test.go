@@ -24,14 +24,14 @@ func TestAgentBorrowers(t *testing.T) {
 		req.WithHeader("Authorization", "Basic "+clientBasicToken)
 	})
 
-	agentToken := getAgentLoginToken(e, auth, "1")
+	agentToken := getAgentLoginToken(e, auth, "2")
 
 	auth = e.Builder(func(req *httpexpect.Request) {
 		req.WithHeader("Authorization", "Bearer "+agentToken)
 	})
 
 	// test valid response
-	obj := auth.GET("/agent/borrowers/1").
+	obj := auth.GET("/agent/borrowers").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
 	obj.ContainsKey("total_data").ValueEqual("total_data", 1)
@@ -40,7 +40,7 @@ func TestAgentBorrowers(t *testing.T) {
 		req.WithHeader("Authorization", "Bearer invalid token")
 	})
 	// test invalid bearer token
-	obj = auth.GET("/agent/borrowers/1").
+	obj = auth.GET("/agent/borrowers").
 		Expect().
 		Status(http.StatusUnauthorized).JSON().Object()
 }
