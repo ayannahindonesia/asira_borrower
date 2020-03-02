@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -448,17 +449,19 @@ func NAudittrail(ori interface{}, new interface{}, jwttoken *jwt.Token, entity s
 	oriMarshal, _ := json.Marshal(ori)
 	newMarshal, _ := json.Marshal(new)
 
-	err = asira.App.Northstar.SubmitKafkaLog(northstarlib.Audittrail{
-		Client:   asira.App.Northstar.Secret,
-		UserID:   uid,
-		Username: username,
-		Roles:    typeUser,
-		Entity:   entity,
-		EntityID: entityID,
-		Action:   action,
-		Original: fmt.Sprintf(`%s`, string(oriMarshal)),
-		New:      fmt.Sprintf(`%s`, string(newMarshal)),
-	}, "audittrail")
+	if flag.Lookup("test.v") == nil {
+		err = asira.App.Northstar.SubmitKafkaLog(northstarlib.Audittrail{
+			Client:   asira.App.Northstar.Secret,
+			UserID:   uid,
+			Username: username,
+			Roles:    typeUser,
+			Entity:   entity,
+			EntityID: entityID,
+			Action:   action,
+			Original: fmt.Sprintf(`%s`, string(oriMarshal)),
+			New:      fmt.Sprintf(`%s`, string(newMarshal)),
+		}, "audittrail")
+	}
 
 	if err != nil {
 		log.Printf("error northstar log : %v", err)

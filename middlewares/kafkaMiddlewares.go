@@ -781,7 +781,7 @@ func createUnitTestModels(i interface{}, model string) error {
 			default:
 				return fmt.Errorf("invalid model")
 			case "create":
-				err = x.Create()
+				err = x.FirstOrCreate()
 				break
 			case "update":
 				err = x.Save()
