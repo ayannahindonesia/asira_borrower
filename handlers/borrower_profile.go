@@ -85,7 +85,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 	origin := borrowerModel
 
 	payloadRules := govalidator.MapData{
-		"fullname":              []string{},
+		"fullname":              []string{"required"},
+		"nickname":              []string{},
 		"gender":                []string{},
 		"idcard_number":         []string{"required"},
 		"taxid_number":          []string{},
@@ -223,7 +224,6 @@ func BorrowerProfileEdit(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal update Borrower")
 	}
 
-	
 	NLog("info", LogTag, map[string]interface{}{
 		NLOGMSG:    "succcess borrower edit profile",
 		"borrower": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")
