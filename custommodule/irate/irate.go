@@ -39,3 +39,11 @@ func FLATANNUAL(rate float64, v float64, months float64) (monthlypay float64, to
 
 	return monthlypay, totalpay
 }
+
+// ONETIMEPAYMENT func
+func ONETIMEPAYMENT(rate float64, v float64, months float64) (monthlypay float64, totalpay float64) {
+	totalpay = v * (1 + rate)
+	monthlypay = totalpay / months
+
+	return monthlypay, totalpay
+}
