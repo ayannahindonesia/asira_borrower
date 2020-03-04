@@ -196,6 +196,7 @@ CREATE TABLE "loans" (
     "disburse_status" varchar(255) DEFAULT ('processing'),
     "approval_date" timestamptz,
     "reject_reason" text,
+    "form_info" jsonb DEFAULT '[]',
     FOREIGN KEY ("borrower") REFERENCES borrowers(id),
     FOREIGN KEY ("product") REFERENCES products(id),
     PRIMARY KEY ("id")
