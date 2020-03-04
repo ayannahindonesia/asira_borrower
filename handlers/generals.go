@@ -400,14 +400,16 @@ func NLog(level string, tag string, message interface{}, jwttoken *jwt.Token, no
 
 	Message, _ := json.Marshal(message)
 
-	err = asira.App.Northstar.SubmitKafkaLog(northstarlib.Log{
-		Level:    level,
-		Tag:      tag,
-		Messages: string(Message),
-		UID:      uid,
-		Username: username,
-		Note:     note,
-	}, "log")
+	if flag.Lookup("test.v") == nil {
+		err = asira.App.Northstar.SubmitKafkaLog(northstarlib.Log{
+			Level:    level,
+			Tag:      tag,
+			Messages: string(Message),
+			UID:      uid,
+			Username: username,
+			Note:     note,
+		}, "log")
+	}
 
 	if err != nil {
 		log.Printf("error northstar log : %v", err)

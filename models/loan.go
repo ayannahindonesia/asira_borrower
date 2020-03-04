@@ -170,7 +170,7 @@ func (l *Loan) CalculateInterest(p Product) {
 	case "flat":
 		l.LayawayPlan, l.TotalLoan = irate.FLATANNUAL(l.Interest/100, l.LoanAmount, float64(l.Installment))
 		break
-	case "onetimepayment":
+	case "onetimepay":
 		l.LayawayPlan, l.TotalLoan = irate.ONETIMEPAYMENT(l.Interest/100, l.LoanAmount, float64(l.Installment))
 		break
 	case "fixed":
@@ -203,6 +203,7 @@ func (l *Loan) EfektifMenurunFormula() {
 		cicilanbungas = append(cicilanbungas, bunga)
 		plafon -= cicilanpokok
 	}
+	log.Println("cek : %v \n cicilan pokok : %v", cicilanbungas, cicilanpokok)
 	for _, v := range cicilanbungas {
 		l.TotalLoan += v + cicilanpokok
 	}
