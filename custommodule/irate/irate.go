@@ -22,19 +22,20 @@ func IPMT(pv float64, pmt float64, rate float64, per float64) float64 {
 }
 
 // PPMT func
-func PPMT(rate float64, per float64, nper float64, pv float64, fv float64) float64 {
+func PIPMT(rate float64, per float64, nper float64, pv float64, fv float64) (float64, float64) {
 	if per < 1 || per >= nper+1 {
-		return 0
+		return 0, 0
 	}
 
 	pmt := PMT(rate, nper, pv, fv)
+	ipmt := IPMT(pv, pmt, rate, per-1)
 
-	return pmt - IPMT(pv, pmt, rate, per-1)
+	return pmt - ipmt, ipmt
 }
 
 // FLATANNUAL func
 func FLATANNUAL(rate float64, v float64, months float64) (monthlypay float64, totalpay float64) {
-	monthlypay = (rate / 12) * v
+	monthlypay = ((1 + rate) / months) * v
 	totalpay = monthlypay * months
 
 	return monthlypay, totalpay
