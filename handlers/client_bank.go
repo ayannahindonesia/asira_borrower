@@ -11,17 +11,12 @@ import (
 	"github.com/ayannahindonesia/basemodel"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
+	"github.com/lib/pq"
 )
 
 type BankResponse struct {
 	models.Bank
-	ServiceName string `json:"service_name"`
-}
-
-//custom response
-type ResultBanks struct {
-	TotalData int            `json:"total_data"`
-	Data      []BankResponse `json:"data"`
+	ServiceName pq.StringArray `json:"service_name"`
 }
 
 //ClientBankServices get service
@@ -73,10 +68,10 @@ func ClientBanks(c echo.Context) error {
 
 	//build query
 	db = db.Table("banks").
-		Select("*, (SELECT s.name FROM service s WHERE s.id = borrowers.bank) as service_name")
-		
-	if bankID {
-		db = db.Where(" WHERE banks.id = ?)", bankID)
+		Select("*, (SELECT ARRAY_AGG(s.name) FROM services s WHERE s.id IN (SELECT UNNEST(banks.services) ) ) as service_name")
+
+	if bankID > 0 {
+		db = db.Where("banks.id = ?", bankID)
 	}
 	// countDB := db
 	// countDB.Where("services.deleted_at IS NULL").Count(&totalRows)
