@@ -3,38 +3,107 @@ package handlers
 import (
 	"asira_borrower/asira"
 	"asira_borrower/models"
+	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
+	"github.com/ayannahindonesia/basemodel"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
-//ClientBanks get banks
+type BankResponse struct {
+	models.Bank
+	ServiceName string `json:"service_name"`
+}
+
+//custom response
+type ResultBanks struct {
+	TotalData int            `json:"total_data"`
+	Data      []BankResponse `json:"data"`
+}
+
+//ClientBankServices get service
 func ClientBanks(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	LogTag := "ClientBanks"
 
-	banks := models.Bank{}
+	var (
+		totalRows int
+		offset    int
+		rows      int
+		page      int
+		lastPage  int
+		banks     []BankResponse
+	)
+	db := asira.App.DB
 
 	// pagination parameters
 	rows, err := strconv.Atoi(c.QueryParam("rows"))
-	page, err := strconv.Atoi(c.QueryParam("page"))
-	orderby := c.QueryParam("orderby")
-	sort := c.QueryParam("sort")
+	page, err = strconv.Atoi(c.QueryParam("page"))
+	orderby := strings.Split(c.QueryParam("orderby"), ",")
+	sort := strings.Split(c.QueryParam("sort"), ",")
+	//get bank id
+	bankID, _ := strconv.ParseUint(c.QueryParam("bank_id"), 10, 64)
 
-	var filter struct{}
+	//set rows, page and offset
+	if rows > 0 {
+		if page <= 0 {
+			page = 1
+		}
+		offset = (page * rows) - rows
+	}
 
-	result, err := banks.PagedFilterSearch(page, rows, orderby, sort, &filter)
+	if len(orderby) > 0 {
+		if len(sort) > 0 {
+			for k, v := range orderby {
+				q := v
+				if len(sort) > k {
+					value := sort[k]
+					if strings.ToUpper(value) == "ASC" || strings.ToUpper(value) == "DESC" {
+						q = v + " " + strings.ToUpper(value)
+					}
+				}
+				db = db.Order(q)
+			}
+		}
+	}
 
+	//build query
+	db = db.Table("banks").
+		Select("*, (SELECT s.name FROM service s WHERE s.id = borrowers.bank) as service_name")
+		
+	if bankID {
+		db = db.Where(" WHERE banks.id = ?)", bankID)
+	}
+	// countDB := db
+	// countDB.Where("services.deleted_at IS NULL").Count(&totalRows)
+
+	if rows > 0 {
+		db = db.Limit(rows).Offset(offset)
+		lastPage = int(math.Ceil(float64(totalRows) / float64(rows)))
+	}
+
+	err = db.Find(&banks).Error
 	if err != nil {
-		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:   "query result error",
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:   "empty banks list",
 			NLOGERR:   err,
 			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", true, "")
 
-		return returnInvalidResponse(http.StatusInternalServerError, err, "query result error")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "empty banks list")
+	}
+
+	result := basemodel.PagedFindResult{
+		TotalData:   totalRows,
+		Rows:        rows,
+		CurrentPage: page,
+		LastPage:    lastPage,
+		From:        offset + 1,
+		To:          offset + rows,
+		Data:        banks,
 	}
 
 	return c.JSON(http.StatusOK, result)
