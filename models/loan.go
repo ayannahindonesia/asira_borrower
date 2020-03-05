@@ -39,9 +39,10 @@ type (
 		RejectReason        string         `json:"reject_reason" gorm:"column:reject_reason"`
 	}
 
-	LoanFee struct { // temporary hardcoded
+	LoanFee struct {
 		Description string `json:"description"`
 		Amount      string `json:"amount"`
+		FeeMethod   string `json:"fee_method"`
 	}
 	LoanFees []LoanFee
 )
@@ -89,19 +90,20 @@ func (l *Loan) SetProductLoanReferences() (err error) {
 func (l *Loan) Calculate() (err error) {
 	// calculate total loan
 	var (
-		totalfee       float64
-		fee            float64
-		convenienceFee float64
-		fees           LoanFees
-		borrower       Borrower
-		bank           Bank
-		product        Product
-		parsedFees     LoanFees
+		fee        float64
+		fees       LoanFees
+		borrower   Borrower
+		bank       Bank
+		product    Product
+		parsedFees LoanFees
 	)
 
 	borrower.FindbyID(l.Borrower)
 	bank.FindbyID(uint64(borrower.Bank.Int64))
 	product.FindbyID(l.Product)
+
+	l.CalculateInterest(product)
+	l.DisburseAmount = l.LoanAmount
 
 	json.Unmarshal(l.Fees.RawMessage, &fees)
 
@@ -121,43 +123,23 @@ func (l *Loan) Calculate() (err error) {
 		parsedFees = append(parsedFees, LoanFee{
 			Description: v.Description,
 			Amount:      fmt.Sprintf("%f", fee),
+			FeeMethod:   v.FeeMethod,
 		})
 
-		if strings.ToLower(v.Description) == "convenience fee" {
-			convenienceFee += fee
-		} else {
-			totalfee += fee
+		switch v.FeeMethod {
+		case "deduct_loan":
+			l.DisburseAmount -= fee
+			break
+		case "charge_loan":
+			l.TotalLoan += fee
+			break
 		}
+
+		l.LayawayPlan += fee / float64(l.Installment)
 	}
 	// parse fees
 	jMarshal, _ := json.Marshal(parsedFees)
 	l.Fees = postgres.Jsonb{jMarshal}
-
-	l.CalculateInterest(product)
-	// interest := l.TotalLoan - l.LoanAmount
-	l.DisburseAmount = l.LoanAmount
-
-	// switch bank.AdminFeeSetup {
-	// case "potong_plafon":
-	// 	l.DisburseAmount = l.DisburseAmount - totalfee
-	// 	break
-	// 	// case "beban_plafon":
-	// 	// 	l.DisburseAmount = l.DisburseAmount + totalfee
-	// 	// 	break
-	// }
-
-	// switch bank.ConvenienceFeeSetup {
-	// case "potong_plafon":
-	// 	l.DisburseAmount = l.DisburseAmount - convenienceFee
-	// 	l.TotalLoan = l.LoanAmount + interest
-	// 	break
-	// case "beban_plafon":
-	// 	l.TotalLoan = l.LoanAmount + interest + convenienceFee + totalfee
-	// 	break
-	// }
-
-	// calculate layaway plan
-	// l.LayawayPlan = l.TotalLoan / float64(l.Installment)
 
 	return nil
 }

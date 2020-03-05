@@ -24,8 +24,6 @@ CREATE TABLE "banks" (
     "city" varchar(255),
     "pic" varchar(255),
     "phone" varchar(255),
-    "adminfee_setup" varchar(255),
-    "convfee_setup" varchar(255),
     "services" int ARRAY,
     "products" int ARRAY,
     PRIMARY KEY ("id")
