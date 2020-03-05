@@ -110,9 +110,24 @@ func ClientBankbyID(c echo.Context) error {
 
 	LogTag := "ClientBankbyID"
 
-	bank := models.Bank{}
-	bankID, _ := strconv.ParseUint(c.Param("bank_id"), 10, 64)
-	err := bank.FindbyID(bankID)
+	var bank BankResponse
+	bankID, err := strconv.ParseUint(c.Param("bank_id"), 10, 64)
+	if err != nil {
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:   "validation error, empty parameter bank_id ",
+			NLOGERR:   err,
+			NLOGQUERY: asira.App.DB.QueryExpr()}, c.Get("user").(*jwt.Token), "", true, "")
+
+		return returnInvalidResponse(http.StatusInternalServerError, err, "bank tidak valid")
+	}
+
+	//build query
+	db := asira.App.DB
+	db = db.Table("banks").
+		Select("*, (SELECT ARRAY_AGG(s.name) FROM services s WHERE s.id IN (SELECT UNNEST(banks.services) ) ) as service_name ").
+		Where("banks.id = ?", bankID)
+
+	err = db.Find(&bank).Error
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
 			NLOGMSG:   "query result error",
