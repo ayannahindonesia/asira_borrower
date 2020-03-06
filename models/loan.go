@@ -132,10 +132,9 @@ func (l *Loan) Calculate() (err error) {
 			break
 		case "charge_loan":
 			l.TotalLoan += fee
+			l.LayawayPlan += fee / float64(l.Installment)
 			break
 		}
-
-		l.LayawayPlan += fee / float64(l.Installment)
 	}
 	// parse fees
 	jMarshal, _ := json.Marshal(parsedFees)
