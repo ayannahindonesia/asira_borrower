@@ -157,8 +157,6 @@ CREATE TABLE "borrowers" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
-
-
 CREATE TABLE "loan_purposes" (
     "id" bigserial,
     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
@@ -196,6 +194,19 @@ CREATE TABLE "loans" (
     "reject_reason" text,
     FOREIGN KEY ("borrower") REFERENCES borrowers(id),
     FOREIGN KEY ("product") REFERENCES products(id),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
+CREATE TABLE "installments" (
+    "id" bigserial,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
+    "loan_id" bigserial,
+    "period" int,
+    "loan_payment" FLOAT,
+    "interest_payment" FLOAT,
+    FOREIGN KEY ("loan_id") REFERENCES loans(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
