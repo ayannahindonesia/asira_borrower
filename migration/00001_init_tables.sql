@@ -177,6 +177,7 @@ CREATE TABLE "loans" (
     "status" varchar(255) DEFAULT  ('processing'),
     "loan_amount" FLOAT NOT NULL,
     "installment" int NOT NULL,
+    "installment_details" int ARRAY,
     "fees" jsonb DEFAULT '[]',
     "interest" FLOAT NOT NULL,
     "total_loan" FLOAT NOT NULL,
@@ -202,11 +203,13 @@ CREATE TABLE "installments" (
     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
     "deleted_at" timestamptz,
-    "loan_id" bigserial,
     "period" int,
     "loan_payment" FLOAT,
     "interest_payment" FLOAT,
-    FOREIGN KEY ("loan_id") REFERENCES loans(id),
+    "paid_date" timestamptz,
+    "paid_status" BOOLEAN,
+    "underpayment" FLOAT,
+    "note" text,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -284,6 +287,7 @@ DROP TABLE IF EXISTS "images" CASCADE;
 DROP TABLE IF EXISTS "borrowers" CASCADE;
 DROP TABLE IF EXISTS "loan_purposes" CASCADE;
 DROP TABLE IF EXISTS "loans" CASCADE;
+DROP TABLE IF EXISTS "installments" CASCADE;
 DROP TABLE IF EXISTS "uuid_reset_passwords" CASCADE;
 DROP TABLE IF EXISTS "clients" CASCADE;
 DROP TABLE IF EXISTS "agents" CASCADE;

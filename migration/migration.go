@@ -1013,6 +1013,7 @@ func Truncate(tableList []string) (err error) {
 				"borrowers",
 				"loan_purposes",
 				"loans",
+				"installments",
 				"uuid_reset_passwords",
 				"clients",
 				"agents",

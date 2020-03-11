@@ -34,17 +34,21 @@ func PIPMT(rate float64, per float64, nper float64, pv float64, fv float64) (flo
 }
 
 // FLATANNUAL func
-func FLATANNUAL(rate float64, v float64, months float64) (monthlypay float64, totalpay float64) {
-	monthlypay = ((1 + rate) / months) * v
-	totalpay = monthlypay * months
+func FLATANNUAL(rate float64, v float64, months float64) (monthlyloan float64, monthlyinterest float64, totalmonthlypay float64, accumulatedtotalpay float64) {
+	monthlyloan = v / months
+	monthlyinterest = (rate / 12) * v
+	totalmonthlypay = monthlyloan + monthlyinterest
+	accumulatedtotalpay = totalmonthlypay * months
 
-	return monthlypay, totalpay
+	return monthlyloan, monthlyinterest, totalmonthlypay, accumulatedtotalpay
 }
 
 // ONETIMEPAYMENT func
-func ONETIMEPAYMENT(rate float64, v float64, months float64) (monthlypay float64, totalpay float64) {
-	totalpay = v * (1 + rate)
-	monthlypay = totalpay / months
+func ONETIMEPAYMENT(rate float64, v float64, months float64) (monthlyloan float64, monthlyinterest float64, totalmonthlypay float64, accumulatedtotalpay float64) {
+	monthlyloan = v / months
+	monthlyinterest = (rate * v) / months
+	totalmonthlypay = monthlyloan + monthlyinterest
+	accumulatedtotalpay = totalmonthlypay * months
 
-	return monthlypay, totalpay
+	return monthlyloan, monthlyinterest, totalmonthlypay, accumulatedtotalpay
 }
