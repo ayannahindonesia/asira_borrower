@@ -25,7 +25,8 @@ func ClientResetPassword(c echo.Context) error {
 
 	borrower := models.Borrower{}
 	// r := c.Request()
-	baseURL := c.Scheme() + "://ayannah.co.id" // + r.Host
+	//c.Scheme() + r.Host
+	baseURL := asira.App.Config.GetString(fmt.Sprintf("%s.baseurl", asira.App.ENV))
 	payloadRules := govalidator.MapData{
 		"email": []string{"email", "unique:borrowers,email"},
 	}
