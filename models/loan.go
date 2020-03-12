@@ -293,9 +293,11 @@ func syncInstallment(is []Installment) error {
 
 	config := sarama.NewConfig()
 	config.ClientID = os.Getenv("KAFKA_CLIENT_ID")
-	config.Net.SASL.Enable = true
-	config.Net.SASL.User = os.Getenv("KAFKA_SASL_USER")
-	config.Net.SASL.Password = os.Getenv("KAFKA_SASL_PASSWORD")
+	config.Net.SASL.Enable, _ = strconv.ParseBool(os.Getenv("KAFKA_SASL_ENABLE"))
+	if config.Net.SASL.Enable {
+		config.Net.SASL.User = os.Getenv("KAFKA_SASL_USER")
+		config.Net.SASL.Password = os.Getenv("KAFKA_SASL_PASSWORD")
+	}
 	config.Producer.Return.Successes = true
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll
