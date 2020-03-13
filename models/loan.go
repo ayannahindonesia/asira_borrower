@@ -183,6 +183,7 @@ func (l *Loan) CalculateInterest(p Product) (err error) {
 			installments = append(installments, installment)
 			installmentsID = append(installmentsID, int64(installment.ID))
 		}
+		err = syncInstallment(installments)
 		l.InstallmentDetails = pq.Int64Array(installmentsID)
 		break
 	case "onetimepay":
@@ -200,6 +201,7 @@ func (l *Loan) CalculateInterest(p Product) (err error) {
 			installments = append(installments, installment)
 			installmentsID = append(installmentsID, int64(installment.ID))
 		}
+		err = syncInstallment(installments)
 		l.InstallmentDetails = pq.Int64Array(installmentsID)
 		break
 	case "fixed":
@@ -214,7 +216,7 @@ func (l *Loan) CalculateInterest(p Product) (err error) {
 }
 
 // FixedInterestFormula func
-func (l *Loan) FixedInterestFormula() error {
+func (l *Loan) FixedInterestFormula() (err error) {
 	rate := ((l.Interest / 100) / 12)
 	var (
 		pokok          float64
@@ -238,10 +240,12 @@ func (l *Loan) FixedInterestFormula() error {
 		installmentsID = append(installmentsID, int64(installment.ID))
 	}
 
+	err = syncInstallment(installments)
+
 	l.InstallmentDetails = pq.Int64Array(installmentsID)
 	l.LayawayPlan = pokok + bunga
 	l.TotalLoan = l.LayawayPlan * float64(l.Installment)
-	return nil
+	return err
 }
 
 // EfektifMenurunFormula func
