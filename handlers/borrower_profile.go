@@ -142,6 +142,17 @@ func BorrowerProfileEdit(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
+	//cek bank
+	if !validBankID(borrowerModel.Bank.Int64) {
+
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:   "validation error",
+			NLOGERR:   "invalid bank ID",
+			"payload": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")
+
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "bank tidak valid")
+	}
+
 	//cek unique for patching
 	var fields = map[string]string{
 		"phone":              borrowerModel.Phone,
