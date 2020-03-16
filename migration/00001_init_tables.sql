@@ -158,8 +158,6 @@ CREATE TABLE "borrowers" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
-
-
 CREATE TABLE "loan_purposes" (
     "id" bigserial,
     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
@@ -180,6 +178,7 @@ CREATE TABLE "loans" (
     "status" varchar(255) DEFAULT  ('processing'),
     "loan_amount" FLOAT NOT NULL,
     "installment" int NOT NULL,
+    "installment_details" int ARRAY,
     "fees" jsonb DEFAULT '[]',
     "interest" FLOAT NOT NULL,
     "total_loan" FLOAT NOT NULL,
@@ -198,6 +197,21 @@ CREATE TABLE "loans" (
     "form_info" jsonb DEFAULT '[]',
     FOREIGN KEY ("borrower") REFERENCES borrowers(id),
     FOREIGN KEY ("product") REFERENCES products(id),
+    PRIMARY KEY ("id")
+) WITH (OIDS = FALSE);
+
+CREATE TABLE "installments" (
+    "id" bigserial,
+    "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
+    "deleted_at" timestamptz,
+    "period" int,
+    "loan_payment" FLOAT,
+    "interest_payment" FLOAT,
+    "paid_date" timestamptz,
+    "paid_status" BOOLEAN,
+    "underpayment" FLOAT,
+    "note" text,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
@@ -275,6 +289,7 @@ DROP TABLE IF EXISTS "images" CASCADE;
 DROP TABLE IF EXISTS "borrowers" CASCADE;
 DROP TABLE IF EXISTS "loan_purposes" CASCADE;
 DROP TABLE IF EXISTS "loans" CASCADE;
+DROP TABLE IF EXISTS "installments" CASCADE;
 DROP TABLE IF EXISTS "uuid_reset_passwords" CASCADE;
 DROP TABLE IF EXISTS "clients" CASCADE;
 DROP TABLE IF EXISTS "agents" CASCADE;
