@@ -85,4 +85,10 @@ func TestBorrowerPatchProfile(t *testing.T) {
 		Status(http.StatusOK).JSON().Object()
 
 	obj.Value("province").Equal("yia ling")
+
+	//test not valid bank id
+	data["bank"] = map[string]interface{}{"Int64": 1000, "Valid": true}
+	auth.PATCH("/borrower/profile").WithJSON(data).
+		Expect().
+		Status(http.StatusUnprocessableEntity).JSON().Object()
 }

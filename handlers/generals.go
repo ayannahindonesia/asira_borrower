@@ -467,3 +467,18 @@ func NAudittrail(ori interface{}, new interface{}, jwttoken *jwt.Token, entity s
 		log.Printf("error northstar log : %v", err)
 	}
 }
+
+//validBankID check bank id exist or not
+func validBankID(id int64) bool {
+
+	var total int
+	db := asira.App.DB
+
+	db.Table("banks").Where("id IN (?)", id).Count(&total)
+
+	if total < 1 {
+		return false
+	}
+
+	return true
+}
