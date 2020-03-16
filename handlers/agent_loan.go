@@ -37,6 +37,7 @@ func AgentLoanApply(c echo.Context) error {
 		"loan_intention":    []string{"required"},
 		"intention_details": []string{"required"},
 		"product":           []string{"required"},
+		"form_info":         []string{},
 	}
 
 	validate := validateRequestPayload(c, payloadRules, &loan)

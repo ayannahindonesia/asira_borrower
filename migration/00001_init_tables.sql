@@ -93,6 +93,7 @@ CREATE TABLE "products" (
     "collaterals" varchar(255) ARRAY,
     "financing_sector" varchar(255) ARRAY,
     "assurance" varchar(255),
+    "form" jsonb DEFAULT '[]',
     FOREIGN KEY ("service_id") REFERENCES services(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
@@ -195,6 +196,7 @@ CREATE TABLE "loans" (
     "disburse_status" varchar(255) DEFAULT ('processing'),
     "approval_date" timestamptz,
     "reject_reason" text,
+    "form_info" jsonb DEFAULT '[]',
     FOREIGN KEY ("borrower") REFERENCES borrowers(id),
     FOREIGN KEY ("product") REFERENCES products(id),
     PRIMARY KEY ("id")
