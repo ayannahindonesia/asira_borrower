@@ -34,14 +34,14 @@ func TestAgentBankProductsGet(t *testing.T) {
 	obj := auth.GET("/agent/bank_products").
 		Expect().
 		Status(http.StatusOK).JSON().Object()
-	obj.ContainsKey("total_data").ValueEqual("total_data", 2)
+	obj.ContainsKey("total_data").ValueNotEqual("total_data", 0)
 
 	// valid response of bank_services for bankID = 1
 	obj = auth.GET("/agent/bank_products").
 		WithQuery("service_id", 1).
 		Expect().
 		Status(http.StatusOK).JSON().Object()
-	obj.ContainsKey("total_data").ValueEqual("total_data", 2)
+	obj.ContainsKey("total_data").ValueNotEqual("total_data", 0)
 
 	// valid response of bank_services for bank_id = 1 dan service_id = 1
 	obj = auth.GET("/agent/bank_products").

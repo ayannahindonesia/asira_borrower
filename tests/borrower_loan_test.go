@@ -164,8 +164,8 @@ func TestLoanCalculationFormulaFlat(t *testing.T) {
 	obj := auth.POST("/borrower/loan").WithJSON(payload).
 		Expect().
 		Status(http.StatusCreated).JSON().Object()
-	obj.ContainsKey("layaway_plan").ValueEqual("layaway_plan", 875000.0000000001)
-	obj.ContainsKey("total_loan").ValueEqual("total_loan", 5250000.000000001)
+	obj.ContainsKey("layaway_plan").ValueEqual("layaway_plan", 892083.3333333334)
+	obj.ContainsKey("total_loan").ValueEqual("total_loan", 5350000.000000001)
 }
 
 func TestLoanCalculationFormulaFixed(t *testing.T) {
@@ -202,8 +202,8 @@ func TestLoanCalculationFormulaFixed(t *testing.T) {
 	obj := auth.POST("/borrower/loan").WithJSON(payload).
 		Expect().
 		Status(http.StatusCreated).JSON().Object()
-	obj.ContainsKey("layaway_plan").ValueEqual("layaway_plan", 434942.0651053465)
-	obj.ContainsKey("total_loan").ValueEqual("total_loan", 5219304.781264158)
+	obj.ContainsKey("layaway_plan").ValueEqual("layaway_plan", 443483.7317720131)
+	obj.ContainsKey("total_loan").ValueEqual("total_loan", 5319304.781264158)
 }
 
 func TestLoanCalculationFormulaOnetimepay(t *testing.T) {
@@ -240,8 +240,8 @@ func TestLoanCalculationFormulaOnetimepay(t *testing.T) {
 	obj := auth.POST("/borrower/loan").WithJSON(payload).
 		Expect().
 		Status(http.StatusCreated).JSON().Object()
-	obj.ContainsKey("layaway_plan").ValueEqual("layaway_plan", 687500)
-	obj.ContainsKey("total_loan").ValueEqual("total_loan", 5500000)
+	obj.ContainsKey("layaway_plan").ValueEqual("layaway_plan", 700312.5)
+	obj.ContainsKey("total_loan").ValueEqual("total_loan", 5600000)
 }
 
 func TestLoanCalculationFormulaEfektifmenurun(t *testing.T) {
@@ -278,5 +278,5 @@ func TestLoanCalculationFormulaEfektifmenurun(t *testing.T) {
 	obj := auth.POST("/borrower/loan").WithJSON(payload).
 		Expect().
 		Status(http.StatusCreated).JSON().Object()
-	obj.ContainsKey("total_loan").ValueEqual("total_loan", 11250000)
+	obj.ContainsKey("total_loan").ValueEqual("total_loan", 11450000)
 }

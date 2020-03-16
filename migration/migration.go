@@ -144,10 +144,12 @@ func TestSeed() {
 			map[string]interface{}{
 				"description": "Admin Fee",
 				"amount":      "2500",
+				"fee_method":  "deduct_loan",
 			},
 			map[string]interface{}{
 				"description": "Convenience Fee",
 				"amount":      "2%",
+				"fee_method":  "charge_loan",
 			},
 		})
 		products := []models.Product{
