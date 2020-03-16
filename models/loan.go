@@ -1,8 +1,10 @@
 package models
 
 import (
+	"asira_borrower/custommodule/irate"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -132,32 +134,80 @@ func (l *Loan) Calculate() (err error) {
 	jMarshal, _ := json.Marshal(parsedFees)
 	l.Fees = postgres.Jsonb{jMarshal}
 
-	interest := (l.Interest / 100) * l.LoanAmount
+	l.CalculateInterest(product)
+	// interest := l.TotalLoan - l.LoanAmount
 	l.DisburseAmount = l.LoanAmount
 
-	switch bank.AdminFeeSetup {
-	case "potong_plafon":
-		l.DisburseAmount = l.DisburseAmount - totalfee
-		break
-		// case "beban_plafon":
-		// 	l.DisburseAmount = l.DisburseAmount + totalfee
-		// 	break
-	}
+	// switch bank.AdminFeeSetup {
+	// case "potong_plafon":
+	// 	l.DisburseAmount = l.DisburseAmount - totalfee
+	// 	break
+	// 	// case "beban_plafon":
+	// 	// 	l.DisburseAmount = l.DisburseAmount + totalfee
+	// 	// 	break
+	// }
 
-	switch bank.ConvenienceFeeSetup {
-	case "potong_plafon":
-		l.DisburseAmount = l.DisburseAmount - convenienceFee
-		l.TotalLoan = l.LoanAmount + interest
-		break
-	case "beban_plafon":
-		l.TotalLoan = l.LoanAmount + interest + convenienceFee + totalfee
-		break
-	}
+	// switch bank.ConvenienceFeeSetup {
+	// case "potong_plafon":
+	// 	l.DisburseAmount = l.DisburseAmount - convenienceFee
+	// 	l.TotalLoan = l.LoanAmount + interest
+	// 	break
+	// case "beban_plafon":
+	// 	l.TotalLoan = l.LoanAmount + interest + convenienceFee + totalfee
+	// 	break
+	// }
 
 	// calculate layaway plan
-	l.LayawayPlan = l.TotalLoan / float64(l.Installment)
+	// l.LayawayPlan = l.TotalLoan / float64(l.Installment)
 
 	return nil
+}
+
+// CalculateInterest func
+func (l *Loan) CalculateInterest(p Product) {
+	switch p.InterestType {
+	default:
+		break
+	case "flat":
+		l.LayawayPlan, l.TotalLoan = irate.FLATANNUAL(l.Interest/100, l.LoanAmount, float64(l.Installment))
+		break
+	case "onetimepay":
+		l.LayawayPlan, l.TotalLoan = irate.ONETIMEPAYMENT(l.Interest/100, l.LoanAmount, float64(l.Installment))
+		break
+	case "fixed":
+		l.FixedInterestFormula()
+		break
+	case "efektif_menurun":
+		l.EfektifMenurunFormula()
+		break
+	}
+}
+
+// FixedInterestFormula func
+func (l *Loan) FixedInterestFormula() {
+	rate := ((l.Interest / 100) / 12)
+	pokok, bunga := irate.PIPMT(rate, 1, float64(l.Installment), -l.LoanAmount, 1)
+
+	log.Println("pkok : %v \n bunga : %v", pokok, bunga)
+
+	l.LayawayPlan = pokok + bunga
+	l.TotalLoan = l.LayawayPlan * float64(l.Installment)
+}
+
+// EfektifMenurunFormula func
+func (l *Loan) EfektifMenurunFormula() {
+	plafon := l.LoanAmount
+	cicilanpokok := l.LoanAmount / float64(l.Installment)
+	var cicilanbungas []float64
+	for i := 1; i <= l.Installment; i++ {
+		bunga := plafon * (l.Interest / 100) / 12
+		cicilanbungas = append(cicilanbungas, bunga)
+		plafon -= cicilanpokok
+	}
+	log.Println("cek : %v \n cicilan pokok : %v", cicilanbungas, cicilanpokok)
+	for _, v := range cicilanbungas {
+		l.TotalLoan += v + cicilanpokok
+	}
 }
 
 func (l *Loan) Create() error {
