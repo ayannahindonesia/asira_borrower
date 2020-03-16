@@ -95,6 +95,7 @@ func (l *Loan) SetProductLoanReferences() (err error) {
 	l.Interest = product.Interest
 
 	return nil
+}
 
 // Calculate func
 func (l *Loan) Calculate() (err error) {
