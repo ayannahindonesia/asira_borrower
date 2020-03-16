@@ -8,6 +8,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/ayannahindonesia/basemodel"
 	"github.com/dgrijalva/jwt-go"
@@ -36,6 +37,7 @@ func BorrowerLoanApply(c echo.Context) error {
 		"loan_intention":    []string{"required"},
 		"intention_details": []string{"required"},
 		"product":           []string{"required"},
+		"form_info":         []string{},
 	}
 
 	validate := validateRequestPayload(c, payloadRules, &loan)
@@ -168,7 +170,12 @@ func BorrowerLoanGetDetails(c echo.Context) error {
 
 	LogTag := "BorrowerLoanGetDetails"
 
-	loan := models.Loan{}
+	type LoanSelect struct {
+		models.Loan
+		Installments []models.Installment `json:"installment_details"`
+	}
+	loan := LoanSelect{}
+	installments := []models.Installment{}
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
@@ -202,6 +209,16 @@ func BorrowerLoanGetDetails(c echo.Context) error {
 
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
 	}
+
+	db := asira.App.DB
+	err = db.Table("installments").
+		Select("*").
+		Where("id IN (?)", strings.Fields(strings.Trim(fmt.Sprint(loan.InstallmentDetails), "[]"))).
+		Scan(&installments).Error
+	if err != nil {
+		NLog("warning", LogTag, map[string]interface{}{NLOGMSG: "query not found : '%v' error : %v", "query": db.QueryExpr(), NLOGERR: err}, c.Get("user").(*jwt.Token), "", false, "agent")
+	}
+	loan.Installments = installments
 
 	return c.JSON(http.StatusOK, loan)
 }

@@ -37,6 +37,7 @@ func AgentLoanApply(c echo.Context) error {
 		"loan_intention":    []string{"required"},
 		"intention_details": []string{"required"},
 		"product":           []string{"required"},
+		"form_info":         []string{},
 	}
 
 	validate := validateRequestPayload(c, payloadRules, &loan)
@@ -211,7 +212,12 @@ func AgentLoanGetDetails(c echo.Context) error {
 	agentID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
 
 	//cek loan
-	loan := models.Loan{}
+	type LoanSelect struct {
+		models.Loan
+		Installments []models.Installment `json:"installment_details"`
+	}
+	loan := LoanSelect{}
+	installments := []models.Installment{}
 	loanID, err := strconv.ParseUint(c.Param("loan_id"), 10, 64)
 	err = loan.FindbyID(loanID)
 	if err != nil {
@@ -222,6 +228,16 @@ func AgentLoanGetDetails(c echo.Context) error {
 
 		return returnInvalidResponse(http.StatusNotFound, err, fmt.Sprintf("loan id %v tidak ditemukan", loanID))
 	}
+
+	db := asira.App.DB
+	err = db.Table("installments").
+		Select("*").
+		Where("id IN (?)", strings.Fields(strings.Trim(fmt.Sprint(loan.InstallmentDetails), "[]"))).
+		Scan(&installments).Error
+	if err != nil {
+		NLog("warning", LogTag, map[string]interface{}{NLOGMSG: "query not found : '%v' error : %v", "query": db.QueryExpr(), NLOGERR: err}, c.Get("user").(*jwt.Token), "", false, "agent")
+	}
+	loan.Installments = installments
 
 	//is valid agent
 	agent := models.Agent{}
