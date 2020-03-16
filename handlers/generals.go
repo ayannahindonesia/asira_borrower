@@ -240,7 +240,7 @@ func checkPatchFields(tableName string, fieldID string, id uint64, uniques map[s
 }
 
 //checkPatchFieldsBorrowers update check field other than id and idcard_number
-func checkPatchFieldsBorrowers(id uint64, idcard_number string, uniques map[string]string) (string, error) {
+func checkFieldsBorrowersPersonal(id uint64, uniques map[string]string) (string, error) {
 
 	var count int
 	fieldsFound := ""
@@ -256,9 +256,7 @@ func checkPatchFieldsBorrowers(id uint64, idcard_number string, uniques map[stri
 		//get users other than idcardNumber...
 		db = db.Not(fieldID, id)
 
-		if idcard_number != "" || len(idcard_number) > 0 {
-			db = db.Not("idcard_number", idcard_number)
-		}
+		db = db.Where("agent_referral = 0")
 
 		//if field not empty
 		if len(val) > 0 || val != "" {

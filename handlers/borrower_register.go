@@ -42,7 +42,7 @@ func RegisterBorrower(c echo.Context) error {
 
 	type (
 		Register struct {
-			Fullname string `json:"fullname"`
+			Nickname string `json:"nickname"`
 			Email    string `json:"email"`
 			Phone    string `json:"phone"`
 			Password string `json:"password"`
@@ -51,7 +51,7 @@ func RegisterBorrower(c echo.Context) error {
 	)
 	register := Register{}
 	payloadRules := govalidator.MapData{
-		"fullname": []string{"required"},
+		"nickname": []string{"required"},
 		"email":    []string{"required"},
 		"phone":    []string{"required", "id_phonenumber"},
 		"password": []string{"required"},
