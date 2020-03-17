@@ -171,10 +171,12 @@ func (l *Loan) CalculateInterest(p Product) (err error) {
 	case "flat":
 		pokok, bunga, l.LayawayPlan, l.TotalLoan = irate.FLATANNUAL(l.Interest/100, l.LoanAmount, float64(l.Installment))
 		for i := 1; i <= l.Installment; i++ {
+			duedate := time.Now().AddDate(0, i, 0)
 			installment := Installment{
 				Period:          i,
 				LoanPayment:     pokok,
 				InterestPayment: bunga,
+				DueDate:         &duedate,
 			}
 			err := installment.Create()
 			if err != nil {
@@ -189,10 +191,12 @@ func (l *Loan) CalculateInterest(p Product) (err error) {
 	case "onetimepay":
 		pokok, bunga, l.LayawayPlan, l.TotalLoan = irate.ONETIMEPAYMENT(l.Interest/100, l.LoanAmount, float64(l.Installment))
 		for i := 1; i <= l.Installment; i++ {
+			duedate := time.Now().AddDate(0, i, 0)
 			installment := Installment{
 				Period:          i,
 				LoanPayment:     pokok,
 				InterestPayment: bunga,
+				DueDate:         &duedate,
 			}
 			err := installment.Create()
 			if err != nil {
@@ -226,11 +230,13 @@ func (l *Loan) FixedInterestFormula() (err error) {
 	)
 	for i := 1; i <= l.Installment; i++ {
 		pokok, bunga = irate.PIPMT(rate, float64(i), float64(l.Installment), -l.LoanAmount, 1)
+		duedate := time.Now().AddDate(0, i, 0)
 
 		installment := Installment{
 			Period:          i,
 			LoanPayment:     pokok,
 			InterestPayment: bunga,
+			DueDate:         &duedate,
 		}
 		err := installment.Create()
 		if err != nil {
@@ -261,10 +267,13 @@ func (l *Loan) EfektifMenurunFormula() (err error) {
 		bunga := plafon * (l.Interest / 100) / 12
 		cicilanbungas = append(cicilanbungas, bunga)
 		plafon -= cicilanpokok
+		duedate := time.Now().AddDate(0, i, 0)
+
 		installment := Installment{
 			Period:          i,
 			LoanPayment:     cicilanpokok,
 			InterestPayment: bunga,
+			DueDate:         &duedate,
 		}
 		err = installment.Create()
 		if err != nil {
