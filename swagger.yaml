@@ -58,7 +58,7 @@ paths:
               schema:
                 type: object
                 allOf:
-                  - $ref: '#/components/schemas/serverReadyResponse'
+                  - $ref: '#/components/schemas/ServerReadyResponse'
         '500':
           description: Internal Server Error
           content:
@@ -79,7 +79,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/otpRequest'
+              $ref: '#/components/schemas/PayloadRequestOTPRegisterBorrower'
       responses:
         '200':
           description: OTP Sent
@@ -166,7 +166,7 @@ paths:
   /client/borrower_login:
     post:
       tags:
-        - Client
+        - Client - Login
       summary: login for borrower role. can use phone or email for the key
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -174,7 +174,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/borrowerLoginRequest'
+              $ref: '#/components/schemas/BorrowerLoginRequest'
       responses:
         '200':
           description: OK
@@ -205,7 +205,7 @@ paths:
   /client/agent_login:
     post:
       tags:
-        - Client
+        - Client - Login
       summary: login for agent role. can use phone or email for the key
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -213,7 +213,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/borrowerLoginRequest'
+              $ref: '#/components/schemas/AgentLoginRequest'
       responses:
         '200':
           description: OK
@@ -244,7 +244,7 @@ paths:
   /agent/banks:
     get:
       tags:
-        - Agent
+        - Agent - Bank
       summary: get current banks linked to agent
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -262,13 +262,19 @@ paths:
                         items:
                           allOf:
                             - $ref: '#/components/schemas/bankListDetails'
-  /agent/borrowers/[bank_id]:
+  /agent/borrowers:
     get:
       tags:
-        - Agent
+        - Agent - Borrowers
       summary: get borrowers by id banks
       parameters:
         - $ref: '#/components/parameters/authtoken'
+        - in: query
+          name: bank_id
+          schema:
+            type: integer
+            example: 2
+          description: show borrowers by bank id
       responses:
         '200':
           description: OK
@@ -282,11 +288,11 @@ paths:
                         type: array
                         items:
                           allOf:
-                            - $ref: '#/components/schemas/agentBorrowerDetailResponse'
+                            - $ref: '#/components/schemas/ModelAgentBorrower'
   /agent/borrower/[borrower_id]:
     get:
       tags:
-        - Agent
+        - Agent - Borrowers
       summary: get borrowers by id borrower
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -297,10 +303,10 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/agentBorrowerDetailResponse'
+                  - $ref: '#/components/schemas/ModelAgentBorrower'
     patch:
       tags:
-        - Agent
+        - Agent - Borrowers
       summary: edit borrowers by id borrower
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -308,7 +314,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/patchAgentBorrowerRequest'
+              $ref: '#/components/schemas/PatchAgentBorrowerRequest'
       responses:
         '200':
           description: OK
@@ -316,7 +322,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/agentBorrowerDetailResponse'
+                  - $ref: '#/components/schemas/ModelAgentBorrower'
         '404':
           description: Not Found
           content:
@@ -388,7 +394,7 @@ paths:
   /agent/loan:
     get:
       tags:
-        - Agent
+        - Agent - Loan
       summary: get current agent's borrower history. default is ordered by recent.
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -419,7 +425,7 @@ paths:
           name: status
           schema:
             type: string
-            example: rejected
+            example:  "processing | approved | rejected"
           description: search by loan status
         - in: query
           name: bank
@@ -427,6 +433,12 @@ paths:
             type: integer
             example: 1
           description: search by loan status
+        - in: query
+          name: name
+          schema:
+            type: string
+            example:  "fullname"
+          description: search fullname for borrower info stored in loan
       responses:
         '200':
           description: OK
@@ -440,7 +452,12 @@ paths:
                         type: array
                         items:
                           allOf:
-                            - $ref: '#/components/schemas/loanListDetail'
+                            - $ref: '#/components/schemas/BaseLoan'
+                            - properties:
+                                installment_details:
+                                  type: object
+                                  allOf:
+                                    - $ref: '#/components/schemas/BaseInstallment'
         '401':
           description: Unauthorized
           content:
@@ -464,7 +481,7 @@ paths:
                   - $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
-        - Agent
+        - Agent - Loan
       summary: request loan application from agent
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -472,7 +489,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/loanApplicationAgent'
+              $ref: '#/components/schemas/PayloadApplyLoanAgent'
       responses:
         '201':
           description: Created
@@ -480,7 +497,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/loanListDetail'
+                  - $ref: '#/components/schemas/BaseLoan'
         '401':
           description: Unauthorized
           content:
@@ -512,7 +529,7 @@ paths:
   /agent/loan/[loan_id]/details:
     get:
       tags:
-        - Agent
+        - Agent - Loan
       summary: get loan detail by id
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -524,7 +541,12 @@ paths:
               schema:
                 type: object
                 allOf:
-                  - $ref: '#/components/schemas/loanListDetail'
+                  - $ref: '#/components/schemas/BaseLoan'
+                  - properties:
+                      installment_details:
+                        type: object
+                        allOf:
+                          - $ref: '#/components/schemas/BaseInstallment'
         '401':
           description: Unauthorized
         '404':
@@ -534,7 +556,7 @@ paths:
   /agent/loan/[loan_id]/otp:
     get:
       tags:
-        - Agent
+        - Agent - Loan
       summary: otp request to verify loan
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -552,7 +574,7 @@ paths:
   /agent/loan/[loan_id]/verify:
     post:
       tags:
-        - Agent
+        - Agent - Loan
       summary: verify loan with otp code
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -560,7 +582,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/loanOTPverify'
+              $ref: '#/components/schemas/BaseOTPVerify'
       responses:
         '200':
           description: OK
@@ -593,7 +615,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/patchProfileResponse'
+                  - $ref: '#/components/schemas/ModelBorrower'
         '401':
           description: Unauthorized
           content:
@@ -620,7 +642,7 @@ paths:
   /agent/checks_borrower:
     post:
       tags:
-        - Agent
+        - Agent - Borrowers
       summary: check is agent's borrower exist or not
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -628,7 +650,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/agentCheckBorrower'
+              $ref: '#/components/schemas/BaseCheckUnique'
       responses:
         '200':
           description: OK
@@ -676,7 +698,7 @@ paths:
   /agent/bank_services:
     get:
       tags:
-        - Agent
+        - Agent - Bank
       summary: get bank services info for current Agent (JWT)
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -715,7 +737,7 @@ paths:
   /agent/bank_products:
     get:
       tags:
-        - Agent
+        - Agent - Bank
       summary: get bank products info for current Agent (JWT) - based on banks that agent owned
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -753,7 +775,7 @@ paths:
   /agent/otp_verify/[borrower_id]:
     post:
       tags:
-        - Agent
+        - Agent - Borrowers
       summary: verify sms OTP to agent phone number for verify registered agent's borrower 
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -761,7 +783,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/otpVerifyRequest'
+              $ref: '#/components/schemas/PayloadVerifyOTPRegisterBorrowerAgent'
       responses:
         '200':
           description: OK
@@ -800,7 +822,7 @@ paths:
   /agent/otp_request/[borrower_id]:
     post:
       tags:
-        - Agent
+        - Agent - Borrowers
       summary: Send sms OTP to agent phone number for verify registered agent's borrower 
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -808,7 +830,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/otpRequest'
+              $ref: '#/components/schemas/BasePayloadOTP'
       responses:
         '200':
           description: OTP Sent
@@ -847,7 +869,7 @@ paths:
   /agent/register_borrower:
     post:
       tags:
-        - Agent
+        - Agent - Borrowers
       summary: Register borrower account from agent
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -855,7 +877,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/registerAgentRequest'
+              $ref: '#/components/schemas/RegisterAgentRequest'
       description: >-
         <p>requesting to agent's borrower register endpoint.</p>
       responses:
@@ -866,7 +888,7 @@ paths:
               schema:
                 type: object
                 allOf:
-                  - $ref: '#/components/schemas/patchProfileResponse'
+                  - $ref: '#/components/schemas/ModelBorrower'
         '401':
           description: Unauthorized
         '422':
@@ -892,12 +914,15 @@ paths:
       summary: Check variable value if its already used
       parameters:
         - $ref: '#/components/parameters/authtoken'
-        - required: true
-          in: header
-          name: email
-          schema:
-            type: string
-            example: mail@domain.com
+      requestBody:
+          content:
+            application/json:
+              schema:
+                type : object
+                properties:
+                  email:
+                    type : string
+                    example : password
       responses:
         '200':
           description: OK
@@ -930,24 +955,6 @@ paths:
                 type: object
                 allOf:
                   - $ref: '#/components/schemas/ErrorResponse'
-  /client/imagefile/[file_id]:
-    get:
-      tags:
-        - Client
-      summary: retrieve stored image file by file id
-      parameters:
-        - $ref: '#/components/parameters/authtoken'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                allOf:
-                  - $ref: '#/components/schemas/ImageBase64'
-        '401':
-          description: Unauthorized
   /client/change_password:
     post:
       tags:
@@ -965,7 +972,6 @@ paths:
                 password :
                   type : string
                   example : password
-                
                 uuid :
                   type : string
                   example : 1a50b5da-a3a4-4e49-ba87-4c34195748a9
@@ -998,10 +1004,80 @@ paths:
                 type: object
                 allOf:
                   - $ref: '#/components/schemas/ErrorResponse'
+  /client/faq:
+    get:
+      tags:
+        - Client - FAQ
+      summary: get FAQ
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+        - in: query
+          name: title
+          schema:
+            type: string
+            example: FAQ how to apply loan
+        - in: query
+          name: description
+          schema:
+            type: string
+            example: "<html>...<html>"
+        - in: query
+          name: search_all
+          schema:
+            type: string
+            example: "all field"
+          description: if filled will overwrite other searches and search in all field with the value
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PagedModel'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/BaseFAQ'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+  /client/faq/[faq_id]:
+    get:
+      tags:
+        - Client - FAQ
+      summary: get FAQ detail by id
+      parameters:
+        - $ref: '#/components/parameters/authtoken'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/BaseFAQ'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+                  
   /client/banks:
     get:
       tags:
-        - Client
+        - Client - Banks
       summary: get all Banks info
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1030,7 +1106,7 @@ paths:
   /client/banks/[bank_id]:
     get:
       tags:
-        - Client
+        - Client - Banks
       summary: get bank detail info by id
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1054,7 +1130,7 @@ paths:
   /client/loan_purposes:
     get:
       tags:
-        - Client
+        - Client - Loan Purpose
       summary: get loan purpose list
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1114,7 +1190,7 @@ paths:
   /client/loan_purposes/[loan_purpose_id]:
     get:
       tags:
-        - Client
+        - Client - Loan Purpose
       summary: get a loan purpose list by id
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1138,7 +1214,7 @@ paths:
   /client/bank_services:
     get:
       tags:
-        - Client
+        - Client - Bank Services
       summary: get bank services info 
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1164,7 +1240,7 @@ paths:
   /client/bank_services/[bank_service_id]:
     get:
       tags:
-        - Client
+        - Client - Bank Services
       summary: get bank type detail info by id
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1187,65 +1263,6 @@ paths:
                 type: object
                 allOf:
                   - $ref: '#/components/schemas/ErrorResponse'
-  /client/bank_products:
-    get:
-      tags:
-        - Client
-      summary: get service product detail info by id
-      parameters:
-        - $ref: '#/components/parameters/authtoken'
-        - in: query
-          name: service_id
-          schema:
-            type: string
-            example: 1
-          description: current open page
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                allOf:
-                  - $ref: '#/components/schemas/bankProductList'
-        '401':
-          description: Unauthorized
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                type: object
-                allOf:
-                  - $ref: '#/components/schemas/ErrorResponse'
-  /client/bank_products/[product_id]:
-    get:
-      tags:
-        - Client
-      summary: get service product detail info by id
-      parameters:
-        - $ref: '#/components/parameters/authtoken'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                allOf:
-                  - $ref: '#/components/schemas/bankProductDetails'
-        '401':
-          description: Unauthorized
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                type: object
-                allOf:
-                  - $ref: '#/components/schemas/ErrorResponse'
-                  
   /borrower/profile:
     get:
       tags:
@@ -1261,7 +1278,7 @@ paths:
               schema:
                 type: object
                 allOf:
-                  - $ref: '#/components/schemas/patchProfileResponse'
+                  - $ref: '#/components/schemas/ModelBorrower'
     patch:
       tags:
         - Borrower
@@ -1272,7 +1289,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/registerRequest'
+              $ref: '#/components/schemas/PayloadBorrowers'
       responses:
         '200':
           description: OK
@@ -1281,7 +1298,7 @@ paths:
               schema:
                 type: object
                 allOf:
-                  - $ref: '#/components/schemas/patchProfileResponse'
+                  - $ref: '#/components/schemas/ModelBorrower'
         '401':
           description: Unauthorized
         '422':
@@ -1303,7 +1320,7 @@ paths:
   /borrower/fcm_token_update:
     patch:
       tags:
-        - Borrower Notifications
+        - Borrower - Notifications
       summary: update FCM (Firebase) token 
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1311,7 +1328,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/fcmtokenRequest'
+              $ref: '#/components/schemas/FCMTokenRequest'
       responses:
         '200':
           description: OK
@@ -1332,7 +1349,7 @@ paths:
   /borrower/notifications:
     get:
       tags:
-        - Borrower Notifications 
+        - Borrower - Notifications 
       summary: get current borrower's notification.
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1385,13 +1402,13 @@ paths:
               schema:
                 type: object
                 allOf:
-                  - $ref: '#/components/schemas/notificationList'
+                  - $ref: '#/components/schemas/Notifications'
         '401':
           description: Unauthorized
   /borrower/loan:
     get:
       tags:
-        - Borrower
+        - Borrower - Loan
       summary: get current borrower history. default is ordered by recent.
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1432,7 +1449,7 @@ paths:
               schema:
                 type: object
                 allOf:
-                  - $ref: '#/components/schemas/loanList'
+                  - $ref: '#/components/schemas/LoanList'
         '401':
           description: Unauthorized
           content:
@@ -1456,7 +1473,7 @@ paths:
                   - $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
-        - Borrower
+        - Borrower - Loan
       summary: request loan application
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1464,7 +1481,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/loanApplication'
+              allOf:
+                - $ref: '#/components/schemas/BasePayloadLoan'
       responses:
         '201':
           description: Created
@@ -1472,7 +1490,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/loanListDetail'
+                  - $ref: '#/components/schemas/BaseLoan'
         '401':
           description: Unauthorized
           content:
@@ -1504,7 +1522,7 @@ paths:
   /borrower/loan/[loan_id]/details:
     get:
       tags:
-        - Borrower
+        - Borrower - Loan
       summary: get loan detail by id
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1516,7 +1534,7 @@ paths:
               schema:
                 type: object
                 allOf:
-                  - $ref: '#/components/schemas/loanListDetail'
+                  - $ref: '#/components/schemas/BaseLoan'
         '401':
           description: Unauthorized
         '404':
@@ -1526,7 +1544,7 @@ paths:
   /borrower/loan/[loan_id]/otp:
     get:
       tags:
-        - Borrower
+        - Borrower - Loan
       summary: otp request to verify loan
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1544,7 +1562,7 @@ paths:
   /borrower/loan/[loan_id]/verify:
     post:
       tags:
-        - Borrower
+        - Borrower - Loan
       summary: verify loan with otp code
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1552,7 +1570,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/loanOTPverify'
+              $ref: '#/components/schemas/BaseOTPVerify'
       responses:
         '200':
           description: OK
@@ -1567,7 +1585,7 @@ paths:
   /borrower/bank_services:
     get:
       tags:
-        - Borrower
+        - Borrower - Bank Services
       summary: get bank services info 
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1593,7 +1611,7 @@ paths:
   /borrower/bank_services/[bank_service_id]:
     get:
       tags:
-        - Borrower
+        - Borrower - Bank Services
       summary: get bank type detail info by id
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1619,7 +1637,7 @@ paths:
   /borrower/bank_products:
     get:
       tags:
-        - Borrower
+        - Borrower - Bank Products
       summary: get service product detail info by id
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1645,7 +1663,7 @@ paths:
   /borrower/bank_products/[product_id]:
     get:
       tags:
-        - Borrower
+        - Borrower - Bank Products
       summary: get service product detail info by id
       parameters:
         - $ref: '#/components/parameters/authtoken'
@@ -1680,7 +1698,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/otpRequest'
+              $ref: '#/components/schemas/BasePayloadOTP'
       responses:
         '200':
           description: OTP Sent
@@ -1716,7 +1734,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/otpVerifyRequest'
+              $ref: '#/components/schemas/PayloadVerifyOTPRegisterBorrowerAgent'
       responses:
         '200':
           description: OTP Verified
@@ -1750,7 +1768,7 @@ components:
         token:
           type: string
           example: eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFuZHJva2V5IiwiaXNfaWfaweiufh2198eu9128jd98wjhdQxNjgsImp0aSI6ImFuZHJva2V5In0.gCPTFIe-GnE9pduQaCfOV8hGo5ttXOalE9Egrsjb9f832hw9eijhdw98jhDVxWa1u6cWfSxMrCReviekgkqflZdA
-    serverReadyResponse:
+    ServerReadyResponse:
       properties:
         time:
           type: string
@@ -1758,7 +1776,6 @@ components:
         stacks:
           type: boolean
           example: true
-          
     ErrorResponse:
       type: object
       properties:
@@ -1805,11 +1822,19 @@ components:
         to:
           type: number
           example: 5
-    borrowerLoginRequest:
+    BorrowerLoginRequest:
       properties:
         key:
           type: string
           example: 08123456789
+        password:
+          type: string
+          example: password
+    AgentLoginRequest:
+      properties:
+        key:
+          type: string
+          example: usernameAgent
         password:
           type: string
           example: password
@@ -1915,21 +1940,6 @@ components:
         status:
           type: string
           example: active
-    ImageBase64:
-      type: object
-      properties:
-        id:
-          type: number
-          example: 1
-        created_at:
-          type: string
-          example: "2019-08-27T15:43:29.879218+07:00"
-        updated_at:
-          type: string
-          example: "2019-08-27T15:43:29.879218+07:00"
-        image_string:
-          type: string
-          example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
     getAgentProfileResponse:
       type: object
       properties:
@@ -1975,7 +1985,7 @@ components:
               example: true
         image:
           type: string
-          example: "https://bucket.host.com:8082/image-code.jpeg"
+          example: "base64:32478r4w985ru8934auiewrdsp032q8uwejklsdkjfadiuujikdcfkladslk="
         banks:
           type: array
           items:
@@ -1995,186 +2005,21 @@ components:
         agent_provider_name:
           type: string
           example: "Agent Provider A"
-    agentBorrowerDetailResponse:
-      type: object
-      properties:
-        fullname:
-          type: string
-          example: Benedict Cucumbatch
-        nickname:
-          type: string
-          example: Becum
-        gender:
-          type: string
-          example: M
-          enum:
-            - M
-            - F
-        idcard_number:
-          type: string
-          example: "543219876231"
-        idcard_image:
-          type: string
-          example: 1
-        taxid_number:
-          type: string
-          example: "1928374650"
-        taxid_image:
-          type: integer
-          example: 2
-        nationality:
-          type: string
-          example: WNI
-        email:
-          type: string
-          example: ben@avenger.com
-        birthday:
-          type: string
-          example: "1999-12-31T00:00:00.000Z"
-          description: format yyyy-mm-ddThh:mm:ssZ
-        birthplace:
-          type: string
-          example: Cambridge
-        last_education:
-          type: string
-          example: Master
-        mother_name:
-          type: string
-          example: Eve
-        phone:
-          type: string
-          example: "081234567890"
-        marriage_status:
-          type: string
-          example: married
-        spouse_name:
-          type: string
-          example: Benny
-          description: nama pasangan
-        spouse_birthday:
-          type: string
-          example: "1999-12-31T00:00:00.000Z"
-          description: format yyyy-mm-ddThh:mm:ssZ
-        spouse_lasteducation:
-          type: string
-          example: Master
-        dependants:
-          type: number
-          example: 3
-          description: tanggunan
-        address:
-          type: string
-          example: sesame st.
-        province:
-          type: string
-          example: le province
-        city:
-          type: string
-          example: el city
-        neighbour_association:
-          type: string
-          example: "001"
-          description: rukun tetangga
-        hamlets:
-          type: string
-          example: "002"
-          description: rukun warga
-        home_phonenumber:
-          type: string
-          example: "021234567"
-        subdistrict:
-          type: string
-          example: setiabudi
-          description: kecamatan
-        urban_village:
-          type: string
-          example: sukadamai
-          description: kelurahan
-        home_ownership:
-          type: string
-          example: private owned
-          description: status kepemilikan rumah
-        lived_for:
-          type: number
-          example: 24
-          description: in month
-        occupation:
-          type: string
-          example: magician
-        employee_id:
-          type: string
-          example: "4132"
-        employer_name:
-          type: string
-          example: stark industries
-        employer_address:
-          type: string
-          example: street that never was
-        department:
-          type: string
-          example: magics
-        been_workingfor:
-          type: number
-          example: 16
-          description: in month
-        direct_superiorname:
-          type: string
-          example: Tony Stark
-        employer_number:
-          type: string
-          example: "021987653"
-          description: employer office phone number
-        monthly_income:
-          type: number
-          example: 1000000
-          description: monthly
-        other_income:
-          type: number
-          example: 2000000
-          description: monthly
-        other_incomesource:
-          type: string
-          example: magic performance
-        field_of_work:
-          type: string
-          example: magics
-          enum:
-            - IT
-            - Human Resource
-            - Building Industries
-        related_personname:
-          type: string
-          example: Bella
-          description: other related person that not living in the same roof
-        related_relation:
-          type: string
-          example: friend
-        related_phonenumber:
-          type: string
-          example: "082345678912"
-        related_homenumber:
-          type: string
-          example: "02123456789"
-        related_address:
-          type: string
-          example: ""
-        bank:
-          type: number
-          description: asira bank id
-          example: 1
-        bank_accountnumber:
-          type: string
-          example: "056374817362738"
-        status:
-          type: string
-          example: "active"
-        nth_loans:
-          type: number
-          example: 2
-        loan_status:
-          type: string
-          example: "active"
-    patchProfileResponse:
+    ModelAgentBorrower:
+      allOf:
+      - $ref: "#/components/schemas/ModelBorrower"
+      - properties:
+          loan_status:
+            type: string
+            example: "active"
+          nth_loans:
+            type: number
+            example: 2
+          bank_name:
+            type: string
+            description: asira bank name
+            example: bank B
+    ModelBorrower:
       type: object
       properties:
         fullname:
@@ -2350,178 +2195,9 @@ components:
         loan_status:
           type: string
           example: "active"
-    registerAgentRequest:
-      properties:
-        fullname:
-          type: string
-          example: Benedict Cucumbatch
-        nickname:
-          type: string
-          example: BeCu
-        gender:
-          type: string
-          example: M
-          enum:
-            - M
-            - F
-        image:
-          type: string
-          example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
-        idcard_number:
-          type: string
-          example: "543219876231"
-        idcard_image:
-          type: string
-          example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
-        taxid_number:
-          type: string
-          example: "1928374650"
-        taxid_image:
-          type: string
-          example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
-        nationality:
-          type: string
-          example: WNI
-        email:
-          type: string
-          example: ben@avenger.com
-        birthday:
-          type: string
-          example: "1999-12-31T00:00:00.000Z"
-          description: format yyyy-mm-ddThh:mm:ssZ
-        birthplace:
-          type: string
-          example: Cambridge
-        last_education:
-          type: string
-          example: Master
-        mother_name:
-          type: string
-          example: Eve
-        phone:
-          type: string
-          example: "081234567890"
-        marriage_status:
-          type: string
-          example: married
-        spouse_name:
-          type: string
-          example: Benny
-          description: nama pasangan
-        spouse_birthday:
-          type: string
-          example: "1999-12-31T00:00:00.000Z"
-          description: format yyyy-mm-ddThh:mm:ssZ
-        spouse_lasteducation:
-          type: string
-          example: Master
-        dependants:
-          type: number
-          example: 3
-          description: tanggunan
-        address:
-          type: string
-          example: sesame st.
-        province:
-          type: string
-          example: le province
-        city:
-          type: string
-          example: el city
-        neighbour_association:
-          type: string
-          example: "001"
-          description: rukun tetangga
-        hamlets:
-          type: string
-          example: "002"
-          description: rukun warga
-        home_phonenumber:
-          type: string
-          example: "021234567"
-        subdistrict:
-          type: string
-          example: setiabudi
-          description: kecamatan
-        urban_village:
-          type: string
-          example: sukadamai
-          description: kelurahan
-        home_ownership:
-          type: string
-          example: private owned
-          description: status kepemilikan rumah
-        lived_for:
-          type: number
-          example: 24
-          description: in month
-        occupation:
-          type: string
-          example: magician
-        employee_id:
-          type: string
-          example: "4132"
-        employer_name:
-          type: string
-          example: stark industries
-        employer_address:
-          type: string
-          example: street that never was
-        department:
-          type: string
-          example: magics
-        been_workingfor:
-          type: number
-          example: 16
-          description: in month
-        direct_superiorname:
-          type: string
-          example: Tony Stark
-        employer_number:
-          type: string
-          example: "021987653"
-          description: employer office phone number
-        monthly_income:
-          type: number
-          example: 8000000
-          description: monthly
-        other_income:
-          type: number
-          example: 2000000
-          description: monthly
-        other_incomesource:
-          type: string
-          example: magic performance
-        field_of_work:
-          type: string
-          example: magics
-          enum:
-            - IT
-            - Human Resource
-            - Building Industries
-        related_personname:
-          type: string
-          example: Bella
-          description: other related person that not living in the same roof
-        related_relation:
-          type: string
-          example: friend
-        related_phonenumber:
-          type: string
-          example: "082345678912"
-        related_homenumber:
-          type: string
-          example: "02123456789"
-        related_address:
-          type: string
-          example: bellas address
-        bank:
-          type: number
-          description: asira bank id
-          example: 1
-        bank_accountnumber:
-          type: string
-          example: "056374817362738"
+    RegisterAgentRequest:
+      allOf:
+        - $ref: "#/components/schemas/ModelBorrower" 
       required: 
         - fullname
         - gender
@@ -2557,9 +2233,9 @@ components:
         - password
     registerRequestNew:
       properties:
-        fullname:
+        nickname:
           type: string
-          example: Benedict Cucumbatch
+          example: Bene C
         email:
           type: string
           example: ben@avenger.com
@@ -2572,184 +2248,13 @@ components:
         otp_code:
           type: string
           example: 690264
-    registerRequest:
-      properties:
-        fullname:
-          type: string
-          example: Benedict Cucumbatch
-        nickname:
-          type: string
-          example: Becum
-        gender:
-          type: string
-          example: M
-          enum:
-            - M
-            - F
-        idcard_number:
-          type: string
-          example: "543219876231"
-        idcard_image:
-          type: string
-          example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
-        taxid_number:
-          type: string
-          example: "1928374650"
-        taxid_image:
-          type: string
-          example: "iVBORw0KGgoAAAANSUhEUgAAACsAAAAsCAYAAAD8WEF4AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABFSURBVFhH7c5BDQAwEASh+je9VcHjkkEBb4eUVcoqZZWySlmlrFJWKauUVcoqZZWySlmlrFJWKauUVcoqZZWySlnlUHb7I0d0JGoj43wAAAAASUVORK5CYII="
-        nationality:
-          type: string
-          example: WNI
-        email:
-          type: string
-          example: ben@avenger.com
-        birthday:
-          type: string
-          example: "1999-12-31T00:00:00.000Z"
-          description: format yyyy-mm-ddThh:mm:ssZ
-        birthplace:
-          type: string
-          example: Cambridge
-        last_education:
-          type: string
-          example: Master
-        mother_name:
-          type: string
-          example: Eve
-        phone:
-          type: string
-          example: "081234567890"
-        marriage_status:
-          type: string
-          example: married
-        spouse_name:
-          type: string
-          example: Benny
-          description: nama pasangan
-        spouse_birthday:
-          type: string
-          example: "1999-12-31T00:00:00.000Z"
-          description: format yyyy-mm-ddThh:mm:ssZ
-        spouse_lasteducation:
-          type: string
-          example: Master
-        dependants:
-          type: number
-          example: 3
-          description: tanggunan
-        address:
-          type: string
-          example: sesame st.
-        province:
-          type: string
-          example: le province
-        city:
-          type: string
-          example: el city
-        neighbour_association:
-          type: string
-          example: "001"
-          description: rukun tetangga
-        hamlets:
-          type: string
-          example: "002"
-          description: rukun warga
-        home_phonenumber:
-          type: string
-          example: "021234567"
-        subdistrict:
-          type: string
-          example: setiabudi
-          description: kecamatan
-        urban_village:
-          type: string
-          example: sukadamai
-          description: kelurahan
-        home_ownership:
-          type: string
-          example: private owned
-          description: status kepemilikan rumah
-        lived_for:
-          type: number
-          example: 24
-          description: in month
-        occupation:
-          type: string
-          example: magician
-        employee_id:
-          type: string
-          example: "4132"
-        employer_name:
-          type: string
-          example: stark industries
-        employer_address:
-          type: string
-          example: street that never was
-        department:
-          type: string
-          example: magics
-        been_workingfor:
-          type: number
-          example: 16
-          description: in month
-        direct_superiorname:
-          type: string
-          example: Tony Stark
-        employer_number:
-          type: string
-          example: "021987653"
-          description: employer office phone number
-        monthly_income:
-          type: number
-          example: 8000000
-          description: monthly
-        other_income:
-          type: number
-          example: 2000000
-          description: monthly
-        other_incomesource:
-          type: string
-          example: magic performance
-        field_of_work:
-          type: string
-          example: magics
-          enum:
-            - IT
-            - Human Resource
-            - Building Industries
-        related_personname:
-          type: string
-          example: Bella
-          description: other related person that not living in the same roof
-        related_relation:
-          type: string
-          example: friend
-        related_phonenumber:
-          type: string
-          example: "082345678912"
-        related_homenumber:
-          type: string
-          example: "02123456789"
-        related_address:
-          type: string
-          example: bellas address
-        bank:
-          type: number
-          description: asira bank id
-          example: 1
-        bank_accountnumber:
-          type: string
-          example: "056374817362738"
-        password:
-          type: string
-          example: iamgroot
+    PayloadBorrowers:
+      allOf:
+        - $ref: "#/components/schemas/ModelBorrower" 
       required: 
         - idcard_number
         - taxid_number
         - mother_name
-        - marriage_status
-        - dependants
         - address
         - province
         - city
@@ -2757,7 +2262,6 @@ components:
         - hamlets
         - subdistrict
         - urban_village
-        - home_ownership
         - occupation
     bankServiceList:
       type: object
@@ -2840,11 +2344,19 @@ components:
           example: 50000000
         fees:
           type: array
+          items:
+            type: object
+          description : ada 3 parameter, description, amount, dan fee method. fee_method ada 2 opsi, 'deduct_loan' dan 'charge_loan'
           example: [{
             "description": "Admin Fee",
-            "amount": "2500"
+            "amount": "2%",
+            "fee_method": "deduct_loan"
+          },
+          {
+            "description": "Convenience Fee",
+            "amount": "1%",
+            "fee_method": "charge_loan"
           }]
-          description: amount can be a fixed amount or percent
         collaterals:
           type: array
           example:
@@ -2864,13 +2376,7 @@ components:
         status:
           type: string
           example: active
-    patchProfileRequest:
-      type: object
-      properties:
-        monthly_income:
-          type: number
-          example: 1000000
-    patchAgentBorrowerRequest:
+    PatchAgentBorrowerRequest:
       type: object
       properties:
         monthly_income:
@@ -2909,7 +2415,7 @@ components:
         rows:
           type: boolean
           example: true
-    notificationList:
+    Notifications:
       type: object
       properties:
         total_data:
@@ -2933,151 +2439,117 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/notificationListDetail'
-    loanList:
-      type: object
-      properties:
-        total_data:
-          type: number
-          example: 3
-        rows:
-          type: number
-          example: 5
-        current_page:
-         type: number
-         example: 1
-        last_page:
-         type: number
-         example: 1
-        from:
-         type: number
-         example: 1
-        to:
-         type: number
-         example: 3
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/loanListDetail'
-    notificationListDetail:
-      properties:
-        id:
-          type: number
-          example: 1
-        client_id:
-          type: number
-          example: 2
-        created_at:
-          type: string
-          example: "2019-06-26T16:40:33.372829+07:00"
-        firebase_token:
-          type: string
-          example: "dtRiFA0U7tE:APA91bGURmGuJLLD0Y_PdhHvFj3haiq8jj8haAfaw94yH0j-Jj6TiGM4wzRHmoLUhihlXKLUF7iFAsAalXzrUVLEVbbtK57_wVYCu2jhameVoG13rc1HgIM6xanEMlApnuwSmURdcdz1"
-        title:
-          type: string
-          example: "Status Peminjaman Anda"
-        topic:
-          type: string
-          example: "promosi"
-        message_body:
-          type: string
-          example: "Loan id 1 diterima oleh Bank A 2019-11-06"
-        recipient_id:
-          type: string
-          example: "borrower-1"
-        response:
-          type: string
-          example: "projects/asira-app-33ed7/messages/0:1573131084523969%2056f65bf9fd7ecd"
-        updated_at:
-          type: string
-          example: "2019-06-26T16:40:33.372829+07:00"
-        send_time:
-          type: string
-          example: "2019-06-26T16:40:33.372829+07:00"
-    loanListDetail:
-      properties:
-        id:
-          type: number
-          example: 1
-        created_at:
-          type: string
-          example: "2019-06-26T16:40:33.372829+07:00"
-        updated_at:
-          type: string
-          example: "2019-06-26T16:40:33.372829+07:00"
-        deleted_at:
-          type: string
-          example: "2019-06-26T16:40:33.372829+07:00"
-        borrower:
-          type: object
-          properties:
-            Int64:
+            $ref: '#/components/schemas/NotificationDetail'
+    LoanList:
+      allOf:
+        - $ref: '#/components/schemas/PagedModel'
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/BaseLoan'
+    NotificationDetail:
+      allOf:
+          - $ref: '#/components/schemas/BaseModel'
+          - properties:
+              client_id:
+                type: number
+                example: 2
+              firebase_token:
+                type: string
+                example: "dtRiFA0U7tE:APA91bGURmGuJLLD0Y_PdhHvFj3haiq8jj8haAfaw94yH0j-Jj6TiGM4wzRHmoLUhihlXKLUF7iFAsAalXzrUVLEVbbtK57_wVYCu2jhameVoG13rc1HgIM6xanEMlApnuwSmURdcdz1"
+              title:
+                type: string
+                example: "Status Peminjaman Anda"
+              topic:
+                type: string
+                example: "promosi"
+              message_body:
+                type: string
+                example: "Loan id 1 diterima oleh Bank A 2019-11-06"
+              recipient_id:
+                type: string
+                example: "borrower-1"
+              response:
+                type: string
+                example: "projects/asira-app-33ed7/messages/0:1573131084523969%2056f65bf9fd7ecd"
+              send_time:
+                type: string
+                example: "2019-06-26T16:40:33.372829+07:00"
+    BaseLoan:
+      allOf:
+        - $ref: '#/components/schemas/BaseModel'
+        - properties:
+            borrower:
+              type: object
+              properties:
+                Int64:
+                  type: number
+                  example: 1
+                  description: borrower id
+                Valid:
+                  type: boolean
+                  example: true
+            status:
+              type: string
+              example: "processing"
+            loan_amount:
+              type: number
+              example: 2000000
+            installment:
+              type: number
+              example: 12
+              description: in month
+            fees:
+              type: array
+              items:
+                $ref: '#/components/schemas/BaseLoanFees'
+            interest:
+              type: number
+              example: 1.5
+              description: in percent
+            total_loan:
               type: number
               example: 1
-              description: borrower id
-            Valid:
+            disburse_amount: 
+              type: number
+              example: 6000000
+            due_date:
+              type: string
+              example: "2019-06-26T16:40:33.372829+07:00"
+              description: date when loan must be paid in full.
+            layaway_plan:
+              type: number
+              example: 50000
+            product:
+              type: number
+              example: 2
+            loan_intention:
+              type: string
+              example: "Pendidikan"
+            intention_details:
+              type: string
+              example: "Pendidikan"
+            otp_verified: 
               type: boolean
-              example: true
-        status:
-          type: string
-          example: "processing"
-        loan_amount:
-          type: number
-          example: 2000000
-        installment:
-          type: number
-          example: 12
-          description: in month
-        fees:
-          type: array
-          items:
-            $ref: '#/components/schemas/loanListDetailFees'
-        interest:
-          type: number
-          example: 1.5
-          description: in percent
-        total_loan:
-          type: number
-          example: 1
-        disburse_amount: 
-          type: number
-          example: 6000000
-        due_date:
-          type: string
-          example: "2019-06-26T16:40:33.372829+07:00"
-          description: date when loan must be paid in full.
-        layaway_plan:
-          type: number
-          example: 50000
-        product:
-          type: number
-          example: 2
-        loan_intention:
-          type: string
-          example: "Pendidikan"
-        intention_details:
-          type: string
-          example: "Pendidikan"
-        otp_verified: 
-          type: boolean
-          example: false
-        disburse_date:
-          type: string
-          example: "0001-01-01T00:00:00Z"
-        disburse_date_changed: 
-          type: boolean
-          example: false
-        disburse_status: 
-          type: string
-          example: "processing"
-        reject_reason:
-          type: string
-          example: ""
-        borrower_info:
-          type: array
-          items:
-            $ref: '#/components/schemas/registerAgentRequest'
-    loanListDetailFees:
+              example: false
+            disburse_date:
+              type: string
+              example: "0001-01-01T00:00:00Z"
+            disburse_date_changed: 
+              type: boolean
+              example: false
+            disburse_status: 
+              type: string
+              example: "processing"
+            reject_reason:
+              type: string
+              example: ""
+            borrower_info:
+              type: array
+              items:
+                $ref: '#/components/schemas/ModelBorrower'
+    BaseLoanFees:
       type: object
       properties:
         description:
@@ -3086,13 +2558,13 @@ components:
         amount:
           type: string
           example: "120000.000000"
-    fcmtokenRequest:
+    FCMTokenRequest:
       type: object
       properties:
         fcm_token:
           type: string
           example: "d81fs3tuvVg:APA91bF-gvcqwhpmchDK1ERzKEof42k2dzlIcR-jOwXiD4uyZwbAA9wKBD9T8nDzJHiWPT5xsZ1Ugy2dAqhLUbCOxUpvzReM5O6UVCap1BF81rN_ZrT7oUmPRW4YlWSb4OxNGYxI0ItQ"
-    agentCheckBorrower:
+    BaseCheckUnique:
       type: object
       properties:
         idcard_number:
@@ -3111,7 +2583,7 @@ components:
           type: string
           example: mail@domain.com
           description: not required
-    loanApplication:
+    BasePayloadLoan:
       type: object
       properties:
         loan_amount:
@@ -3130,51 +2602,92 @@ components:
         product:
           type: number
           example: 1
-    loanApplicationAgent:
-      type: object
-      properties:
-        borrower:
-          type: number
-          example: 2
-        loan_amount:
-          type: number
-          example: 20000000
-        installment:
-          type: number
-          example: 12
-          description: loan installment in month
-        loan_intention:
-          type: string
-          example: the intention
-        intention_details:
-          type: string
-          example: intention details
-        product:
-          type: number
-          example: 1
-    
-    loanOTPverify:
+        form_info:
+          type: array
+          items:
+            type: object
+            example: {
+                "label": "Agunan",
+                "answers": [ {"rumah": true}, {"tanah": true}]
+            }
+    PayloadApplyLoanAgent:
+      allOf:
+          - properties:
+              borrower:
+                type: number
+                example: 2
+          - $ref: '#/components/schemas/BasePayloadLoan'
+    BaseOTPVerify:
       type: object
       properties:
         otp_code:
           type: string
           example: "888999"
-    otpRequest:
+    BasePayloadOTP:
       properties:
         phone:
-          type: string
-          example: "081234567890"
-        secret:
-          type: string 
-          example: "yasudfhiu2u83298"
-        try:
+            type: string
+            example: "081234567890"
+    PayloadRequestOTPRegisterBorrower:
+      allOf:
+        - $ref: '#/components/schemas/BasePayloadOTP'
+        - properties:
+            secret:
+              type: string 
+              example: "yasudfhiu2u83298"
+            try:
+              type: number
+              example: 1
+    PayloadVerifyOTPRegisterBorrowerAgent:
+      allOf:
+        - $ref: '#/components/schemas/BasePayloadOTP'
+        - $ref: '#/components/schemas/BaseOTPVerify'
+    BaseModel:
+      properties:
+        id:
           type: number
           example: 1
-    otpVerifyRequest:
-      properties:
-        phone:
+        created_at:
           type: string
-          example: "081234567890"
-        otp_code:
+          example: "1999-12-31T00:00:00.000Z"
+        updated_at:
           type: string
-          example: 123456
+          example: "1999-12-31T00:00:00.000Z"
+        deleted_at:
+          type: string
+          example: "1999-12-31T00:00:00.000Z"
+    BaseFAQ:
+      allOf:
+        - $ref: '#/components/schemas/BaseModel'
+        - properties:
+            title:
+              type: string
+              example: "How to apply loan"
+            description:
+              type: string
+              example: "<html>...</html>"
+    BaseInstallment:
+      allOf:
+        - $ref: '#/components/schemas/BaseModel'
+        - properties:
+            period:
+              type: number
+              example: 1
+            loan_payment:
+              type: number
+              example: 1000000
+            interest_payment:
+              type: number
+              example: 50000
+            paid_date:
+              type: string
+              example: "1999-12-31T00:00:00.000Z"
+            paid_status:
+              type: boolean
+              example: true
+            underpayment:
+              type: number
+              example: 10000
+            note:
+              type: string
+              example: lebih bayar 35000

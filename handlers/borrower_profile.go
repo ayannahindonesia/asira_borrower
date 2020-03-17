@@ -85,7 +85,8 @@ func BorrowerProfileEdit(c echo.Context) error {
 	origin := borrowerModel
 
 	payloadRules := govalidator.MapData{
-		"fullname":              []string{},
+		"fullname":              []string{"required"},
+		"nickname":              []string{},
 		"gender":                []string{},
 		"idcard_number":         []string{"required"},
 		"taxid_number":          []string{},
@@ -142,15 +143,27 @@ func BorrowerProfileEdit(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
 	}
 
+	//cek bank
+	if !validBankID(borrowerModel.Bank.Int64) {
+
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG:   "validation error",
+			NLOGERR:   "invalid bank ID",
+			"payload": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")
+
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "bank tidak valid")
+	}
+
 	//cek unique for patching
 	var fields = map[string]string{
 		"phone":              borrowerModel.Phone,
 		"email":              borrowerModel.Email,
 		"taxid_number":       borrowerModel.TaxIDnumber,
 		"bank_accountnumber": borrowerModel.BankAccountNumber,
+		"idcard_number":      borrowerModel.IdCardNumber,
 	}
 	//custom patch, coz personal and agent's might be exist
-	fieldsFound, err := checkPatchFieldsBorrowers(borrowerModel.ID, borrowerModel.IdCardNumber, fields)
+	fieldsFound, err := checkFieldsBorrowersPersonal(borrowerModel.ID, fields)
 	if err != nil {
 		NLog("warning", LogTag, map[string]interface{}{
 			NLOGMSG:        "error validate patching borrower",
@@ -223,7 +236,6 @@ func BorrowerProfileEdit(c echo.Context) error {
 		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal update Borrower")
 	}
 
-	
 	NLog("info", LogTag, map[string]interface{}{
 		NLOGMSG:    "succcess borrower edit profile",
 		"borrower": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")

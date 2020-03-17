@@ -1,24 +1,31 @@
 package models
 
 import (
+	"asira_borrower/custommodule/irate"
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 	"unicode"
 
+	"github.com/Shopify/sarama"
 	"github.com/ayannahindonesia/basemodel"
 	"github.com/jinzhu/gorm/dialects/postgres"
+	"github.com/lib/pq"
 )
 
 type (
+	// Loan main struct
 	Loan struct {
 		basemodel.BaseModel
 		Borrower            uint64         `json:"borrower" gorm:"column:borrower;foreignkey"`
 		Status              string         `json:"status" gorm:"column:status;type:varchar(255)" sql:"DEFAULT:'processing'"`
 		LoanAmount          float64        `json:"loan_amount" gorm:"column:loan_amount;type:int;not null"`
 		Installment         int            `json:"installment" gorm:"column:installment;type:int;not null"` // plan of how long loan to be paid
+		InstallmentDetails  pq.Int64Array  `json:"installment_details" gorm:"column:installment_details"`
 		Fees                postgres.Jsonb `json:"fees" gorm:"column:fees;type:jsonb"`
 		Interest            float64        `json:"interest" gorm:"column:interest;type:int;not null"`
 		TotalLoan           float64        `json:"total_loan" gorm:"column:total_loan;type:int;not null"`
@@ -35,16 +42,20 @@ type (
 		DisburseStatus      string         `json:"disburse_status" gorm:"column:disburse_status" sql:"DEFAULT:'processing'"`
 		ApprovalDate        time.Time      `json:"approval_date" gorm:"column:approval_date"`
 		RejectReason        string         `json:"reject_reason" gorm:"column:reject_reason"`
+		FormInfo            postgres.Jsonb `json:"form_info" gorm:"column:form_info;type:jsonb"`
 	}
 
-	LoanFee struct { // temporary hardcoded
+	// LoanFee struct
+	LoanFee struct {
 		Description string `json:"description"`
 		Amount      string `json:"amount"`
+		FeeMethod   string `json:"fee_method"`
 	}
+	// LoanFees slice of LoanFee
 	LoanFees []LoanFee
 )
 
-// gorm callback hook
+// BeforeCreate gorm callback hook
 func (l *Loan) BeforeCreate() (err error) {
 	borrower := Borrower{}
 	err = borrower.FindbyID(l.Borrower)
@@ -65,12 +76,14 @@ func (l *Loan) BeforeCreate() (err error) {
 
 	err = l.Calculate()
 	if err != nil {
+		log.Printf("calculate error : %+v", err)
 		return err
 	}
 
 	return nil
 }
 
+// SetProductLoanReferences func
 func (l *Loan) SetProductLoanReferences() (err error) {
 	product := Product{}
 	err = product.FindbyID(l.Product)
@@ -84,22 +97,27 @@ func (l *Loan) SetProductLoanReferences() (err error) {
 	return nil
 }
 
+// Calculate func
 func (l *Loan) Calculate() (err error) {
 	// calculate total loan
 	var (
-		totalfee       float64
-		fee            float64
-		convenienceFee float64
-		fees           LoanFees
-		borrower       Borrower
-		bank           Bank
-		product        Product
-		parsedFees     LoanFees
+		fee        float64
+		fees       LoanFees
+		borrower   Borrower
+		bank       Bank
+		product    Product
+		parsedFees LoanFees
 	)
 
 	borrower.FindbyID(l.Borrower)
 	bank.FindbyID(uint64(borrower.Bank.Int64))
 	product.FindbyID(l.Product)
+
+	err = l.CalculateInterest(product)
+	if err != nil {
+		return err
+	}
+	l.DisburseAmount = l.LoanAmount
 
 	json.Unmarshal(l.Fees.RawMessage, &fees)
 
@@ -119,46 +137,199 @@ func (l *Loan) Calculate() (err error) {
 		parsedFees = append(parsedFees, LoanFee{
 			Description: v.Description,
 			Amount:      fmt.Sprintf("%f", fee),
+			FeeMethod:   v.FeeMethod,
 		})
 
-		if strings.ToLower(v.Description) == "convenience fee" {
-			convenienceFee += fee
-		} else {
-			totalfee += fee
+		switch v.FeeMethod {
+		case "deduct_loan":
+			l.DisburseAmount -= fee
+			break
+		case "charge_loan":
+			l.TotalLoan += fee
+			l.LayawayPlan += fee / float64(l.Installment)
+			break
 		}
 	}
 	// parse fees
 	jMarshal, _ := json.Marshal(parsedFees)
 	l.Fees = postgres.Jsonb{jMarshal}
 
-	interest := (l.Interest / 100) * l.LoanAmount
-	l.DisburseAmount = l.LoanAmount
+	return nil
+}
 
-	switch bank.AdminFeeSetup {
-	case "potong_plafon":
-		l.DisburseAmount = l.DisburseAmount - totalfee
+// CalculateInterest func
+func (l *Loan) CalculateInterest(p Product) (err error) {
+	var (
+		pokok          float64
+		bunga          float64
+		installments   []Installment
+		installmentsID []int64
+	)
+	switch p.InterestType {
+	default:
 		break
-		// case "beban_plafon":
-		// 	l.DisburseAmount = l.DisburseAmount + totalfee
-		// 	break
+	case "flat":
+		pokok, bunga, l.LayawayPlan, l.TotalLoan = irate.FLATANNUAL(l.Interest/100, l.LoanAmount, float64(l.Installment))
+		for i := 1; i <= l.Installment; i++ {
+			installment := Installment{
+				Period:          i,
+				LoanPayment:     pokok,
+				InterestPayment: bunga,
+			}
+			err := installment.Create()
+			if err != nil {
+				return err
+			}
+			installments = append(installments, installment)
+			installmentsID = append(installmentsID, int64(installment.ID))
+		}
+		err = syncInstallment(installments)
+		l.InstallmentDetails = pq.Int64Array(installmentsID)
+		break
+	case "onetimepay":
+		pokok, bunga, l.LayawayPlan, l.TotalLoan = irate.ONETIMEPAYMENT(l.Interest/100, l.LoanAmount, float64(l.Installment))
+		for i := 1; i <= l.Installment; i++ {
+			installment := Installment{
+				Period:          i,
+				LoanPayment:     pokok,
+				InterestPayment: bunga,
+			}
+			err := installment.Create()
+			if err != nil {
+				return err
+			}
+			installments = append(installments, installment)
+			installmentsID = append(installmentsID, int64(installment.ID))
+		}
+		err = syncInstallment(installments)
+		l.InstallmentDetails = pq.Int64Array(installmentsID)
+		break
+	case "fixed":
+		err = l.FixedInterestFormula()
+		break
+	case "efektif_menurun":
+		err = l.EfektifMenurunFormula()
+		break
 	}
 
-	switch bank.ConvenienceFeeSetup {
-	case "potong_plafon":
-		l.DisburseAmount = l.DisburseAmount - convenienceFee
-		l.TotalLoan = l.LoanAmount + interest
-		break
-	case "beban_plafon":
-		l.TotalLoan = l.LoanAmount + interest + convenienceFee + totalfee
-		break
+	return err
+}
+
+// FixedInterestFormula func
+func (l *Loan) FixedInterestFormula() (err error) {
+	rate := ((l.Interest / 100) / 12)
+	var (
+		pokok          float64
+		bunga          float64
+		installments   []Installment
+		installmentsID []int64
+	)
+	for i := 1; i <= l.Installment; i++ {
+		pokok, bunga = irate.PIPMT(rate, float64(i), float64(l.Installment), -l.LoanAmount, 1)
+
+		installment := Installment{
+			Period:          i,
+			LoanPayment:     pokok,
+			InterestPayment: bunga,
+		}
+		err := installment.Create()
+		if err != nil {
+			return err
+		}
+		installments = append(installments, installment)
+		installmentsID = append(installmentsID, int64(installment.ID))
 	}
 
-	// calculate layaway plan
-	l.LayawayPlan = l.TotalLoan / float64(l.Installment)
+	err = syncInstallment(installments)
+
+	l.InstallmentDetails = pq.Int64Array(installmentsID)
+	l.LayawayPlan = pokok + bunga
+	l.TotalLoan = l.LayawayPlan * float64(l.Installment)
+	return err
+}
+
+// EfektifMenurunFormula func
+func (l *Loan) EfektifMenurunFormula() (err error) {
+	plafon := l.LoanAmount
+	cicilanpokok := l.LoanAmount / float64(l.Installment)
+	var (
+		cicilanbungas  []float64
+		installments   []Installment
+		installmentsID []int64
+	)
+	for i := 1; i <= l.Installment; i++ {
+		bunga := plafon * (l.Interest / 100) / 12
+		cicilanbungas = append(cicilanbungas, bunga)
+		plafon -= cicilanpokok
+		installment := Installment{
+			Period:          i,
+			LoanPayment:     cicilanpokok,
+			InterestPayment: bunga,
+		}
+		err = installment.Create()
+		if err != nil {
+			return err
+		}
+		installments = append(installments, installment)
+		installmentsID = append(installmentsID, int64(installment.ID))
+	}
+
+	l.InstallmentDetails = pq.Int64Array(installmentsID)
+
+	for _, v := range cicilanbungas {
+		l.TotalLoan += v + cicilanpokok
+	}
+
+	err = syncInstallment(installments)
+
+	return err
+}
+
+func syncInstallment(is []Installment) error {
+	type KafkaModelPayload struct {
+		Payload interface{} `json:"payload"`
+	}
+	payload := KafkaModelPayload{
+		Payload: is,
+	}
+
+	jMarshal, _ := json.Marshal(payload)
+
+	config := sarama.NewConfig()
+	config.ClientID = os.Getenv("KAFKA_CLIENT_ID")
+	config.Net.SASL.Enable, _ = strconv.ParseBool(os.Getenv("KAFKA_SASL_ENABLE"))
+	if config.Net.SASL.Enable {
+		config.Net.SASL.User = os.Getenv("KAFKA_SASL_USER")
+		config.Net.SASL.Password = os.Getenv("KAFKA_SASL_PASSWORD")
+	}
+	config.Producer.Return.Successes = true
+	config.Producer.Partitioner = sarama.NewRandomPartitioner
+	config.Producer.RequiredAcks = sarama.WaitForAll
+	config.Consumer.Return.Errors = true
+	topic := os.Getenv("KAFKA_PRODUCER_TOPIC")
+
+	kafkaProducer, err := sarama.NewAsyncProducer([]string{os.Getenv("KAFKA_HOST")}, config)
+	if err != nil {
+		return err
+	}
+	defer kafkaProducer.Close()
+
+	msg := &sarama.ProducerMessage{
+		Topic: topic,
+		Value: sarama.StringEncoder("installment_bulk:" + string(jMarshal)),
+	}
+
+	select {
+	case kafkaProducer.Input() <- msg:
+		log.Printf("Produced topic : %s", topic)
+	case err := <-kafkaProducer.Errors():
+		log.Printf("Fail producing topic : %s error : %v", topic, err)
+	}
 
 	return nil
 }
 
+// Create func
 func (l *Loan) Create() error {
 	err := basemodel.Create(&l)
 	if err != nil {
@@ -171,10 +342,12 @@ func (l *Loan) Create() error {
 	return err
 }
 
+// FirstOrCreate func
 func (l *Loan) FirstOrCreate() (err error) {
 	return basemodel.FirstOrCreate(&l)
 }
 
+// Save func
 func (l *Loan) Save() error {
 	err := basemodel.Save(&l)
 	if err != nil {
@@ -184,6 +357,7 @@ func (l *Loan) Save() error {
 	return err
 }
 
+// SaveNoKafka func
 func (l *Loan) SaveNoKafka() error {
 	err := basemodel.Save(&l)
 	if err != nil {
@@ -193,21 +367,25 @@ func (l *Loan) SaveNoKafka() error {
 	return err
 }
 
+// Delete func
 func (l *Loan) Delete() error {
 	err := basemodel.Delete(&l)
 	return err
 }
 
+// FindbyID func
 func (l *Loan) FindbyID(id uint64) error {
 	err := basemodel.FindbyID(&l, id)
 	return err
 }
 
+// FilterSearchSingle func
 func (l *Loan) FilterSearchSingle(filter interface{}) error {
 	err := basemodel.SingleFindFilter(&l, filter)
 	return err
 }
 
+// PagedFilterSearch func
 func (l *Loan) PagedFilterSearch(page int, rows int, orderby string, sort string, filter interface{}) (result basemodel.PagedFindResult, err error) {
 	loans := []Loan{}
 	var orders []string

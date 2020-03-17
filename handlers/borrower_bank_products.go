@@ -56,12 +56,27 @@ func BorrowerBankProduct(c echo.Context) error {
 //BorrowerBankProductDetails get details
 func BorrowerBankProductDetails(c echo.Context) error {
 	defer c.Request().Body.Close()
-	bankProduct := models.Product{}
 
 	LogTag := "BorrowerBankProductDetails"
 
+	user := c.Get("user")
+	token := user.(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	borrowerID, _ := strconv.Atoi(claims["jti"].(string))
+
+	results := models.Product{}
 	productID, _ := strconv.ParseUint(c.Param("product_id"), 10, 64)
-	err := bankProduct.FindbyID(productID)
+
+	db := asira.App.DB
+	db = db.Table("products").
+		Select("products.*").
+		Joins("INNER JOIN services s ON s.id = products.service_id").
+		Joins("INNER JOIN banks bnk ON s.id IN (SELECT UNNEST(bnk.services)) AND products.id IN (SELECT UNNEST(bnk.products))").
+		Joins("INNER JOIN borrowers bo ON bo.bank = bnk.id").
+		Where("bo.id = ?", borrowerID).
+		Where("products.id = ?", productID)
+
+	err = db.Find(&results).Error
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
 			NLOGMSG:   "Product not found",
@@ -70,5 +85,5 @@ func BorrowerBankProductDetails(c echo.Context) error {
 
 		return returnInvalidResponse(http.StatusForbidden, err, "Product Tidak Ditemukan")
 	}
-	return c.JSON(http.StatusOK, bankProduct)
+	return c.JSON(http.StatusOK, results)
 }

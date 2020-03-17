@@ -240,7 +240,7 @@ func checkPatchFields(tableName string, fieldID string, id uint64, uniques map[s
 }
 
 //checkPatchFieldsBorrowers update check field other than id and idcard_number
-func checkPatchFieldsBorrowers(id uint64, idcard_number string, uniques map[string]string) (string, error) {
+func checkFieldsBorrowersPersonal(id uint64, uniques map[string]string) (string, error) {
 
 	var count int
 	fieldsFound := ""
@@ -256,9 +256,7 @@ func checkPatchFieldsBorrowers(id uint64, idcard_number string, uniques map[stri
 		//get users other than idcardNumber...
 		db = db.Not(fieldID, id)
 
-		if idcard_number != "" || len(idcard_number) > 0 {
-			db = db.Not("idcard_number", idcard_number)
-		}
+		db = db.Where("agent_referral = 0")
 
 		//if field not empty
 		if len(val) > 0 || val != "" {
@@ -400,14 +398,16 @@ func NLog(level string, tag string, message interface{}, jwttoken *jwt.Token, no
 
 	Message, _ := json.Marshal(message)
 
-	err = asira.App.Northstar.SubmitKafkaLog(northstarlib.Log{
-		Level:    level,
-		Tag:      tag,
-		Messages: string(Message),
-		UID:      uid,
-		Username: username,
-		Note:     note,
-	}, "log")
+	if flag.Lookup("test.v") == nil {
+		err = asira.App.Northstar.SubmitKafkaLog(northstarlib.Log{
+			Level:    level,
+			Tag:      tag,
+			Messages: string(Message),
+			UID:      uid,
+			Username: username,
+			Note:     note,
+		}, "log")
+	}
 
 	if err != nil {
 		log.Printf("error northstar log : %v", err)
@@ -466,4 +466,19 @@ func NAudittrail(ori interface{}, new interface{}, jwttoken *jwt.Token, entity s
 	if err != nil {
 		log.Printf("error northstar log : %v", err)
 	}
+}
+
+//validBankID check bank id exist or not
+func validBankID(id int64) bool {
+
+	var total int
+	db := asira.App.DB
+
+	db.Table("banks").Where("id IN (?)", id).Count(&total)
+
+	if total < 1 {
+		return false
+	}
+
+	return true
 }

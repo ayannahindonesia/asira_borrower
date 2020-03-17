@@ -393,6 +393,35 @@ func processMessage(kafkaMessage []byte) (err error) {
 			break
 		}
 		break
+	case "installment":
+		mod := models.Installment{}
+
+		marshal, _ := json.Marshal(arr["payload"])
+		json.Unmarshal(marshal, &mod)
+
+		switch arr["mode"] {
+		default:
+			err = fmt.Errorf("invalid payload")
+			break
+		case "create":
+			err = mod.FirstOrCreate()
+			break
+		case "update":
+			err = mod.Save()
+			break
+		case "delete":
+			err = mod.Delete()
+			break
+		}
+		break
+	case "installment_bulk":
+		mods := []models.Installment{}
+		marshal, _ := json.Marshal(arr["payload"])
+		json.Unmarshal(marshal, &mods)
+
+		for _, mod := range mods {
+			err = mod.FirstOrCreate()
+		}
 	default:
 		return nil
 		break

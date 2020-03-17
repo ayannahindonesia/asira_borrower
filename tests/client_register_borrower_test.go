@@ -35,7 +35,7 @@ func TestRegisterBorrower(t *testing.T) {
 	})
 
 	payload := map[string]interface{}{
-		"fullname": "test fullname",
+		"nickname": "test nickname",
 		"email":    "mail@domain.com",
 		"phone":    "08123456789",
 		"password": "pass123",
