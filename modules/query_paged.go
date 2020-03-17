@@ -228,9 +228,8 @@ func (mod *QueryPaged) GenerateFilters(db *gorm.DB, filter interface{}, tableNam
 
 	}
 
-	fmt.Printf("<<<<<<<<< %+v\n\n", mod.c.QueryParam("search_all"))
-
-	fmt.Printf(">>>>>>>>> %+v\n\n", db.QueryExpr())
+	// fmt.Printf("<<<<<<<<< %+v\n\n", mod.c.QueryParam("search_all"))
+	// fmt.Printf(">>>>>>>>> %+v\n\n", db.QueryExpr())
 
 	return db, nil
 }
