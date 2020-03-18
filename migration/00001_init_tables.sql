@@ -86,6 +86,7 @@ CREATE TABLE "products" (
     "max_timespan" int,
     "interest" int,
     "interest_type" varchar(255),
+    "record_installment_details" BOOLEAN DEFAULT TRUE,
     "min_loan" int,
     "max_loan" int,
     "fees" jsonb DEFAULT '[]',
