@@ -164,7 +164,7 @@ func TestLoanCalculationFormulaFlat(t *testing.T) {
 	obj := auth.POST("/borrower/loan").WithJSON(payload).
 		Expect().
 		Status(http.StatusCreated).JSON().Object()
-	obj.ContainsKey("layaway_plan").ValueEqual("layaway_plan", 892083.3333333334)
+	obj.ContainsKey("layaway_plan").ValueEqual("layaway_plan", 870833.3333333334)
 	obj.ContainsKey("total_loan").ValueEqual("total_loan", 5350000.000000001)
 }
 

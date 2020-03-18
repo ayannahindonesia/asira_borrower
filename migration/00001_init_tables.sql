@@ -214,6 +214,7 @@ CREATE TABLE "installments" (
     "underpayment" FLOAT,
     "penalty" FLOAT,
     "due_date" timestamptz,
+    "note" text,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
