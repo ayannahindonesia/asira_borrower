@@ -22,15 +22,14 @@ func AgentAllBank(c echo.Context) error {
 	var banks []BankResponse
 
 	type Filter struct {
-		ID int64 `json:"id"`
+		BankID int64  `json:"id"`
+		Name   string `json:"name"`
 	}
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	agentID, err := strconv.ParseUint(claims["jti"].(string), 10, 64)
-	//get bank id
-	bankID, _ := strconv.ParseUint(c.QueryParam("bank_id"), 10, 64)
 
 	err = agent.FindbyID(agentID)
 	if err != nil {
@@ -51,12 +50,10 @@ func AgentAllBank(c echo.Context) error {
 	db := asira.App.DB
 
 	//build query
-	db = db.Table("banks").
-		Select("*, (SELECT ARRAY_AGG(s.name) FROM services s WHERE s.id IN (SELECT UNNEST(banks.services) ) ) as service_name")
 
-	if bankID > 0 {
-		db = db.Where("banks.id = ?", bankID)
-	}
+	db = db.Table("banks").
+		Select("*, (SELECT ARRAY_AGG(s.name) FROM services s WHERE s.id IN (SELECT UNNEST(banks.services) ) ) as service_name").
+		Where("banks.id IN (?)", []int64(agent.Banks))
 
 	//generate filter, return db and error
 	db, err = QPaged.GenerateFilters(db, Filter{}, "banks")
