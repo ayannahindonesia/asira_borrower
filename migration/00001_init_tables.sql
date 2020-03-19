@@ -216,7 +216,10 @@ CREATE TABLE "installments" (
     "interest_payment" FLOAT,
     "paid_date" timestamptz,
     "paid_status" BOOLEAN,
+    "paid_amount" FLOAT,
     "underpayment" FLOAT,
+    "penalty" FLOAT,
+    "due_date" timestamptz,
     "note" text,
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
