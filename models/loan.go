@@ -43,6 +43,8 @@ type (
 		ApprovalDate        time.Time      `json:"approval_date" gorm:"column:approval_date"`
 		RejectReason        string         `json:"reject_reason" gorm:"column:reject_reason"`
 		FormInfo            postgres.Jsonb `json:"form_info" gorm:"column:form_info;type:jsonb"`
+		PaymentStatus       string         `json:"payment_status" gorm:"column:payment_status" sql:"DEFAULT:'processing'"`
+		PaymentNote         string         `json:"payment_note" gorm:"column:payment_note"`
 	}
 
 	// LoanFee struct
