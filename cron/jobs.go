@@ -13,7 +13,7 @@ func SendNotifications() func() {
 		}
 		var responses []Response
 		err := DB.Table("installments").
-			Where("extract('day' from date_trunc('day', NOW() - due_date)) = -3").
+			Where("extract('day' from date_trunc('day', NOW() - due_date)) = -2").
 			Find(&responses).Error
 		if err != nil {
 			log.Printf("SendNotifications cron executed. error : %v", err)
@@ -22,17 +22,20 @@ func SendNotifications() func() {
 		for _, res := range responses {
 			log.Printf("%+v\n", res)
 
-			// err = DB.Table("installments").
-			// 	Where("extract('day' from date_trunc('day', NOW() - due_date)) = -3").
-			// 	Find(&res).Error
-			// if err != {
-			// 	log.Printf("invalid id")
-			// 	continue
-			// }
+			type LoanPaymentStatus struct {
+				ID            uint64 `json:"id"`
+				PaymentStatus string `json:"payment_status"`
+			}
+			var loanStatus LoanPaymentStatus
+			err = DB.Table("loans").
+				Where("? IN (SELECT UNNEST(loans.installment_details) )", res.ID).
+				Find(&loanStatus).Error
+			if err != nil {
+				log.Printf("installment dont have valid parent (loan) id")
+				continue
+			}
+			log.Printf("SendNotifications cron executed. loanStatus : %+v ", loanStatus)
 		}
-		// Where("disburse_date != ?", "0001-01-01 00:00:00+00").
-		// Where("NOW() > disburse_date + make_interval(days => 2)").
-		// Update("disburse_status", "confirmed").Error
 
 		log.Printf("SendNotifications cron executed. response : %+v ", responses)
 	}
