@@ -129,7 +129,6 @@ func BorrowerProfileEdit(c echo.Context) error {
 		"related_homenumber":    []string{},
 		"related_address":       []string{},
 		"bank":                  []string{},
-		"bank_accountnumber":    []string{},
 	}
 
 	validate := validateRequestPayload(c, payloadRules, &borrowerModel)
@@ -156,11 +155,10 @@ func BorrowerProfileEdit(c echo.Context) error {
 
 	//cek unique for patching
 	var fields = map[string]string{
-		"phone":              borrowerModel.Phone,
-		"email":              borrowerModel.Email,
-		"taxid_number":       borrowerModel.TaxIDnumber,
-		"bank_accountnumber": borrowerModel.BankAccountNumber,
-		"idcard_number":      borrowerModel.IdCardNumber,
+		"phone":         borrowerModel.Phone,
+		"email":         borrowerModel.Email,
+		"taxid_number":  borrowerModel.TaxIDnumber,
+		"idcard_number": borrowerModel.IdCardNumber,
 	}
 	//custom patch, coz personal and agent's might be exist
 	fieldsFound, err := checkFieldsBorrowersPersonal(borrowerModel.ID, fields)
