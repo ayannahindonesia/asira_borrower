@@ -4,8 +4,10 @@ import (
 	"asira_borrower/asira"
 	"asira_borrower/middlewares"
 	"asira_borrower/models"
+	"database/sql"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
@@ -131,11 +133,10 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 		"related_homenumber":    []string{},
 		"related_address":       []string{},
 		"bank":                  []string{},
-		"bank_accountnumber":    []string{},
 	}
 
 	//parse payload
-	var borrowerPayload models.Borrower
+	var borrowerPayload BorrowerProfilePayload
 	validate := validateRequestPayload(c, payloadRules, &borrowerPayload)
 	if validate != nil {
 		NLog("error", LogTag, map[string]interface{}{
@@ -148,10 +149,9 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 
 	//cek unique for patching
 	uniques := map[string]string{
-		"taxid_number":       borrowerPayload.TaxIDnumber,
-		"email":              borrowerPayload.Email,
-		"phone":              borrowerPayload.Phone,
-		"bank_accountnumber": borrowerPayload.BankAccountNumber,
+		"taxid_number": borrowerPayload.TaxIDnumber,
+		"email":        borrowerPayload.Email,
+		"phone":        borrowerPayload.Phone,
 	}
 	foundFields, err := checkUniqueFields(borrowerModel.IdCardNumber, uniques)
 	if err != nil {
@@ -176,6 +176,26 @@ func AgentBorrowerProfileEdit(c echo.Context) error {
 		borrowerModel.OtherIncomeSource = borrowerPayload.OtherIncomeSource
 
 	}
+
+	structIterator := reflect.ValueOf(borrowerPayload)
+	for i := 0; i < structIterator.NumField(); i++ {
+		field := structIterator.Type().Field(i).Name
+		val := structIterator.Field(i).Interface()
+
+		// Check if the field is zero-valued, meaning it won't be updated
+		if !reflect.DeepEqual(val, reflect.Zero(structIterator.Field(i).Type()).Interface()) {
+			if field == "Bank" {
+				sqlnull := sql.NullInt64{
+					Int64: int64(val.(int)),
+					Valid: true,
+				}
+				reflect.ValueOf(&borrowerModel).Elem().FieldByName(field).Set(reflect.ValueOf(sqlnull))
+			} else {
+				reflect.ValueOf(&borrowerModel).Elem().FieldByName(field).Set(structIterator.Field(i))
+			}
+		}
+	}
+
 	//saving
 	// err = borrowerModel.Save()
 	err = middlewares.SubmitKafkaPayload(borrowerModel, "borrower_update")
