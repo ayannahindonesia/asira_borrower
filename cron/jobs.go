@@ -13,6 +13,7 @@ type Installment struct {
 	ID              uint64  `json:"id"`
 	LoanPayment     float64 `json:"loan_payment"`
 	InterestPayment float64 `json:"interest_payment"`
+	Penalty         float64 `json:"penalty"`
 }
 
 //LoanPayment loan response
@@ -70,8 +71,15 @@ func sendRemainderNotif(loan LoanPayment, installment Installment) error {
 	recipientID := fmt.Sprintf("borrower-%d", loan.BorrowerID)
 	title := fmt.Sprintf("Cicilan Pembayaran Pinjaman %d", loan.ID)
 
-	//TODO: pinalty cek
-	message := fmt.Sprintf("Cicilan anda akan masuk masa jatuh tempo dalam 3 hari, silahkan lakukan pembayaran sebesar Rp.%0.0f", installment.LoanPayment+installment.InterestPayment)
+	//message format
+	mustPay := installment.LoanPayment + installment.InterestPayment + installment.Penalty
+	message := fmt.Sprintf("Cicilan anda akan masuk masa jatuh tempo dalam 3 hari, silahkan lakukan pembayaran sebesar Rp.%0.0f ", mustPay)
+
+	//cek pinalti
+	if installment.Penalty > 0 {
+		message += fmt.Sprintf(" (Sudah termasuk Pinalti sebesar Rp.%0.0f)", installment.Penalty)
+	}
+	fmt.Println("message : ", message)
 
 	//send push notification
 	responseBody, err := custommodule.MessagingStatic.SendNotificationByToken(title, message, nil, loan.FCMToken, recipientID)

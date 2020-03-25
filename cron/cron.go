@@ -24,7 +24,7 @@ func (c *Cron) New() {
 		cron.WithLogger(cron.DefaultLogger),
 	)
 	format := fmt.Sprintf("CRON_TZ=%s %s", c.TZ, c.Time)
-	cron.AddFunc(format, SendNotifications())
+	cron.AddFunc(format, SendInstallmentNotifications())
 	log.Printf("CRON # : %s\n", format)
 
 	c.Cron = cron
