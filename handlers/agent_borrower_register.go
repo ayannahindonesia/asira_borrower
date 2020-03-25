@@ -41,8 +41,8 @@ func AgentRegisterBorrower(c echo.Context) error {
 			Fullname             string    `json:"fullname"`
 			Nickname             string    `json:"nickname"`
 			Gender               string    `json:"gender" `
-			Image                string    `json:"image"`
-			IdCardNumber         string    `json:"idcard_number" `
+			ImageProfile         string    `json:"image_profile"`
+			IdCardNumber         string    `json:"idcard_number"`
 			IdCardImage          string    `json:"idcard_image"`
 			TaxIDImage           string    `json:"taxid_image"`
 			TaxIDnumber          string    `json:"taxid_number"`
@@ -95,7 +95,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 		"fullname":              []string{"required"},
 		"nickname":              []string{},
 		"gender":                []string{"required"},
-		"image":                 []string{},
+		"image_profile":         []string{},
 		"idcard_number":         []string{"required"},
 		"taxid_number":          []string{},
 		"nationality":           []string{},
@@ -196,11 +196,11 @@ func AgentRegisterBorrower(c echo.Context) error {
 
 	//upload image profile borrower
 	ImageProfil := ""
-	if register.Image != "" || len(register.Image) != 0 {
-		ImageProfil, err = uploadImageS3Formatted("boragn", register.Image)
+	if register.ImageProfile != "" || len(register.ImageProfile) != 0 {
+		ImageProfil, err = uploadImageS3Formatted("borrprofile", register.ImageProfile)
 		if err != nil {
 			NLog("error", LogTag, map[string]interface{}{
-				NLOGMSG:            "error uploading Image profil",
+				NLOGMSG:            "error uploading Image Profile",
 				NLOGERR:            err,
 				"borrower_payload": register}, c.Get("user").(*jwt.Token), "", false, "agent")
 
@@ -255,7 +255,7 @@ func AgentRegisterBorrower(c echo.Context) error {
 
 	//set vars
 	if ImageProfil != "" {
-		borrower.Image = ImageProfil
+		borrower.ImageProfile = ImageProfil
 	}
 
 	borrower.AgentReferral = sql.NullInt64{
