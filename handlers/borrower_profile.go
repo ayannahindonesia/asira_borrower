@@ -86,6 +86,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 
 	payloadRules := govalidator.MapData{
 		"fullname":              []string{"required"},
+		"image_profile":         []string{},
 		"nickname":              []string{},
 		"gender":                []string{},
 		"idcard_number":         []string{"required"},
@@ -222,6 +223,19 @@ func BorrowerProfileEdit(c echo.Context) error {
 				"borrower": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 			return returnInvalidResponse(http.StatusInternalServerError, err, "Enkripsi NPWP gagal")
+		}
+	}
+
+	if borrowerModel.ImageProfile != "" || len(borrowerModel.ImageProfile) != 0 {
+		//upload ImageProfile from base64 and get response lintasarta url
+		borrowerModel.ImageProfile, err = uploadImageS3Formatted("borrprofile", borrowerModel.ImageProfile)
+		if err != nil {
+			NLog("error", LogTag, map[string]interface{}{
+				NLOGMSG:            "error uploading Image Profile",
+				NLOGERR:            err,
+				"borrower_payload": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "agent")
+
+			return returnInvalidResponse(http.StatusInternalServerError, err, "Ubah Data Borrower Gagal : Image profil failed to upload")
 		}
 	}
 
