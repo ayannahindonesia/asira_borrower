@@ -1,8 +1,11 @@
 package cron
 
 import (
-	"asira_borrower/asira"
+	"asira_borrower/custommodule"
+	"fmt"
 	"log"
+
+	"encoding/json"
 )
 
 //Installment installment response
@@ -21,9 +24,8 @@ type LoanPayment struct {
 	FCMToken       string `json:"fcm_token"`
 }
 
-
-//SendNotifications confirms loan disburse status
-func SendNotifications() func() {
+//SendInstallmentNotifications confirms loan disburse status
+func SendInstallmentNotifications() func() {
 	return func() {
 		var responses []Installment
 
@@ -53,7 +55,7 @@ func SendNotifications() func() {
 
 			//cek current status loan (disburse_status == confirmed)
 			if loanStatus.PaymentStatus == "processing" && loanStatus.DisburseStatus == "confirmed" {
-				sendRemainderNotif(loanStatus, res)
+				_ = sendRemainderNotif(loanStatus, res)
 			}
 			log.Printf("SendNotifications cron executed. loanStatus : %+v ", loanStatus)
 		}
@@ -62,15 +64,19 @@ func SendNotifications() func() {
 	}
 }
 
-func sendRemainderNotif(loan LoanPayment, installment Installment) {
-	log.Printf("send notif  : borrower = %+v ; token = %v ", borrowerID, fcmToken)
+func sendRemainderNotif(loan LoanPayment, installment Installment) error {
+	log.Printf("send notif  : borrower = %+v ; token = %v ", loan.BorrowerID, loan.FCMToken)
 
 	recipientID := fmt.Sprintf("borrower-%d", loan.BorrowerID)
 	title := fmt.Sprintf("Cicilan Pembayaran Pinjaman %d", loan.ID)
-	message := fmt.Sprintf"Cicilan anda akan masuk masa jatuh tempo dalam 3 hari, silahkan lakukan pembayaran sebesar Rp.%0.2f", installment.LoanPayment + installment.InterestPayment)  
-	responseBody, err := asira.App.Messaging.SendNotificationByToken(title, message, nil, user.FCMToken, recipientID)
-	
-	//if error create error info in notifications table
+
+	//TODO: pinalty cek
+	message := fmt.Sprintf("Cicilan anda akan masuk masa jatuh tempo dalam 3 hari, silahkan lakukan pembayaran sebesar Rp.%0.0f", installment.LoanPayment+installment.InterestPayment)
+
+	//send push notification
+	responseBody, err := custommodule.MessagingStatic.SendNotificationByToken(title, message, nil, loan.FCMToken, recipientID)
+
+	// if error create error info in notifications table
 	if err != nil {
 		type ErrorResponse struct {
 			Details string `json:"details"`
@@ -84,14 +90,7 @@ func sendRemainderNotif(loan LoanPayment, installment Installment) {
 			log.Printf(err.Error())
 			return err
 		}
-
-		//set error notif
-		notif := models.Notification{}
-		notif.Title = "failed"
-		notif.ClientID = 2
-		notif.RecipientID = recipientID
-		notif.Response = errorResponse.Message
-		err = notif.Create()
 		return err
 	}
+	return nil
 }
