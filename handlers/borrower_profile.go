@@ -85,7 +85,7 @@ func BorrowerProfileEdit(c echo.Context) error {
 	origin := borrowerModel
 
 	payloadRules := govalidator.MapData{
-		"fullname":              []string{"required"},
+		"fullname":              []string{},
 		"image_profile":         []string{},
 		"nickname":              []string{},
 		"gender":                []string{},
