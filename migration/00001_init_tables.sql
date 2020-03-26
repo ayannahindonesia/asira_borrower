@@ -178,7 +178,7 @@ CREATE TABLE "loans" (
     "status" varchar(255) DEFAULT  ('processing'),
     "loan_amount" FLOAT NOT NULL,
     "installment" int NOT NULL,
-    "installment_details" int ARRAY,
+    "installment_id" int ARRAY,
     "fees" jsonb DEFAULT '[]',
     "interest" FLOAT NOT NULL,
     "total_loan" FLOAT NOT NULL,

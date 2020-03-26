@@ -25,7 +25,7 @@ type (
 		Status              string         `json:"status" gorm:"column:status;type:varchar(255)" sql:"DEFAULT:'processing'"`
 		LoanAmount          float64        `json:"loan_amount" gorm:"column:loan_amount;type:int;not null"`
 		Installment         int            `json:"installment" gorm:"column:installment;type:int;not null"` // plan of how long loan to be paid
-		InstallmentDetails  pq.Int64Array  `json:"installment_details" gorm:"column:installment_details"`
+		InstallmentID       pq.Int64Array  `json:"installment_id" gorm:"column:installment_id"`
 		Fees                postgres.Jsonb `json:"fees" gorm:"column:fees;type:jsonb"`
 		Interest            float64        `json:"interest" gorm:"column:interest;type:int;not null"`
 		TotalLoan           float64        `json:"total_loan" gorm:"column:total_loan;type:int;not null"`
