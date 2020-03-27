@@ -28,6 +28,7 @@ type BorrowerProfilePayload struct {
 	Fullname             string    `json:"fullname"`
 	Nickname             string    `json:"nickname"`
 	Gender               string    `json:"gender"`
+	ImageProfile         string    `json:"image_profile"`
 	IdCardNumber         string    `json:"idcard_number"`
 	IdCardImage          string    `json:"idcard_image"`
 	TaxIDnumber          string    `json:"taxid_number"`
