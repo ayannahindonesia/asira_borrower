@@ -93,6 +93,7 @@ CREATE TABLE "products" (
     "financing_sector" varchar(255) ARRAY,
     "assurance" varchar(255),
     "form" jsonb DEFAULT '[]',
+    "description" text,
     FOREIGN KEY ("service_id") REFERENCES services(id),
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
