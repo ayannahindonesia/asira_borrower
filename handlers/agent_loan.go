@@ -73,6 +73,16 @@ func AgentLoanApply(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnauthorized, validate, "validation error : not valid agent's borrower")
 	}
 
+	//cek active loan exist or not
+	if isBorrowerHaveActiveLoan(loan.Borrower) == true {
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "error validation borrower had processing / active loan",
+			NLOGERR: loan,
+		}, c.Get("user").(*jwt.Token), "", false, "borrower")
+
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error : sudah memiliki loan aktif atau sedang diproses sebelumnya")
+	}
+
 	err = validateAgentLoansProduct(loan, agentID)
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
