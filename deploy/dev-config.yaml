@@ -47,11 +47,11 @@ development:
     otp_secret: KMndM2vURIGoe1jgzYOA6RTa8qzB5k
   s3:
     debug_mode: 1
-    region: id-tbs
+    region: us-east-1
     access_key: J2BYZXZ43VPZ27V4TCP3
     secret_key: s0yHeS/eBvjmyshVckbNqVWnTKwhnaP6kYBpFBHk
     host: https://bucket.cloud.lintasarta.co.id:8082
-    bucket_name: bucket-ayannah
+    bucket_name: asira-bucket
   northstar:
     secret: Ym9ycm93ZXJrZXk6Ym9ycm93ZXJzZWNyZXQ=
     topic: northstar_logger
