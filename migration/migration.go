@@ -439,6 +439,7 @@ func TestSeed() {
 				LoanIntention:    "Pendidikan",
 				IntentionDetails: "a loan 1 intention details",
 				Product:          1,
+				PaymentStatus:    "terbayar",
 			},
 			models.Loan{
 				Borrower:         1,
@@ -449,6 +450,7 @@ func TestSeed() {
 				IntentionDetails: "a loan 2 intention details",
 				Product:          1,
 				OTPverified:      true,
+				PaymentStatus:    "terbayar",
 			},
 			models.Loan{
 				Borrower:         1,
@@ -459,6 +461,7 @@ func TestSeed() {
 				IntentionDetails: "a loan 3 intention details",
 				Product:          1,
 				OTPverified:      true,
+				PaymentStatus:    "terbayar",
 			},
 		}
 		for _, loan := range loans {
@@ -630,6 +633,7 @@ func TestSeed() {
 				LoanIntention:    "Pendidikan",
 				IntentionDetails: "a loan 1 intention details",
 				Product:          1,
+				PaymentStatus:    "terbayar",
 			},
 			models.Loan{
 				Borrower:         4,
@@ -640,6 +644,7 @@ func TestSeed() {
 				IntentionDetails: "a loan 2 intention details",
 				Product:          1,
 				OTPverified:      true,
+				PaymentStatus:    "terbayar",
 			},
 			models.Loan{
 				Borrower:         4,
@@ -650,6 +655,7 @@ func TestSeed() {
 				IntentionDetails: "a loan 3 intention details",
 				Product:          1,
 				OTPverified:      true,
+				PaymentStatus:    "terbayar",
 			},
 		}
 		for _, loan := range loans {
