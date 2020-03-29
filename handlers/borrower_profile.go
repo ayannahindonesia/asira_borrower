@@ -4,9 +4,12 @@ import (
 	"asira_borrower/asira"
 	"asira_borrower/middlewares"
 	"asira_borrower/models"
+	"database/sql"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/thedevsaddam/govalidator"
@@ -19,6 +22,56 @@ import (
 type BorrowerPersonalResponse struct {
 	models.Borrower
 	LoanStatus string `json:"loan_status"`
+}
+
+type BorrowerProfilePayload struct {
+	Fullname             string    `json:"fullname"`
+	Nickname             string    `json:"nickname"`
+	Gender               string    `json:"gender"`
+	IdCardNumber         string    `json:"idcard_number"`
+	IdCardImage          string    `json:"idcard_image"`
+	TaxIDnumber          string    `json:"taxid_number"`
+	TaxIDImage           string    `json:"taxid_image"`
+	Nationality          string    `json:"nationality"`
+	Email                string    `json:"email"`
+	Birthday             time.Time `json:"birthday"`
+	Birthplace           string    `json:"birthplace"`
+	LastEducation        string    `json:"last_education"`
+	MotherName           string    `json:"mother_name"`
+	Phone                string    `json:"phone"`
+	MarriedStatus        string    `json:"marriage_status"`
+	SpouseName           string    `json:"spouse_name"`
+	SpouseBirthday       time.Time `json:"spouse_birthday"`
+	SpouseLastEducation  string    `json:"spouse_lasteducation"`
+	Dependants           int       `json:"dependants,omitempty"`
+	Address              string    `json:"address"`
+	Province             string    `json:"province"`
+	City                 string    `json:"city"`
+	NeighbourAssociation string    `json:"neighbour_association"`
+	Hamlets              string    `json:"hamlets"`
+	HomePhoneNumber      string    `json:"home_phonenumber"`
+	Subdistrict          string    `json:"subdistrict"`
+	UrbanVillage         string    `json:"urban_village"`
+	HomeOwnership        string    `json:"home_ownership"`
+	LivedFor             int       `json:"lived_for"`
+	Occupation           string    `json:"occupation"`
+	EmployeeID           string    `json:"employee_id"`
+	EmployerName         string    `json:"employer_name"`
+	EmployerAddress      string    `json:"employer_address"`
+	Department           string    `json:"department"`
+	BeenWorkingFor       int       `json:"been_workingfor"`
+	DirectSuperior       string    `json:"direct_superiorname"`
+	EmployerNumber       string    `json:"employer_number"`
+	MonthlyIncome        int       `json:"monthly_income"`
+	OtherIncome          int       `json:"other_income"`
+	OtherIncomeSource    string    `json:"other_incomesource"`
+	FieldOfWork          string    `json:"field_of_work"`
+	RelatedPersonName    string    `json:"related_personname"`
+	RelatedRelation      string    `json:"related_relation"`
+	RelatedPhoneNumber   string    `json:"related_phonenumber"`
+	RelatedHomePhone     string    `json:"related_homenumber"`
+	RelatedAddress       string    `json:"related_address"`
+	Bank                 int       `json:"bank"`
 }
 
 //BorrowerProfile get borrower personal profile
@@ -83,35 +136,36 @@ func BorrowerProfileEdit(c echo.Context) error {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 	origin := borrowerModel
+	bodyPayload := BorrowerProfilePayload{}
 
 	payloadRules := govalidator.MapData{
-		"fullname":              []string{"required"},
+		"fullname":              []string{},
 		"nickname":              []string{},
 		"gender":                []string{},
-		"idcard_number":         []string{"required"},
+		"idcard_number":         []string{},
 		"taxid_number":          []string{},
 		"email":                 []string{"email"},
 		"birthday":              []string{"date"},
 		"birthplace":            []string{},
 		"last_education":        []string{},
-		"mother_name":           []string{"required"},
+		"mother_name":           []string{},
 		"phone":                 []string{},
 		"marriage_status":       []string{},
 		"spouse_name":           []string{},
 		"spouse_birthday":       []string{"date"},
 		"spouse_lasteducation":  []string{},
 		"dependants":            []string{},
-		"address":               []string{"required"},
-		"province":              []string{"required"},
-		"city":                  []string{"required"},
-		"neighbour_association": []string{"required"},
-		"hamlets":               []string{"required"},
+		"address":               []string{},
+		"province":              []string{},
+		"city":                  []string{},
+		"neighbour_association": []string{},
+		"hamlets":               []string{},
 		"home_phonenumber":      []string{},
-		"subdistrict":           []string{"required"},
-		"urban_village":         []string{"required"},
+		"subdistrict":           []string{},
+		"urban_village":         []string{},
 		"home_ownership":        []string{},
 		"lived_for":             []string{},
-		"occupation":            []string{"required"},
+		"occupation":            []string{},
 		"employee_id":           []string{},
 		"employer_name":         []string{},
 		"employer_address":      []string{},
@@ -129,18 +183,36 @@ func BorrowerProfileEdit(c echo.Context) error {
 		"related_homenumber":    []string{},
 		"related_address":       []string{},
 		"bank":                  []string{},
-		"bank_accountnumber":    []string{},
 	}
 
-	validate := validateRequestPayload(c, payloadRules, &borrowerModel)
+	validate := validateRequestPayload(c, payloadRules, &bodyPayload)
 	if validate != nil {
 
 		NLog("warning", LogTag, map[string]interface{}{
 			NLOGMSG:   "validation error",
 			NLOGERR:   validate,
-			"payload": borrowerModel}, c.Get("user").(*jwt.Token), "", false, "borrower")
+			"payload": bodyPayload}, c.Get("user").(*jwt.Token), "", false, "borrower")
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error")
+	}
+
+	structIterator := reflect.ValueOf(bodyPayload)
+	for i := 0; i < structIterator.NumField(); i++ {
+		field := structIterator.Type().Field(i).Name
+		val := structIterator.Field(i).Interface()
+
+		// Check if the field is zero-valued, meaning it won't be updated
+		if !reflect.DeepEqual(val, reflect.Zero(structIterator.Field(i).Type()).Interface()) {
+			if field == "Bank" {
+				sqlnull := sql.NullInt64{
+					Int64: int64(val.(int)),
+					Valid: true,
+				}
+				reflect.ValueOf(&borrowerModel).Elem().FieldByName(field).Set(reflect.ValueOf(sqlnull))
+			} else {
+				reflect.ValueOf(&borrowerModel).Elem().FieldByName(field).Set(structIterator.Field(i))
+			}
+		}
 	}
 
 	//cek bank
@@ -156,11 +228,10 @@ func BorrowerProfileEdit(c echo.Context) error {
 
 	//cek unique for patching
 	var fields = map[string]string{
-		"phone":              borrowerModel.Phone,
-		"email":              borrowerModel.Email,
-		"taxid_number":       borrowerModel.TaxIDnumber,
-		"bank_accountnumber": borrowerModel.BankAccountNumber,
-		"idcard_number":      borrowerModel.IdCardNumber,
+		"phone":         borrowerModel.Phone,
+		"email":         borrowerModel.Email,
+		"taxid_number":  borrowerModel.TaxIDnumber,
+		"idcard_number": borrowerModel.IdCardNumber,
 	}
 	//custom patch, coz personal and agent's might be exist
 	fieldsFound, err := checkFieldsBorrowersPersonal(borrowerModel.ID, fields)
