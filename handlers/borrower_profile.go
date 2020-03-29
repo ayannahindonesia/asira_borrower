@@ -27,6 +27,7 @@ type BorrowerPersonalResponse struct {
 type BorrowerProfilePayload struct {
 	Fullname             string    `json:"fullname"`
 	Nickname             string    `json:"nickname"`
+	ImageProfile         string    `json:"image_profile"`
 	Gender               string    `json:"gender"`
 	IdCardNumber         string    `json:"idcard_number"`
 	IdCardImage          string    `json:"idcard_image"`
