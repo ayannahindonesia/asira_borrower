@@ -25,7 +25,7 @@ type (
 		Status              string         `json:"status" gorm:"column:status;type:varchar(255)" sql:"DEFAULT:'processing'"`
 		LoanAmount          float64        `json:"loan_amount" gorm:"column:loan_amount;type:int;not null"`
 		Installment         int            `json:"installment" gorm:"column:installment;type:int;not null"` // plan of how long loan to be paid
-		InstallmentDetails  pq.Int64Array  `json:"installment_details" gorm:"column:installment_details"`
+		InstallmentID       pq.Int64Array  `json:"installment_id" gorm:"column:installment_id"`
 		Fees                postgres.Jsonb `json:"fees" gorm:"column:fees;type:jsonb"`
 		Interest            float64        `json:"interest" gorm:"column:interest;type:int;not null"`
 		TotalLoan           float64        `json:"total_loan" gorm:"column:total_loan;type:int;not null"`
@@ -171,10 +171,12 @@ func (l *Loan) CalculateInterest(p Product) (err error) {
 	case "flat":
 		pokok, bunga, l.LayawayPlan, l.TotalLoan = irate.FLATANNUAL(l.Interest/100, l.LoanAmount, float64(l.Installment))
 		for i := 1; i <= l.Installment; i++ {
+			duedate := time.Now().AddDate(0, i, 0)
 			installment := Installment{
 				Period:          i,
 				LoanPayment:     pokok,
 				InterestPayment: bunga,
+				DueDate:         &duedate,
 			}
 			err := installment.Create()
 			if err != nil {
@@ -184,15 +186,17 @@ func (l *Loan) CalculateInterest(p Product) (err error) {
 			installmentsID = append(installmentsID, int64(installment.ID))
 		}
 		err = syncInstallment(installments)
-		l.InstallmentDetails = pq.Int64Array(installmentsID)
+		l.InstallmentID = pq.Int64Array(installmentsID)
 		break
 	case "onetimepay":
 		pokok, bunga, l.LayawayPlan, l.TotalLoan = irate.ONETIMEPAYMENT(l.Interest/100, l.LoanAmount, float64(l.Installment))
 		for i := 1; i <= l.Installment; i++ {
+			duedate := time.Now().AddDate(0, i, 0)
 			installment := Installment{
 				Period:          i,
 				LoanPayment:     pokok,
 				InterestPayment: bunga,
+				DueDate:         &duedate,
 			}
 			err := installment.Create()
 			if err != nil {
@@ -202,7 +206,7 @@ func (l *Loan) CalculateInterest(p Product) (err error) {
 			installmentsID = append(installmentsID, int64(installment.ID))
 		}
 		err = syncInstallment(installments)
-		l.InstallmentDetails = pq.Int64Array(installmentsID)
+		l.InstallmentID = pq.Int64Array(installmentsID)
 		break
 	case "fixed":
 		err = l.FixedInterestFormula()
@@ -226,11 +230,13 @@ func (l *Loan) FixedInterestFormula() (err error) {
 	)
 	for i := 1; i <= l.Installment; i++ {
 		pokok, bunga = irate.PIPMT(rate, float64(i), float64(l.Installment), -l.LoanAmount, 1)
+		duedate := time.Now().AddDate(0, i, 0)
 
 		installment := Installment{
 			Period:          i,
 			LoanPayment:     pokok,
 			InterestPayment: bunga,
+			DueDate:         &duedate,
 		}
 		err := installment.Create()
 		if err != nil {
@@ -242,7 +248,7 @@ func (l *Loan) FixedInterestFormula() (err error) {
 
 	err = syncInstallment(installments)
 
-	l.InstallmentDetails = pq.Int64Array(installmentsID)
+	l.InstallmentID = pq.Int64Array(installmentsID)
 	l.LayawayPlan = pokok + bunga
 	l.TotalLoan = l.LayawayPlan * float64(l.Installment)
 	return err
@@ -261,10 +267,13 @@ func (l *Loan) EfektifMenurunFormula() (err error) {
 		bunga := plafon * (l.Interest / 100) / 12
 		cicilanbungas = append(cicilanbungas, bunga)
 		plafon -= cicilanpokok
+		duedate := time.Now().AddDate(0, i, 0)
+
 		installment := Installment{
 			Period:          i,
 			LoanPayment:     cicilanpokok,
 			InterestPayment: bunga,
+			DueDate:         &duedate,
 		}
 		err = installment.Create()
 		if err != nil {
@@ -274,7 +283,7 @@ func (l *Loan) EfektifMenurunFormula() (err error) {
 		installmentsID = append(installmentsID, int64(installment.ID))
 	}
 
-	l.InstallmentDetails = pq.Int64Array(installmentsID)
+	l.InstallmentID = pq.Int64Array(installmentsID)
 
 	for _, v := range cicilanbungas {
 		l.TotalLoan += v + cicilanpokok
