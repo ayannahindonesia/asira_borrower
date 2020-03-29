@@ -25,6 +25,7 @@ type (
 		Assurance                string         `json:"assurance" gorm:"column:assurance"`
 		Status                   string         `json:"status" gorm:"column:status;type:varchar(255)"`
 		Form                     postgres.Jsonb `json:"form" gorm:"column:form;type:text"`
+		Description     string         `json:"description" gorm:"column:description;type:text"`
 	}
 )
 
