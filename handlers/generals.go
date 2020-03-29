@@ -482,3 +482,24 @@ func validBankID(id int64) bool {
 
 	return true
 }
+
+//isBorrowerHaveActiveLoan cek if borrower has active loan
+func isBorrowerHaveActiveLoan(borrowerID uint64) bool {
+	type Count struct {
+		N int
+	}
+	var total Count
+	db := asira.App.DB
+
+	db.Table("loans").
+		Select("COUNT(loans.id) as N").
+		Joins("INNER JOIN borrowers b ON b.id = loans.borrower AND (borrower_info->'bank'->'Int64')::int = b.bank").
+		Where("b.id = ?", borrowerID).
+		Where("loans.payment_status = ?", "processing").Find(&total)
+
+	if total.N > 0 {
+		return true
+	}
+
+	return false
+}
