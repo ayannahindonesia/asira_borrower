@@ -107,7 +107,7 @@ CREATE TABLE "borrowers" (
     "fullname" varchar(255) NOT NULL,
     "nickname" varchar(255),
     "gender" varchar(1),
-    "image" text,
+    "image_profile" varchar(255),
     "idcard_number" varchar(255),
     "idcard_image" text,
     "taxid_number" varchar(255),
