@@ -86,6 +86,7 @@ CREATE TABLE "products" (
     "max_timespan" int,
     "interest" int,
     "interest_type" varchar(255),
+    "record_installment_details" BOOLEAN DEFAULT TRUE,
     "min_loan" int,
     "max_loan" int,
     "fees" jsonb DEFAULT '[]',
@@ -168,6 +169,9 @@ CREATE TABLE "loan_purposes" (
     PRIMARY KEY ("id")
 ) WITH (OIDS = FALSE);
 
+DROP TYPE IF EXISTS  loan_paid_status;
+CREATE TYPE loan_paid_status AS ENUM ('processing', 'terbayar', 'gagal_bayar');
+
 CREATE TABLE "loans" (
     "id" bigserial,
     "created_at" timestamptz DEFAULT CURRENT_TIMESTAMP,
@@ -195,6 +199,8 @@ CREATE TABLE "loans" (
     "approval_date" timestamptz,
     "reject_reason" text,
     "form_info" jsonb DEFAULT '[]',
+    "payment_status" loan_paid_status DEFAULT  ('processing'), 
+    "payment_note" text,
     FOREIGN KEY ("borrower") REFERENCES borrowers(id),
     FOREIGN KEY ("product") REFERENCES products(id),
     PRIMARY KEY ("id")
