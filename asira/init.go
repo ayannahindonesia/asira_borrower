@@ -1,6 +1,7 @@
 package asira
 
 import (
+	"asira_borrower/cron"
 	"asira_borrower/custommodule"
 	"asira_borrower/validator"
 	"fmt"
@@ -37,6 +38,7 @@ type (
 		S3        custommodule.S3      `json:"s3"`
 		Emailer   custommodule.Emailer `json:"email"`
 		Northstar northstarlib.NorthstarLib
+		Cron      cron.Cron `json:"cron"`
 	}
 
 	OTP struct {
@@ -70,6 +72,7 @@ func init() {
 	App.S3init()
 	App.EmailerInit()
 	App.NorthstarInit()
+	App.CronInit()
 
 	otpSecret := gotp.RandomSecret(16)
 	App.OTP = OTP{
@@ -223,4 +226,15 @@ func (x *Application) NorthstarInit() {
 		Send:         northstarconf["send"].(bool),
 		SaramaConfig: App.Kafka.Config,
 	}
+}
+
+// CronInit load cron
+func (x *Application) CronInit() (err error) {
+	x.Cron.TZ = x.Config.GetString(fmt.Sprintf("%s.database.timezone", x.ENV))
+	cron.DB = x.DB
+	x.Cron.Time = x.Config.GetString(fmt.Sprintf("%s.cron.time", x.ENV))
+	x.Cron.New()
+	x.Cron.Start()
+
+	return nil
 }

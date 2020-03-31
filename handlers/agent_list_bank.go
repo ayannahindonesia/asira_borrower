@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"asira_borrower/asira"
 	"asira_borrower/models"
+	"asira_borrower/modules"
 	"net/http"
 	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/jinzhu/gorm"
 	"github.com/labstack/echo"
 )
 
@@ -15,19 +18,19 @@ func AgentAllBank(c echo.Context) error {
 
 	LogTag := "AgentAllBank"
 
-	var (
-		rows int
-		page int
-	)
+	var agent models.Agent
+	var banks []BankResponse
+
 	type Filter struct {
-		ID []int64 `json:"id"`
+		BankID int64  `json:"id"`
+		Name   string `json:"name"`
 	}
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	agentID, err := strconv.ParseUint(claims["jti"].(string), 10, 64)
-	var agent models.Agent
+
 	err = agent.FindbyID(agentID)
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
@@ -38,25 +41,49 @@ func AgentAllBank(c echo.Context) error {
 		return returnInvalidResponse(http.StatusForbidden, err, "Akun tidak ditemukan")
 	}
 
-	// pagination parameters
-	rows, err = strconv.Atoi(c.QueryParam("rows"))
-	page, err = strconv.Atoi(c.QueryParam("page"))
-	order := c.QueryParam("orderby")
-	sort := c.QueryParam("sort")
+	//Extended Query
+	QPaged := modules.QueryPaged{}
+	QPaged.Init(c)
+	// fmt.Println("QPaged = ", QPaged)
 
-	//query banks from agent's banks
-	var banks models.Bank
-	result, err := banks.PagedFilterSearch(page, rows, order, sort, &Filter{
-		ID: []int64(agent.Banks),
+	//custom query
+	db := asira.App.DB
+
+	//build query
+
+	db = db.Table("banks").
+		Select("*, (SELECT ARRAY_AGG(s.name) FROM services s WHERE s.id IN (SELECT UNNEST(banks.services) ) ) as service_name").
+		Where("banks.id IN (?)", []int64(agent.Banks))
+
+	//generate filter, return db and error
+	db, err = QPaged.GenerateFilters(db, Filter{}, "banks")
+	if err != nil {
+		NLog("warning", LogTag, map[string]interface{}{
+			"message": "error listing services",
+			"error":   err}, token, "", false, "agent")
+
+		return returnInvalidResponse(http.StatusInternalServerError, err, "kesalahan dalam filters")
+	}
+
+	//execute anonymous function pass db and data pass by reference (services)
+	err = QPaged.Exec(db, &banks, func(DB *gorm.DB, rows interface{}) error {
+		//manual type casting :)
+		err := DB.Find(rows.(*[]BankResponse)).Error
+		if err != nil {
+			return err
+		}
+		return nil
 	})
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG: "not found agent's banks",
-			NLOGERR: err,
-			"banks": agent.Banks}, c.Get("user").(*jwt.Token), "", false, "agent")
+			"message": "error listing services",
+			"error":   err}, token, "", false, "agent")
 
-		return returnInvalidResponse(http.StatusInternalServerError, err, "data agent banks tidak ditemukan")
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Pencarian tidak ditemukan")
 	}
+
+	//get result format
+	result := QPaged.GetPage(banks)
 
 	return c.JSON(http.StatusOK, result)
 }

@@ -73,6 +73,16 @@ func AgentLoanApply(c echo.Context) error {
 		return returnInvalidResponse(http.StatusUnauthorized, validate, "validation error : not valid agent's borrower")
 	}
 
+	//cek active loan exist or not
+	if isBorrowerHaveActiveLoan(loan.Borrower) == true {
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "error validation borrower had processing / active loan",
+			NLOGERR: loan,
+		}, c.Get("user").(*jwt.Token), "", false, "borrower")
+
+		return returnInvalidResponse(http.StatusUnprocessableEntity, validate, "validation error : sudah memiliki loan aktif atau sedang diproses sebelumnya")
+	}
+
 	err = validateAgentLoansProduct(loan, agentID)
 	if err != nil {
 		NLog("error", LogTag, map[string]interface{}{
@@ -232,7 +242,7 @@ func AgentLoanGetDetails(c echo.Context) error {
 	db := asira.App.DB
 	err = db.Table("installments").
 		Select("*").
-		Where("id IN (?)", strings.Fields(strings.Trim(fmt.Sprint(loan.InstallmentDetails), "[]"))).
+		Where("id IN (?)", strings.Fields(strings.Trim(fmt.Sprint(loan.InstallmentID), "[]"))).
 		Scan(&installments).Error
 	if err != nil {
 		NLog("warning", LogTag, map[string]interface{}{NLOGMSG: "query not found : '%v' error : %v", "query": db.QueryExpr(), NLOGERR: err}, c.Get("user").(*jwt.Token), "", false, "agent")

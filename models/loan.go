@@ -25,7 +25,7 @@ type (
 		Status              string         `json:"status" gorm:"column:status;type:varchar(255)" sql:"DEFAULT:'processing'"`
 		LoanAmount          float64        `json:"loan_amount" gorm:"column:loan_amount;type:int;not null"`
 		Installment         int            `json:"installment" gorm:"column:installment;type:int;not null"` // plan of how long loan to be paid
-		InstallmentDetails  pq.Int64Array  `json:"installment_details" gorm:"column:installment_details"`
+		InstallmentID       pq.Int64Array  `json:"installment_id" gorm:"column:installment_id"`
 		Fees                postgres.Jsonb `json:"fees" gorm:"column:fees;type:jsonb"`
 		Interest            float64        `json:"interest" gorm:"column:interest;type:int;not null"`
 		TotalLoan           float64        `json:"total_loan" gorm:"column:total_loan;type:int;not null"`
@@ -43,6 +43,8 @@ type (
 		ApprovalDate        time.Time      `json:"approval_date" gorm:"column:approval_date"`
 		RejectReason        string         `json:"reject_reason" gorm:"column:reject_reason"`
 		FormInfo            postgres.Jsonb `json:"form_info" gorm:"column:form_info;type:jsonb"`
+		PaymentStatus       string         `json:"payment_status" gorm:"column:payment_status" sql:"DEFAULT:'processing'"`
+		PaymentNote         string         `json:"payment_note" gorm:"column:payment_note"`
 	}
 
 	// LoanFee struct
@@ -105,15 +107,13 @@ func (l *Loan) Calculate() (err error) {
 		fees       LoanFees
 		borrower   Borrower
 		bank       Bank
-		product    Product
 		parsedFees LoanFees
 	)
 
 	borrower.FindbyID(l.Borrower)
 	bank.FindbyID(uint64(borrower.Bank.Int64))
-	product.FindbyID(l.Product)
 
-	err = l.CalculateInterest(product)
+	err = l.CalculateInterest()
 	if err != nil {
 		return err
 	}
@@ -158,65 +158,97 @@ func (l *Loan) Calculate() (err error) {
 }
 
 // CalculateInterest func
-func (l *Loan) CalculateInterest(p Product) (err error) {
-	var (
-		pokok          float64
-		bunga          float64
-		installments   []Installment
-		installmentsID []int64
-	)
-	switch p.InterestType {
+func (l *Loan) CalculateInterest() (err error) {
+	var product Product
+
+	err = product.FindbyID(l.Product)
+	switch product.InterestType {
 	default:
-		break
+		return err
 	case "flat":
-		pokok, bunga, l.LayawayPlan, l.TotalLoan = irate.FLATANNUAL(l.Interest/100, l.LoanAmount, float64(l.Installment))
-		for i := 1; i <= l.Installment; i++ {
-			installment := Installment{
-				Period:          i,
-				LoanPayment:     pokok,
-				InterestPayment: bunga,
-			}
-			err := installment.Create()
-			if err != nil {
-				return err
-			}
-			installments = append(installments, installment)
-			installmentsID = append(installmentsID, int64(installment.ID))
-		}
-		err = syncInstallment(installments)
-		l.InstallmentDetails = pq.Int64Array(installmentsID)
+		err = l.FlatFormula(product.RecordInstallmentDetails)
 		break
 	case "onetimepay":
-		pokok, bunga, l.LayawayPlan, l.TotalLoan = irate.ONETIMEPAYMENT(l.Interest/100, l.LoanAmount, float64(l.Installment))
-		for i := 1; i <= l.Installment; i++ {
-			installment := Installment{
-				Period:          i,
-				LoanPayment:     pokok,
-				InterestPayment: bunga,
-			}
-			err := installment.Create()
-			if err != nil {
-				return err
-			}
-			installments = append(installments, installment)
-			installmentsID = append(installmentsID, int64(installment.ID))
-		}
-		err = syncInstallment(installments)
-		l.InstallmentDetails = pq.Int64Array(installmentsID)
+		err = l.OnetimepayFormula(product.RecordInstallmentDetails)
 		break
 	case "fixed":
-		err = l.FixedInterestFormula()
+		err = l.FixedInterestFormula(product.RecordInstallmentDetails)
 		break
 	case "efektif_menurun":
-		err = l.EfektifMenurunFormula()
+		err = l.EfektifMenurunFormula(product.RecordInstallmentDetails)
 		break
 	}
 
 	return err
 }
 
+// FlatFormula func
+func (l *Loan) FlatFormula(x bool) (err error) {
+	var (
+		pokok          float64
+		bunga          float64
+		installments   []Installment
+		installmentsID []int64
+	)
+
+	pokok, bunga, l.LayawayPlan, l.TotalLoan = irate.FLATANNUAL(l.Interest/100, l.LoanAmount, float64(l.Installment))
+	if x {
+		for i := 1; i <= l.Installment; i++ {
+			duedate := time.Now().AddDate(0, i, 0)
+			installment := Installment{
+				Period:          i,
+				LoanPayment:     pokok,
+				InterestPayment: bunga,
+				DueDate:         &duedate,
+			}
+			err := installment.Create()
+			if err != nil {
+				return err
+			}
+			installments = append(installments, installment)
+			installmentsID = append(installmentsID, int64(installment.ID))
+		}
+		err = syncInstallment(installments)
+		l.InstallmentID = pq.Int64Array(installmentsID)
+	}
+
+	return err
+}
+
+// OnetimepayFormula func
+func (l *Loan) OnetimepayFormula(x bool) (err error) {
+	var (
+		pokok          float64
+		bunga          float64
+		installments   []Installment
+		installmentsID []int64
+	)
+
+	pokok, bunga, l.LayawayPlan, l.TotalLoan = irate.ONETIMEPAYMENT(l.Interest/100, l.LoanAmount, float64(l.Installment))
+	if x {
+		for i := 1; i <= l.Installment; i++ {
+			duedate := time.Now().AddDate(0, i, 0)
+			installment := Installment{
+				Period:          i,
+				LoanPayment:     pokok,
+				InterestPayment: bunga,
+				DueDate:         &duedate,
+			}
+			err := installment.Create()
+			if err != nil {
+				return err
+			}
+			installments = append(installments, installment)
+			installmentsID = append(installmentsID, int64(installment.ID))
+		}
+		err = syncInstallment(installments)
+		l.InstallmentID = pq.Int64Array(installmentsID)
+	}
+	return err
+}
+
 // FixedInterestFormula func
-func (l *Loan) FixedInterestFormula() (err error) {
+func (l *Loan) FixedInterestFormula(x bool) (err error) {
 	rate := ((l.Interest / 100) / 12)
 	var (
 		pokok          float64
@@ -226,11 +258,13 @@ func (l *Loan) FixedInterestFormula() (err error) {
 	)
 	for i := 1; i <= l.Installment; i++ {
 		pokok, bunga = irate.PIPMT(rate, float64(i), float64(l.Installment), -l.LoanAmount, 1)
+		duedate := time.Now().AddDate(0, i, 0)
 
 		installment := Installment{
 			Period:          i,
 			LoanPayment:     pokok,
 			InterestPayment: bunga,
+			DueDate:         &duedate,
 		}
 		err := installment.Create()
 		if err != nil {
@@ -242,14 +276,14 @@ func (l *Loan) FixedInterestFormula() (err error) {
 
 	err = syncInstallment(installments)
 
-	l.InstallmentDetails = pq.Int64Array(installmentsID)
+	l.InstallmentID = pq.Int64Array(installmentsID)
 	l.LayawayPlan = pokok + bunga
 	l.TotalLoan = l.LayawayPlan * float64(l.Installment)
 	return err
 }
 
 // EfektifMenurunFormula func
-func (l *Loan) EfektifMenurunFormula() (err error) {
+func (l *Loan) EfektifMenurunFormula(x bool) (err error) {
 	plafon := l.LoanAmount
 	cicilanpokok := l.LoanAmount / float64(l.Installment)
 	var (
@@ -261,10 +295,13 @@ func (l *Loan) EfektifMenurunFormula() (err error) {
 		bunga := plafon * (l.Interest / 100) / 12
 		cicilanbungas = append(cicilanbungas, bunga)
 		plafon -= cicilanpokok
+		duedate := time.Now().AddDate(0, i, 0)
+
 		installment := Installment{
 			Period:          i,
 			LoanPayment:     cicilanpokok,
 			InterestPayment: bunga,
+			DueDate:         &duedate,
 		}
 		err = installment.Create()
 		if err != nil {
@@ -274,7 +311,7 @@ func (l *Loan) EfektifMenurunFormula() (err error) {
 		installmentsID = append(installmentsID, int64(installment.ID))
 	}
 
-	l.InstallmentDetails = pq.Int64Array(installmentsID)
+	l.InstallmentID = pq.Int64Array(installmentsID)
 
 	for _, v := range cicilanbungas {
 		l.TotalLoan += v + cicilanpokok
@@ -331,15 +368,7 @@ func syncInstallment(is []Installment) error {
 
 // Create func
 func (l *Loan) Create() error {
-	err := basemodel.Create(&l)
-	if err != nil {
-		return err
-	}
-
-	// if l.OTPverified {
-	// 	err = KafkaSubmitModel(l, "loan")
-	// }
-	return err
+	return basemodel.Create(&l)
 }
 
 // FirstOrCreate func
@@ -349,12 +378,7 @@ func (l *Loan) FirstOrCreate() (err error) {
 
 // Save func
 func (l *Loan) Save() error {
-	err := basemodel.Save(&l)
-	if err != nil {
-		return err
-	}
-
-	return err
+	return basemodel.Save(&l)
 }
 
 // SaveNoKafka func
@@ -369,20 +393,17 @@ func (l *Loan) SaveNoKafka() error {
 
 // Delete func
 func (l *Loan) Delete() error {
-	err := basemodel.Delete(&l)
-	return err
+	return basemodel.Delete(&l)
 }
 
 // FindbyID func
 func (l *Loan) FindbyID(id uint64) error {
-	err := basemodel.FindbyID(&l, id)
-	return err
+	return basemodel.FindbyID(&l, id)
 }
 
 // FilterSearchSingle func
 func (l *Loan) FilterSearchSingle(filter interface{}) error {
-	err := basemodel.SingleFindFilter(&l, filter)
-	return err
+	return basemodel.SingleFindFilter(&l, filter)
 }
 
 // PagedFilterSearch func
@@ -390,7 +411,6 @@ func (l *Loan) PagedFilterSearch(page int, rows int, orderby string, sort string
 	loans := []Loan{}
 	var orders []string
 	var sorts []string
-	result, err = basemodel.PagedFindFilter(&loans, page, rows, orders, sorts, filter)
 
-	return result, err
+	return basemodel.PagedFindFilter(&loans, page, rows, orders, sorts, filter)
 }
