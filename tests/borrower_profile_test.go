@@ -78,7 +78,7 @@ func TestBorrowerPatchProfile(t *testing.T) {
 		"subdistrict":           "grogol",
 		"urban_village":         "jelambar",
 		"occupation":            "dev",
-		"bank":                  map[string]interface{}{"Int64": 1, "Valid": true},
+		"bank":                  1,
 	}
 	obj := auth.PATCH("/borrower/profile").WithJSON(data).
 		Expect().

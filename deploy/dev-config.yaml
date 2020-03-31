@@ -56,7 +56,8 @@ development:
     secret: Ym9ycm93ZXJrZXk6Ym9ycm93ZXJzZWNyZXQ=
     topic: northstar_logger
     send: true
-    
+  cron:
+    time: "30 12 * * *"
 staging:
 
 production:

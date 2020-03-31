@@ -14,7 +14,10 @@ type Installment struct {
 	InterestPayment float64    `json:"interest_payment" gorm:"column:interest_payment"`
 	PaidDate        *time.Time `json:"paid_date" gorm:"column:paid_date"`
 	PaidStatus      bool       `json:"paid_status" gorm:"column:paid_status" sql:"DEFAULT:FALSE"`
+	PaidAmount      float64    `json:"paid_amount" gorm:"column:paid_amount"`
 	Underpayment    float64    `json:"underpayment" gorm:"column:underpayment"`
+	Penalty         float64    `json:"penalty" gorm:"column:penalty"`
+	DueDate         *time.Time `json:"due_date" gorm:"column:due_date"`
 	Note            string     `json:"note" gorm:"column:note"`
 }
 

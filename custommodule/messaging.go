@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/jarcoal/httpmock"
@@ -32,6 +33,20 @@ type (
 		ListNotification string
 	}
 )
+
+//global
+var MessagingStatic Messaging
+
+func init() {
+	MessagingStatic = Messaging{}
+	messagingEndpointsVar := MessagingEndpoints{
+		os.Getenv("ASIRA_MESSAGING_CLIENTAUTH"),
+		os.Getenv("ASIRA_MESSAGING_SMS"),
+		os.Getenv("ASIRA_MESSAGING_PUSHNOTIF"),
+		os.Getenv("ASIRA_MESSAGING_LISTNOTIF"),
+	}
+	MessagingStatic.SetConfig(os.Getenv("ASIRA_MESSAGING_KEY"), os.Getenv("ASIRA_MESSAGING_SECRET"), os.Getenv("ASIRA_MESSAGING_URL"), messagingEndpointsVar)
+}
 
 // SetConfig func
 func (model *Messaging) SetConfig(key string, secret string, URL string, Endpoints MessagingEndpoints) {
