@@ -21,6 +21,8 @@ services:
       - ASIRA_MESSAGING_SMS=/client/message_sms_send
       - ASIRA_MESSAGING_PUSHNOTIF=/client/message_notification_send
       - ASIRA_MESSAGING_LISTNOTIF=/client/message_notification
+      - GOOGLE_APPLICATION_CREDENTIALS=assets/Ayannah-Infra-ID-c8f376addb00.json
+      - GCS_BUCKET=artifacts.ayannah-infra-id.appspot.com
     container_name: asira_borrower
     
   # zookeeper:
