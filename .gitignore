@@ -2,3 +2,4 @@ docker-compose.yaml
 config.yaml
 vendor/*
 Dockerfile
+assets/*.json

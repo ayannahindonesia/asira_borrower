@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"asira_borrower/asira"
+	"asira_borrower/custommodule/gcs"
 	"asira_borrower/models"
 	"crypto/aes"
 	"crypto/cipher"
@@ -13,6 +14,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -287,17 +289,31 @@ func checkFieldsBorrowersPersonal(id uint64, uniques map[string]string) (string,
 }
 
 //uploadImageS3 upload to S3 protocol
-func uploadImageS3Formatted(prefix string, base64Image string) (string, error) {
+func uploadImageS3Formatted(prefix string, base64Image string) (url string, err error) {
 
 	unbased, _ := base64.StdEncoding.DecodeString(base64Image)
 	filename := prefix + strconv.FormatInt(time.Now().Unix(), 10)
-	url, err := asira.App.S3.UploadJPEG(unbased, filename)
-	if err != nil {
-		log.Println(err)
-		return "", err
+	switch os.Getenv("FILE_UPLOAD_METHOD") {
+	default:
+	case "gcs":
+		file, _ := os.Create(filename + ".jpeg")
+		defer file.Close()
+		file.Write(unbased)
+		file.Sync()
+		open, _ := os.Open(filename + ".jpeg")
+		defer open.Close()
+		defer os.Remove(filename + ".jpeg")
+
+		err = gcs.WriteFile(filename + ".jpeg")
+		url = "https://storage.googleapis.com/" + os.Getenv("GCS_BUCKET") + "/" + filename + ".jpeg"
+	case "s3":
+		url, err = asira.App.S3.UploadJPEG(unbased, filename)
+		if err != nil {
+			log.Println(err)
+		}
 	}
 
-	return url, nil
+	return url, err
 }
 
 //deleteImageS3 delete old image
