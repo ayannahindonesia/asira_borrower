@@ -4,6 +4,7 @@ import (
 	"asira_borrower/asira"
 	"asira_borrower/middlewares"
 	"asira_borrower/models"
+	"encoding/json"
 	"fmt"
 	"math"
 	"net/http"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/ayannahindonesia/basemodel"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/labstack/echo"
 	"github.com/thedevsaddam/govalidator"
 )
@@ -70,6 +72,8 @@ func BorrowerLoanApply(c echo.Context) error {
 
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "validation error")
 	}
+
+	FormInfoUploadImages(&loan)
 
 	//must create before kafka sync
 	err = loan.Create()
@@ -424,4 +428,40 @@ func validateLoansProduct(l models.Loan) (err error) {
 	}
 
 	return err
+}
+
+// FormInfoUploadImages func
+func FormInfoUploadImages(l *models.Loan) {
+	type Forminfo struct {
+		Label   string `json:"label"`
+		Status  string `json:"status"`
+		Type    string `json:"type"`
+		Value   string `json:"value"`
+		Answers string `json:"answers"`
+	}
+
+	var forminfos []Forminfo
+	detectimage := false
+
+	l.FormInfo.Scan(&forminfos)
+
+	for k, v := range forminfos {
+		if v.Type == "image" {
+			forminfoimageurl, err := uploadImageS3Formatted(v.Label, v.Answers)
+			if err != nil {
+				NLog("error", "FormInfoUploadImages", map[string]interface{}{
+					NLOGMSG: "error uploading Form Info image",
+					NLOGERR: err,
+					"loan":  l.ID}, nil, "", true, "loan")
+			}
+
+			forminfos[k].Answers = forminfoimageurl
+			detectimage = true
+		}
+	}
+
+	if detectimage {
+		b, _ := json.Marshal(forminfos)
+		l.FormInfo = postgres.Jsonb{b}
+	}
 }
