@@ -6,6 +6,7 @@ import (
 	"asira_borrower/models"
 	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 	"net/http"
 	"strconv"
@@ -444,6 +445,7 @@ func FormInfoUploadImages(l *models.Loan) {
 	detectimage := false
 
 	l.FormInfo.Scan(&forminfos)
+	log.Printf("%+v", forminfos)
 
 	for k, v := range forminfos {
 		if v.Type == "image" {
