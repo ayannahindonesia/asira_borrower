@@ -444,8 +444,7 @@ func FormInfoUploadImages(l *models.Loan) {
 	var forminfos []Forminfo
 	detectimage := false
 
-	l.FormInfo.Scan(&forminfos)
-	log.Printf("form info : %+v", l.FormInfo)
+	json.Unmarshal(l.FormInfo.RawMessage, &forminfos)
 
 	for k, v := range forminfos {
 		if v.Type == "image" {
