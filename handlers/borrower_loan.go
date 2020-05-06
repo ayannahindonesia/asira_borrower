@@ -6,7 +6,6 @@ import (
 	"asira_borrower/models"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math"
 	"net/http"
 	"strconv"
