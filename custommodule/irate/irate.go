@@ -30,7 +30,7 @@ func PIPMT(rate float64, per float64, nper float64, pv float64, fv float64) (flo
 	pmt := PMT(rate, nper, pv, fv)
 	ipmt := IPMT(pv, pmt, rate, per-1)
 
-	return math.Round(pmt - ipmt), math.Round(ipmt)
+	return pmt - ipmt, ipmt
 }
 
 // FLATANNUAL func
@@ -40,7 +40,7 @@ func FLATANNUAL(rate float64, v float64, months float64) (monthlyloan float64, m
 	totalmonthlypay = monthlyloan + monthlyinterest
 	accumulatedtotalpay = totalmonthlypay * months
 
-	return math.Round(monthlyloan), math.Round(monthlyinterest), math.Ceil(totalmonthlypay), math.Ceil(accumulatedtotalpay)
+	return monthlyloan, monthlyinterest, totalmonthlypay, accumulatedtotalpay
 }
 
 // ONETIMEPAYMENT func
@@ -50,5 +50,5 @@ func ONETIMEPAYMENT(rate float64, v float64, months float64) (monthlyloan float6
 	totalmonthlypay = monthlyloan + monthlyinterest
 	accumulatedtotalpay = totalmonthlypay * months
 
-	return math.Round(monthlyloan), math.Round(monthlyinterest), math.Ceil(totalmonthlypay), math.Ceil(accumulatedtotalpay)
+	return monthlyloan, monthlyinterest, totalmonthlypay, accumulatedtotalpay
 }

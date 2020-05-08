@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -300,8 +299,8 @@ func (l *Loan) EfektifMenurunFormula(x bool) (err error) {
 
 		installment := Installment{
 			Period:          i,
-			LoanPayment:     math.Round(cicilanpokok),
-			InterestPayment: math.Round(bunga),
+			LoanPayment:     cicilanpokok,
+			InterestPayment: bunga,
 			DueDate:         &duedate,
 		}
 		err = installment.Create()
