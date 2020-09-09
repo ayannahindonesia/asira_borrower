@@ -75,6 +75,10 @@ type BorrowerProfilePayload struct {
 	Bank                 int       `json:"bank"`
 }
 
+type BorrowerDeleteAccountPayload struct {
+	Password string `json:"password"`
+}
+
 //BorrowerProfile get borrower personal profile
 func BorrowerProfile(c echo.Context) error {
 	defer c.Request().Body.Close()
@@ -393,6 +397,66 @@ func BorrowerChangePassword(c echo.Context) error {
 	responseBody := map[string]interface{}{
 		"status":  true,
 		"message": "Ubah Passord berhasil",
+	}
+	return c.JSON(http.StatusOK, responseBody)
+}
+
+//BorrowerDeleteAccount request delete personal data
+func BorrowerDeleteAccount(c echo.Context) error {
+	defer c.Request().Body.Close()
+
+	payloadRules := govalidator.MapData{
+		"password": []string{"required"},
+	}
+
+	validate := validateRequestPayload(c, payloadRules, &payload)
+	if validate != nil {
+		NLog("warning", LogTag, map[string]interface{}{
+			NLOGMSG: "error authentification",
+			NLOGERR: validate}, c.Get("user").(*jwt.Token), "", true, "")
+
+		return returnInvalidResponse(http.StatusBadRequest, validate, "Gagal login")
+	}
+
+	LogTag := "BorrowerChangePassword"
+	payload := BorrowerDeleteAccountPayload{}
+
+	user := c.Get("user")
+	token := user.(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	borrowerID, _ := strconv.ParseUint(claims["jti"].(string), 10, 64)
+
+	//get password from users entity/table
+	userBorrower := models.User{}
+	err = userBorrower.FindbyBorrowerID(borrowerID)
+	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:       "not valid borrower personal",
+			NLOGERR:       err,
+			"borrower_id": borrowerID}, c.Get("user").(*jwt.Token), "", false, "borrower")
+
+		return returnInvalidResponse(http.StatusForbidden, err, "Akun bukan borrower personal")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(userBorrower.Password), []byte(payload.Password))
+	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:    "error authentification",
+			NLOGERR:    err,
+			"username": credentials.Key}, c.Get("user").(*jwt.Token), "", true, "")
+
+		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Password anda salah")
+	}
+
+	borrower := models.Borrower{}
+	borrower.FindbyID(borrowerID)
+
+	borrower.Status = "delete_request"
+	borrower.Save()
+
+	responseBody := map[string]interface{}{
+		"status":  true,
+		"message": "Permintaan anda sedang di proses",
 	}
 	return c.JSON(http.StatusOK, responseBody)
 }

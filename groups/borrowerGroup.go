@@ -14,6 +14,7 @@ func BorrowerGroup(e *echo.Echo) {
 	// Profile endpoints
 	g.GET("/profile", handlers.BorrowerProfile)
 	g.PATCH("/profile", handlers.BorrowerProfileEdit)
+	g.POST("/profile/delete_account", handlers.BorrowerDeleteAccount)
 
 	// Loan endpoints
 	g.GET("/loan", handlers.BorrowerLoanGet)
