@@ -405,6 +405,9 @@ func BorrowerChangePassword(c echo.Context) error {
 func BorrowerDeleteAccount(c echo.Context) error {
 	defer c.Request().Body.Close()
 
+	LogTag := "BorrowerChangePassword"
+	payload := BorrowerDeleteAccountPayload{}
+
 	payloadRules := govalidator.MapData{
 		"password": []string{"required"},
 	}
@@ -417,9 +420,6 @@ func BorrowerDeleteAccount(c echo.Context) error {
 
 		return returnInvalidResponse(http.StatusBadRequest, validate, "Gagal login")
 	}
-
-	LogTag := "BorrowerChangePassword"
-	payload := BorrowerDeleteAccountPayload{}
 
 	user := c.Get("user")
 	token := user.(*jwt.Token)
@@ -440,11 +440,6 @@ func BorrowerDeleteAccount(c echo.Context) error {
 
 	err = bcrypt.CompareHashAndPassword([]byte(userBorrower.Password), []byte(payload.Password))
 	if err != nil {
-		NLog("error", LogTag, map[string]interface{}{
-			NLOGMSG:    "error authentification",
-			NLOGERR:    err,
-			"username": credentials.Key}, c.Get("user").(*jwt.Token), "", true, "")
-
 		return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Password anda salah")
 	}
 
