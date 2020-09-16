@@ -91,6 +91,15 @@ func BorrowerLogin(c echo.Context) error {
 			return returnInvalidResponse(http.StatusUnprocessableEntity, err, "Password anda salah")
 		}
 
+		if borrower.Status == "delete_request" {
+			NLog("error", LogTag, map[string]interface{}{
+				NLOGMSG:    "error authentification",
+				NLOGERR:    err,
+				"username": credentials.Key}, c.Get("user").(*jwt.Token), "", true, "")
+
+			return returnInvalidResponse(http.StatusUnauthorized, err, "Anda tidak dapat login. hubungi administrator.")
+		}
+
 		tokenrole := "unverified_borrower"
 		if borrower.OTPverified {
 			tokenrole = "borrower"
