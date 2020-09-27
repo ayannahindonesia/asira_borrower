@@ -445,9 +445,24 @@ func BorrowerDeleteAccount(c echo.Context) error {
 
 	borrower := models.Borrower{}
 	borrower.FindbyID(borrowerID)
+	origin := borrower
 
 	borrower.Status = "delete_request"
-	borrower.Save()
+	// err = borrower.Save()
+	err = middlewares.SubmitKafkaPayload(borrower, "borrower_update")
+	if err != nil {
+		NLog("error", LogTag, map[string]interface{}{
+			NLOGMSG:    "error submitting to kafka after updating borrower",
+			NLOGERR:    err,
+			"borrower": borrower}, c.Get("user").(*jwt.Token), "", false, "borrower")
+
+		return returnInvalidResponse(http.StatusInternalServerError, err, "Gagal update Borrower")
+	}
+
+	NLog("info", LogTag, map[string]interface{}{
+		NLOGMSG:    "succcess borrower edit profile",
+		"borrower": borrower}, c.Get("user").(*jwt.Token), "", false, "borrower")
+	NAudittrail(origin, borrower, token, "borrower", fmt.Sprint(borrower.ID), "borrower edit profile", "borrower")
 
 	responseBody := map[string]interface{}{
 		"status":  true,
